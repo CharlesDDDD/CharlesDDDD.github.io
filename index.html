@@ -74,66 +74,94 @@
             </td>
           </tr>
         </tbody></table> -->
-<table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;">
-  <tbody>
-    <tr>
-      <td style="padding:20px;width:100%;vertical-align:middle">
-        <div class="tab-container">
-          <button class="tab-button active" onclick="openTab(event, 'selected')">Selected Publications</button>
-          <button class="tab-button" onclick="openTab(event, 'all')">All Publications</button>
-        </div>
 
-        <div id="selected" class="tab-content active">
-          <h2><span class="icon">🔦</span>Selected Publication</h2>
-          <p>A selection of recent work that represent my research style.</p>
-          <div class="publication">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Publications</title>
+    <style>
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .publication {
+            margin-bottom: 20px;
+        }
+        .year-section {
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="tabs">
+        <button class="tab-button active" onclick="openTab(event, 'selected')">Selected Publications</button>
+        <button class="tab-button" onclick="openTab(event, 'all')">All Publications</button>
+    </div>
+
+    <div id="selected" class="tab-content active">
+        <h2>🔦 Selected Publication</h2>
+        <p>A selection of recent work that represent my research style.</p>
+        <div class="publication">
             <h3>
-              <a href="https://arxiv.org/abs/2311.09783">
-                Investigating Data Contamination in Modern Benchmarks for Large Language Models
-              </a>
+                <a href="https://arxiv.org/abs/2311.09783">
+                    Investigating Data Contamination in Modern Benchmarks for Large Language Models
+                </a>
             </h3>
             <p><strong>Chunyuan Deng</strong>, Yilun Zhao, Xiangru Tang, Mark Gerstein, Arman Cohan</p>
             <p><em>NAACL 2024 (long papers). | Short Version in NeurIPS 2023 Workshop on on Backdoors in Deep Learning</em></p>
             <p>We present <strong>TS-Guessing</strong>: a method masking the portion of the testset/benchmark to guide LLMs to guess what is missing.</p>
-          </div>
         </div>
+    </div>
 
-        <div id="all" class="tab-content">
-          <h2><span class="icon">📚</span>All Publications</h2>
-          
-          <div class="year-section">
+    <div id="all" class="tab-content">
+        <h2>All Publications</h2>
+        
+        <div class="year-section">
             <h3>2024</h3>
             <div class="publication">
-              <h3>
-                <a href="https://arxiv.org/abs/2311.09783">
-                  Investigating Data Contamination in Modern Benchmarks for Large Language Models
-                </a>
-              </h3>
-              <p><strong>Chunyuan Deng</strong>, Yilun Zhao, Xiangru Tang, Mark Gerstein, Arman Cohan</p>
-              <p><em>NAACL 2024 (long papers)</em></p>
-              <p>We present <strong>TS-Guessing</strong>: a method masking the portion of the testset/benchmark to guide LLMs to guess what is missing.</p>
+                <h4>
+                    <a href="https://arxiv.org/abs/2311.09783">
+                        Investigating Data Contamination in Modern Benchmarks for Large Language Models
+                    </a>
+                </h4>
+                <p><strong>Chunyuan Deng</strong>, Yilun Zhao, Xiangru Tang, Mark Gerstein, Arman Cohan</p>
+                <p><em>NAACL 2024 (long papers)</em></p>
             </div>
-          </div>
+        </div>
 
-          <div class="year-section">
+        <div class="year-section">
             <h3>2023</h3>
             <div class="publication">
-              <h3>
-                <a href="#">
-                  Short Version: Investigating Data Contamination in Modern Benchmarks for Large Language Models
-                </a>
-              </h3>
-              <p><strong>Chunyuan Deng</strong>, Yilun Zhao, Xiangru Tang, Mark Gerstein, Arman Cohan</p>
-              <p><em>NeurIPS 2023 Workshop on on Backdoors in Deep Learning</em></p>
-              <p>A condensed exploration of data contamination issues in large language model benchmarks.</p>
+                <h4>
+                    <a href="#">
+                        Short Version: Investigating Data Contamination in Modern Benchmarks for Large Language Models
+                    </a>
+                </h4>
+                <p><strong>Chunyuan Deng</strong>, Yilun Zhao, Xiangru Tang, Mark Gerstein, Arman Cohan</p>
+                <p><em>NeurIPS 2023 Workshop on on Backdoors in Deep Learning</em></p>
             </div>
-          </div>
+            <!-- Add more 2023 publications here -->
         </div>
-      </td>
-    </tr>
-  </tbody>
-</table>
 
+        <!-- Add more year sections as needed -->
+    </div>
+
+    <script>
+        function openTab(evt, tabName) {
+            var i, tabContent, tabButtons;
+            tabContent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabContent.length; i++) {
+                tabContent[i].className = tabContent[i].className.replace(" active", "");
+            }
+            tabButtons = document.getElementsByClassName("tab-button");
+            for (i = 0; i < tabButtons.length; i++) {
+                tabButtons[i].className = tabButtons[i].className.replace(" active", "");
+            }
+            document.getElementById(tabName).className += " active";
+            evt.currentTarget.className += " active";
+        }
+    </script>
 
 	
 	<table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;">

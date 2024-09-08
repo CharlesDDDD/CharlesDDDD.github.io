@@ -94,12 +94,18 @@
         .tab-link {
             color: #333;
             text-decoration: none;
-            margin-right: 20px;
+            margin-right: 5px;
             cursor: pointer;
+        }
+        .tab-link:hover {
+            text-decoration: underline;
         }
         .tab-link.active {
             font-weight: bold;
-            border-bottom: 2px solid #333;
+            text-decoration: underline;
+        }
+        .tab-separator {
+            margin: 0 5px;
         }
         .tab-content {
             display: none;
@@ -118,6 +124,7 @@
 <body>
     <div class="tabs">
         <a class="tab-link active" onclick="openTab(event, 'selected')">Selected Publications</a>
+        <span class="tab-separator">/</span>
         <a class="tab-link" onclick="openTab(event, 'all')">All Publications</a>
     </div>
 
@@ -126,7 +133,7 @@
         <p>A selection of recent work that represent my research style.</p>
         <div class="publication">
             <h3>
-                <a href="https://arxiv.org/abs/2311.09783">
+                <a href="https://arxiv.org/abs/2311.09783" style="color: #4a86e8;">
                     Investigating Data Contamination in Modern Benchmarks for Large Language Models
                 </a>
             </h3>
@@ -143,7 +150,7 @@
             <h3>2024</h3>
             <div class="publication">
                 <h4>
-                    <a href="https://arxiv.org/abs/2311.09783">
+                    <a href="https://arxiv.org/abs/2311.09783" style="color: #4a86e8;">
                         Investigating Data Contamination in Modern Benchmarks for Large Language Models
                     </a>
                 </h4>
@@ -156,29 +163,26 @@
             <h3>2023</h3>
             <div class="publication">
                 <h4>
-                    <a href="#">
+                    <a href="#" style="color: #4a86e8;">
                         Short Version: Investigating Data Contamination in Modern Benchmarks for Large Language Models
                     </a>
                 </h4>
                 <p><strong>Chunyuan Deng</strong>, Yilun Zhao, Xiangru Tang, Mark Gerstein, Arman Cohan</p>
-                <p><em>NeurIPS 2023 Workshop on on Backdoors in Deep Learning</em></p>
+                <p><em>NeurIPS 2023 Workshop on Backdoors in Deep Learning</em></p>
             </div>
-            <!-- Add more 2023 publications here -->
         </div>
-
-        <!-- Add more year sections as needed -->
     </div>
 
     <script>
         function openTab(evt, tabName) {
-            var i, tabContent, tabButtons;
+            var i, tabContent, tabLinks;
             tabContent = document.getElementsByClassName("tab-content");
             for (i = 0; i < tabContent.length; i++) {
                 tabContent[i].className = tabContent[i].className.replace(" active", "");
             }
-            tabButtons = document.getElementsByClassName("tab-button");
-            for (i = 0; i < tabButtons.length; i++) {
-                tabButtons[i].className = tabButtons[i].className.replace(" active", "");
+            tabLinks = document.getElementsByClassName("tab-link");
+            for (i = 0; i < tabLinks.length; i++) {
+                tabLinks[i].className = tabLinks[i].className.replace(" active", "");
             }
             document.getElementById(tabName).className += " active";
             evt.currentTarget.className += " active";

@@ -97,12 +97,8 @@
             margin-right: 5px;
             cursor: pointer;
         }
-        .tab-link:hover {
-            text-decoration: underline;
-        }
         .tab-link.active {
             font-weight: bold;
-            text-decoration: underline;
         }
         .tab-separator {
             margin: 0 5px;
@@ -119,6 +115,10 @@
         .year-section {
             margin-top: 30px;
         }
+        a {
+            color: #4a86e8;
+            text-decoration: none;
+        }
     </style>
 </head>
 <body>
@@ -133,7 +133,7 @@
         <p>A selection of recent work that represent my research style.</p>
         <div class="publication">
             <h3>
-                <a href="https://arxiv.org/abs/2311.09783" style="color: #4a86e8;">
+                <a href="https://arxiv.org/abs/2311.09783">
                     Investigating Data Contamination in Modern Benchmarks for Large Language Models
                 </a>
             </h3>
@@ -150,7 +150,7 @@
             <h3>2024</h3>
             <div class="publication">
                 <h4>
-                    <a href="https://arxiv.org/abs/2311.09783" style="color: #4a86e8;">
+                    <a href="https://arxiv.org/abs/2311.09783">
                         Investigating Data Contamination in Modern Benchmarks for Large Language Models
                     </a>
                 </h4>
@@ -163,7 +163,7 @@
             <h3>2023</h3>
             <div class="publication">
                 <h4>
-                    <a href="#" style="color: #4a86e8;">
+                    <a href="#">
                         Short Version: Investigating Data Contamination in Modern Benchmarks for Large Language Models
                     </a>
                 </h4>
@@ -188,6 +188,7 @@
             evt.currentTarget.className += " active";
         }
     </script>
+</body>
 
 	
 	<table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;">

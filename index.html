@@ -73,6 +73,90 @@
     table tbody tr td {
       padding: 12px 20px !important;
     }
+    
+    /* Mobile responsive styles */
+    @media screen and (max-width: 600px) {
+      /* Prevent horizontal scrolling */
+      body {
+        overflow-x: hidden;
+      }
+      
+      /* Make main container full width on mobile */
+      table[style*="max-width:800px"] {
+        max-width: 100% !important;
+        padding: 0 10px !important;
+      }
+      
+      /* Make all tables responsive */
+      table {
+        width: 100% !important;
+        max-width: 100% !important;
+      }
+      
+      /* Stack the profile section vertically on mobile */
+      table tbody tr td[style*="width:63%"],
+      table tbody tr td[style*="width:40%"] {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 10px 15px !important;
+      }
+      
+      /* Center the image on mobile */
+      table tbody tr td[style*="width:40%"] img {
+        max-width: 200px !important;
+        margin: 0 auto;
+        display: block;
+      }
+      
+      /* Reduce padding on mobile */
+      table tbody tr td {
+        padding: 10px 15px !important;
+      }
+      
+      /* Adjust font sizes for mobile */
+      name {
+        font-size: 24px !important;
+      }
+      
+      heading {
+        font-size: 20px !important;
+      }
+      
+      body, td, th, tr, p, a {
+        font-size: 13px !important;
+      }
+      
+      /* Make buttons more touch-friendly */
+      .pub-toggle {
+        margin-left: 0;
+        margin-top: 10px;
+        display: block;
+      }
+      
+      .pub-toggle button {
+        padding: 8px 14px;
+        font-size: 14px;
+        margin: 0 3px 5px 0;
+      }
+      
+      /* Adjust year header spacing */
+      .year-header {
+        font-size: 16px;
+        margin-top: 25px;
+        margin-bottom: 10px;
+      }
+      
+      /* Reduce padding in publication tables */
+      table tbody tr td[style*="padding:20px"] {
+        padding: 15px 10px !important;
+      }
+      
+      /* Make links more readable on mobile */
+      p[style*="text-align:center"] {
+        word-spacing: normal;
+      }
+    }
   </style>
 <!-- <link rel="icon" href="images/GTVertical_TechGold.png">	 -->
 </head>

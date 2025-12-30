@@ -18,6 +18,52 @@
     a:hover {
       text-decoration: underline;
     }
+    .pub-toggle {
+      display: inline-block;
+      margin-left: 15px;
+      vertical-align: top;
+      margin-top: 2px;
+    }
+    .pub-toggle button {
+      background-color: #faf8f2;
+      border: 1px solid #324d2f;
+      color: #324d2f;
+      padding: 6px 12px;
+      margin: 0 2px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: all 0.3s ease;
+      border-radius: 3px;
+    }
+    .pub-toggle button:hover {
+      background-color: #324d2f;
+      color: #faf8f2;
+    }
+    .pub-toggle button.active {
+      background-color: #324d2f;
+      color: #faf8f2;
+    }
+    heading {
+      display: inline-block;
+    }
+    .publication-section {
+      display: block;
+    }
+    .publication-section.hidden {
+      display: none;
+    }
+    .year-header {
+      font-size: 18px;
+      font-weight: bold;
+      color: #324d2f;
+      margin-top: 25px;
+      margin-bottom: 10px;
+      padding-bottom: 5px;
+      border-bottom: 2px solid #324d2f;
+    }
+    .year-header:first-of-type {
+      margin-top: 0;
+    }
   </style>
 <!-- <link rel="icon" href="images/GTVertical_TechGold.png">	 -->
 </head>
@@ -32,8 +78,8 @@
               <p style="text-align:center">
                 <name>Chunyuan Deng 邓淳远</name>
               </p>
-              <p>I am a second-year CS PhD Student at <a href="https://www.rice.edu/" >Rice University</a> advised by Prof. <a href="https://hanjiechen.github.io/">Hanjie Chen</a>. Previously, I am also affiliated with <a href="https://yale-nlp.github.io/">Yale NLP</a> and <a href="https://www.gatech.edu/">Georgia Tech</a>. </p>
-		<p> Generally, I do <i>prosaic and pragmatic interpretability</i> research. I am drawn to methods with theoretical guarantees or mathematical soundness. 
+              <p>He is a second-year CS PhD student at <a href="https://www.rice.edu/" >Rice University</a>, advised by Prof. <a href="https://hanjiechen.github.io/">Hanjie Chen</a>. Previously, he was also affiliated with <a href="https://yale-nlp.github.io/">Yale NLP</a> and <a href="https://www.gatech.edu/">Georgia Tech</a>. </p>
+		<p>His research focuses on language model architectures and understanding their mechanisms and limitations. 
               </p>
               <p style="text-align:center">
 		<a href="https://scholar.google.com/citations?user=g7Y0RHcAAAAJ&hl=en&oi=ao">Google Scholar</a> &nbsp/&nbsp
@@ -47,7 +93,7 @@
             </td>
           </tr>
         </tbody></table>
-<!--        <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
+       <!-- <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
             <tr>
             <td style="padding:20px;width:100%;vertical-align:middle">
               <heading>🔦 Research</heading>
@@ -64,60 +110,165 @@
           </tr>
         </tbody></table> -->
 <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
-	<heading>🔦 Selected Publication</heading>
-		<p>A selection of work that represent my recent research style.</p>
-<tr>
-            <td style="padding:20px;width:75%;vertical-align:middle">
-              <a href="https://arxiv.org/pdf/2507.05158">
-                <papertitle>Steering Information Utility in Key-Value Memory for Language Model Post-Training</papertitle>
-              </a>
-              <br>
-              <strong>Chunyuan Deng</strong>, Ruidi Chang, Hanjie Chen
-              <br>
-           <p><em>Advances in Neural Information Processing System</em> (<strong>NeurIPS</strong>), 2025. </p>
+	<tr>
+            <td style="padding:20px;width:100%;vertical-align:middle">
+              <heading>🔦 Publications</heading>
+              <div class="pub-toggle">
+                <button id="recentBtn" class="active" onclick="showRecent()">Recent</button>
+                <button id="allBtn" onclick="showAll()">All</button>
+              </div>
+              
+              <!-- Recent Publications Section -->
+              <div id="recentPublications" class="publication-section">
+                <p>A selection of work that represents his recent research style.</p>
+                <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
+                  <tr>
+                    <td style="padding:20px;width:75%;vertical-align:middle">
+                      <a href="https://arxiv.org/pdf/2507.05158">
+                        <papertitle>Steering Information Utility in Key-Value Memory for Language Model Post-Training</papertitle>
+                      </a>
+                      <br>
+                      <strong>Chunyuan Deng</strong>, Ruidi Chang, Hanjie Chen
+                      <br>
+                      <em>Advances in Neural Information Processing System</em> (<strong>NeurIPS</strong>), 2025.
+                    </td>
+                  </tr>  
+                  <tr>
+                    <td style="padding:20px;width:75%;vertical-align:middle">
+                      <a href="https://arxiv.org/abs/2506.06686">
+                        <papertitle>Learning Distribution-wise Control in Representation Space for Language Models</papertitle>
+                      </a>
+                      <br>
+                      <strong>Chunyuan Deng</strong>, Ruidi Chang, Hanjie Chen
+                      <br>
+                      <em>International Conference on Machine Learning</em> (<strong>ICML</strong>), 2025.
+                    </td>
+                  </tr>
+                </tbody></table>
+              </div>
+              
+              <!-- All Publications Section -->
+              <div id="allPublications" class="publication-section hidden">
+                <div class="year-header">2025</div>
+                <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
+                  <tr>
+                    <td style="padding:20px;width:75%;vertical-align:middle">
+                      <a href="https://arxiv.org/pdf/2507.05158">
+                        <papertitle>Steering Information Utility in Key-Value Memory for Language Model Post-Training</papertitle>
+                      </a>
+                      <br>
+                      <strong>Chunyuan Deng</strong>, Ruidi Chang, Hanjie Chen
+                      <br>
+                      <em>Advances in Neural Information Processing System</em> (<strong>NeurIPS</strong>), 2025.
+                    </td>
+                  </tr>  
+                  <tr>
+                    <td style="padding:20px;width:75%;vertical-align:middle">
+                      <a href="https://arxiv.org/abs/2507.05387">
+                        <papertitle>The Generalization Ridge: Information Flow in Natural Language Generation</papertitle>
+                      </a>
+                      <br>
+                      Ruidi Chang, <strong>Chunyuan Deng</strong>, Hanjie Chen
+                      <br>
+                      <em>Preprint</em>, 2025.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding:20px;width:75%;vertical-align:middle">
+                      <a href="https://arxiv.org/abs/2506.06686">
+                        <papertitle>Learning Distribution-wise Control in Representation Space for Language Models</papertitle>
+                      </a>
+                      <br>
+                      <strong>Chunyuan Deng</strong>, Ruidi Chang, Hanjie Chen
+                      <br>
+                      <em>International Conference on Machine Learning</em> (<strong>ICML</strong>), 2025.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding:20px;width:75%;vertical-align:middle">
+                      <a href="https://arxiv.org/abs/2502.01025">
+                        <papertitle>Language Models (Mostly) Know When to Stop Reading</papertitle>
+                      </a>
+                      <br>
+                      Roy Xie, Junlin Wang, Paul Rosu, <strong>Chunyuan Deng</strong>, Bolun Sun, Zihao Lin, Bhuwan Dhingra
+                      <br>
+                      <em>Advances in Neural Information Processing System</em> (<strong>NeurIPS</strong>), 2025.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding:20px;width:75%;vertical-align:middle">
+                      <a href="https://arxiv.org/abs/2502.13131">
+                        <papertitle>Rethinking Diverse Human Preference Learning through Principal Component Analysis</papertitle>
+                      </a>
+                      <br>
+                      Feng Luo, Rui Yang, Hao Sun, <strong>Chunyuan Deng</strong>, Jiarui Yao, Jingyan Shen, Huan Zhang, Hanjie Chen
+                      <br>
+                      Findings of the Association for Computational Linguistics (<strong>ACL</strong>), 2025.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding:20px;width:75%;vertical-align:middle">
+                      <a href="https://arxiv.org/abs/2501.16374">
+                        <papertitle>SAFR: Neuron Redistribution for Interpretability</papertitle>
+                      </a>
+                      <br>
+                      Ruidi Chang, <strong>Chunyuan Deng</strong>, Hanjie Chen
+                      <br>
+                      Findings of the North American Chapter of the Association for Computational Linguistics (<strong>NAACL</strong>), 2025 (short paper).
+                    </td>
+                  </tr>
+                </tbody></table>
+                
+                <div class="year-header">2024</div>
+                <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
+                  <tr>
+                    <td style="padding:20px;width:75%;vertical-align:middle">
+                      <a href="https://arxiv.org/abs/2403.11103">
+                        <papertitle>ProgGen: Generating Named Entity Recognition Datasets Step-by-step with Self-Reflexive Large Language Models</papertitle>
+                      </a>
+                      <br>
+                      Yuzhao Heng, <strong>Chunyuan Deng</strong>, Yitong Li, Yue Yu, Yinghao Li, Rongzhi Zhang, Chao Zhang
+                      <br>
+                      Findings of the Association for Computational Linguistics (<strong>ACL</strong>), 2024.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding:20px;width:75%;vertical-align:middle">
+                      <a href="https://scholar.google.com/citations?view_op=view_citation&hl=en&user=g7Y0RHcAAAAJ&sortby=pubdate&citation_for_view=g7Y0RHcAAAAJ:W7OEmFMy1HYC">
+                        <papertitle>Unveiling the Spectrum of Data Contamination in Language Models: A Survey from Detection to Remediation</papertitle>
+                      </a>
+                      <br>
+                      <strong>Chunyuan Deng</strong>, Yilun Zhao, Yuzhao Heng, Yitong Li, Jiannan Cao, Xiangru Tang, Arman Cohan
+                      <br>
+                      Findings of the Association for Computational Linguistics (<strong>ACL</strong>), 2024.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding:20px;width:75%;vertical-align:middle">
+                      <a href="https://arxiv.org/abs/2410.15580">
+                        <papertitle>Language Models are Symbolic Learners in Arithmetic</papertitle>
+                      </a>
+                      <br>
+                      <strong>Chunyuan Deng</strong>, Zhiqi Li, Roy Xie, Ruidi Chang, Hanjie Chen
+                      <br>
+                      <em>Preprint</em>, 2024.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding:20px;width:75%;vertical-align:middle">
+                      <a href="https://arxiv.org/abs/2311.09783">
+                        <papertitle>Investigating Data Contamination in Modern Benchmarks for Large Language Models</papertitle>
+                      </a>
+                      <br>
+                      <strong>Chunyuan Deng</strong>, Yilun Zhao, Xiangru Tang, Mark Gerstein, Arman Cohan
+                      <br>
+                      <em>North American Chapter of the Association for Computational Linguistics</em> (<strong>NAACL</strong>), 2024.
+                    </td>
+                  </tr>
+                </tbody></table>
+              </div>
             </td>
-  </tr>  
-<tr>
-            <td style="padding:20px;width:75%;vertical-align:middle">
-              <a href="https://arxiv.org/abs/2506.06686">
-                <papertitle>Learning Distribution-wise Control in Representation Space for Language Models</papertitle>
-              </a>
-              <br>
-              <strong>Chunyuan Deng</strong>, Ruidi Chang, Hanjie Chen
-              <br>
-           <p><em>International Conference on Machine Learning</em> (<strong>ICML</strong>), 2025. </p>
-            </td>
-  </tr>   
-	
-<!--     <tr>   
-	<div class="one">
-                <div class="two" id='mira_image'>
-                  <img src='images/illustration_b.drawio.png' width="160"></div>
-              </div>    
-            </td> 
-	    <td style="padding:20px;width:75%;vertical-align:middle">
-              <a href="https://arxiv.org/abs/2410.15580">
-                <papertitle>Language Models are Symbolic Learners in Arithmetic</papertitle>
-              </a>
-              <br>
-              <strong>Chunyuan Deng</strong>, Zhiqi Li, Roy Xie, Ruidi Chang, Hanjie Chen
-              <br>
-	 </td></tr> -->
-	  
-<!-- 	  <tr>
-            <td style="padding:20px;width:75%;vertical-align:middle">
-              <a href="https://arxiv.org/abs/2311.09783">
-                <papertitle>Investigating Data Contamination in Modern Benchmarks for Large Language Models</papertitle>
-              </a>
-              <br>
-              <strong>Chunyuan Deng</strong>, Yilun Zhao, Xiangru Tang, Mark Gerstein, Arman Cohan
-              <br>
-           <em>NAACL 2024 (long papers). | Short Version in NeurIPS 2023 Workshop on on Backdoors in Deep Learning</em>
-            </td>
-  </tr>      -->
-
-
-	  
+        </tr>
         </tbody>
   </table> 
 
@@ -130,7 +281,7 @@
                 <heading>🛠️ Service</heading>
                 <p>
                     <ul>
-                        <li><strong>Program Committee/Reviewer</strong>:  ICML 2026, ICLR 2025-2026, NeurIPS 2024-2025, COLM 2024-2025, ACL ARR(2023 - now),AISTATS 2025-2026, EMNLP 2024 BlackboxNLP Workshop, NAACL 2024 Student Research Workshop. </li>
+                        <li><strong>Program Committee/Reviewer</strong>:  ICML 2026, ICLR 2025-2026, NeurIPS 2024-2025, COLM 2024-2025, ACL ARR(2023 - now), AISTATS 2025-2026, EMNLP 2024 BlackboxNLP Workshop, NAACL 2024 Student Research Workshop. </li>
                     </ul>
                 </p>
             </td>
@@ -144,10 +295,25 @@
           <tr>
             <td>
               <heading>🎄 Miscellaneous</heading>
-	       <p>In my free time, I enjoy walking around the city photographing magnificent architecture, gorgeous scenery, and lovely interactions between human beings. 🌇</p>
+	       <p>In his free time, he enjoys walking around the city photographing magnificent architecture, gorgeous scenery, and lovely interactions between human beings. 🌇</p>
             </td>
           </tr>
        </table>
+<script>
+function showRecent() {
+  document.getElementById('recentPublications').classList.remove('hidden');
+  document.getElementById('allPublications').classList.add('hidden');
+  document.getElementById('recentBtn').classList.add('active');
+  document.getElementById('allBtn').classList.remove('active');
+}
+
+function showAll() {
+  document.getElementById('recentPublications').classList.add('hidden');
+  document.getElementById('allPublications').classList.remove('hidden');
+  document.getElementById('recentBtn').classList.remove('active');
+  document.getElementById('allBtn').classList.add('active');
+}
+</script>
 </body>
 
 </html>

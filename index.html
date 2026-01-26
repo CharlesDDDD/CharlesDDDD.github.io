@@ -25,6 +25,12 @@
       --morandi-warm-gray: #a69e94;
       --morandi-charcoal: #4a4541;
       --morandi-soft-brown: #7d6e63;
+      /* Deep Renaissance colors */
+      --renaissance-burgundy: #6b3a3a;
+      --renaissance-forest: #3d4f3a;
+      --renaissance-deep-brown: #3a3330;
+      --renaissance-ochre: #8b6914;
+      --renaissance-umber: #5c4033;
     }
 
     body {
@@ -35,38 +41,35 @@
       line-height: 1.7;
     }
 
-    /* Elegant link styling */
+    /* Elegant link styling - deep Renaissance tones */
     a {
-      color: var(--morandi-sage-dark);
+      color: var(--renaissance-forest);
       text-decoration: none;
       transition: all 0.3s ease;
       border-bottom: 1px solid transparent;
     }
     a:hover {
-      color: var(--morandi-terracotta);
-      border-bottom: 1px solid var(--morandi-terracotta);
+      color: var(--renaissance-burgundy);
+      border-bottom: 1px solid var(--renaissance-burgundy);
       text-decoration: none;
     }
 
-    /* Renaissance-style name */
+    /* Renaissance-style name - deep forest green */
     name {
       font-family: 'Cormorant Garamond', 'Georgia', serif;
-      font-weight: 600;
-      letter-spacing: 2px;
-      background: linear-gradient(135deg, var(--morandi-sage-dark) 0%, var(--morandi-terracotta) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      font-weight: 700;
+      letter-spacing: 3px;
+      color: var(--renaissance-forest);
     }
 
-    /* Elegant headings */
+    /* Elegant headings - deep Renaissance green */
     heading {
       display: inline-block;
       font-family: 'Cormorant Garamond', 'Georgia', serif;
-      font-weight: 600;
+      font-weight: 700;
       font-size: 24px;
-      color: var(--morandi-sage-dark);
-      letter-spacing: 1px;
+      color: var(--renaissance-forest);
+      letter-spacing: 1.5px;
       position: relative;
     }
 
@@ -79,28 +82,29 @@
     }
     .pub-toggle button {
       background: linear-gradient(135deg, var(--morandi-warm-white) 0%, var(--morandi-cream) 100%);
-      border: 1px solid var(--morandi-sage);
-      color: var(--morandi-sage-dark);
+      border: 1px solid var(--renaissance-forest);
+      color: var(--renaissance-forest);
       padding: 6px 16px;
       margin: 0 3px;
       cursor: pointer;
       font-size: 13px;
-      font-family: 'EB Garamond', 'Georgia', serif;
+      font-family: 'Cormorant Garamond', 'Georgia', serif;
+      font-weight: 600;
       transition: all 0.4s ease;
       border-radius: 2px;
-      letter-spacing: 0.5px;
-      box-shadow: 0 2px 4px rgba(138, 154, 123, 0.1);
+      letter-spacing: 1px;
+      box-shadow: 0 2px 4px rgba(61, 79, 58, 0.1);
     }
     .pub-toggle button:hover {
-      background: linear-gradient(135deg, var(--morandi-sage) 0%, var(--morandi-sage-dark) 100%);
+      background: linear-gradient(135deg, var(--renaissance-forest) 0%, var(--morandi-sage-dark) 100%);
       color: var(--morandi-warm-white);
-      box-shadow: 0 3px 8px rgba(107, 122, 94, 0.25);
+      box-shadow: 0 3px 8px rgba(61, 79, 58, 0.25);
       transform: translateY(-1px);
     }
     .pub-toggle button.active {
-      background: linear-gradient(135deg, var(--morandi-sage-dark) 0%, var(--morandi-sage) 100%);
+      background: linear-gradient(135deg, var(--renaissance-forest) 0%, var(--morandi-sage-dark) 100%);
       color: var(--morandi-warm-white);
-      box-shadow: 0 2px 6px rgba(107, 122, 94, 0.3);
+      box-shadow: 0 2px 6px rgba(61, 79, 58, 0.3);
     }
 
     .publication-section {
@@ -114,12 +118,12 @@
     .year-header {
       font-family: 'Cormorant Garamond', 'Georgia', serif;
       font-size: 18px;
-      font-weight: 600;
-      color: var(--morandi-terracotta);
+      font-weight: 700;
+      color: var(--renaissance-forest);
       margin-top: 40px;
       margin-bottom: 18px;
       padding-bottom: 8px;
-      letter-spacing: 1px;
+      letter-spacing: 0.5px;
       border-bottom: none;
       position: relative;
     }
@@ -130,22 +134,23 @@
       left: 0;
       width: 100%;
       height: 2px;
-      background: linear-gradient(90deg, var(--morandi-terracotta) 0%, var(--morandi-dusty-rose) 50%, transparent 100%);
+      background: linear-gradient(90deg, var(--renaissance-forest) 0%, var(--morandi-sage) 60%, transparent 100%);
     }
     .year-header:first-of-type {
       margin-top: 25px;
     }
 
-    /* Paper titles with elegant styling */
+    /* Paper titles - bold deep forest green for visibility */
     papertitle {
-      font-family: 'EB Garamond', 'Georgia', serif;
-      font-weight: 500;
-      font-size: 15px;
-      color: var(--morandi-charcoal);
-      transition: color 0.3s ease;
+      font-family: 'Cormorant Garamond', 'Georgia', serif;
+      font-weight: 700;
+      font-size: 16px;
+      color: var(--renaissance-forest);
+      transition: all 0.3s ease;
+      letter-spacing: 0.3px;
     }
     a:hover papertitle {
-      color: var(--morandi-sage-dark);
+      color: var(--renaissance-burgundy);
     }
 
     /* Venue styling */
@@ -158,7 +163,7 @@
 
     /* Strong text (author highlighting) */
     strong {
-      color: var(--morandi-charcoal);
+      color: var(--renaissance-forest);
       font-weight: 600;
     }
 
@@ -179,14 +184,14 @@
     .profile-img-container img {
       border-radius: 4px;
       box-shadow:
-        0 4px 15px rgba(107, 122, 94, 0.15),
-        0 0 0 1px rgba(138, 154, 123, 0.1);
+        0 4px 15px rgba(92, 64, 51, 0.2),
+        0 0 0 1px rgba(92, 64, 51, 0.15);
       transition: all 0.4s ease;
     }
     .profile-img-container img:hover {
       box-shadow:
-        0 8px 25px rgba(107, 122, 94, 0.2),
-        0 0 0 2px rgba(138, 154, 123, 0.15);
+        0 8px 25px rgba(92, 64, 51, 0.25),
+        0 0 0 2px rgba(107, 58, 58, 0.2);
       transform: scale(1.02);
     }
 
@@ -199,7 +204,7 @@
       transition: all 0.3s ease;
     }
     .social-links a:hover {
-      background: linear-gradient(135deg, rgba(138,154,123,0.1) 0%, rgba(201,168,160,0.1) 100%);
+      background: linear-gradient(135deg, rgba(61,79,58,0.08) 0%, rgba(107,58,58,0.08) 100%);
       border-bottom: none;
     }
 

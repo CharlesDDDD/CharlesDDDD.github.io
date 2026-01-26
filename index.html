@@ -2,22 +2,75 @@
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
   <title>Chunyuan Deng</title>
-  
+
   <meta name="author" content="Jon Barron">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  
+
+  <!-- Renaissance-inspired fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+
   <link rel="stylesheet" type="text/css" href="stylesheet.css">
   <style>
-    body {
-      background-color: #faf8f2;
+    :root {
+      /* Morandi Color Palette */
+      --morandi-cream: #f5f0e8;
+      --morandi-warm-white: #faf7f2;
+      --morandi-sage: #8a9a7b;
+      --morandi-sage-dark: #6b7a5e;
+      --morandi-dusty-rose: #c9a8a0;
+      --morandi-terracotta: #b8917a;
+      --morandi-muted-blue: #9aabb8;
+      --morandi-warm-gray: #a69e94;
+      --morandi-charcoal: #4a4541;
+      --morandi-soft-brown: #7d6e63;
     }
+
+    body {
+      background: linear-gradient(135deg, var(--morandi-warm-white) 0%, var(--morandi-cream) 50%, #f0ebe3 100%);
+      min-height: 100vh;
+      font-family: 'EB Garamond', 'Georgia', serif;
+      color: var(--morandi-charcoal);
+      line-height: 1.7;
+    }
+
+    /* Elegant link styling */
     a {
-      color: #324d2f;
+      color: var(--morandi-sage-dark);
       text-decoration: none;
+      transition: all 0.3s ease;
+      border-bottom: 1px solid transparent;
     }
     a:hover {
-      text-decoration: underline;
+      color: var(--morandi-terracotta);
+      border-bottom: 1px solid var(--morandi-terracotta);
+      text-decoration: none;
     }
+
+    /* Renaissance-style name */
+    name {
+      font-family: 'Cormorant Garamond', 'Georgia', serif;
+      font-weight: 600;
+      letter-spacing: 2px;
+      background: linear-gradient(135deg, var(--morandi-sage-dark) 0%, var(--morandi-terracotta) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Elegant headings */
+    heading {
+      display: inline-block;
+      font-family: 'Cormorant Garamond', 'Georgia', serif;
+      font-weight: 600;
+      font-size: 24px;
+      color: var(--morandi-sage-dark);
+      letter-spacing: 1px;
+      position: relative;
+    }
+
+    /* Renaissance-style toggle buttons */
     .pub-toggle {
       display: inline-block;
       margin-left: 15px;
@@ -25,135 +78,208 @@
       margin-top: 2px;
     }
     .pub-toggle button {
-      background-color: #faf8f2;
-      border: 1px solid #324d2f;
-      color: #324d2f;
-      padding: 6px 12px;
-      margin: 0 2px;
+      background: linear-gradient(135deg, var(--morandi-warm-white) 0%, var(--morandi-cream) 100%);
+      border: 1px solid var(--morandi-sage);
+      color: var(--morandi-sage-dark);
+      padding: 6px 16px;
+      margin: 0 3px;
       cursor: pointer;
-      font-size: 12px;
-      transition: all 0.3s ease;
-      border-radius: 3px;
+      font-size: 13px;
+      font-family: 'EB Garamond', 'Georgia', serif;
+      transition: all 0.4s ease;
+      border-radius: 2px;
+      letter-spacing: 0.5px;
+      box-shadow: 0 2px 4px rgba(138, 154, 123, 0.1);
     }
     .pub-toggle button:hover {
-      background-color: #324d2f;
-      color: #faf8f2;
+      background: linear-gradient(135deg, var(--morandi-sage) 0%, var(--morandi-sage-dark) 100%);
+      color: var(--morandi-warm-white);
+      box-shadow: 0 3px 8px rgba(107, 122, 94, 0.25);
+      transform: translateY(-1px);
     }
     .pub-toggle button.active {
-      background-color: #324d2f;
-      color: #faf8f2;
+      background: linear-gradient(135deg, var(--morandi-sage-dark) 0%, var(--morandi-sage) 100%);
+      color: var(--morandi-warm-white);
+      box-shadow: 0 2px 6px rgba(107, 122, 94, 0.3);
     }
-    heading {
-      display: inline-block;
-    }
+
     .publication-section {
       display: block;
     }
     .publication-section.hidden {
       display: none;
     }
+
+    /* Elegant year headers with Renaissance flair */
     .year-header {
+      font-family: 'Cormorant Garamond', 'Georgia', serif;
       font-size: 18px;
-      font-weight: bold;
-      color: #324d2f;
-      margin-top: 35px;
-      margin-bottom: 15px;
-      padding-bottom: 5px;
-      border-bottom: 2px solid #324d2f;
+      font-weight: 600;
+      color: var(--morandi-terracotta);
+      margin-top: 40px;
+      margin-bottom: 18px;
+      padding-bottom: 8px;
+      letter-spacing: 1px;
+      border-bottom: none;
+      position: relative;
+    }
+    .year-header::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, var(--morandi-terracotta) 0%, var(--morandi-dusty-rose) 50%, transparent 100%);
     }
     .year-header:first-of-type {
-      margin-top: 20px;
+      margin-top: 25px;
     }
-    /* Increase space between author list and venue */
+
+    /* Paper titles with elegant styling */
+    papertitle {
+      font-family: 'EB Garamond', 'Georgia', serif;
+      font-weight: 500;
+      font-size: 15px;
+      color: var(--morandi-charcoal);
+      transition: color 0.3s ease;
+    }
+    a:hover papertitle {
+      color: var(--morandi-sage-dark);
+    }
+
+    /* Venue styling */
     td em {
       display: inline-block;
       margin-top: 6px;
+      color: var(--morandi-soft-brown);
+      font-style: italic;
     }
+
+    /* Strong text (author highlighting) */
+    strong {
+      color: var(--morandi-charcoal);
+      font-weight: 600;
+    }
+
     /* Decrease space between publication blocks */
     table tbody tr td {
       padding: 12px 20px !important;
     }
-    
+
+    /* Subtle card effect for profile section */
+    .profile-card {
+      background: linear-gradient(145deg, rgba(255,255,255,0.7) 0%, rgba(250,247,242,0.5) 100%);
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(138, 154, 123, 0.08);
+      backdrop-filter: blur(10px);
+    }
+
+    /* Profile image Renaissance frame effect */
+    .profile-img-container img {
+      border-radius: 4px;
+      box-shadow:
+        0 4px 15px rgba(107, 122, 94, 0.15),
+        0 0 0 1px rgba(138, 154, 123, 0.1);
+      transition: all 0.4s ease;
+    }
+    .profile-img-container img:hover {
+      box-shadow:
+        0 8px 25px rgba(107, 122, 94, 0.2),
+        0 0 0 2px rgba(138, 154, 123, 0.15);
+      transform: scale(1.02);
+    }
+
+    /* Social links styling */
+    .social-links a {
+      display: inline-block;
+      padding: 4px 8px;
+      margin: 0 2px;
+      border-radius: 3px;
+      transition: all 0.3s ease;
+    }
+    .social-links a:hover {
+      background: linear-gradient(135deg, rgba(138,154,123,0.1) 0%, rgba(201,168,160,0.1) 100%);
+      border-bottom: none;
+    }
+
+    /* Service and Misc sections */
+    ul {
+      color: var(--morandi-charcoal);
+    }
+    ul li {
+      margin-bottom: 8px;
+    }
+
     /* Mobile responsive styles */
     @media screen and (max-width: 600px) {
-      /* Prevent horizontal scrolling */
       body {
         overflow-x: hidden;
       }
-      
-      /* Make main container full width on mobile */
+
       table[style*="max-width:800px"] {
         max-width: 100% !important;
         padding: 0 10px !important;
       }
-      
-      /* Make all tables responsive */
+
       table {
         width: 100% !important;
         max-width: 100% !important;
       }
-      
-      /* Keep profile section side-by-side on mobile but make it smaller */
+
       table tbody tr td[style*="width:63%"] {
         width: 55% !important;
         padding: 10px 8px 10px 15px !important;
       }
-      
+
       table tbody tr td[style*="width:40%"] {
         width: 45% !important;
         max-width: 45% !important;
         padding: 10px 15px 10px 8px !important;
       }
-      
-      /* Make image smaller on mobile */
+
       table tbody tr td[style*="width:40%"] img {
         max-width: 100% !important;
       }
-      
-      /* Reduce padding on mobile */
+
       table tbody tr td {
         padding: 10px 15px !important;
       }
-      
-      /* Adjust font sizes for mobile */
+
       name {
         font-size: 24px !important;
       }
-      
+
       heading {
         font-size: 20px !important;
       }
-      
+
       body, td, th, tr, p, a {
         font-size: 13px !important;
       }
-      
-      /* Make buttons more touch-friendly */
+
       .pub-toggle {
         margin-left: 0;
         margin-top: 10px;
         display: block;
       }
-      
+
       .pub-toggle button {
         padding: 8px 14px;
         font-size: 14px;
         margin: 0 3px 5px 0;
       }
-      
-      /* Adjust year header spacing */
+
       .year-header {
         font-size: 16px;
         margin-top: 25px;
         margin-bottom: 10px;
       }
-      
-      /* Reduce padding in publication tables */
+
       table tbody tr td[style*="padding:20px"] {
         padding: 15px 10px !important;
       }
-      
-      /* Make links more readable on mobile */
+
       p[style*="text-align:center"] {
         word-spacing: normal;
       }
@@ -175,14 +301,14 @@
               <p>He is a CS PhD student at <a href="https://www.rice.edu/" >Rice University</a>, advised by Prof. <a href="https://hanjiechen.github.io/">Hanjie Chen</a>. Previosly, he was also affiliated with <a href="https://yale-nlp.github.io/">Yale NLP</a> and <a href="https://www.gatech.edu/">Georgia Tech</a>. </p>
 		<p>His research mainly focuses on language model architectures and understanding their mechanism and limitations. 
               </p>
-              <p style="text-align:center">
+              <p style="text-align:center" class="social-links">
 		<a href="https://scholar.google.com/citations?user=g7Y0RHcAAAAJ&hl=en&oi=ao">Google Scholar</a> &nbsp/&nbsp
 		<a href="https://twitter.com/ChunyuanDeng">Twitter/X</a> &nbsp/&nbsp
 		<a href="https://github.com/CharlesDDDD">Github</a> &nbsp/&nbsp
-                <a href="mailto:cd110@rice.edu">Email</a> 
+                <a href="mailto:cd110@rice.edu">Email</a>
               </p>
             </td>
-            <td style="padding:2.5%;width:40%;max-width:40%">
+            <td style="padding:2.5%;width:40%;max-width:40%" class="profile-img-container">
               <a href="images/Chunyuan.jpg"><img style="width:100%;max-width:100%" alt="profile photo" src="images/Chunyuan.jpg" class="hoverZoomLink"></a>
             </td>
           </tr>
@@ -215,7 +341,35 @@
               <!-- Recent Publications Section -->
               <div id="recentPublications" class="publication-section">
                 <p>A selection of work that represents his recent research style.</p>
+
+                <div class="year-header">Language Modeling</div>
                 <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
+                  <tr>
+                    <td style="padding:20px;width:75%;vertical-align:middle">
+                      <a href="https://openreview.net/forum?id=GhJIa921j7">
+                        <papertitle>ByteFlow: Language Modeling through Adaptive Byte Compression without a Tokenizer</papertitle>
+                      </a>
+                      <br>
+                      <strong>Chunyuan Deng</strong>, Sanket Lokegaonkar, Colin Lockard, Besnik Fetahu, Nasser Zalmout, Xian Li
+                      <br>
+                      <em>International Conference on Learning Representations</em> (<strong>ICLR</strong>), 2026.
+                    </td>
+                  </tr>
+                </tbody></table>
+
+                <div class="year-header">Mechanisms & Limitations of LMs</div>
+                <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
+                  <tr>
+                    <td style="padding:20px;width:75%;vertical-align:middle">
+                      <a href="https://arxiv.org/abs/2410.15580">
+                        <papertitle>Language Models are Symbolic Learners in Arithmetic</papertitle>
+                      </a>
+                      <br>
+                      <strong>Chunyuan Deng</strong>, Zhiqi Li, Roy Xie, Ruidi Chang, Hanjie Chen
+                      <br>
+                      <em>Transactions on Machine Learning Research</em> (<strong>TMLR</strong>), 2026.
+                    </td>
+                  </tr>
                   <tr>
                     <td style="padding:20px;width:75%;vertical-align:middle">
                       <a href="https://arxiv.org/pdf/2507.05158">
@@ -226,7 +380,18 @@
                       <br>
                       <em>Advances in Neural Information Processing System</em> (<strong>NeurIPS</strong>), 2025.
                     </td>
-                  </tr>  
+                  </tr>
+                  <tr>
+                    <td style="padding:20px;width:75%;vertical-align:middle">
+                      <a href="https://arxiv.org/abs/2502.01025">
+                        <papertitle>Language Models (Mostly) Know When to Stop Reading</papertitle>
+                      </a>
+                      <br>
+                      Roy Xie, Junlin Wang, Paul Rosu, <strong>Chunyuan Deng</strong>, Bolun Sun, Zihao Lin, Bhuwan Dhingra
+                      <br>
+                      <em>Advances in Neural Information Processing System</em> (<strong>NeurIPS</strong>), 2025.
+                    </td>
+                  </tr>
                   <tr>
                     <td style="padding:20px;width:75%;vertical-align:middle">
                       <a href="https://arxiv.org/abs/2506.06686">
@@ -243,6 +408,32 @@
               
               <!-- All Publications Section -->
               <div id="allPublications" class="publication-section hidden">
+                <div class="year-header">2026</div>
+                <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
+                  <tr>
+                    <td style="padding:20px;width:75%;vertical-align:middle">
+                      <a href="https://openreview.net/forum?id=GhJIa921j7">
+                        <papertitle>ByteFlow: Language Modeling through Adaptive Byte Compression without a Tokenizer</papertitle>
+                      </a>
+                      <br>
+                      <strong>Chunyuan Deng</strong>, Sanket Lokegaonkar, Colin Lockard, Besnik Fetahu, Nasser Zalmout, Xian Li
+                      <br>
+                      <em>International Conference on Learning Representations</em> (<strong>ICLR</strong>), 2026.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding:20px;width:75%;vertical-align:middle">
+                      <a href="https://arxiv.org/abs/2410.15580">
+                        <papertitle>Language Models are Symbolic Learners in Arithmetic</papertitle>
+                      </a>
+                      <br>
+                      <strong>Chunyuan Deng</strong>, Zhiqi Li, Roy Xie, Ruidi Chang, Hanjie Chen
+                      <br>
+                      <em>Transactions on Machine Learning Research</em> (<strong>TMLR</strong>), 2026.
+                    </td>
+                  </tr>
+                </tbody></table>
+
                 <div class="year-header">2025</div>
                 <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
                   <tr>
@@ -339,24 +530,13 @@
                   </tr>
                   <tr>
                     <td style="padding:20px;width:75%;vertical-align:middle">
-                      <a href="https://arxiv.org/abs/2410.15580">
-                        <papertitle>Language Models are Symbolic Learners in Arithmetic</papertitle>
-                      </a>
-                      <br>
-                      <strong>Chunyuan Deng</strong>, Zhiqi Li, Roy Xie, Ruidi Chang, Hanjie Chen
-                      <br>
-                      <em>Preprint</em>, 2024.
-                    </td>
-                  </tr>
-                  <tr>
-                    <td style="padding:20px;width:75%;vertical-align:middle">
                       <a href="https://arxiv.org/abs/2311.09783">
                         <papertitle>Investigating Data Contamination in Modern Benchmarks for Large Language Models</papertitle>
                       </a>
                       <br>
                       <strong>Chunyuan Deng</strong>, Yilun Zhao, Xiangru Tang, Mark Gerstein, Arman Cohan
                       <br>
-                      <em>North American Chapter of the Association for Computational Linguistics</em> (<strong>NAACL</strong>), 2024. 
+                      <em>North American Chapter of the Association for Computational Linguistics</em> (<strong>NAACL</strong>), 2024.
                     </td>
                   </tr>
                 </tbody></table>

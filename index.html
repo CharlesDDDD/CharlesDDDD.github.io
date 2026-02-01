@@ -216,6 +216,49 @@
       margin-bottom: 8px;
     }
 
+    /* Gradient animations for blog heading and cards */
+    @keyframes gradient-shift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    @keyframes blog-card-warm {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    @keyframes blog-card-rose {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .blog-card-1 {
+      background: linear-gradient(135deg, #fdf5f0, #f8e5d5, #f0ceb0, #e8bda0, #f0ceb0, #f8e5d5, #fdf5f0);
+      background-size: 400% 400%;
+      animation: blog-card-warm 12s ease infinite;
+    }
+
+    .blog-card-1:hover {
+      background: linear-gradient(135deg, #fff9f5, #fceee0, #f5d8bd, #edc8a8, #f5d8bd, #fceee0, #fff9f5);
+      background-size: 400% 400%;
+      animation: blog-card-warm 12s ease infinite;
+    }
+
+    .blog-card-2 {
+      background: linear-gradient(135deg, #faf5f4, #f0e5e3, #e8d5d0, #dcc5c0, #e8d5d0, #f0e5e3, #faf5f4);
+      background-size: 400% 400%;
+      animation: blog-card-rose 14s ease infinite;
+    }
+
+    .blog-card-2:hover {
+      background: linear-gradient(135deg, #fefaf9, #f5ede8, #edddd8, #e5cfc8, #edddd8, #f5ede8, #fefaf9);
+      background-size: 400% 400%;
+      animation: blog-card-rose 14s ease infinite;
+    }
+
     /* Mobile responsive styles */
     @media screen and (max-width: 600px) {
       body {
@@ -334,6 +377,46 @@
             </td>
           </tr>
         </tbody></table> -->
+
+<!-- Blog Section -->
+<table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
+	<tr>
+            <td style="padding:20px;width:100%;vertical-align:middle">
+              <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 20px;">
+                <heading style="background: linear-gradient(120deg, #f0ceb0, #e8bda0, #c89888, #b8917a, #a0746a, #c89888, #e8bda0, #f0ceb0); background-size: 400% 400%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradient-shift 10s ease infinite;">✨ Blog</heading>
+                <a href="blog/archive.html" style="font-size: 13px; font-family: 'Cormorant Garamond', serif; font-weight: 600; letter-spacing: 0.5px;">View All →</a>
+              </div>
+
+              <!-- Horizontal Scrolling Blog Posts -->
+              <div style="overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; margin-bottom: 5px; padding-bottom: 5px;">
+                <div style="display: flex; gap: 16px; min-width: min-content;">
+
+                  <!-- Blog Post 1 - Warm Peachy Terracotta Theme with Animation -->
+                  <a href="blog/training-language-models.html" style="text-decoration: none; display: block; flex: 0 0 320px;">
+                    <div class="blog-card-1" style="padding: 18px 22px; border-radius: 6px; border: 1px solid rgba(232, 196, 168, 0.5); box-shadow: 0 3px 12px rgba(212, 160, 122, 0.2); transition: all 0.3s ease; min-height: 125px; display: flex; flex-direction: column; justify-content: center;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 6px 20px rgba(212, 160, 122, 0.35)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 3px 12px rgba(212, 160, 122, 0.2)';">
+                      <div style="font-family: 'Cormorant Garamond', serif; font-size: 11px; font-weight: 600; color: #c89060; letter-spacing: 0.5px; margin-bottom: 8px; text-align: center; opacity: 0.85;">January 2026</div>
+                      <div style="font-family: 'Cormorant Garamond', serif; font-size: 17px; font-weight: 700; color: #7d4838; line-height: 1.4; text-align: center; letter-spacing: 0.3px; margin-bottom: 8px;">On the Art of Training Language Models</div>
+                      <div style="font-size: 12px; line-height: 1.45; color: #8b5a3c; text-align: center; opacity: 0.75;">Tokenization-free approaches and ByteFlow insights</div>
+                    </div>
+                  </a>
+
+                  <!-- Blog Post 2 - Dusty Rose Mauve Theme with Animation -->
+                  <a href="blog/symbolic-learning.html" style="text-decoration: none; display: block; flex: 0 0 320px;">
+                    <div class="blog-card-2" style="padding: 18px 22px; border-radius: 6px; border: 1px solid rgba(212, 168, 160, 0.5); box-shadow: 0 3px 12px rgba(184, 136, 128, 0.2); transition: all 0.3s ease; min-height: 125px; display: flex; flex-direction: column; justify-content: center;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 6px 20px rgba(184, 136, 128, 0.35)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 3px 12px rgba(184, 136, 128, 0.2)';">
+                      <div style="font-family: 'Cormorant Garamond', serif; font-size: 11px; font-weight: 600; color: #b88880; letter-spacing: 0.5px; margin-bottom: 8px; text-align: center; opacity: 0.85;">December 2025</div>
+                      <div style="font-family: 'Cormorant Garamond', serif; font-size: 17px; font-weight: 700; color: #7d4838; line-height: 1.4; text-align: center; letter-spacing: 0.3px; margin-bottom: 8px;">Understanding Symbolic Learning in Neural Networks</div>
+                      <div style="font-size: 12px; line-height: 1.45; color: #a07068; text-align: center; opacity: 0.75;">Symbolic reasoning vs. pattern matching in LMs</div>
+                    </div>
+                  </a>
+
+                </div>
+              </div>
+
+            </td>
+        </tr>
+        </tbody>
+</table>
+
 <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
 	<tr>
             <td style="padding:20px;width:100%;vertical-align:middle">

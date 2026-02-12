@@ -259,6 +259,24 @@
       animation: blog-card-rose 14s ease infinite;
     }
 
+    @keyframes blog-card-sage {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .blog-card-3 {
+      background: linear-gradient(135deg, #f8faf7, #f0f5ee, #e5ede2, #dce6d8, #e5ede2, #f0f5ee, #f8faf7);
+      background-size: 400% 400%;
+      animation: blog-card-sage 16s ease infinite;
+    }
+
+    .blog-card-3:hover {
+      background: linear-gradient(135deg, #fafcf9, #f3f8f1, #e8f0e5, #dfe8dc, #e8f0e5, #f3f8f1, #fafcf9);
+      background-size: 400% 400%;
+      animation: blog-card-sage 16s ease infinite;
+    }
+
     /* Mobile responsive styles */
     @media screen and (max-width: 600px) {
       body {
@@ -390,6 +408,15 @@
               <!-- Horizontal Scrolling Blog Posts -->
               <div style="overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; margin-bottom: 5px; padding-bottom: 5px;">
                 <div style="display: flex; gap: 16px; min-width: min-content;">
+
+                  <!-- Blog Post 0 - ABC Research Mindset - Sage Forest Theme -->
+                  <a href="blog/abc-research-mindset.html" style="text-decoration: none; display: block; flex: 0 0 320px;">
+                    <div class="blog-card-3" style="padding: 18px 22px; border-radius: 6px; border: 1px solid rgba(138, 154, 123, 0.5); box-shadow: 0 3px 12px rgba(107, 122, 94, 0.2); transition: all 0.3s ease; min-height: 125px; display: flex; flex-direction: column; justify-content: center;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 6px 20px rgba(107, 122, 94, 0.35)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 3px 12px rgba(107, 122, 94, 0.2)';">
+                      <div style="font-family: 'Cormorant Garamond', serif; font-size: 11px; font-weight: 600; color: #6b7a5e; letter-spacing: 0.5px; margin-bottom: 8px; text-align: center; opacity: 0.85;">February 2026</div>
+                      <div style="font-family: 'Cormorant Garamond', serif; font-size: 17px; font-weight: 700; color: #3d4f3a; line-height: 1.4; text-align: center; letter-spacing: 0.3px; margin-bottom: 8px;">The ABC Research Mindset</div>
+                      <div style="font-size: 12px; line-height: 1.45; color: #5c6b52; text-align: center; opacity: 0.75;">Debiasing novelty when judging research ideas</div>
+                    </div>
+                  </a>
 
                   <!-- Blog Post 1 - Warm Peachy Terracotta Theme with Animation -->
                   <a href="blog/training-language-models.html" style="text-decoration: none; display: block; flex: 0 0 320px;">

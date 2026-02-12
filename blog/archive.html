@@ -1,10 +1,9 @@
-<!DOCTYPE HTML>
-<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Blog Archive - Chunyuan Deng</title>
-
-  <meta name="author" content="Chunyuan Deng">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <!-- Renaissance-inspired fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -32,195 +31,197 @@
       --renaissance-umber: #5c4033;
     }
 
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
       background: linear-gradient(135deg, var(--morandi-warm-white) 0%, var(--morandi-cream) 50%, #f0ebe3 100%);
       min-height: 100vh;
       font-family: 'EB Garamond', 'Georgia', serif;
       color: var(--morandi-charcoal);
-      line-height: 1.8;
-      padding: 20px;
+      line-height: 1.7;
+      padding: 40px 20px;
     }
 
-    a {
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+
+    h1 {
+      font-family: 'Cormorant Garamond', 'Georgia', serif;
+      font-size: 42px;
+      font-weight: 700;
+      color: var(--renaissance-forest);
+      letter-spacing: 2px;
+      margin-bottom: 15px;
+    }
+
+    .subtitle {
+      font-size: 16px;
+      color: var(--morandi-soft-brown);
+      font-style: italic;
+    }
+
+    .back-link {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .back-link a {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 14px;
       color: var(--renaissance-forest);
       text-decoration: none;
       transition: all 0.3s ease;
       border-bottom: 1px solid transparent;
     }
-    a:hover {
+
+    .back-link a:hover {
       color: var(--renaissance-burgundy);
       border-bottom: 1px solid var(--renaissance-burgundy);
     }
 
-    .back-link {
-      display: inline-block;
-      margin-bottom: 30px;
-      font-family: 'Cormorant Garamond', serif;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-    }
-
-    .container {
-      max-width: 750px;
-      margin: 0 auto;
-      background: linear-gradient(145deg, rgba(255,255,255,0.7) 0%, rgba(250,247,242,0.5) 100%);
-      padding: 50px;
-      border-radius: 8px;
-      box-shadow: 0 4px 20px rgba(138, 154, 123, 0.12);
-    }
-
-    h1 {
-      font-family: 'Cormorant Garamond', 'Georgia', serif;
-      font-weight: 700;
-      font-size: 36px;
-      color: var(--renaissance-forest);
-      letter-spacing: 1px;
-      margin-bottom: 15px;
-      line-height: 1.3;
-    }
-
-    .subtitle {
-      font-family: 'EB Garamond', serif;
-      font-size: 16px;
-      color: var(--morandi-soft-brown);
-      font-style: italic;
-      margin-bottom: 40px;
-    }
-
     .year-section {
-      margin-bottom: 45px;
+      margin-bottom: 60px;
     }
 
     .year-header {
       font-family: 'Cormorant Garamond', 'Georgia', serif;
-      font-size: 28px;
+      font-size: 32px;
       font-weight: 700;
       color: var(--renaissance-forest);
-      margin-bottom: 20px;
-      padding-bottom: 10px;
-      border-bottom: 2px solid;
-      border-image: linear-gradient(90deg, var(--renaissance-forest) 0%, var(--morandi-sage) 60%, transparent 100%) 1;
+      margin-bottom: 30px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--morandi-sage);
+      position: relative;
     }
 
-    .blog-entry {
-      margin-bottom: 25px;
-      padding: 18px 20px;
-      background: linear-gradient(135deg, rgba(255,255,255,0.5) 0%, rgba(250,247,242,0.3) 100%);
-      border-radius: 5px;
-      border-left: 3px solid var(--morandi-terracotta);
+    .year-header::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 100px;
+      height: 2px;
+      background: var(--renaissance-burgundy);
+    }
+
+    .blog-list {
+      display: grid;
+      gap: 25px;
+    }
+
+    .blog-item {
+      background: linear-gradient(145deg, rgba(255,255,255,0.7) 0%, rgba(250,247,242,0.5) 100%);
+      border-radius: 8px;
+      padding: 28px 32px;
+      border: 1px solid rgba(138, 154, 123, 0.2);
+      box-shadow: 0 3px 12px rgba(125, 110, 99, 0.1);
       transition: all 0.3s ease;
+      text-decoration: none;
+      display: block;
     }
 
-    .blog-entry:hover {
-      background: linear-gradient(135deg, rgba(255,255,255,0.7) 0%, rgba(250,247,242,0.5) 100%);
-      box-shadow: 0 2px 10px rgba(138, 154, 123, 0.1);
-      transform: translateX(5px);
+    .blog-item:hover {
+      box-shadow: 0 6px 20px rgba(125, 110, 99, 0.2);
+      border-color: rgba(201, 168, 160, 0.4);
     }
 
     .blog-date {
       font-family: 'Cormorant Garamond', serif;
       font-size: 13px;
-      color: var(--morandi-soft-brown);
-      margin-bottom: 6px;
       font-weight: 600;
+      color: var(--morandi-dusty-rose);
       letter-spacing: 0.5px;
+      margin-bottom: 12px;
+      opacity: 0.85;
     }
 
     .blog-title {
-      font-family: 'Cormorant Garamond', 'Georgia', serif;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 24px;
       font-weight: 700;
-      font-size: 18px;
-      color: var(--renaissance-forest);
-      margin-bottom: 8px;
+      color: var(--renaissance-burgundy);
+      line-height: 1.4;
+      letter-spacing: 0.3px;
+      margin-bottom: 12px;
       transition: color 0.3s ease;
     }
 
-    .blog-entry:hover .blog-title {
-      color: var(--renaissance-burgundy);
+    .blog-item:hover .blog-title {
+      color: var(--renaissance-forest);
     }
 
-    .blog-excerpt {
+    .blog-description {
       font-size: 15px;
-      color: var(--morandi-charcoal);
-      opacity: 0.85;
       line-height: 1.6;
-      margin: 0;
+      color: var(--morandi-soft-brown);
+      opacity: 0.85;
     }
 
     @media screen and (max-width: 600px) {
-      .container {
-        padding: 30px 20px;
+      body {
+        padding: 30px 15px;
       }
+
       h1 {
-        font-size: 28px;
+        font-size: 32px;
       }
+
       .year-header {
-        font-size: 22px;
+        font-size: 26px;
       }
+
+      .blog-item {
+        padding: 22px 24px;
+      }
+
       .blog-title {
-        font-size: 16px;
+        font-size: 20px;
       }
-      .blog-excerpt {
+
+      .blog-description {
         font-size: 14px;
       }
     }
   </style>
 </head>
-
 <body>
   <div class="container">
-    <a href="../index.html" class="back-link">← Back to Home</a>
+    <div class="header">
+      <h1>Blog Archive</h1>
+      <div class="subtitle">Explorations in language models and attention mechanisms</div>
+    </div>
 
-    <h1>Blog Archive</h1>
-    <div class="subtitle">Thoughts on language models, research, and the journey of discovery.</div>
+    <div class="back-link">
+      <a href="../index.html">← Back to Home</a>
+    </div>
 
     <!-- 2026 -->
     <div class="year-section">
       <div class="year-header">2026</div>
+      <div class="blog-list">
 
-      <a href="abc-research-mindset.html" style="text-decoration: none; display: block;">
-        <div class="blog-entry">
-          <div class="blog-date">February 11, 2026</div>
-          <div class="blog-title">The ABC Research Mindset</div>
-          <p class="blog-excerpt">
-            A simple debiasing trick for judging new research ideas. By reordering the timeline of proposals, we can strip away the novelty premium and compare ideas on their actual merits.
-          </p>
-        </div>
-      </a>
+        <a href="linear-attention-key-value.html" class="blog-item">
+          <div class="blog-date">February 2026</div>
+          <div class="blog-title">Rethinking Key-Value Relationships in Linear Attention</div>
+          <div class="blog-description">
+            We tested how DeltaNet handles diverse key-value relationships from identity to exponentials, scaling up to 32,000 tokens. Under standard normalized conditions, DeltaNet stays remarkably stable whether values come from k² or eᵏ. Information theory explains the bounds: DeltaNet retains 99.6% of information for identity but only 1.2% for exponentials, revealing fundamental compression limits.
+          </div>
+        </a>
 
-      <a href="training-language-models.html" style="text-decoration: none; display: block;">
-        <div class="blog-entry">
-          <div class="blog-date">January 15, 2026</div>
-          <div class="blog-title">On the Art of Training Language Models</div>
-          <p class="blog-excerpt">
-            Training large language models often feels like an art form—balancing data quality, architecture choices, and computational constraints. In my recent work on ByteFlow, I've come to appreciate how tokenization-free approaches can reshape our understanding of language modeling.
-          </p>
-        </div>
-      </a>
-
-    </div>
-
-    <!-- 2025 -->
-    <div class="year-section">
-      <div class="year-header">2025</div>
-
-      <a href="symbolic-learning.html" style="text-decoration: none; display: block;">
-        <div class="blog-entry">
-          <div class="blog-date">December 20, 2025</div>
-          <div class="blog-title">Understanding Symbolic Learning in Neural Networks</div>
-          <p class="blog-excerpt">
-            Can neural networks truly understand symbols? Our recent findings suggest that language models learn arithmetic not through pattern matching, but through genuine symbolic reasoning. This challenges many assumptions about how these systems work.
-          </p>
-        </div>
-      </a>
-
-    </div>
-
-    <div style="margin-top: 50px; padding-top: 25px; border-top: 1px solid rgba(61, 79, 58, 0.15); text-align: center; color: var(--morandi-soft-brown); font-size: 14px; font-style: italic;">
-      More posts coming soon...
+      </div>
     </div>
 
   </div>
 </body>
-
 </html>

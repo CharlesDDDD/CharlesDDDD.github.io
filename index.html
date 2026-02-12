@@ -223,58 +223,22 @@
       100% { background-position: 0% 50%; }
     }
 
-    @keyframes blog-card-warm {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-
-    @keyframes blog-card-rose {
+    @keyframes blog-card-green {
       0% { background-position: 0% 50%; }
       50% { background-position: 100% 50%; }
       100% { background-position: 0% 50%; }
     }
 
     .blog-card-1 {
-      background: linear-gradient(135deg, #fffbf8, #fef7f0, #fcf0e5, #f9e8d8, #fcf0e5, #fef7f0, #fffbf8);
+      background: linear-gradient(135deg, #faf8f5, #f6f3ee, #f1ede6, #ebe7de, #f1ede6, #f6f3ee, #faf8f5);
       background-size: 400% 400%;
-      animation: blog-card-warm 12s ease infinite;
+      animation: blog-card-green 12s ease infinite;
     }
 
     .blog-card-1:hover {
-      background: linear-gradient(135deg, #fffcfa, #fff9f3, #fdf3e8, #faebd8, #fdf3e8, #fff9f3, #fffcfa);
+      background: linear-gradient(135deg, #f8f6f2, #f4f1ea, #efebe3, #e9e5db, #efebe3, #f4f1ea, #f8f6f2);
       background-size: 400% 400%;
-      animation: blog-card-warm 12s ease infinite;
-    }
-
-    .blog-card-2 {
-      background: linear-gradient(135deg, #fffbfa, #fef6f5, #fcf0ed, #f9ebe8, #fcf0ed, #fef6f5, #fffbfa);
-      background-size: 400% 400%;
-      animation: blog-card-rose 14s ease infinite;
-    }
-
-    .blog-card-2:hover {
-      background: linear-gradient(135deg, #fffcfc, #fff8f7, #fdf3f0, #faeeea, #fdf3f0, #fff8f7, #fffcfc);
-      background-size: 400% 400%;
-      animation: blog-card-rose 14s ease infinite;
-    }
-
-    @keyframes blog-card-sage {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-
-    .blog-card-3 {
-      background: linear-gradient(135deg, #f8faf7, #f0f5ee, #e5ede2, #dce6d8, #e5ede2, #f0f5ee, #f8faf7);
-      background-size: 400% 400%;
-      animation: blog-card-sage 16s ease infinite;
-    }
-
-    .blog-card-3:hover {
-      background: linear-gradient(135deg, #fafcf9, #f3f8f1, #e8f0e5, #dfe8dc, #e8f0e5, #f3f8f1, #fafcf9);
-      background-size: 400% 400%;
-      animation: blog-card-sage 16s ease infinite;
+      animation: blog-card-green 12s ease infinite;
     }
 
     /* Mobile responsive styles */
@@ -401,43 +365,18 @@
 	<tr>
             <td style="padding:20px;width:100%;vertical-align:middle">
               <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 20px;">
-                <heading style="background: linear-gradient(120deg, #f0ceb0, #e8bda0, #c89888, #b8917a, #a0746a, #c89888, #e8bda0, #f0ceb0); background-size: 400% 400%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradient-shift 10s ease infinite;">✨ Blog</heading>
+                <heading style="background: linear-gradient(120deg, #b5c2aa, #a0b095, #8a9a7b, #7d8a6e, #6b7a5e, #7d8a6e, #8a9a7b, #a0b095, #b5c2aa); background-size: 400% 400%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradient-shift 10s ease infinite;">✨ Blog</heading>
                 <a href="blog/archive.html" style="font-size: 13px; font-family: 'Cormorant Garamond', serif; font-weight: 600; letter-spacing: 0.5px;">View All →</a>
               </div>
 
-              <!-- Horizontal Scrolling Blog Posts -->
-              <div style="overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; margin-bottom: 5px; padding-bottom: 5px;">
-                <div style="display: flex; gap: 16px; min-width: min-content;">
-
-                  <!-- Blog Post 0 - ABC Research Mindset - Sage Forest Theme -->
-                  <a href="blog/abc-research-mindset.html" style="text-decoration: none; display: block; flex: 0 0 320px;">
-                    <div class="blog-card-3" style="padding: 18px 22px; border-radius: 6px; border: 1px solid rgba(138, 154, 123, 0.5); box-shadow: 0 3px 12px rgba(107, 122, 94, 0.2); transition: all 0.3s ease; min-height: 125px; display: flex; flex-direction: column; justify-content: center;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 6px 20px rgba(107, 122, 94, 0.35)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 3px 12px rgba(107, 122, 94, 0.2)';">
-                      <div style="font-family: 'Cormorant Garamond', serif; font-size: 11px; font-weight: 600; color: #6b7a5e; letter-spacing: 0.5px; margin-bottom: 8px; text-align: center; opacity: 0.85;">February 2026</div>
-                      <div style="font-family: 'Cormorant Garamond', serif; font-size: 17px; font-weight: 700; color: #3d4f3a; line-height: 1.4; text-align: center; letter-spacing: 0.3px; margin-bottom: 8px;">The ABC Research Mindset</div>
-                      <div style="font-size: 12px; line-height: 1.45; color: #5c6b52; text-align: center; opacity: 0.75;">Debiasing novelty when judging research ideas</div>
-                    </div>
-                  </a>
-
-                  <!-- Blog Post 1 - Warm Peachy Terracotta Theme with Animation -->
-                  <a href="blog/training-language-models.html" style="text-decoration: none; display: block; flex: 0 0 320px;">
-                    <div class="blog-card-1" style="padding: 18px 22px; border-radius: 6px; border: 1px solid rgba(232, 196, 168, 0.5); box-shadow: 0 3px 12px rgba(212, 160, 122, 0.2); transition: all 0.3s ease; min-height: 125px; display: flex; flex-direction: column; justify-content: center;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 6px 20px rgba(212, 160, 122, 0.35)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 3px 12px rgba(212, 160, 122, 0.2)';">
-                      <div style="font-family: 'Cormorant Garamond', serif; font-size: 11px; font-weight: 600; color: #c89060; letter-spacing: 0.5px; margin-bottom: 8px; text-align: center; opacity: 0.85;">January 2026</div>
-                      <div style="font-family: 'Cormorant Garamond', serif; font-size: 17px; font-weight: 700; color: #7d4838; line-height: 1.4; text-align: center; letter-spacing: 0.3px; margin-bottom: 8px;">On the Art of Training Language Models</div>
-                      <div style="font-size: 12px; line-height: 1.45; color: #8b5a3c; text-align: center; opacity: 0.75;">Tokenization-free approaches and ByteFlow insights</div>
-                    </div>
-                  </a>
-
-                  <!-- Blog Post 2 - Dusty Rose Mauve Theme with Animation -->
-                  <a href="blog/symbolic-learning.html" style="text-decoration: none; display: block; flex: 0 0 320px;">
-                    <div class="blog-card-2" style="padding: 18px 22px; border-radius: 6px; border: 1px solid rgba(212, 168, 160, 0.5); box-shadow: 0 3px 12px rgba(184, 136, 128, 0.2); transition: all 0.3s ease; min-height: 125px; display: flex; flex-direction: column; justify-content: center;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 6px 20px rgba(184, 136, 128, 0.35)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 3px 12px rgba(184, 136, 128, 0.2)';">
-                      <div style="font-family: 'Cormorant Garamond', serif; font-size: 11px; font-weight: 600; color: #b88880; letter-spacing: 0.5px; margin-bottom: 8px; text-align: center; opacity: 0.85;">December 2025</div>
-                      <div style="font-family: 'Cormorant Garamond', serif; font-size: 17px; font-weight: 700; color: #7d4838; line-height: 1.4; text-align: center; letter-spacing: 0.3px; margin-bottom: 8px;">Understanding Symbolic Learning in Neural Networks</div>
-                      <div style="font-size: 12px; line-height: 1.45; color: #a07068; text-align: center; opacity: 0.75;">Symbolic reasoning vs. pattern matching in LMs</div>
-                    </div>
-                  </a>
-
+              <!-- Blog Post - Linear Attention -->
+              <a href="blog/linear-attention-key-value.html" style="text-decoration: none; display: block; max-width: 500px; margin: 0 auto;">
+                <div class="blog-card-1" style="padding: 20px 26px; border-radius: 6px; border: 1px solid rgba(201, 168, 160, 0.25); box-shadow: 0 3px 12px rgba(125, 110, 99, 0.12); transition: all 0.3s ease; min-height: 125px; display: flex; flex-direction: column; justify-content: center; overflow: visible;" onmouseover="this.style.boxShadow='0 6px 20px rgba(125, 110, 99, 0.22)';" onmouseout="this.style.boxShadow='0 3px 12px rgba(125, 110, 99, 0.12)';">
+                  <div style="font-family: 'Cormorant Garamond', serif; font-size: 11px; font-weight: 600; color: #c9a8a0; letter-spacing: 0.5px; margin-bottom: 8px; text-align: center; opacity: 0.85;">February 2026</div>
+                  <div style="font-family: 'Cormorant Garamond', serif; font-size: 17px; font-weight: 700; color: #6b3a3a; line-height: 1.4; text-align: center; letter-spacing: 0.3px; margin-bottom: 8px;">Rethinking Key-Value Relationships in Linear Attention</div>
+                  <div style="font-size: 12px; line-height: 1.45; color: #7d6e63; text-align: center; opacity: 0.75;">How non-linearities of key-value affect online loss in linear attention? A empirical study.</div>
                 </div>
-              </div>
+              </a>
 
             </td>
         </tr>

@@ -13,27 +13,25 @@
 
   <style>
     :root {
-      /* Morandi Color Palette */
-      --morandi-cream: #f5f0e8;
-      --morandi-warm-white: #faf7f2;
-      --morandi-sage: #8a9a7b;
-      --morandi-sage-dark: #6b7a5e;
-      --morandi-dusty-rose: #c9a8a0;
-      --morandi-terracotta: #b8917a;
-      --morandi-muted-blue: #9aabb8;
-      --morandi-warm-gray: #a69e94;
-      --morandi-charcoal: #4a4541;
-      --morandi-soft-brown: #7d6e63;
-      /* Deep Renaissance colors */
-      --renaissance-burgundy: #6b3a3a;
-      --renaissance-forest: #3d4f3a;
-      --renaissance-deep-brown: #3a3330;
-      --renaissance-ochre: #8b6914;
-      --renaissance-umber: #5c4033;
+      /* True Morandi — greyed, dusty, aged pigments */
+      --morandi-parchment: #f2ece4;
+      --morandi-warm-white: #f8f4ee;
+      --morandi-linen: #eee7dd;
+      --morandi-dusty-rose: #b09a92;
+      --morandi-terracotta: #a08070;
+      --morandi-mauve: #9a8585;
+      --morandi-warm-gray: #968e85;
+      --morandi-charcoal: #4a4440;
+      --morandi-soft-brown: #7a706a;
+      /* Deep Renaissance — muted, aged tones */
+      --renaissance-umber: #6a4e4e;
+      --renaissance-sienna: #7a6050;
+      --renaissance-ochre: #8a7a58;
+      --renaissance-deep: #5a4a42;
     }
 
     body {
-      background: linear-gradient(135deg, var(--morandi-warm-white) 0%, var(--morandi-cream) 50%, #f0ebe3 100%);
+      background: linear-gradient(135deg, var(--morandi-warm-white) 0%, var(--morandi-linen) 50%, var(--morandi-parchment) 100%);
       min-height: 100vh;
       font-family: 'EB Garamond', 'Georgia', serif;
       color: var(--morandi-charcoal);
@@ -42,14 +40,14 @@
     }
 
     a {
-      color: var(--renaissance-forest);
+      color: var(--renaissance-umber);
       text-decoration: none;
       transition: all 0.3s ease;
       border-bottom: 1px solid transparent;
     }
     a:hover {
-      color: var(--renaissance-burgundy);
-      border-bottom: 1px solid var(--renaissance-burgundy);
+      color: var(--renaissance-sienna);
+      border-bottom: 1px solid var(--renaissance-sienna);
     }
 
     .back-link {
@@ -63,17 +61,17 @@
     .container {
       max-width: 750px;
       margin: 0 auto;
-      background: linear-gradient(145deg, rgba(255,255,255,0.7) 0%, rgba(250,247,242,0.5) 100%);
+      background: linear-gradient(145deg, rgba(255,255,255,0.7) 0%, rgba(248,244,238,0.5) 100%);
       padding: 50px;
       border-radius: 8px;
-      box-shadow: 0 4px 20px rgba(138, 154, 123, 0.12);
+      box-shadow: 0 4px 20px rgba(106, 78, 78, 0.08);
     }
 
     h1 {
       font-family: 'Cormorant Garamond', 'Georgia', serif;
       font-weight: 700;
       font-size: 36px;
-      color: var(--renaissance-forest);
+      color: var(--renaissance-umber);
       letter-spacing: 1px;
       margin-bottom: 8px;
       line-height: 1.3;
@@ -94,14 +92,14 @@
       margin-bottom: 35px;
       padding-bottom: 20px;
       border-bottom: 2px solid;
-      border-image: linear-gradient(90deg, var(--renaissance-forest) 0%, var(--morandi-sage) 60%, transparent 100%) 1;
+      border-image: linear-gradient(90deg, var(--renaissance-umber) 0%, var(--morandi-dusty-rose) 60%, transparent 100%) 1;
     }
 
     h2 {
       font-family: 'Cormorant Garamond', 'Georgia', serif;
       font-weight: 700;
       font-size: 24px;
-      color: var(--renaissance-forest);
+      color: var(--renaissance-umber);
       margin-top: 40px;
       margin-bottom: 15px;
       letter-spacing: 0.5px;
@@ -118,15 +116,15 @@
     }
 
     strong {
-      color: var(--renaissance-forest);
+      color: var(--renaissance-umber);
       font-weight: 600;
     }
 
     blockquote {
       margin: 30px 0;
       padding: 20px 25px;
-      background: linear-gradient(135deg, rgba(138, 154, 123, 0.08) 0%, rgba(107, 58, 58, 0.05) 100%);
-      border-left: 4px solid var(--renaissance-forest);
+      background: linear-gradient(135deg, rgba(106, 78, 78, 0.05) 0%, rgba(138, 122, 88, 0.04) 100%);
+      border-left: 4px solid var(--morandi-dusty-rose);
       font-style: italic;
       color: var(--morandi-soft-brown);
     }
@@ -162,18 +160,18 @@
       flex: 1;
       padding: 22px 20px;
       border-radius: 6px;
-      border: 1px solid rgba(61, 79, 58, 0.15);
+      border: 1px solid rgba(106, 78, 78, 0.12);
       position: relative;
     }
 
     .diptych-panel.panel-natural {
-      background: linear-gradient(145deg, rgba(184, 145, 122, 0.06) 0%, rgba(201, 168, 160, 0.08) 100%);
+      background: linear-gradient(145deg, rgba(160, 128, 112, 0.06) 0%, rgba(176, 154, 146, 0.08) 100%);
       border-top: 3px solid var(--morandi-terracotta);
     }
 
     .diptych-panel.panel-reordered {
-      background: linear-gradient(145deg, rgba(138, 154, 123, 0.06) 0%, rgba(61, 79, 58, 0.08) 100%);
-      border-top: 3px solid var(--renaissance-forest);
+      background: linear-gradient(145deg, rgba(138, 122, 88, 0.05) 0%, rgba(106, 78, 78, 0.05) 100%);
+      border-top: 3px solid var(--renaissance-umber);
     }
 
     .panel-header {
@@ -184,8 +182,8 @@
       letter-spacing: 0.3px;
     }
 
-    .panel-natural .panel-header { color: var(--renaissance-umber); }
-    .panel-reordered .panel-header { color: var(--renaissance-forest); }
+    .panel-natural .panel-header { color: var(--renaissance-sienna); }
+    .panel-reordered .panel-header { color: var(--renaissance-umber); }
 
     .panel-subtitle-text {
       font-family: 'Cormorant Garamond', serif;
@@ -216,15 +214,15 @@
     }
 
     .panel-natural .panel-item::before { background: var(--morandi-terracotta); }
-    .panel-reordered .panel-item::before { background: var(--renaissance-forest); }
+    .panel-reordered .panel-item::before { background: var(--renaissance-umber); }
 
     .panel-item.con { opacity: 0.7; }
 
     .verdict-row {
       margin: 25px 0;
       padding: 18px 22px;
-      background: linear-gradient(135deg, rgba(138, 154, 123, 0.06) 0%, rgba(139, 105, 20, 0.04) 100%);
-      border: 1px solid rgba(61, 79, 58, 0.12);
+      background: linear-gradient(135deg, rgba(106, 78, 78, 0.04) 0%, rgba(138, 122, 88, 0.04) 100%);
+      border: 1px solid rgba(106, 78, 78, 0.08);
       border-radius: 6px;
       text-align: center;
     }
@@ -233,7 +231,7 @@
       font-family: 'Cormorant Garamond', serif;
       font-size: 17px;
       font-weight: 600;
-      color: var(--renaissance-forest);
+      color: var(--renaissance-umber);
       letter-spacing: 0.5px;
     }
 
@@ -266,115 +264,115 @@
     <a href="../index.html" class="back-link">&larr; Back to Home</a>
 
     <h1>The ABC Research Mindset</h1>
-    <div class="subtitle">A simple trick to debias yourself when judging new ideas</div>
-    <div class="meta">February 2026 &middot; Chunyuan Deng</div>
+    <div class="subtitle">A small habit that helps me think more honestly about new ideas</div>
+    <div class="meta">February 2026</div>
 
-    <p>I want to share a small thinking tool I've been using lately. I'm not an established researcher&mdash;far from it&mdash;but I've found this practice genuinely useful for calibrating my own excitement about new ideas. Maybe it'll be useful for you too, or maybe you'll tell me I'm completely off. Either way, let's talk about it.</p>
+    <p>I want to share a small thinking tool I've been playing with. I'm definitely not an established researcher&mdash;just someone trying to get better at evaluating ideas honestly. I've found this little habit helpful for myself, so I figured I'd write it up. Maybe it resonates with you, maybe not. Either way, here it is.</p>
 
     <h2>The Novelty Trap</h2>
 
-    <p>Here's a thing about us humans: we really like new stuff. There's something almost instinctive about it&mdash;a shiny new idea just <em>feels</em> better than the thing we already have. In research, this shows up constantly. The community has method A and method B, and someone proposes method C. We read the paper and think, "oh, this is interesting, this is fresh." But hold on&mdash;is it actually <em>better</em>? Or does it just feel that way because it's... new?</p>
+    <p>I think most of us, myself included, have a soft spot for new stuff. There's something about a shiny new idea that just <em>feels</em> better than the thing we already have. In research, I notice this a lot. The community has method A and method B, and someone proposes method C. You read the paper and think, "oh, this is interesting, this is fresh." But sometimes I catch myself realizing that it might not actually be <em>better</em>&mdash;it just feels that way because it's new.</p>
 
-    <p>Novelty and progress are not the same thing. But our brains have a surprisingly hard time telling them apart.</p>
+    <p>I think novelty and progress can be different things, but at least for me, my brain has a hard time telling them apart sometimes.</p>
 
     <h2>The ABC Principle</h2>
 
-    <p>So here's the debiasing trick. It's almost embarrassingly simple.</p>
+    <p>So here's the little trick. It's honestly pretty simple, maybe too simple, but it works for me.</p>
 
-    <p>Say the community already has work <strong>A</strong> and <strong>B</strong>, and you (or someone) propose <strong>C</strong>. Instead of evaluating C in the natural order&mdash;"given A and B, how good is C?"&mdash;flip it. Imagine a world where we already had A and C, and someone proposes B instead. Now ask yourself: which proposal is actually more compelling?</p>
+    <p>Say the community already has work <strong>A</strong> and <strong>B</strong>, and you (or someone) propose <strong>C</strong>. Instead of evaluating C in the natural order&mdash;given A and B, how good is C&mdash;try flipping it. Imagine a world where we already had A and C, and someone proposes B instead. Then see which proposal actually feels more compelling.</p>
 
     <p>Formally, compare <strong>C&thinsp;|&thinsp;A,B</strong> versus <strong>B&thinsp;|&thinsp;A,C</strong>.</p>
 
-    <p>That's it. By swapping the order, you strip away the novelty premium. You're no longer comparing "the new thing" against "the established things"&mdash;you're comparing two ideas on equal footing, purely on their merits.</p>
+    <p>That's basically it. The idea is that by swapping the order, you can maybe peel away some of the novelty bias. Instead of comparing "the new thing" against "the established things," you're trying to put them on more equal footing and see what you actually think.</p>
 
     <!-- Figure 1: The ABC Principle Diagram -->
     <div class="figure-container">
       <svg viewBox="0 0 560 310" xmlns="http://www.w3.org/2000/svg" style="max-width: 520px;">
         <!-- Decorative outer frame -->
-        <rect x="8" y="8" width="544" height="294" rx="6" fill="none" stroke="#3d4f3a" stroke-width="1" opacity="0.2"/>
-        <rect x="14" y="14" width="532" height="282" rx="4" fill="none" stroke="#3d4f3a" stroke-width="0.5" opacity="0.12"/>
+        <rect x="8" y="8" width="544" height="294" rx="6" fill="none" stroke="#6a4e4e" stroke-width="1" opacity="0.15"/>
+        <rect x="14" y="14" width="532" height="282" rx="4" fill="none" stroke="#6a4e4e" stroke-width="0.5" opacity="0.08"/>
 
         <!-- Title -->
-        <text x="280" y="46" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-size="16" fill="#3d4f3a" font-weight="700" letter-spacing="1.5">THE  SCALES  OF  JUDGMENT</text>
-        <line x1="140" y1="55" x2="420" y2="55" stroke="#3d4f3a" stroke-width="0.5" opacity="0.2"/>
+        <text x="280" y="46" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-size="16" fill="#6a4e4e" font-weight="700" letter-spacing="1.5">THE  SCALES  OF  JUDGMENT</text>
+        <line x1="140" y1="55" x2="420" y2="55" stroke="#6a4e4e" stroke-width="0.5" opacity="0.18"/>
 
         <!-- === Natural Order Row === -->
-        <text x="38" y="102" font-family="EB Garamond, Georgia, serif" font-size="13" fill="#7d6e63" font-style="italic">Natural order:</text>
+        <text x="38" y="102" font-family="EB Garamond, Georgia, serif" font-size="13" fill="#7a706a" font-style="italic">Natural order:</text>
 
         <!-- Circle A -->
-        <circle cx="170" cy="97" r="20" fill="#8a9a7b" opacity="0.15" stroke="#8a9a7b" stroke-width="1.2"/>
-        <text x="170" y="102" text-anchor="middle" font-family="Cormorant Garamond, serif" font-size="17" fill="#3d4f3a" font-weight="700">A</text>
+        <circle cx="170" cy="97" r="20" fill="#b09a92" opacity="0.18" stroke="#b09a92" stroke-width="1.2"/>
+        <text x="170" y="102" text-anchor="middle" font-family="Cormorant Garamond, serif" font-size="17" fill="#6a4e4e" font-weight="700">A</text>
 
         <!-- Circle B -->
-        <circle cx="222" cy="97" r="20" fill="#b8917a" opacity="0.15" stroke="#b8917a" stroke-width="1.2"/>
-        <text x="222" y="102" text-anchor="middle" font-family="Cormorant Garamond, serif" font-size="17" fill="#5c4033" font-weight="700">B</text>
+        <circle cx="222" cy="97" r="20" fill="#8a7a58" opacity="0.15" stroke="#8a7a58" stroke-width="1.2"/>
+        <text x="222" y="102" text-anchor="middle" font-family="Cormorant Garamond, serif" font-size="17" fill="#7a6050" font-weight="700">B</text>
 
         <!-- Arrow -->
-        <line x1="256" y1="97" x2="310" y2="97" stroke="#7d6e63" stroke-width="1.2"/>
-        <polygon points="310,93 319,97 310,101" fill="#7d6e63"/>
+        <line x1="256" y1="97" x2="310" y2="97" stroke="#7a706a" stroke-width="1.2"/>
+        <polygon points="310,93 319,97 310,101" fill="#7a706a"/>
 
         <!-- Circle C (proposed, dashed) -->
-        <circle cx="355" cy="97" r="22" fill="#6b3a3a" opacity="0.08" stroke="#6b3a3a" stroke-width="1.3" stroke-dasharray="4,3"/>
-        <text x="355" y="102" text-anchor="middle" font-family="Cormorant Garamond, serif" font-size="17" fill="#6b3a3a" font-weight="700">C</text>
-        <text x="355" y="130" text-anchor="middle" font-family="EB Garamond, serif" font-size="10.5" fill="#6b3a3a" font-style="italic">proposed</text>
+        <circle cx="355" cy="97" r="22" fill="#6a4e4e" opacity="0.08" stroke="#6a4e4e" stroke-width="1.3" stroke-dasharray="4,3"/>
+        <text x="355" y="102" text-anchor="middle" font-family="Cormorant Garamond, serif" font-size="17" fill="#6a4e4e" font-weight="700">C</text>
+        <text x="355" y="130" text-anchor="middle" font-family="EB Garamond, serif" font-size="10.5" fill="#6a4e4e" font-style="italic">proposed</text>
 
         <!-- "feels novel!" label -->
-        <text x="448" y="93" font-family="EB Garamond, Georgia, serif" font-size="12.5" fill="#6b3a3a" font-style="italic">"feels novel</text>
-        <text x="448" y="108" font-family="EB Garamond, Georgia, serif" font-size="12.5" fill="#6b3a3a" font-style="italic">&nbsp;because it's new"</text>
+        <text x="448" y="93" font-family="EB Garamond, Georgia, serif" font-size="12.5" fill="#6a4e4e" font-style="italic">"feels novel</text>
+        <text x="448" y="108" font-family="EB Garamond, Georgia, serif" font-size="12.5" fill="#6a4e4e" font-style="italic">&nbsp;because it's new"</text>
 
         <!-- === Divider with swap label === -->
-        <line x1="40" y1="155" x2="520" y2="155" stroke="#3d4f3a" opacity="0.1"/>
-        <rect x="228" y="145" width="104" height="20" rx="10" fill="var(--morandi-warm-white)" stroke="#8a9a7b" stroke-width="0.8" opacity="0.6"/>
-        <text x="280" y="159" text-anchor="middle" font-family="Cormorant Garamond, serif" font-size="11" fill="#8a9a7b" font-weight="600" letter-spacing="0.5">swap B and C</text>
+        <line x1="40" y1="155" x2="520" y2="155" stroke="#6a4e4e" opacity="0.08"/>
+        <rect x="228" y="145" width="104" height="20" rx="10" fill="#f8f4ee" stroke="#b09a92" stroke-width="0.8" opacity="0.6"/>
+        <text x="280" y="159" text-anchor="middle" font-family="Cormorant Garamond, serif" font-size="11" fill="#a08070" font-weight="600" letter-spacing="0.5">swap B and C</text>
 
         <!-- === Reordered Row === -->
-        <text x="38" y="207" font-family="EB Garamond, Georgia, serif" font-size="13" fill="#7d6e63" font-style="italic">Reordered:</text>
+        <text x="38" y="207" font-family="EB Garamond, Georgia, serif" font-size="13" fill="#7a706a" font-style="italic">Reordered:</text>
 
         <!-- Circle A -->
-        <circle cx="170" cy="202" r="20" fill="#8a9a7b" opacity="0.15" stroke="#8a9a7b" stroke-width="1.2"/>
-        <text x="170" y="207" text-anchor="middle" font-family="Cormorant Garamond, serif" font-size="17" fill="#3d4f3a" font-weight="700">A</text>
+        <circle cx="170" cy="202" r="20" fill="#b09a92" opacity="0.18" stroke="#b09a92" stroke-width="1.2"/>
+        <text x="170" y="207" text-anchor="middle" font-family="Cormorant Garamond, serif" font-size="17" fill="#6a4e4e" font-weight="700">A</text>
 
         <!-- Circle C (now established) -->
-        <circle cx="222" cy="202" r="20" fill="#6b3a3a" opacity="0.12" stroke="#6b3a3a" stroke-width="1.2"/>
-        <text x="222" y="207" text-anchor="middle" font-family="Cormorant Garamond, serif" font-size="17" fill="#6b3a3a" font-weight="700">C</text>
+        <circle cx="222" cy="202" r="20" fill="#6a4e4e" opacity="0.12" stroke="#6a4e4e" stroke-width="1.2"/>
+        <text x="222" y="207" text-anchor="middle" font-family="Cormorant Garamond, serif" font-size="17" fill="#6a4e4e" font-weight="700">C</text>
 
         <!-- Arrow -->
-        <line x1="256" y1="202" x2="310" y2="202" stroke="#7d6e63" stroke-width="1.2"/>
-        <polygon points="310,198 319,202 310,206" fill="#7d6e63"/>
+        <line x1="256" y1="202" x2="310" y2="202" stroke="#7a706a" stroke-width="1.2"/>
+        <polygon points="310,198 319,202 310,206" fill="#7a706a"/>
 
         <!-- Circle B (proposed, dashed) -->
-        <circle cx="355" cy="202" r="22" fill="#b8917a" opacity="0.1" stroke="#b8917a" stroke-width="1.3" stroke-dasharray="4,3"/>
-        <text x="355" y="207" text-anchor="middle" font-family="Cormorant Garamond, serif" font-size="17" fill="#5c4033" font-weight="700">B</text>
-        <text x="355" y="235" text-anchor="middle" font-family="EB Garamond, serif" font-size="10.5" fill="#5c4033" font-style="italic">proposed</text>
+        <circle cx="355" cy="202" r="22" fill="#8a7a58" opacity="0.1" stroke="#8a7a58" stroke-width="1.3" stroke-dasharray="4,3"/>
+        <text x="355" y="207" text-anchor="middle" font-family="Cormorant Garamond, serif" font-size="17" fill="#7a6050" font-weight="700">B</text>
+        <text x="355" y="235" text-anchor="middle" font-family="EB Garamond, serif" font-size="10.5" fill="#7a6050" font-style="italic">proposed</text>
 
         <!-- "is it actually better?" label -->
-        <text x="448" y="198" font-family="EB Garamond, Georgia, serif" font-size="12.5" fill="#3d4f3a" font-style="italic">"now compare</text>
-        <text x="448" y="213" font-family="EB Garamond, Georgia, serif" font-size="12.5" fill="#3d4f3a" font-style="italic">&nbsp;on equal footing"</text>
+        <text x="448" y="198" font-family="EB Garamond, Georgia, serif" font-size="12.5" fill="#5a4a42" font-style="italic">"now compare</text>
+        <text x="448" y="213" font-family="EB Garamond, Georgia, serif" font-size="12.5" fill="#5a4a42" font-style="italic">&nbsp;on equal footing"</text>
 
         <!-- === Bottom comparison === -->
-        <line x1="40" y1="258" x2="520" y2="258" stroke="#3d4f3a" opacity="0.1"/>
-        <text x="280" y="284" text-anchor="middle" font-family="Cormorant Garamond, serif" font-size="15" fill="#3d4f3a" font-weight="700" letter-spacing="0.8">C | A,B &nbsp;&nbsp;versus&nbsp;&nbsp; B | A,C</text>
+        <line x1="40" y1="258" x2="520" y2="258" stroke="#6a4e4e" opacity="0.08"/>
+        <text x="280" y="284" text-anchor="middle" font-family="Cormorant Garamond, serif" font-size="15" fill="#6a4e4e" font-weight="700" letter-spacing="0.8">C | A,B &nbsp;&nbsp;versus&nbsp;&nbsp; B | A,C</text>
       </svg>
       <div class="figure-caption">Fig. 1 &mdash; The ABC Principle: strip away the novelty premium by reordering the timeline.</div>
     </div>
 
     <h2>Example I: Latent Reasoning</h2>
 
-    <p>Let me walk through a concrete example that's been on my mind lately. I want to be upfront: this is my personal reading. Yours might be different, and that's totally fine.</p>
+    <p>Let me try walking through an example that's been on my mind. Just to be clear, this is totally my personal take&mdash;you might see it differently, and I'd be curious to hear why.</p>
 
-    <p><strong>A</strong>&mdash;Machines naturally reason in latent space. This isn't new at all. Arguably, all of machine learning is about building better representation spaces, finding the best features for next-token prediction. The "latent space" has always been there, quietly doing the heavy lifting.</p>
+    <p><strong>A</strong>&mdash;Machines naturally reason in latent space. This isn't really new. In some sense, all of machine learning is about building better representation spaces, finding good features for next-token prediction. The "latent space" has kind of always been there, quietly doing its thing.</p>
 
-    <p><strong>B</strong>&mdash;Chain-of-Thought reasoning. Someone proposes that instead of reasoning purely in hidden states, we should have models reason over explicit textual tokens. Step by step, in natural language. This idea reshapes how we think about inference.</p>
+    <p><strong>B</strong>&mdash;Chain-of-Thought reasoning. Someone proposes that instead of reasoning purely in hidden states, we have models reason over explicit textual tokens. Step by step, in natural language. A pretty cool idea that changed how we think about inference.</p>
 
     <p><strong>C</strong>&mdash;Latent reasoning (the recent wave), along with interpretability work trying to understand what these latent tokens actually encode.</p>
 
-    <p>Now, in the natural order (<strong>A,B &rarr; propose C</strong>): latent reasoning feels exciting. We're going back to continuous representations! We're moving beyond the constraints of text! The novelty is undeniable&mdash;working in a continuous latent space is genuinely different from text-based CoT.</p>
+    <p>In the natural order (<strong>A,B &rarr; propose C</strong>): latent reasoning feels exciting. We're going back to continuous representations, moving beyond the constraints of text. And it genuinely is different from text-based CoT, no question.</p>
 
-    <p>But notice what we trade away. CoT's biggest strength is that humans can read it, write it, supervise it, and scale it. Both humans and machines can generate reasoning traces cheaply. Latent tokens? We're fundamentally hard-pressed to write or verify them. So we sacrifice scalability and interpretability for&mdash;well, what exactly?</p>
+    <p>But I keep thinking about what we might be trading away. One of CoT's really nice properties is that humans can read it, write it, supervise it, and scale it. Both humans and machines can generate reasoning traces pretty cheaply. But latent tokens are really hard to write or verify. And it's not obvious to me what we're getting in return.</p>
 
-    <p>Now flip it. Imagine we live in a world with <strong>A and C</strong>&mdash;machines have always had latent reasoning, and people have been working on its interpretability. Now someone walks in and proposes <strong>B</strong>: <em>"Hey, what if we make the model reason in plain text?"</em></p>
+    <p>Now try flipping it. Imagine we live in a world with <strong>A and C</strong>&mdash;machines have always had latent reasoning, and people have been working on its interpretability. Now someone walks in and proposes <strong>B</strong>: <em>"Hey, what if we just make the model reason in plain text?"</em></p>
 
-    <p>Think about that pitch for a second.</p>
+    <p>I think that's a pretty interesting pitch.</p>
 
     <!-- Diptych comparison -->
     <div class="diptych">
@@ -383,10 +381,10 @@
         <div class="panel-subtitle-text">Given CoT exists, pitch latent reasoning</div>
         <div class="panel-item">Operates in continuous space</div>
         <div class="panel-item">Potentially richer representations</div>
-        <div class="panel-item con">Hard to supervise or scale</div>
-        <div class="panel-item con">Humans can't write latent tokens</div>
-        <div class="panel-item con">Needs extra interpretability work</div>
-        <div class="panel-item con">Trades proven gains for unknowns</div>
+        <div class="panel-item con">Harder to supervise or scale</div>
+        <div class="panel-item con">Humans can't easily write latent tokens</div>
+        <div class="panel-item con">Needs interpretability work to understand</div>
+        <div class="panel-item con">Less clear what we gain in return</div>
       </div>
       <div class="diptych-panel panel-reordered">
         <div class="panel-header">Propose B | A, C</div>
@@ -404,114 +402,113 @@
       <div class="figure-caption">Fig. 2 &mdash; The Latent Reasoning Diptych: compare the two proposals side by side.</div>
     </div>
 
-    <p>Compare the two columns. <strong>C&thinsp;|&thinsp;A,B</strong>&mdash;latent reasoning, given we already have CoT&mdash;is asking us to give up concrete, well-understood advantages for a less transparent alternative. <strong>B&thinsp;|&thinsp;A,C</strong>&mdash;CoT, given we already have latent reasoning&mdash;offers an elegant, practical, scalable solution that anyone can inspect and improve.</p>
+    <p>If you look at the two columns side by side, it seems like <strong>C&thinsp;|&thinsp;A,B</strong>&mdash;latent reasoning, given we already have CoT&mdash;is kind of asking us to trade some pretty concrete advantages for something less transparent. Meanwhile <strong>B&thinsp;|&thinsp;A,C</strong>&mdash;CoT, given we already have latent reasoning&mdash;feels like a really practical, scalable idea that anyone can inspect and build on.</p>
 
-    <p>I have my own judgment on which proposal is stronger, and I suspect you might have yours too. The point isn't that one is definitively right&mdash;it's that the ABC reordering helps you see past the sheer novelty of "oh, continuous space!" and actually weigh the tradeoffs.</p>
+    <p>I have my own sense of which proposal feels stronger, and you probably have yours. The point isn't really that one is definitively right&mdash;it's more that flipping the order helps me see past the initial reaction and actually think about the tradeoffs more clearly.</p>
 
     <h2>Example II: The Transformer</h2>
 
-    <p>Here's another one. And honestly, the more I work on this stuff and think about it, the more my respect for it grows.</p>
+    <p>Here's another one I've been thinking about. The more I work with this stuff, the more I find myself appreciating it.</p>
 
-    <p>The Transformer architecture. It's easy to take it for granted&mdash;it's been around since 2017, it's everywhere, it's the wallpaper of modern ML. But let's actually sit with what it gives us.</p>
+    <p>The Transformer architecture. I think it's easy to take it for granted&mdash;it's been around since 2017, it's everywhere, it kind of fades into the background of modern ML. But when I actually stop and think about what it gives us, it's pretty remarkable.</p>
 
-    <p>Most architectures are finicky. You need to carefully tune hyperparameters, find the best configuration, cherry-pick settings just to make them competitive. The Transformer? It just... stands there. (My friend <a href="https://twitter.com/zhouxiang">@zhouxiang</a> and I once did a lively cosplay of it&mdash;long story.) You train it, and it gives you good performance. Remarkably, stubbornly robust.</p>
+    <p>A lot of architectures are finicky. You spend a lot of time tuning hyperparameters, finding the right configuration, trying to make things competitive. The Transformer just kind of... stands there. (My friend <a href="https://zhouxiangfang.github.io/">@zhouxiang</a> and I once did a funny cosplay of it&mdash;long story.) You train it, and it gives you good performance. It's really quite robust.</p>
 
     <!-- Figure 3: The Transformer Pillar -->
     <div class="figure-container">
-      <svg viewBox="0 0 460 340" xmlns="http://www.w3.org/2000/svg" style="max-width: 420px;">
-        <!-- Decorative frame -->
-        <rect x="8" y="8" width="444" height="324" rx="6" fill="none" stroke="#3d4f3a" stroke-width="1" opacity="0.18"/>
-
-        <!-- Background subtle arch -->
-        <path d="M 130 295 L 130 120 Q 130 60 230 60 Q 330 60 330 120 L 330 295" fill="none" stroke="#3d4f3a" stroke-width="0.8" opacity="0.08"/>
-
-        <!-- Column base -->
-        <rect x="190" y="270" width="80" height="16" rx="2" fill="#3d4f3a" opacity="0.08" stroke="#3d4f3a" stroke-width="0.8" opacity="0.15"/>
-        <rect x="195" y="260" width="70" height="14" rx="2" fill="#3d4f3a" opacity="0.06" stroke="#3d4f3a" stroke-width="0.6" opacity="0.12"/>
-
-        <!-- Column shaft -->
-        <rect x="205" y="108" width="50" height="155" rx="3" fill="url(#columnGrad)" stroke="#3d4f3a" stroke-width="1" opacity="0.5"/>
-
-        <!-- Column fluting lines -->
-        <line x1="215" y1="115" x2="215" y2="258" stroke="#3d4f3a" stroke-width="0.3" opacity="0.15"/>
-        <line x1="225" y1="115" x2="225" y2="258" stroke="#3d4f3a" stroke-width="0.3" opacity="0.15"/>
-        <line x1="235" y1="115" x2="235" y2="258" stroke="#3d4f3a" stroke-width="0.3" opacity="0.15"/>
-        <line x1="245" y1="115" x2="245" y2="258" stroke="#3d4f3a" stroke-width="0.3" opacity="0.15"/>
-
-        <!-- Column capital -->
-        <rect x="195" y="100" width="70" height="12" rx="2" fill="#3d4f3a" opacity="0.06" stroke="#3d4f3a" stroke-width="0.6" opacity="0.12"/>
-        <rect x="190" y="90" width="80" height="14" rx="2" fill="#3d4f3a" opacity="0.08" stroke="#3d4f3a" stroke-width="0.8" opacity="0.15"/>
-
-        <!-- Pediment / name plate -->
-        <rect x="185" y="40" width="90" height="44" rx="3" fill="rgba(61,79,58,0.04)" stroke="#3d4f3a" stroke-width="0.8" opacity="0.2"/>
-        <text x="230" y="60" text-anchor="middle" font-family="Cormorant Garamond, serif" font-size="13" fill="#3d4f3a" font-weight="700" letter-spacing="1.5">T</text>
-        <text x="230" y="60" text-anchor="middle" font-family="Cormorant Garamond, serif" font-size="11" fill="#3d4f3a" font-weight="700" letter-spacing="2.2">TRANSFORMER</text>
-        <text x="230" y="76" text-anchor="middle" font-family="EB Garamond, serif" font-size="9.5" fill="#7d6e63" font-style="italic">est. 2017</text>
-
+      <svg viewBox="0 0 640 350" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%;">
         <!-- Gradient definition -->
         <defs>
           <linearGradient id="columnGrad" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stop-color="#8a9a7b" stop-opacity="0.08"/>
-            <stop offset="50%" stop-color="#f5f0e8" stop-opacity="0.3"/>
-            <stop offset="100%" stop-color="#8a9a7b" stop-opacity="0.08"/>
+            <stop offset="0%" stop-color="#b09a92" stop-opacity="0.12"/>
+            <stop offset="50%" stop-color="#f2ece4" stop-opacity="0.4"/>
+            <stop offset="100%" stop-color="#b09a92" stop-opacity="0.12"/>
           </linearGradient>
         </defs>
 
+        <!-- Decorative frame -->
+        <rect x="8" y="8" width="624" height="334" rx="6" fill="none" stroke="#6a4e4e" stroke-width="1" opacity="0.15"/>
+
+        <!-- Background subtle arch -->
+        <path d="M 220 300 L 220 125 Q 220 60 320 60 Q 420 60 420 125 L 420 300" fill="none" stroke="#6a4e4e" stroke-width="0.8" opacity="0.05"/>
+
+        <!-- Column base -->
+        <rect x="280" y="275" width="80" height="16" rx="2" fill="#6a4e4e" fill-opacity="0.08" stroke="#6a4e4e" stroke-width="0.8" stroke-opacity="0.15"/>
+        <rect x="285" y="265" width="70" height="14" rx="2" fill="#6a4e4e" fill-opacity="0.06" stroke="#6a4e4e" stroke-width="0.6" stroke-opacity="0.12"/>
+
+        <!-- Column shaft -->
+        <rect x="295" y="112" width="50" height="156" rx="3" fill="url(#columnGrad)" stroke="#6a4e4e" stroke-width="1" stroke-opacity="0.28"/>
+
+        <!-- Column fluting lines -->
+        <line x1="305" y1="118" x2="305" y2="263" stroke="#6a4e4e" stroke-width="0.4" opacity="0.10"/>
+        <line x1="315" y1="118" x2="315" y2="263" stroke="#6a4e4e" stroke-width="0.4" opacity="0.10"/>
+        <line x1="325" y1="118" x2="325" y2="263" stroke="#6a4e4e" stroke-width="0.4" opacity="0.10"/>
+        <line x1="335" y1="118" x2="335" y2="263" stroke="#6a4e4e" stroke-width="0.4" opacity="0.10"/>
+
+        <!-- Column capital -->
+        <rect x="285" y="104" width="70" height="12" rx="2" fill="#6a4e4e" fill-opacity="0.06" stroke="#6a4e4e" stroke-width="0.6" stroke-opacity="0.12"/>
+        <rect x="280" y="94" width="80" height="14" rx="2" fill="#6a4e4e" fill-opacity="0.08" stroke="#6a4e4e" stroke-width="0.8" stroke-opacity="0.15"/>
+
+        <!-- Pediment / name plate -->
+        <rect x="270" y="38" width="100" height="48" rx="3" fill="rgba(106,78,78,0.04)" stroke="#6a4e4e" stroke-width="0.8" stroke-opacity="0.2"/>
+        <text x="320" y="60" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-size="14" fill="#6a4e4e" font-weight="700" letter-spacing="2">TRANSFORMER</text>
+        <text x="320" y="78" text-anchor="middle" font-family="EB Garamond, Georgia, serif" font-size="11" fill="#7a6050" font-style="italic">est. 2017</text>
+
         <!-- Property labels radiating outward -->
         <!-- Left side -->
-        <line x1="200" y1="135" x2="95" y2="115" stroke="#8a9a7b" stroke-width="0.6" opacity="0.4"/>
-        <text x="88" y="112" text-anchor="end" font-family="EB Garamond, serif" font-size="12" fill="#3d4f3a">Just works</text>
+        <line x1="290" y1="140" x2="195" y2="118" stroke="#a08070" stroke-width="0.8" opacity="0.45"/>
+        <text x="188" y="115" text-anchor="end" font-family="EB Garamond, Georgia, serif" font-size="14" fill="#4a4440" font-weight="500">Just works</text>
 
-        <line x1="200" y1="170" x2="70" y2="165" stroke="#8a9a7b" stroke-width="0.6" opacity="0.4"/>
-        <text x="63" y="162" text-anchor="end" font-family="EB Garamond, serif" font-size="12" fill="#3d4f3a">Exact KV cache</text>
+        <line x1="290" y1="175" x2="168" y2="170" stroke="#a08070" stroke-width="0.8" opacity="0.45"/>
+        <text x="161" y="167" text-anchor="end" font-family="EB Garamond, Georgia, serif" font-size="14" fill="#4a4440" font-weight="500">Exact KV cache</text>
 
-        <line x1="200" y1="205" x2="60" y2="215" stroke="#8a9a7b" stroke-width="0.6" opacity="0.4"/>
-        <text x="53" y="212" text-anchor="end" font-family="EB Garamond, serif" font-size="12" fill="#3d4f3a">Theoretically expressive</text>
+        <line x1="290" y1="210" x2="208" y2="222" stroke="#a08070" stroke-width="0.8" opacity="0.45"/>
+        <text x="200" y="219" text-anchor="end" font-family="EB Garamond, Georgia, serif" font-size="14" fill="#4a4440" font-weight="500">Expressive (with CoT)</text>
 
-        <line x1="200" y1="240" x2="80" y2="260" stroke="#8a9a7b" stroke-width="0.6" opacity="0.4"/>
-        <text x="73" y="257" text-anchor="end" font-family="EB Garamond, serif" font-size="12" fill="#3d4f3a">Robust to configs</text>
+        <line x1="290" y1="245" x2="175" y2="268" stroke="#a08070" stroke-width="0.8" opacity="0.45"/>
+        <text x="168" y="265" text-anchor="end" font-family="EB Garamond, Georgia, serif" font-size="14" fill="#4a4440" font-weight="500">Robust to configs</text>
 
         <!-- Right side -->
-        <line x1="260" y1="135" x2="360" y2="115" stroke="#8a9a7b" stroke-width="0.6" opacity="0.4"/>
-        <text x="367" y="112" text-anchor="start" font-family="EB Garamond, serif" font-size="12" fill="#3d4f3a">Scales predictably</text>
+        <line x1="350" y1="140" x2="445" y2="118" stroke="#a08070" stroke-width="0.8" opacity="0.45"/>
+        <text x="452" y="115" text-anchor="start" font-family="EB Garamond, Georgia, serif" font-size="14" fill="#4a4440" font-weight="500">Scales predictably</text>
 
-        <line x1="260" y1="170" x2="385" y2="165" stroke="#8a9a7b" stroke-width="0.6" opacity="0.4"/>
-        <text x="392" y="162" text-anchor="start" font-family="EB Garamond, serif" font-size="12" fill="#3d4f3a">Fast inference</text>
+        <line x1="350" y1="175" x2="470" y2="170" stroke="#a08070" stroke-width="0.8" opacity="0.45"/>
+        <text x="477" y="167" text-anchor="start" font-family="EB Garamond, Georgia, serif" font-size="14" fill="#4a4440" font-weight="500">Fast inference</text>
 
-        <line x1="260" y1="205" x2="380" y2="215" stroke="#8a9a7b" stroke-width="0.6" opacity="0.4"/>
-        <text x="387" y="212" text-anchor="start" font-family="EB Garamond, serif" font-size="12" fill="#3d4f3a">Supports post-training</text>
+        <line x1="350" y1="210" x2="460" y2="222" stroke="#a08070" stroke-width="0.8" opacity="0.45"/>
+        <text x="467" y="219" text-anchor="start" font-family="EB Garamond, Georgia, serif" font-size="14" fill="#4a4440" font-weight="500">Supports post-training</text>
 
-        <line x1="260" y1="240" x2="365" y2="260" stroke="#8a9a7b" stroke-width="0.6" opacity="0.4"/>
-        <text x="372" y="257" text-anchor="start" font-family="EB Garamond, serif" font-size="12" fill="#3d4f3a">Agentic RL-friendly</text>
+        <line x1="350" y1="245" x2="450" y2="268" stroke="#a08070" stroke-width="0.8" opacity="0.45"/>
+        <text x="457" y="265" text-anchor="start" font-family="EB Garamond, Georgia, serif" font-size="14" fill="#4a4440" font-weight="500">Agentic RL-friendly</text>
 
         <!-- Bottom inscription -->
-        <text x="230" y="310" text-anchor="middle" font-family="EB Garamond, serif" font-size="11" fill="#a69e94" font-style="italic">"it just stands there"</text>
+        <text x="320" y="320" text-anchor="middle" font-family="EB Garamond, Georgia, serif" font-size="13" fill="#7a706a" font-style="italic">"it just stands there"</text>
       </svg>
       <div class="figure-caption">Fig. 3 &mdash; The Transformer, rendered as a classical column. It just stands there, and everything works.</div>
     </div>
 
-    <p>And the properties keep stacking up. Transformers with CoT are theoretically Turing-complete&mdash;they can, in principle, compute anything. They maintain exact KV caches, which means fast inference and excellent recall over long contexts. They're a natural fit for post-training, for agentic RL, for all the things people want to build on top&mdash;these cherries can be placed safely on a sturdy foundation.</p>
+    <p>And the nice properties keep adding up. Transformers with CoT are theoretically Turing-complete&mdash;they can, in principle, compute anything. They maintain exact KV caches, which means fast inference and good recall over long contexts. They seem like a natural fit for post-training, for agentic RL, for a lot of the things people want to build on top.</p>
 
-    <p>Now apply the ABC test. For any new architecture claiming to sweep aside the Transformer: imagine you already had that new architecture (<strong>C</strong>), and someone proposed the Transformer (<strong>B</strong>). What would the pitch sound like?</p>
+    <p>So I tried the ABC test here too. For a new architecture that wants to replace the Transformer: imagine you already had that new architecture (<strong>C</strong>), and someone came along and proposed the Transformer (<strong>B</strong>). I think the pitch would sound something like this.</p>
 
     <blockquote>
-      "I have this architecture that just works out of the box. It scales predictably. It has an exact memory mechanism. It supports arbitrary post-training. You barely need to tune anything. And oh, by the way, paired with textual reasoning, it's theoretically universal."
+      "Hey, I have this architecture that just works out of the box. It scales predictably. It has an exact memory mechanism. It supports all sorts of post-training. You barely need to tune anything. And paired with textual reasoning, it's theoretically universal."
     </blockquote>
 
-    <p>That's a pretty compelling proposal. For most proposed alternatives, I think the Transformer-as-proposal would actually be the stronger pitch.</p>
+    <p>I don't know about you, but to me that sounds like a really strong proposal. I think in a lot of cases, the Transformer-as-proposal might actually be the more compelling pitch.</p>
 
-    <p>This doesn't mean we should stop exploring new architectures&mdash;not at all. But it does mean we should be respectful and calm about the baseline we're comparing against. The Transformer earned its place. Acknowledging that isn't defeatism; it's intellectual honesty.</p>
+    <p>This doesn't mean we should stop exploring new architectures&mdash;definitely not. But I think it helps to appreciate the baseline we're comparing against. The Transformer has earned its spot, and I think acknowledging that is just being honest with ourselves.</p>
 
     <h2>Staying Honest</h2>
 
-    <p>The ABC principle isn't a rigorous formal framework. It's just a mental habit. A way to pause before getting swept up in the excitement of the new and ask: <em>"Is this actually better, or does it just feel better because it's different?"</em></p>
+    <p>The ABC thing isn't a rigorous framework or anything. It's really just a mental habit&mdash;a way to pause before I get too excited about something new and check whether I actually think it's better, or whether it just feels better because it's different.</p>
 
-    <p>I find it keeps me more honest with myself, especially when evaluating my own ideas. (My own ideas feel the most novel to me, which means they need the most debiasing.)</p>
+    <p>I find it keeps me a bit more honest with myself, especially when I'm evaluating my own ideas. (My own ideas always feel the most novel to me, which is probably exactly when I need this the most.)</p>
 
-    <p>If you have thoughts on this, examples where this principle breaks down, or cases where the ABC test actually reveals the opposite of what you'd expect&mdash;I'd love to hear about them. This is very much a work in progress, like everything else in my research life.</p>
+    <p>If you have thoughts on this, or examples where this kind of thinking breaks down, or cases where flipping the order actually reveals the opposite of what you'd expect&mdash;I'd genuinely love to hear about them. This is very much a work in progress, like pretty much everything else in my research life.</p>
 
-    <p style="margin-top: 40px; padding-top: 20px; border-top: 1px solid rgba(61, 79, 58, 0.2); color: var(--morandi-soft-brown); font-size: 15px;">
-      <em>This post is a personal reflection, not a claim of authority. If you find the ABC framing useful, feel free to borrow it. If you think it's flawed, I genuinely want to know why.</em>
+    <p style="margin-top: 40px; padding-top: 20px; border-top: 1px solid rgba(106, 78, 78, 0.15); color: var(--morandi-soft-brown); font-size: 15px;">
+      <em>Just a personal reflection, not trying to claim any authority here. If the ABC framing is useful to you, feel free to borrow it. If you think it's wrong, I'd honestly love to know why.</em>
     </p>
 
   </div>

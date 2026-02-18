@@ -114,6 +114,36 @@
       display: none;
     }
 
+    /* Section theme color tokens */
+    :root {
+      /* Language Modeling — deep Renaissance forest green */
+      --theme-lm-header:      #3d4f3a;
+      --theme-lm-title:       #4a5e45;
+      --theme-lm-title-hover: #2e3b2c;
+      --theme-lm-underline-a: #3d4f3a;
+      --theme-lm-underline-b: #8a9a7b;
+      --theme-lm-row-bg:      rgba(138, 154, 123, 0.06);
+      --theme-lm-row-border:  rgba(61, 79, 58, 0.12);
+
+      /* Controllability of LMs — Morandi ochre / warm umber */
+      --theme-ctrl-header:      #7a5c2e;
+      --theme-ctrl-title:       #8b6530;
+      --theme-ctrl-title-hover: #5c4020;
+      --theme-ctrl-underline-a: #8b6914;
+      --theme-ctrl-underline-b: #c4a96a;
+      --theme-ctrl-row-bg:      rgba(196, 169, 106, 0.07);
+      --theme-ctrl-row-border:  rgba(139, 105, 20, 0.13);
+
+      /* Mechanisms & Limitations — Morandi dusty slate blue */
+      --theme-mech-header:      #4a5f6e;
+      --theme-mech-title:       #556b7a;
+      --theme-mech-title-hover: #334455;
+      --theme-mech-underline-a: #9aabb8;
+      --theme-mech-underline-b: #c2cfd8;
+      --theme-mech-row-bg:      rgba(154, 171, 184, 0.07);
+      --theme-mech-row-border:  rgba(74, 95, 110, 0.12);
+    }
+
     /* Elegant year headers with Renaissance flair */
     .year-header {
       font-family: 'Cormorant Garamond', 'Georgia', serif;
@@ -139,6 +169,51 @@
     .year-header:first-of-type {
       margin-top: 25px;
     }
+
+    /* ── Section-themed headers ── */
+    .year-header.theme-lm {
+      color: var(--theme-lm-header);
+    }
+    .year-header.theme-lm::after {
+      background: linear-gradient(90deg, var(--theme-lm-underline-a) 0%, var(--theme-lm-underline-b) 60%, transparent 100%);
+    }
+    .year-header.theme-ctrl {
+      color: var(--theme-ctrl-header);
+    }
+    .year-header.theme-ctrl::after {
+      background: linear-gradient(90deg, var(--theme-ctrl-underline-a) 0%, var(--theme-ctrl-underline-b) 60%, transparent 100%);
+    }
+    .year-header.theme-mech {
+      color: var(--theme-mech-header);
+    }
+    .year-header.theme-mech::after {
+      background: linear-gradient(90deg, var(--theme-mech-underline-a) 0%, var(--theme-mech-underline-b) 60%, transparent 100%);
+    }
+
+    /* ── Section-themed paper rows ── */
+    .pub-row-lm {
+      background: var(--theme-lm-row-bg);
+      border-left: 3px solid var(--theme-lm-row-border);
+    }
+    .pub-row-lm papertitle { color: var(--theme-lm-title); }
+    .pub-row-lm a:hover papertitle,
+    a:hover .pub-row-lm papertitle { color: var(--theme-lm-title-hover); }
+
+    .pub-row-ctrl {
+      background: var(--theme-ctrl-row-bg);
+      border-left: 3px solid var(--theme-ctrl-row-border);
+    }
+    .pub-row-ctrl papertitle { color: var(--theme-ctrl-title); }
+    .pub-row-ctrl a:hover papertitle,
+    a:hover .pub-row-ctrl papertitle { color: var(--theme-ctrl-title-hover); }
+
+    .pub-row-mech {
+      background: var(--theme-mech-row-bg);
+      border-left: 3px solid var(--theme-mech-row-border);
+    }
+    .pub-row-mech papertitle { color: var(--theme-mech-title); }
+    .pub-row-mech a:hover papertitle,
+    a:hover .pub-row-mech papertitle { color: var(--theme-mech-title-hover); }
 
     /* Paper titles - bold deep forest green for visibility */
     papertitle {
@@ -501,10 +576,10 @@
               <div id="recentPublications" class="publication-section">
                 <p>A selection of work that represents his recent research style.</p>
 
-                <div class="year-header">Language Modeling</div>
+                <div class="year-header theme-lm">Language Modeling</div>
                 <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
                   <tr>
-                    <td style="padding:20px;width:75%;vertical-align:middle">
+                    <td class="pub-row-lm" style="padding:20px;width:75%;vertical-align:middle">
                       <a href="https://openreview.net/forum?id=GhJIa921j7">
                         <papertitle>ByteFlow: Language Modeling through Adaptive Byte Compression without a Tokenizer</papertitle>
                       </a>
@@ -516,10 +591,10 @@
                   </tr>
                 </tbody></table>
 
-                <div class="year-header">Controllability of LMs</div>
+                <div class="year-header theme-ctrl">Controllability of LMs</div>
                 <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
                   <tr>
-                    <td style="padding:20px;width:75%;vertical-align:middle">
+                    <td class="pub-row-ctrl" style="padding:20px;width:75%;vertical-align:middle">
                       <a href="https://arxiv.org/pdf/2507.05158">
                         <papertitle>Steering Information Utility in Key-Value Memory for Language Model Post-Training</papertitle>
                       </a>
@@ -530,7 +605,7 @@
                     </td>
                   </tr>
                   <tr>
-                    <td style="padding:20px;width:75%;vertical-align:middle">
+                    <td class="pub-row-ctrl" style="padding:20px;width:75%;vertical-align:middle">
                       <a href="https://arxiv.org/abs/2506.06686">
                         <papertitle>Learning Distribution-wise Control in Representation Space for Language Models</papertitle>
                       </a>
@@ -542,10 +617,10 @@
                   </tr>
                 </tbody></table>
 
-                <div class="year-header">Mechanisms & Limitations of LMs</div>
+                <div class="year-header theme-mech">Mechanisms & Limitations of LMs</div>
                 <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
                   <tr>
-                    <td style="padding:20px;width:75%;vertical-align:middle">
+                    <td class="pub-row-mech" style="padding:20px;width:75%;vertical-align:middle">
                       <a href="https://arxiv.org/abs/2410.15580">
                         <papertitle>Language Models are Symbolic Learners in Arithmetic</papertitle>
                       </a>
@@ -556,7 +631,7 @@
                     </td>
                   </tr>
                   <tr>
-                    <td style="padding:20px;width:75%;vertical-align:middle">
+                    <td class="pub-row-mech" style="padding:20px;width:75%;vertical-align:middle">
                       <a href="https://arxiv.org/abs/2502.01025">
                         <papertitle>Language Models (Mostly) Know When to Stop Reading</papertitle>
                       </a>

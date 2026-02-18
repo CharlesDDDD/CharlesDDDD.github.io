@@ -376,9 +376,17 @@
         word-spacing: normal;
       }
 
+      .blog-scroll-inner {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        white-space: nowrap;
+      }
+
       .blog-scroll-inner a {
-        width: 260px;
-        min-width: 260px;
+        width: 240px;
+        min-width: 240px;
+        flex-shrink: 0;
       }
 
       .blog-scroll {
@@ -386,6 +394,13 @@
         margin-right: -10px;
         padding-left: 10px;
         padding-right: 10px;
+        overflow-x: auto;
+        overflow-y: hidden;
+      }
+
+      td em {
+        font-size: 14px !important;
+        display: inline !important;
       }
     }
   </style>
@@ -554,6 +569,15 @@
               <div id="allPublications" class="publication-section hidden">
                 <div class="year-header">2026</div>
                 <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
+                  <tr>
+                    <td style="padding:20px;width:75%;vertical-align:middle">
+                      <papertitle>Spherical Steering: Geometry-Aware Activation Rotation for Language Models</papertitle>
+                      <br>
+                      Zejia You, <strong>Chunyuan Deng</strong>, Hanjie Chen
+                      <br>
+                      <em>Preprint</em>, 2026.
+                    </td>
+                  </tr>
                   <tr>
                     <td style="padding:20px;width:75%;vertical-align:middle">
                       <a href="https://openreview.net/forum?id=GhJIa921j7">

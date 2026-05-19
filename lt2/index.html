@@ -220,7 +220,6 @@
 
     /* ── Result tables ── */
     .result-table-wrap {
-      overflow-x: auto;
       margin: 20px 0;
       border: 1px solid var(--border);
       border-radius: 6px;
@@ -228,13 +227,12 @@
     .result-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 12px;
-      white-space: nowrap;
+      font-size: 11px;
     }
     .result-table th {
       background: #1b3a6f;
       color: #fff;
-      padding: 7px 10px;
+      padding: 6px 7px;
       text-align: center;
       font-weight: 600;
       border-right: 1px solid rgba(255,255,255,0.15);
@@ -242,13 +240,14 @@
     .result-table th:first-child { text-align: left; border-radius: 6px 0 0 0; }
     .result-table th:last-child { border-right: none; border-radius: 0 6px 0 0; }
     .result-table td {
-      padding: 6px 10px;
+      padding: 5px 7px;
       text-align: center;
       border-bottom: 1px solid var(--border);
       border-right: 1px solid var(--border);
     }
-    .result-table td:first-child { text-align: left; white-space: normal; min-width: 160px; }
+    .result-table td:first-child { text-align: left; min-width: 130px; }
     .result-table td:last-child { border-right: none; }
+    .result-table .tc { text-align: center; }
     .result-table tr:last-child td { border-bottom: none; }
     .result-table .section-header td {
       background: #eef2f8;
@@ -863,30 +862,30 @@
             <td>—</td><td>9.87</td><td>59.27</td><td>0.51</td>
           </tr>
           <tr>
-            <td>✓</td><td><strong>9.82</strong></td><td><strong>59.69</strong></td><td><strong>0.04</strong></td>
+            <td class="tc">✓</td><td><strong>9.82</strong></td><td><strong>59.69</strong></td><td><strong>0.04</strong></td>
           </tr>
           <tr style="font-style:italic;color:#555;font-size:11px">
-            <td>Δ</td><td>−0.05</td><td>+0.42</td><td>−0.47</td>
+            <td class="tc">Δ</td><td>−0.05</td><td>+0.42</td><td>−0.47</td>
           </tr>
           <tr class="div-row">
             <td rowspan="3">Looped Hybrid (Full+GDN)</td>
             <td>—</td><td>9.31</td><td>61.39</td><td>0.38</td>
           </tr>
           <tr>
-            <td>✓</td><td><strong>9.28</strong></td><td><strong>61.66</strong></td><td><strong>0.05</strong></td>
+            <td class="tc">✓</td><td><strong>9.28</strong></td><td><strong>61.66</strong></td><td><strong>0.05</strong></td>
           </tr>
           <tr style="font-style:italic;color:#555;font-size:11px">
-            <td>Δ</td><td>−0.03</td><td>+0.27</td><td>−0.33</td>
+            <td class="tc">Δ</td><td>−0.03</td><td>+0.27</td><td>−0.33</td>
           </tr>
           <tr class="div-row">
             <td rowspan="3">Looped Hybrid (GDN+DSA)</td>
             <td>—</td><td>9.72</td><td>59.23</td><td>0.29</td>
           </tr>
           <tr>
-            <td>✓</td><td><strong>9.70</strong></td><td><strong>59.41</strong></td><td><strong>0.06</strong></td>
+            <td class="tc">✓</td><td><strong>9.70</strong></td><td><strong>59.41</strong></td><td><strong>0.06</strong></td>
           </tr>
           <tr style="font-style:italic;color:#555;font-size:11px">
-            <td>Δ</td><td>−0.02</td><td>+0.18</td><td>−0.23</td>
+            <td class="tc">Δ</td><td>−0.02</td><td>+0.18</td><td>−0.23</td>
           </tr>
         </tbody>
       </table>

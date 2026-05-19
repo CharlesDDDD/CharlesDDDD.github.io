@@ -183,6 +183,23 @@
     }
     figcaption strong { color: var(--text); }
 
+    figure.wrapfig {
+      float: right;
+      width: 46%;
+      margin: 4px 0 16px 28px;
+      text-align: center;
+    }
+    figure.wrapfig img {
+      max-width: 100%;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: #fff;
+      display: block;
+    }
+    @media (max-width: 640px) {
+      figure.wrapfig { float: none; width: 100%; margin: 20px 0; }
+    }
+
     .fig-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -365,6 +382,15 @@
   <section>
     <h2>Overview</h2>
     <div class="prose">
+      <figure class="wrapfig">
+        <img src="figures/flops_vs_seqlen.png" alt="FLOPs vs sequence length">
+        <figcaption>
+          <strong>The scaling problem of looped full attention.</strong>
+          Attention FLOPs (left) and KV-cache memory (right) for a 1.3B model vs. sequence length.
+          Because each loop re-runs full attention, both costs compound with the number of loops.
+          LT2's linear/sparse mixers keep both curves flat regardless of loop count.
+        </figcaption>
+      </figure>
       <p>
         Looped Transformers (LT) are an elegant idea: instead of stacking many independently-parameterized layers,
         reuse the same block of weights $T$ times before producing the output token.
@@ -458,15 +484,6 @@
       </p>
     </div>
 
-    <figure class="fig" style="max-width:560px;margin-left:auto;margin-right:auto;">
-      <img src="figures/flops_vs_seqlen.png" alt="FLOPs vs sequence length">
-      <figcaption>
-        <strong>The scaling problem of looped full attention.</strong>
-        Attention FLOPs (left) and KV-cache memory (right) for a 1.3B model vs. sequence length.
-        Because each loop re-runs full attention, both costs compound with the number of loops.
-        LT2's linear/sparse mixers keep both curves flat regardless of loop count.
-      </figcaption>
-    </figure>
   </section>
 
   <hr class="divider">

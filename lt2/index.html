@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LT2: Linear-Time Looped Transformers</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+  <script>
+    MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #ffffff;
+      --text: #1c1c1e;
+      --text-secondary: #555;
+      --text-light: #888;
+      --accent: #2b5ecc;
+      --accent-light: #eef2fb;
+      --border: #e2e2e2;
+      --surface: #f6f7f9;
+      --callout-border: #c8d8f5;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    /* ── Layout ── */
+    .container {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 0 28px;
+    }
+
+    /* ── Header ── */
+    header {
+      border-bottom: 1px solid var(--border);
+      padding: 16px 0;
+    }
+    header .back {
+      font-size: 12px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      letter-spacing: 0.01em;
+    }
+    header .back:hover { color: var(--accent); }
+
+    /* ── Hero ── */
+    .hero {
+      padding: 48px 0 36px;
+      text-align: center;
+    }
+
+    .hero h1 {
+      font-family: 'Source Serif 4', Georgia, serif;
+      font-size: 2.2rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      margin-bottom: 14px;
+      color: var(--text);
+    }
+
+    .hero .venue {
+      display: inline-block;
+      background: var(--accent-light);
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      padding: 4px 14px;
+      border-radius: 20px;
+      margin-bottom: 28px;
+    }
+
+    /* ── Authors ── */
+    .authors {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 4px 14px;
+      font-size: 14px;
+      margin-bottom: 6px;
+    }
+    .authors span { white-space: nowrap; }
+    .authors a {
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .authors a:hover { color: var(--accent); }
+    sup { font-size: 0.68em; color: var(--accent); font-weight: 600; }
+
+    /* ── Affiliation legend ── */
+    .affil-legend {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin: 8px 0 24px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 4px 18px;
+    }
+    .affil-legend span { white-space: nowrap; }
+    .affil-legend sup { color: var(--accent); }
+
+    /* ── Action links ── */
+    .links {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .links a {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 18px;
+      border-radius: 7px;
+      font-size: 13px;
+      font-weight: 500;
+      text-decoration: none;
+      border: 1.5px solid var(--border);
+      color: var(--text);
+      transition: border-color 0.2s, background 0.2s, color 0.2s;
+      background: #fff;
+    }
+    .links a:hover { border-color: var(--accent); background: var(--accent-light); color: var(--accent); }
+    .links a img { height: 16px; }
+
+    /* ── Divider ── */
+    .divider { border: none; border-top: 1px solid var(--border); margin: 48px 0; }
+
+    /* ── Prose body ── */
+    .prose { font-size: 14px; line-height: 1.8; color: var(--text); }
+    .prose p { margin-bottom: 1.1em; }
+    .prose p:last-child { margin-bottom: 0; }
+    .prose strong { color: var(--text); font-weight: 600; }
+    .prose em { font-style: italic; }
+
+    /* ── Section headings ── */
+    h2 {
+      font-family: 'Source Serif 4', Georgia, serif;
+      font-size: 1.45rem;
+      font-weight: 600;
+      margin: 0 0 14px;
+      color: var(--text);
+      letter-spacing: -0.01em;
+    }
+    h3 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin: 26px 0 10px;
+      color: var(--text);
+    }
+
+    section { margin-bottom: 0; }
+
+    /* ── Callout box ── */
+    .callout {
+      background: var(--accent-light);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 6px 6px 0;
+      padding: 14px 18px;
+      margin: 22px 0;
+      font-size: 14px;
+      color: var(--text);
+      line-height: 1.7;
+    }
+    .callout strong { color: var(--accent); }
+
+    /* ── Math display blocks ── */
+    .math-block {
+      overflow-x: auto;
+      margin: 18px 0;
+      padding: 2px 0;
+      font-size: 0.97em;
+    }
+
+    /* ── Figures ── */
+    figure.fig {
+      margin: 28px 0;
+      text-align: center;
+    }
+    figure.fig object,
+    figure.fig img {
+      max-width: 100%;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: #fafafa;
+    }
+    figcaption {
+      margin-top: 9px;
+      font-size: 12.5px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      text-align: left;
+    }
+    figcaption strong { color: var(--text); }
+
+    .fig-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 28px 0;
+    }
+    @media (max-width: 600px) { .fig-row { grid-template-columns: 1fr; } }
+
+    /* ── Inline table ── */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+      margin: 16px 0;
+    }
+    .data-table th {
+      background: var(--surface);
+      padding: 8px 12px;
+      text-align: left;
+      font-weight: 600;
+      border-bottom: 2px solid var(--border);
+      color: var(--text);
+    }
+    .data-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    .data-table tr:last-child td { border-bottom: none; }
+    .badge {
+      display: inline-block;
+      background: var(--accent-light);
+      color: var(--accent);
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 3px;
+      letter-spacing: 0.02em;
+    }
+
+    /* ── BibTeX ── */
+    .bibtex {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 18px 22px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      color: #333;
+      line-height: 1.6;
+    }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 24px 0;
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-light);
+      margin-top: 56px;
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <a class="back" href="../index.html">← Chunyuan Deng</a>
+  </div>
+</header>
+
+<!-- ═══════════ HERO ═══════════ -->
+<div class="hero">
+  <div class="container">
+    <div class="venue">Preprint · 2025</div>
+    <h1>LT2: Linear-Time Looped Transformers</h1>
+
+    <div class="authors">
+      <span><a href="#">Chunyuan Deng</a><sup>1</sup>,</span>
+      <span><a href="#">Yizhe Zhang</a><sup>2</sup>,</span>
+      <span><a href="#">Rui-jie Zhu</a><sup>3</sup>,</span>
+      <span><a href="#">Yuanyuan Xu</a><sup>1</sup>,</span>
+      <span><a href="#">Jiarui Liu</a><sup>4</sup>,</span>
+      <span><a href="#">T. S. Eugene Ng</a><sup>1</sup>,</span>
+      <span><a href="#">Hanjie Chen</a><sup>1</sup></span>
+    </div>
+
+    <div class="affil-legend">
+      <span><sup>1</sup> Rice University</span>
+      <span><sup>2</sup> Apple</span>
+      <span><sup>3</sup> UC Santa Cruz</span>
+      <span><sup>4</sup> Carnegie Mellon University</span>
+    </div>
+
+    <div class="links">
+      <a href="https://arxiv.org/abs/2506.01234" target="_blank">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Paper
+      </a>
+      <a href="https://github.com/chili-lab/LT2" target="_blank">
+        <img src="logo/github_logo.png" alt="GitHub">
+        Code
+      </a>
+      <a href="https://huggingface.co/chili-lab/Ouro-hybrid-1.4B" target="_blank">
+        <img src="logo/huggingface_logo.png" alt="HuggingFace">
+        Model Checkpoint
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- ═══════════ TEASER ═══════════ -->
+  <figure class="fig">
+    <object data="figures/figure1.pdf" type="application/pdf" width="100%" height="400">
+      <img src="figures/figure1.pdf" alt="LT2 teaser">
+    </object>
+    <figcaption>
+      <strong>Figure 1.</strong>
+      <em>(Left)</em> LT2 occupies a new region of the parameter-efficiency frontier: for the same parameter budget, LT2 models achieve better quality with far lower inference cost than standard Looped Transformers.
+      <em>(Right)</em> After distillation from a pre-trained full-attention Looped Transformer, Ouro-hybrid-1.4B is competitive with industry-level 3B–4B models while inheriting LT2's linear-time inference.
+    </figcaption>
+  </figure>
+
+  <hr class="divider">
+
+  <!-- ═══════════ ABSTRACT ═══════════ -->
+  <section>
+    <h2>Overview</h2>
+    <div class="prose">
+      <p>
+        Looped Transformers (LT) are an elegant idea: instead of stacking many independently-parameterized layers,
+        reuse the same block of weights $T$ times before producing the output token.
+        This gives $T\times$ the effective depth at $1\times$ the parameter count — a compelling handle for
+        parameter-efficient reasoning at inference time.
+      </p>
+      <p>
+        But there is a catch. Each loop re-runs full quadratic self-attention over the entire sequence.
+        FLOPs grow as $\mathcal{O}(L^2)$ per loop iteration, and the KV-cache grows as $\mathcal{O}(T \cdot L)$ at inference.
+        As you add more loops to get more reasoning depth, the attention cost compounds — exactly where
+        you want to scale, the architecture becomes most expensive.
+      </p>
+      <p>
+        <strong>LT2 (Linear-Time Looped Transformers)</strong> asks: can we keep the looping, but cut
+        the attention cost? We replace full softmax attention inside each loop with
+        subquadratic token mixers — linear attention and sparse attention — and find that looping and
+        efficient attention are not just compatible, but genuinely synergistic.
+        The loop changes <em>what the efficient mixer can do</em>, not just how many times it runs.
+      </p>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- ═══════════ THE CORE INSIGHT ═══════════ -->
+  <section>
+    <h2>Subquadratic Attention in Looped Transformers</h2>
+    <div class="prose">
+
+      <h3>Architecture formulation</h3>
+      <p>
+        A standard Transformer of depth $N$ stacks $N$ independently-parameterized blocks
+        $\{\mathcal{F}_\ell\}_{\ell=1}^{N}$, where each block applies a token mixer followed by a feed-forward network:
+      </p>
+      <div class="math-block">
+        $$\mathcal{F}_\ell(\mathbf{h}) = \mathbf{h}' + \mathrm{FFN}_\ell(\mathbf{h}'), \qquad \mathbf{h}' = \mathbf{h} + \mathrm{MHA}_\ell(\mathbf{h}).$$
+      </div>
+      <p>
+        A <strong>Looped Transformer (LT)</strong> reuses these $N$ shared blocks for $T$ iterations:
+      </p>
+      <div class="math-block">
+        $$\mathbf{h}^{(0)} = \mathrm{Emb}(\mathbf{x}), \quad \mathbf{h}^{(\tau)} = \bigl(\mathcal{F}_N \circ \cdots \circ \mathcal{F}_1\bigr)\!\bigl(\mathbf{h}^{(\tau-1)}\bigr), \quad \tau = 1, \ldots, T,$$
+      </div>
+      <p>
+        yielding effective depth $T \cdot N$ with only $N$ unique parameter sets.
+        The problem: each $\mathrm{MHA}_\ell$ costs $\mathcal{O}(L^2)$ FLOPs and the KV-cache
+        at inference is $\mathcal{O}(T \cdot L)$ — both scale linearly with $T$, compounding the cost of each added loop.
+      </p>
+      <p>
+        <strong>LT2</strong> simply replaces the MHA sub-layer with a subquadratic token mixer:
+      </p>
+      <div class="math-block">
+        $$\mathcal{F}_\ell(\mathbf{h}) = \mathbf{h}' + \mathrm{FFN}_\ell(\mathbf{h}'), \qquad \mathbf{h}' = \mathbf{h} + \mathrm{LinearMixer}_\ell(\mathbf{h}).$$
+      </div>
+      <p>
+        The looping structure, weight sharing, and learned per-loop residual gate $\boldsymbol{\rho}_\tau$ all remain:
+        $\mathbf{h}^{(\tau)} = \widetilde{\mathbf{h}}^{(\tau)} + \boldsymbol{\rho}_\tau \odot \mathbf{h}^{(\tau-1)}$.
+        Beyond efficiency, looping turns out to <em>amplify</em> the expressive power of subquadratic mixers
+        in two distinct ways.
+      </p>
+
+      <h3>Linear attention: rank-$T$ memory update</h3>
+      <p>
+        Frontier linear-attention architectures (GDN, KDA, RWKV7) maintain a fixed-size recurrent state
+        $\mathbf{S}_t \in \mathbb{R}^{d_k \times d_v}$ via a diagonal-plus-low-rank (DPLR) operator:
+      </p>
+      <div class="math-block">
+        $$\mathbf{S}_t = \mathbf{A}_t\,\mathbf{S}_{t-1} + \beta_t\,\mathbf{k}_t\mathbf{v}_t^{\top}, \qquad \mathbf{A}_t = \mathrm{Diag}(\boldsymbol{\alpha}_t)\bigl(\mathbf{I} - \beta_t\,\mathbf{k}_t\mathbf{k}_t^{\top}\bigr),$$
+      </div>
+      <p>
+        where $\boldsymbol{\alpha}_t \in [0,1]^{d_k}$ is a data-dependent diagonal gate and
+        $\mathbf{k}_t \in \mathbb{R}^{d_k}$ is the key projection of $\mathbf{h}_t$.
+        The matrix $\mathbf{A}_t$ is identity plus a <em>rank-1</em> perturbation.
+        This means a single non-looped DPLR block can only modify recurrent memory along
+        one direction per token — a known expressivity bottleneck for state-tracking tasks.
+      </p>
+      <p>
+        When the same block is looped $T$ times, each iteration $\tau$ contributes its own DPLR factor
+        $\mathbf{A}_t^{(\tau)}$ acting on the recurrent state at position $t$.
+        The cumulative state-transition operator across all loops is their product:
+      </p>
+      <div class="math-block">
+        $$\mathbf{A}_t^{\mathrm{eff}} = \prod_{\tau=1}^{T} \mathbf{A}_t^{(\tau)} = \prod_{\tau=1}^{T} \mathrm{Diag}\!\bigl(\boldsymbol{\alpha}_t^{(\tau)}\bigr) \!\left(\mathbf{I} - \beta_t^{(\tau)}\,\mathbf{k}_t^{(\tau)}\mathbf{k}_t^{(\tau)\top}\right).$$
+      </div>
+      <p>
+        The expressivity of this product depends critically on the per-loop keys
+        $\{\mathbf{k}_t^{(\tau)}\}_{\tau=1}^{T}$.
+        If all keys are identical, successive loops erase the same direction — no expressivity gain.
+        If instead the per-loop keys are <em>orthogonal</em> (which diverse intermediate representations
+        can approach in practice), the product erases $T$ distinct directions in recurrent memory.
+        The original rank-1 perturbation becomes a <strong>rank-$T$ perturbation</strong>,
+        directly multiplying the state-tracking capacity of the linear attention block
+        without adding any parameters.
+      </p>
+
+      <h3>Sparse attention: $\mathcal{O}(Tw)$ receptive field</h3>
+      <p>
+        A sliding-window block with window size $w$ restricts each query at position $t$
+        to attend only to the $w$ most recent tokens:
+      </p>
+      <div class="math-block">
+        $$\mathcal{I}_t^{(1)} = \{t - w + 1, \ldots, t\}.$$
+      </div>
+      <p>
+        Anything beyond the window is simply invisible — a hard constraint on long-range retrieval.
+        Looping provides a natural remedy. At loop $\tau$, position $t$ attends to a window of
+        loop-$(\tau\!-\!1)$ representations, which have already absorbed information from their own
+        windows one loop earlier. Chaining this argument inductively gives the effective receptive field
+        after $T$ loop iterations:
+      </p>
+      <div class="math-block">
+        $$\mathcal{I}_t^{(T)} \supseteq \bigl\{\max(1,\, t - Tw + 1),\, \ldots,\, t\bigr\}, \qquad \bigl|\mathcal{I}_t^{(T)}\bigr| = \mathcal{O}(Tw).$$
+      </div>
+      <p>
+        $T$ loops of a window-$w$ block reach as far back as $T$ independently-stacked layers of
+        window-$w$ attention — but with $T\times$ fewer parameters.
+        <strong>Looping turns compute into context</strong>: once $T$ is moderately large,
+        a fixed local window already covers sequences of arbitrary length, making sparse attention
+        a natural partner for looped architectures.
+      </p>
+    </div>
+
+    <figure class="fig">
+      <object data="figures/flops_vs_seqlen.pdf" type="application/pdf" width="100%" height="300">
+        <img src="figures/flops_vs_seqlen.pdf" alt="FLOPs vs sequence length">
+      </object>
+      <figcaption>
+        <strong>The scaling problem of looped full attention.</strong>
+        Attention FLOPs (left) and KV-cache memory (right) for a 1.3B model vs. sequence length.
+        Because each loop re-runs full attention, both costs compound with the number of loops.
+        LT2's linear/sparse mixers keep both curves flat regardless of loop count.
+      </figcaption>
+    </figure>
+  </section>
+
+  <hr class="divider">
+
+  <!-- ═══════════ ARCHITECTURE ═══════════ -->
+  <section>
+    <h2>Architecture</h2>
+    <div class="prose">
+      <p>
+        LT2's change to the standard Looped Transformer is minimal: swap the MHA sub-layer inside
+        the shared block with a subquadratic token mixer. The looping structure, the weight sharing,
+        and the learned per-loop residual gate all remain identical.
+        We study two base variants and their hybrids.
+      </p>
+    </div>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Variant</th>
+          <th>Mixer</th>
+          <th>Complexity</th>
+          <th>Core benefit from looping</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>LT2-linear</strong></td>
+          <td>GDN (Gated Delta Net)</td>
+          <td>$\mathcal{O}(L)$</td>
+          <td>Rank-$T$ recurrent state update; most stable optimizer behavior</td>
+        </tr>
+        <tr>
+          <td><strong>LT2-sparse</strong></td>
+          <td>DSA (Dynamic Sparse Attn)</td>
+          <td>$\mathcal{O}(L \log L)$</td>
+          <td>Effective receptive field grows to $\mathcal{O}(Tw)$ across loops</td>
+        </tr>
+        <tr>
+          <td><strong>LT2-hybrid (GDN+DSA)</strong> <span class="badge">Efficient</span></td>
+          <td>GDN + Sparse Attn</td>
+          <td>$\mathcal{O}(L)$</td>
+          <td>Linear branch compresses; sparse branch handles precise retrieval — no full attention needed</td>
+        </tr>
+        <tr>
+          <td><strong>LT2-hybrid (Full+GDN)</strong> <span class="badge">Best Quality</span></td>
+          <td>Small fraction Full Attn + GDN</td>
+          <td>Near-linear</td>
+          <td>GDN regularizes the loop; sparse full-attention layers handle the hard retrieval cases</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="prose">
+      <p>
+        For the hybrid variants we explore two axes of mixing: <em>depth-level</em>
+        (interleave different mixers across the layers within a single loop block) and
+        <em>loop-level</em> (use a different mixer type for different loop iterations).
+        We find depth-level mixing substantially more effective — distributing attention
+        across depth matters more than scheduling it across time.
+      </p>
+    </div>
+
+    <figure class="fig">
+      <object data="figures/hybrid_loop.pdf" type="application/pdf" width="100%" height="280">
+        <img src="figures/hybrid_loop.pdf" alt="Hybrid LT2 architecture">
+      </object>
+      <figcaption>
+        <strong>Two hybridization strategies.</strong>
+        <em>(a) Depth-level:</em> interleave different attention types across layers inside the shared block — the same hybrid stack runs at every loop iteration.
+        <em>(b) Loop-level:</em> vary the mixer type across loop iterations, e.g. full attention in loop 1, progressively narrower windows in later loops.
+        Depth-level mixing wins in our ablations.
+      </figcaption>
+    </figure>
+  </section>
+
+  <hr class="divider">
+
+  <!-- ═══════════ TRAINING STABILITY ═══════════ -->
+  <section>
+    <h2>Training Stability Under Looping</h2>
+    <div class="prose">
+      <p>
+        A practical concern when sharing weights across loop iterations is optimization stability.
+        The same block runs $T$ times — any pathology in the attention mechanism can compound.
+        We track gradient norms and loss curves throughout pre-training at 1.3B parameters, 100B tokens.
+      </p>
+
+      <h3>Attention sinks compound across loops</h3>
+      <p>
+        In standard Transformers, softmax attention concentrates mass on a small set of "sink" tokens —
+        typically the first token — which absorb a disproportionate share of attention regardless of content.
+        In a looped model, this is worse: the sink learned in loop $\tau$ is re-injected into loop
+        $\tau\!+\!1$ rather than reset. Each successive iteration starts already biased, and both the
+        first-token attention mass and the maximum residual activation trace a compounding sawtooth pattern
+        across loops.
+      </p>
+      <p>
+        We adopt a simple fix: a <strong>per-head sigmoid gate after SDPA</strong> (following Gated Attention).
+        Applied inside the shared block so the gate weights are reused every iteration, it suppresses the
+        sawtooth almost entirely and yields consistent downstream improvements across all softmax-containing
+        LT2 variants.
+      </p>
+    </div>
+
+    <figure class="fig">
+      <object data="figures/loop_sink_and_massact.pdf" type="application/pdf" width="100%" height="300">
+        <img src="figures/loop_sink_and_massact.pdf" alt="Attention sink across loops">
+      </object>
+      <figcaption>
+        <strong>Unrolled diagnostics for the Looped Transformer ($T=4$, 24 layers).</strong>
+        Dashed lines mark loop boundaries.
+        <em>(a)</em> First-token attention mass forms a sawtooth that intensifies each loop.
+        <em>(b)</em> Max FFN-residual activation follows the same compounding pattern.
+        <em>(c)</em> Residual-stream RMS norm grows across both within-loop depth and across loop iterations.
+        The SDPA output gate (blue) flattens (a) and (b) and substantially mitigates the cross-loop growth in (c).
+      </figcaption>
+    </figure>
+
+    <div class="fig-row">
+      <figure class="fig" style="margin:0">
+        <object data="figures/linear_stability.pdf" type="application/pdf" width="100%" height="250">
+          <img src="figures/linear_stability.pdf" alt="Linear stability">
+        </object>
+        <figcaption>
+          <strong>Linear variants.</strong>
+          Looped GDN has the smoothest loss and lowest gradient norms of any variant — better than the full-attention loop. RetNet, which lacks both data-dependent gating and the delta rule, diverges entirely.
+        </figcaption>
+      </figure>
+      <figure class="fig" style="margin:0">
+        <object data="figures/hybrid_stability.pdf" type="application/pdf" width="100%" height="250">
+          <img src="figures/hybrid_stability.pdf" alt="Hybrid stability">
+        </object>
+        <figcaption>
+          <strong>Hybrid variants.</strong>
+          Both hybrids match the Looped Transformer in loss from the start and pull slightly ahead by end of training, while gradient norms remain consistently smaller and spike-free.
+        </figcaption>
+      </figure>
+    </div>
+
+    <div class="prose" style="margin-top:18px">
+      <p>
+        The pattern is consistent: mixers with <em>data-dependent gating</em> and a
+        <em>delta rule</em> (GDN, and hybrids that include it) train more stably than vanilla full
+        attention under looping. The gate lets the recurrence forget stale state instead of accumulating
+        it; the delta rule bounds updates to recurrent memory. Mixers missing either ingredient are noisier;
+        missing both (RetNet) is unstable.
+      </p>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- ═══════════ DISTILLATION ═══════════ -->
+  <section>
+    <h2>You Don't Need to Train from Scratch</h2>
+    <div class="prose">
+      <p>
+        One practical barrier to adopting new architectures is the training cost.
+        We show that a pre-trained full-attention Looped Transformer (specifically, Ouro-1.4B)
+        can be converted into an LT2-hybrid model through a three-stage distillation recipe —
+        keeping the embeddings, FFN, and norm parameters, and replacing the attention layers with GDN,
+        then restoring a small fraction of full-attention layers.
+      </p>
+
+      <h3>The three-stage recipe</h3>
+      <p>
+        <strong>Stage 1 — Linear pre-alignment (100M tokens).</strong>
+        With all attention replaced by GDN, align each GDN block to its teacher's attention output
+        via MSE on the residual stream. This gives the student a warm start that avoids the
+        gradient instability of initializing GDN weights from random at the distillation scale.
+      </p>
+      <p>
+        <strong>Stage 2 — Hybrid logit distillation (600M tokens).</strong>
+        Restore the 6 full-attention layers most important for quality (selected by a KL-guided
+        criterion), then distill on the teacher's output logits. The looped setting introduces a
+        new design knob: a <em>per-loop KL weight schedule</em>. We minimize
+      </p>
+      <div class="math-block">
+        $$\mathcal{L}_{\mathrm{KD}} = \sum_{\tau=1}^{T} w_t^{(\tau)}\, \mathrm{KL}\!\left(\sigma_{\mathrm{top}\text{-}k}\!\bigl(z_\mathcal{T}^{(\tau)}/T_{\!\mathrm{kd}}\bigr) \,\Big\|\, \sigma_{\mathrm{top}\text{-}k}\!\bigl(z_\mathcal{S}^{(\tau)}/T_{\!\mathrm{kd}}\bigr)\right),$$
+      </div>
+      <p>
+        where $\sigma_{\mathrm{top}\text{-}k}$ renormalizes the softmax over the teacher's top-$k$ tokens,
+        $z^{(\tau)}_{\mathcal{T}/\mathcal{S}} \in \mathbb{R}^{L \times V}$ are per-loop logits, and
+        $\mathbf{w}_t \in \Delta^{T-1}$ is a weight schedule across loop iterations.
+        We progressively warm up per-loop supervision, then run uniform weights across loops,
+        then switch to final-output supervision only. Per-loop supervision gives a more stable
+        gradient signal and especially improves multi-key retrieval tasks.
+      </p>
+      <p>
+        <strong>Stage 3 — Long-context continuation (600M tokens at 32k length).</strong>
+        Continue training on long reasoning sequences to close the gap on mathematical tasks.
+        Progressive length expansion is essential here — jumping directly to 32k length
+        degrades long-context performance.
+      </p>
+    </div>
+
+    <figure class="fig">
+      <object data="figures/capacity_retention.pdf" type="application/pdf" width="100%" height="320">
+        <img src="figures/capacity_retention.pdf" alt="Capability retention after distillation">
+      </object>
+      <figcaption>
+        <strong>Capability retention across tasks after distillation.</strong>
+        Our method (Ouro-Hybrid, layer-selection) retains significantly more of the teacher's capability
+        compared to a uniform interleave baseline and the previous state-of-the-art distillation recipe.
+      </figcaption>
+    </figure>
+
+    <figure class="fig">
+      <object data="figures/ruler_subtasks.pdf" type="application/pdf" width="100%" height="280">
+        <img src="figures/ruler_subtasks.pdf" alt="RULER subtask breakdown">
+      </object>
+      <figcaption>
+        <strong>RULER subtask breakdown.</strong>
+        Per-loop supervision provides a more stable gradient signal than final-output-only supervision,
+        with the largest gains on multi-key retrieval — the task that requires the most complex
+        state tracking across loop iterations.
+      </figcaption>
+    </figure>
+
+    <figure class="fig">
+      <object data="figures/distillation_results_v2.pdf" type="application/pdf" width="100%" height="340">
+        <img src="figures/distillation_results_v2.pdf" alt="Distillation benchmark results">
+      </object>
+      <figcaption>
+        <strong>Benchmark comparison after distillation.</strong>
+        Ouro-hybrid-1.4B, converted from a pre-trained Looped Transformer with ~1B tokens of training,
+        is competitive with industry-level 3B–4B models across standard zero-shot benchmarks —
+        while inheriting LT2's linear-time inference.
+      </figcaption>
+    </figure>
+  </section>
+
+  <hr class="divider">
+
+  <!-- ═══════════ LIMITATIONS ═══════════ -->
+  <section>
+    <h2>Limitations and Open Questions</h2>
+    <div class="prose">
+      <p>
+        Two directions remain unexplored. First, we study depth-level hybridization (different
+        attention types across layers within a single block) and simple loop-level schedules,
+        but we do not investigate full <em>loop-level hybridization</em> — where different loop
+        iterations use fundamentally distinct attention families rather than just varying masks.
+        Our ablations suggest loop-level mixing underperforms depth-level mixing in current settings,
+        but there may be smarter schedules we have not tried.
+      </p>
+      <p>
+        Second, we do not design explicit <em>cross-loop state-carry mechanisms</em>. In the current
+        setup, loop iterations communicate only through the residual stream. A principled recurrent
+        state passed explicitly across loop boundaries could further improve long-context modeling,
+        memory reuse, and compute efficiency — especially for the linear attention variants where
+        the recurrent state is already well-defined.
+      </p>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- ═══════════ BIBTEX ═══════════ -->
+  <section>
+    <h2>BibTeX</h2>
+    <pre class="bibtex">@article{deng2025lt2,
+  title   = {{LT2}: Linear-Time Looped Transformers},
+  author  = {Deng, Chunyuan and Zhang, Yizhe and Zhu, Rui-jie and
+             Xu, Yuanyuan and Liu, Jiarui and Ng, T. S. Eugene and
+             Chen, Hanjie},
+  year    = {2025},
+}</pre>
+  </section>
+
+</div><!-- /container -->
+
+<footer>
+  <div class="container">
+    <a href="../index.html">Chunyuan Deng</a> · Rice University · 2025
+  </div>
+</footer>
+
+</body>
+</html>

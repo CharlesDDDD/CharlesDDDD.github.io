@@ -34,7 +34,7 @@
     }
 
     body {
-      background: linear-gradient(135deg, var(--morandi-warm-white) 0%, var(--morandi-cream) 50%, #f0ebe3 100%);
+      background: #ffffff;
       min-height: 100vh;
       font-family: 'EB Garamond', 'Georgia', serif;
       color: var(--morandi-charcoal);
@@ -114,10 +114,40 @@
       display: none;
     }
 
+    /* Section theme color tokens */
+    :root {
+      /* Language Modeling — deep Renaissance forest green */
+      --theme-lm-header:      #3d4f3a;
+      --theme-lm-title:       #4a5e45;
+      --theme-lm-title-hover: #2e3b2c;
+      --theme-lm-underline-a: #3d4f3a;
+      --theme-lm-underline-b: #8a9a7b;
+      --theme-lm-row-bg:      rgba(138, 154, 123, 0.06);
+      --theme-lm-row-border:  rgba(61, 79, 58, 0.12);
+
+      /* Controllability of LMs — Morandi ochre / warm umber */
+      --theme-ctrl-header:      #7a5c2e;
+      --theme-ctrl-title:       #8b6530;
+      --theme-ctrl-title-hover: #5c4020;
+      --theme-ctrl-underline-a: #8b6914;
+      --theme-ctrl-underline-b: #c4a96a;
+      --theme-ctrl-row-bg:      rgba(196, 169, 106, 0.07);
+      --theme-ctrl-row-border:  rgba(139, 105, 20, 0.13);
+
+      /* Mechanisms & Limitations — Morandi dusty slate blue */
+      --theme-mech-header:      #4a5f6e;
+      --theme-mech-title:       #556b7a;
+      --theme-mech-title-hover: #334455;
+      --theme-mech-underline-a: #9aabb8;
+      --theme-mech-underline-b: #c2cfd8;
+      --theme-mech-row-bg:      rgba(154, 171, 184, 0.07);
+      --theme-mech-row-border:  rgba(74, 95, 110, 0.12);
+    }
+
     /* Elegant year headers with Renaissance flair */
     .year-header {
       font-family: 'Cormorant Garamond', 'Georgia', serif;
-      font-size: 18px;
+      font-size: 20px;
       font-weight: 700;
       color: var(--renaissance-forest);
       margin-top: 40px;
@@ -140,11 +170,56 @@
       margin-top: 25px;
     }
 
+    /* ── Section-themed headers ── */
+    .year-header.theme-lm {
+      color: var(--theme-lm-header);
+    }
+    .year-header.theme-lm::after {
+      background: linear-gradient(90deg, var(--theme-lm-underline-a) 0%, var(--theme-lm-underline-b) 60%, transparent 100%);
+    }
+    .year-header.theme-ctrl {
+      color: var(--theme-ctrl-header);
+    }
+    .year-header.theme-ctrl::after {
+      background: linear-gradient(90deg, var(--theme-ctrl-underline-a) 0%, var(--theme-ctrl-underline-b) 60%, transparent 100%);
+    }
+    .year-header.theme-mech {
+      color: var(--theme-mech-header);
+    }
+    .year-header.theme-mech::after {
+      background: linear-gradient(90deg, var(--theme-mech-underline-a) 0%, var(--theme-mech-underline-b) 60%, transparent 100%);
+    }
+
+    /* ── Section-themed paper rows ── */
+    .pub-row-lm {
+      background: var(--theme-lm-row-bg);
+      border-left: 3px solid var(--theme-lm-row-border);
+    }
+    .pub-row-lm papertitle { color: var(--theme-lm-title); }
+    .pub-row-lm a:hover papertitle,
+    a:hover .pub-row-lm papertitle { color: var(--theme-lm-title-hover); }
+
+    .pub-row-ctrl {
+      background: var(--theme-ctrl-row-bg);
+      border-left: 3px solid var(--theme-ctrl-row-border);
+    }
+    .pub-row-ctrl papertitle { color: var(--theme-ctrl-title); }
+    .pub-row-ctrl a:hover papertitle,
+    a:hover .pub-row-ctrl papertitle { color: var(--theme-ctrl-title-hover); }
+
+    .pub-row-mech {
+      background: var(--theme-mech-row-bg);
+      border-left: 3px solid var(--theme-mech-row-border);
+    }
+    .pub-row-mech papertitle { color: var(--theme-mech-title); }
+    .pub-row-mech a:hover papertitle,
+    a:hover .pub-row-mech papertitle { color: var(--theme-mech-title-hover); }
+
     /* Paper titles - bold deep forest green for visibility */
     papertitle {
       font-family: 'Cormorant Garamond', 'Georgia', serif;
       font-weight: 700;
-      font-size: 16px;
+      font-size: 17.5px;
       color: var(--renaissance-forest);
       transition: all 0.3s ease;
       letter-spacing: 0.3px;
@@ -223,22 +298,84 @@
       100% { background-position: 0% 50%; }
     }
 
-    @keyframes blog-card-green {
+    @keyframes card-sage {
       0% { background-position: 0% 50%; }
       50% { background-position: 100% 50%; }
       100% { background-position: 0% 50%; }
     }
 
+    @keyframes card-wine {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* Card 1: Warm olive/khaki — matches the linear attention blog */
     .blog-card-1 {
-      background: linear-gradient(135deg, #faf8f5, #f6f3ee, #f1ede6, #ebe7de, #f1ede6, #f6f3ee, #faf8f5);
-      background-size: 400% 400%;
-      animation: blog-card-green 12s ease infinite;
+      background: linear-gradient(135deg, #faf8f4, #f5f2ea, #f0ece2, #eae6da, #e5e1d4, #eae6da, #f0ece2, #f5f2ea, #faf8f4);
+      background-size: 300% 300%;
+      animation: card-sage 2s ease infinite;
     }
 
     .blog-card-1:hover {
-      background: linear-gradient(135deg, #f8f6f2, #f4f1ea, #efebe3, #e9e5db, #efebe3, #f4f1ea, #f8f6f2);
-      background-size: 400% 400%;
-      animation: blog-card-green 12s ease infinite;
+      background: linear-gradient(135deg, #f7f5f0, #f2eee5, #ece8dd, #e6e2d5, #e0dcce, #e6e2d5, #ece8dd, #f2eee5, #f7f5f0);
+      background-size: 300% 300%;
+      animation: card-sage 1.5s ease infinite;
+    }
+
+    /* Card 2: Warm umber/parchment — matches the ABC research blog */
+    .blog-card-2 {
+      background: linear-gradient(135deg, #fcf8f2, #f7f1e9, #f2eae0, #ece3d8, #e6ddd0, #ece3d8, #f2eae0, #f7f1e9, #fcf8f2);
+      background-size: 300% 300%;
+      animation: card-wine 2.5s ease infinite;
+    }
+
+    .blog-card-2:hover {
+      background: linear-gradient(135deg, #faf5ee, #f4ede4, #eee6db, #e8dfd3, #e1d8cb, #e8dfd3, #eee6db, #f4ede4, #faf5ee);
+      background-size: 300% 300%;
+      animation: card-wine 1.5s ease infinite;
+    }
+
+    /* Horizontal scrolling blog container */
+    .blog-scroll {
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 8px;
+      width: 100%;
+    }
+
+    .blog-scroll::-webkit-scrollbar {
+      height: 5px;
+    }
+
+    .blog-scroll::-webkit-scrollbar-track {
+      background: rgba(138, 154, 123, 0.06);
+      border-radius: 3px;
+    }
+
+    .blog-scroll::-webkit-scrollbar-thumb {
+      background: rgba(138, 154, 123, 0.2);
+      border-radius: 3px;
+    }
+
+    .blog-scroll::-webkit-scrollbar-thumb:hover {
+      background: rgba(138, 154, 123, 0.35);
+    }
+
+    .blog-scroll-inner {
+      display: inline-flex;
+      gap: 16px;
+      white-space: nowrap;
+    }
+
+    .blog-scroll-inner a {
+      display: inline-block;
+      width: 300px;
+      min-width: 300px;
+      text-decoration: none;
+      white-space: normal;
+      vertical-align: top;
     }
 
     /* Mobile responsive styles */
@@ -313,6 +450,33 @@
       p[style*="text-align:center"] {
         word-spacing: normal;
       }
+
+      .blog-scroll-inner {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        white-space: nowrap;
+      }
+
+      .blog-scroll-inner a {
+        width: 240px;
+        min-width: 240px;
+        flex-shrink: 0;
+      }
+
+      .blog-scroll {
+        margin-left: -10px;
+        margin-right: -10px;
+        padding-left: 10px;
+        padding-right: 10px;
+        overflow-x: auto;
+        overflow-y: hidden;
+      }
+
+      td em {
+        font-size: 14px !important;
+        display: inline !important;
+      }
     }
   </style>
 <!-- <link rel="icon" href="images/GTVertical_TechGold.png">	 -->
@@ -369,14 +533,30 @@
                 <a href="blog/archive.html" style="font-size: 13px; font-family: 'Cormorant Garamond', serif; font-weight: 600; letter-spacing: 0.5px;">View All →</a>
               </div>
 
-              <!-- Blog Post - Linear Attention -->
-              <a href="blog/linear-attention-key-value.html" style="text-decoration: none; display: block; max-width: 500px; margin: 0 auto;">
-                <div class="blog-card-1" style="padding: 20px 26px; border-radius: 6px; border: 1px solid rgba(201, 168, 160, 0.25); box-shadow: 0 3px 12px rgba(125, 110, 99, 0.12); transition: all 0.3s ease; min-height: 125px; display: flex; flex-direction: column; justify-content: center; overflow: visible;" onmouseover="this.style.boxShadow='0 6px 20px rgba(125, 110, 99, 0.22)';" onmouseout="this.style.boxShadow='0 3px 12px rgba(125, 110, 99, 0.12)';">
-                  <div style="font-family: 'Cormorant Garamond', serif; font-size: 11px; font-weight: 600; color: #c9a8a0; letter-spacing: 0.5px; margin-bottom: 8px; text-align: center; opacity: 0.85;">February 2026</div>
-                  <div style="font-family: 'Cormorant Garamond', serif; font-size: 17px; font-weight: 700; color: #6b3a3a; line-height: 1.4; text-align: center; letter-spacing: 0.3px; margin-bottom: 8px;">Rethinking Key-Value Relationships in Linear Attention</div>
-                  <div style="font-size: 12px; line-height: 1.45; color: #7d6e63; text-align: center; opacity: 0.75;">How non-linearities of key-value affect online loss in linear attention? A empirical study.</div>
+              <!-- Horizontal Scrolling Blog Posts -->
+              <div class="blog-scroll">
+                <div class="blog-scroll-inner">
+
+                  <!-- Blog Post - ABC Research Mindset (warm umber theme) -->
+                  <a href="blog/abc-research-mindset.html">
+                    <div class="blog-card-2" style="padding: 20px 22px; border-radius: 6px; border: 1px solid rgba(106, 78, 78, 0.15); box-shadow: 0 3px 12px rgba(106, 78, 78, 0.08); transition: all 0.3s ease; min-height: 125px; display: flex; flex-direction: column; justify-content: center;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 6px 20px rgba(106, 78, 78, 0.18)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 3px 12px rgba(106, 78, 78, 0.08)';">
+                      <div style="font-family: 'Cormorant Garamond', serif; font-size: 11px; font-weight: 600; color: #b09a92; letter-spacing: 0.5px; margin-bottom: 8px; text-align: center; opacity: 0.85;">February 2026</div>
+                      <div style="font-family: 'Cormorant Garamond', serif; font-size: 17px; font-weight: 700; color: #6a4e4e; line-height: 1.4; text-align: center; letter-spacing: 0.3px; margin-bottom: 8px;">The ABC Research Mindset</div>
+                      <div style="font-size: 12px; line-height: 1.45; color: #7a706a; text-align: center; opacity: 0.75;">Debiasing novelty when judging research ideas</div>
+                    </div>
+                  </a>
+
+                  <!-- Blog Post - Linear Attention (warm olive theme) -->
+                  <a href="blog/linear-attention-key-value.html">
+                    <div class="blog-card-1" style="padding: 20px 22px; border-radius: 6px; border: 1px solid rgba(90, 85, 70, 0.15); box-shadow: 0 3px 12px rgba(90, 85, 70, 0.08); transition: all 0.3s ease; min-height: 125px; display: flex; flex-direction: column; justify-content: center;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 6px 20px rgba(90, 85, 70, 0.18)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 3px 12px rgba(90, 85, 70, 0.08)';">
+                      <div style="font-family: 'Cormorant Garamond', serif; font-size: 11px; font-weight: 600; color: #9a9482; letter-spacing: 0.5px; margin-bottom: 8px; text-align: center; opacity: 0.85;">February 2026</div>
+                      <div style="font-family: 'Cormorant Garamond', serif; font-size: 17px; font-weight: 700; color: #4a4a3e; line-height: 1.4; text-align: center; letter-spacing: 0.3px; margin-bottom: 8px;">Rethinking Key-Value Relationships in Linear Attention</div>
+                      <div style="font-size: 12px; line-height: 1.45; color: #6a6858; text-align: center; opacity: 0.75;">How non-linearities of key-value affect online loss in linear attention? A empirical study.</div>
+                    </div>
+                  </a>
+
                 </div>
-              </a>
+              </div>
 
             </td>
         </tr>
@@ -396,11 +576,11 @@
               <div id="recentPublications" class="publication-section">
                 <p>A selection of work that represents his recent research style.</p>
 
-                <div class="year-header">Language Modeling</div>
+                <div class="year-header theme-lm">Language Modeling</div>
                 <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
                   <tr>
-                    <td style="padding:20px;width:75%;vertical-align:middle">
-                      <a href="https://openreview.net/forum?id=GhJIa921j7">
+                    <td class="pub-row-lm" style="padding:20px;width:75%;vertical-align:middle">
+                      <a href="https://arxiv.org/abs/2603.03583">
                         <papertitle>ByteFlow: Language Modeling through Adaptive Byte Compression without a Tokenizer</papertitle>
                       </a>
                       <br>
@@ -411,21 +591,10 @@
                   </tr>
                 </tbody></table>
 
-                <div class="year-header">Mechanisms & Limitations of LMs</div>
+                <div class="year-header theme-ctrl">Controllability of LMs</div>
                 <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
                   <tr>
-                    <td style="padding:20px;width:75%;vertical-align:middle">
-                      <a href="https://arxiv.org/abs/2410.15580">
-                        <papertitle>Language Models are Symbolic Learners in Arithmetic</papertitle>
-                      </a>
-                      <br>
-                      <strong>Chunyuan Deng</strong>, Zhiqi Li, Roy Xie, Ruidi Chang, Hanjie Chen
-                      <br>
-                      <em>Transactions on Machine Learning Research</em> (<strong>TMLR</strong>), 2026.
-                    </td>
-                  </tr>
-                  <tr>
-                    <td style="padding:20px;width:75%;vertical-align:middle">
+                    <td class="pub-row-ctrl" style="padding:20px;width:75%;vertical-align:middle">
                       <a href="https://arxiv.org/pdf/2507.05158">
                         <papertitle>Steering Information Utility in Key-Value Memory for Language Model Post-Training</papertitle>
                       </a>
@@ -436,18 +605,7 @@
                     </td>
                   </tr>
                   <tr>
-                    <td style="padding:20px;width:75%;vertical-align:middle">
-                      <a href="https://arxiv.org/abs/2502.01025">
-                        <papertitle>Language Models (Mostly) Know When to Stop Reading</papertitle>
-                      </a>
-                      <br>
-                      Roy Xie, Junlin Wang, Paul Rosu, <strong>Chunyuan Deng</strong>, Bolun Sun, Zihao Lin, Bhuwan Dhingra
-                      <br>
-                      <em>Advances in Neural Information Processing System</em> (<strong>NeurIPS</strong>), 2025.
-                    </td>
-                  </tr>
-                  <tr>
-                    <td style="padding:20px;width:75%;vertical-align:middle">
+                    <td class="pub-row-ctrl" style="padding:20px;width:75%;vertical-align:middle">
                       <a href="https://arxiv.org/abs/2506.06686">
                         <papertitle>Learning Distribution-wise Control in Representation Space for Language Models</papertitle>
                       </a>
@@ -455,6 +613,32 @@
                       <strong>Chunyuan Deng</strong>, Ruidi Chang, Hanjie Chen
                       <br>
                       <em>International Conference on Machine Learning</em> (<strong>ICML</strong>), 2025.
+                    </td>
+                  </tr>
+                </tbody></table>
+
+                <div class="year-header theme-mech">Mechanisms & Limitations of LMs</div>
+                <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
+                  <tr>
+                    <td class="pub-row-mech" style="padding:20px;width:75%;vertical-align:middle">
+                      <a href="https://arxiv.org/abs/2410.15580">
+                        <papertitle>Language Models are Symbolic Learners in Arithmetic</papertitle>
+                      </a>
+                      <br>
+                      <strong>Chunyuan Deng</strong>, Zhiqi Li, Roy Xie, Ruidi Chang, Hanjie Chen
+                      <br>
+                      <em>Transactions on Machine Learning Research</em> (<strong>TMLR</strong>), 2026.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="pub-row-mech" style="padding:20px;width:75%;vertical-align:middle">
+                      <a href="https://arxiv.org/abs/2502.01025">
+                        <papertitle>Language Models (Mostly) Know When to Stop Reading</papertitle>
+                      </a>
+                      <br>
+                      Roy Xie, Junlin Wang, Paul Rosu, <strong>Chunyuan Deng</strong>, Bolun Sun, Zihao Lin, Bhuwan Dhingra
+                      <br>
+                      <em>Advances in Neural Information Processing System</em> (<strong>NeurIPS</strong>), 2025.
                     </td>
                   </tr>
                 </tbody></table>
@@ -466,7 +650,16 @@
                 <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
                   <tr>
                     <td style="padding:20px;width:75%;vertical-align:middle">
-                      <a href="https://openreview.net/forum?id=GhJIa921j7">
+                      <papertitle>Spherical Steering: Geometry-Aware Activation Rotation for Language Models</papertitle>
+                      <br>
+                      Zejia You, <strong>Chunyuan Deng</strong>, Hanjie Chen
+                      <br>
+                      <em>Preprint</em>, 2026.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding:20px;width:75%;vertical-align:middle">
+                      <a href="https://arxiv.org/abs/2603.03583">
                         <papertitle>ByteFlow: Language Modeling through Adaptive Byte Compression without a Tokenizer</papertitle>
                       </a>
                       <br>

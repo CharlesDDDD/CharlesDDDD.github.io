@@ -341,7 +341,7 @@
       </a>
       <a href="https://huggingface.co/chili-lab/Ouro-hybrid-1.4B" target="_blank">
         <img src="logo/huggingface_logo.png" alt="HuggingFace">
-        Model Checkpoint
+        Ouro-hybrid-1.4B
       </a>
     </div>
   </div>
@@ -458,7 +458,7 @@
       </p>
     </div>
 
-    <figure class="fig">
+    <figure class="fig" style="max-width:560px;margin-left:auto;margin-right:auto;">
       <img src="figures/flops_vs_seqlen.png" alt="FLOPs vs sequence length">
       <figcaption>
         <strong>The scaling problem of looped full attention.</strong>
@@ -519,21 +519,9 @@
       </tbody>
     </table>
 
-    <figure class="fig">
-      <img src="figures/hybrid_loop.png" alt="Hybrid LT2 architecture">
-      <figcaption>
-        <strong>Two hybridization strategies.</strong>
-        <em>(a) Depth-level:</em> interleave different attention types across layers inside the shared block — the same hybrid stack runs every iteration.
-        <em>(b) Loop-level:</em> vary the mixer type across loop iterations, e.g. full attention in loop 1, progressively narrower windows in later loops.
-        Depth-level mixing wins in ablations.
-      </figcaption>
-    </figure>
-
     <div class="prose">
       <p>
-        We explore both depth-level and loop-level hybridization. Depth-level — different mixers
-        interleaved across layers in the shared block — substantially outperforms loop-level mixing.
-        Distributing attention across depth matters more than scheduling it across time.
+        We explore two hybridization strategies. In <strong>depth-level</strong> mixing, different attention types are interleaved across layers inside the shared block — the same hybrid stack runs every loop iteration. In <strong>loop-level</strong> mixing, the mixer type varies across iterations, e.g. full attention in loop 1 with progressively narrower windows in later loops. Ablations consistently favor depth-level mixing: distributing attention across depth matters more than scheduling it across time.
       </p>
     </div>
   </section>

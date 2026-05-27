@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Transformers Are (Naively) Looped Transformers — Chunyuan Deng</title>
+  <meta name="author" content="Chunyuan Deng">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #ffffff;
+      --text: #1c1c1e;
+      --text-secondary: #555;
+      --text-light: #888;
+      --accent: #2b5ecc;
+      --accent-light: #eef2fb;
+      --border: #e2e2e2;
+      --surface: #f6f7f9;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .container { max-width: 860px; margin: 0 auto; padding: 0 28px; }
+
+    header { border-bottom: 1px solid var(--border); padding: 16px 0; }
+    header a { font-size: 12px; color: var(--text-secondary); text-decoration: none; }
+    header a:hover { color: var(--accent); }
+
+    .hero { padding: 52px 0 36px; }
+    .hero h1 {
+      font-family: 'Source Serif 4', Georgia, serif;
+      font-size: 2.2rem;
+      font-weight: 600;
+      letter-spacing: -0.025em;
+      line-height: 1.2;
+      color: var(--text);
+      margin-bottom: 14px;
+    }
+    .hero .subtitle { font-size: 15px; color: var(--text-secondary); font-style: italic; margin-bottom: 8px; }
+    .hero .meta { font-size: 12px; color: var(--text-light); }
+
+    .divider { border: none; border-top: 1px solid var(--border); }
+
+    .prose { padding: 36px 0; font-size: 14px; line-height: 1.8; color: var(--text); }
+    .prose p { margin-bottom: 1.1em; }
+    .prose p:last-child { margin-bottom: 0; }
+    .prose strong { font-weight: 600; }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    h2 {
+      font-family: 'Source Serif 4', Georgia, serif;
+      font-size: 1.35rem;
+      font-weight: 600;
+      color: var(--text);
+      margin: 36px 0 14px;
+      letter-spacing: -0.01em;
+    }
+    h3 {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text);
+      margin: 24px 0 10px;
+    }
+
+    .tldr {
+      background: var(--accent-light);
+      border-left: 3px solid var(--accent);
+      padding: 14px 18px;
+      margin: 24px 0;
+      border-radius: 0 4px 4px 0;
+      font-size: 13.5px;
+      line-height: 1.6;
+      color: var(--text-secondary);
+    }
+    .tldr strong { color: var(--text); font-size: 14px; }
+
+    .insight-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 16px 20px;
+      margin: 20px 0;
+      font-size: 13.5px;
+    }
+    .insight-box h3 { margin-top: 0; margin-bottom: 10px; color: var(--text); }
+    .insight-box p { margin-bottom: 10px; color: var(--text-secondary); }
+    .insight-box p:last-child { margin-bottom: 0; }
+
+    .math-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 18px 22px;
+      margin: 20px 0;
+      overflow-x: auto;
+      font-size: 14px;
+    }
+    .math-block .label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-light);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 10px;
+    }
+    .math-block p { margin-bottom: 0.5em; color: var(--text-secondary); font-size: 13px; }
+    .math-block p:last-child { margin-bottom: 0; }
+
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 20px 0;
+    }
+    .comparison-cell {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 16px;
+      font-size: 13px;
+    }
+    .comparison-cell h3 { margin: 0 0 8px 0; font-size: 13px; }
+    .comparison-cell p { color: var(--text-secondary); margin-bottom: 6px; font-size: 13px; }
+
+    ul, ol { margin: 10px 0 12px 24px; }
+    li { margin-bottom: 5px; font-size: 14px; color: var(--text-secondary); }
+    li strong { color: var(--text); }
+
+    code {
+      font-family: 'Courier New', monospace;
+      background: var(--surface);
+      padding: 2px 5px;
+      border-radius: 3px;
+      font-size: 12.5px;
+      border: 1px solid var(--border);
+    }
+
+    .ref-list {
+      margin: 10px 0 12px 0;
+      padding: 0;
+      list-style: none;
+    }
+    .ref-list li {
+      margin-bottom: 10px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      padding-left: 24px;
+      text-indent: -24px;
+    }
+    .ref-list li strong { color: var(--text); }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 24px 0;
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-light);
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+
+    @media (max-width: 600px) {
+      .hero h1 { font-size: 1.7rem; }
+      .comparison-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <a href="../index.html">&larr; Back to Home</a>
+  </div>
+</header>
+
+<div class="container">
+  <div class="hero">
+    <h1>Transformers Are (Naively) Looped Transformers</h1>
+    <p class="subtitle">Weight sharing across positions makes the Transformer a time-recurrent loop — and TTT is its learned-optimizer cousin</p>
+    <p class="meta">Chunyuan Deng &middot; May 2026</p>
+  </div>
+
+  <hr class="divider">
+
+  <div class="prose">
+
+    <div class="tldr">
+      <strong>TL;DR</strong><br><br>
+      The standard Transformer is position-invariant: it applies the <em>same</em> weight matrices at every sequence position. This makes it a <strong>horizontally looped</strong> (time-recurrent) architecture — not just a deep one. The natural generalization is to assign a distinct weight matrix to every position. Test-Time Training (TTT) is exactly this generalization realized through gradient descent: the hidden state stores a fast-weight model that is updated position by position, giving per-position weights without storing a separate matrix for each step.
+    </div>
+
+    <h2>I. The Standard Transformer, Written Carefully</h2>
+
+    <p>Fix a sequence of $T$ tokens. After embedding, we have</p>
+
+    $$X \in \mathbb{R}^{T \times d}$$
+
+    <p>where $T$ is the sequence length and $d$ is the model dimension. Denote the $t$-th row as $x_t \in \mathbb{R}^d$.</p>
+
+    <p>A single Transformer layer applies the same projection matrices $W_Q, W_K, W_V, W_O \in \mathbb{R}^{d \times d}$ to every position:</p>
+
+    <div class="math-block">
+      <div class="label">Self-Attention at position $t$</div>
+      $$q_t = x_t W_Q, \quad k_t = x_t W_K, \quad v_t = x_t W_V \qquad q_t, k_t, v_t \in \mathbb{R}^d$$
+      $$a_t = \sum_{s \leq t} \frac{\exp(q_t \cdot k_s / \sqrt{d})}{\sum_{s' \leq t} \exp(q_t \cdot k_{s'} / \sqrt{d})}\, v_s \qquad a_t \in \mathbb{R}^d$$
+      $$o_t = a_t W_O \qquad o_t \in \mathbb{R}^d$$
+    </div>
+
+    <p>The crucial observation: $W_Q, W_K, W_V, W_O$ carry <strong>no subscript $t$</strong>. Every position $t \in \{1, \ldots, T\}$ is processed by the <em>identical</em> linear maps. This is not a coincidence — it is a deliberate design choice called <strong>parameter sharing across time</strong>.</p>
+
+    <div class="insight-box">
+      <h3>The Weight-Sharing Fact</h3>
+      <p>In a standard Transformer with $L$ layers, the total number of weight parameters is $O(L \cdot d^2)$, independent of sequence length $T$. The same $d^2$ parameters are reused at every one of the $T$ positions within each layer.</p>
+    </div>
+
+    <h2>II. Transformers as Horizontally Looped Architectures</h2>
+
+    <p>Think of the computation graph of a single Transformer layer. It has two axes:</p>
+    <ul>
+      <li><strong>Depth axis (vertical):</strong> stacking $L$ layers on top of each other.</li>
+      <li><strong>Time axis (horizontal):</strong> processing positions $t = 1, \ldots, T$ left to right.</li>
+    </ul>
+
+    <p>Because $W_Q, W_K, W_V, W_O$ are shared across the time axis, the Transformer is a <strong>loop unrolled in time</strong>:</p>
+
+    <div class="math-block">
+      <div class="label">Transformer as a Horizontal Loop</div>
+      <p>For each layer $\ell \in \{1,\ldots,L\}$ and position $t \in \{1,\ldots,T\}$:</p>
+      $$h_t^{(\ell)} = f_\theta\!\left(h_t^{(\ell-1)},\; \{h_s^{(\ell-1)}\}_{s \leq t}\right)$$
+      <p>where $f_\theta$ is the <em>same function</em> (same $\theta = \{W_Q, W_K, W_V, W_O, W_{\text{FF}}\}$) for all $t$.</p>
+    </div>
+
+    <p>This is precisely a <strong>recurrent computation</strong> along the time axis. The Transformer is not recurrent in the traditional RNN sense (it does not pass a hidden state vector from step to step), but it is <em>parameter-recurrent</em>: the same weight loop is applied at every time step.</p>
+
+    <p>Concretely, consider the per-position update at a fixed layer:</p>
+
+    $$h_t \leftarrow f_\theta(h_t,\; \text{context up to } t), \quad t = 1, 2, \ldots, T$$
+
+    <p>This is a loop over $T$ steps, each executing $f_\theta$. The Transformer is therefore a <strong>naively looped Transformer</strong> — naive in the sense that the loop body $f_\theta$ never changes across iterations.</p>
+
+    <h2>III. The General, Non-Shared Version</h2>
+
+    <p>The natural generalization removes the weight-sharing constraint: assign a distinct set of parameters to each position.</p>
+
+    <div class="math-block">
+      <div class="label">Per-Position (Non-Shared) Transformer</div>
+      $$q_t = x_t W_Q^{(t)}, \quad k_t = x_t W_K^{(t)}, \quad v_t = x_t W_V^{(t)} \qquad W_Q^{(t)}, W_K^{(t)}, W_V^{(t)} \in \mathbb{R}^{d \times d}$$
+    </div>
+
+    <p>Here the superscript $(t)$ indicates that each position $t$ has its <em>own</em> projection matrices. The total parameter count is now $O(T \cdot d^2)$ per layer — linear in sequence length.</p>
+
+    <p>For $T = 1{,}000{,}000$ and $d = 4{,}096$, this is $\approx 1.7 \times 10^{13}$ parameters per layer — obviously infeasible to store explicitly. Yet this is the conceptually correct, most expressive model: position 1 should arguably use different processing logic than position 1,000,000.</p>
+
+    <p>The standard Transformer is the special case $W^{(1)} = W^{(2)} = \cdots = W^{(T)} = W$: a single shared matrix used for all positions. Positional encodings are the only mechanism that breaks this symmetry, but they act on the <em>inputs</em>, not the <em>weights</em>.</p>
+
+    <div class="comparison-grid">
+      <div class="comparison-cell">
+        <h3>Standard Transformer</h3>
+        <p>Weights: $W^{(t)} = W$ for all $t$</p>
+        <p>Parameters: $O(d^2)$ per layer</p>
+        <p>Position awareness: via positional encodings on inputs</p>
+        <p>Expressivity: same function applied everywhere</p>
+      </div>
+      <div class="comparison-cell">
+        <h3>Per-Position (General) Model</h3>
+        <p>Weights: $W^{(t)}$ distinct for each $t$</p>
+        <p>Parameters: $O(T \cdot d^2)$ per layer</p>
+        <p>Position awareness: baked into the weights themselves</p>
+        <p>Expressivity: different function at every position</p>
+      </div>
+    </div>
+
+    <p>The gap between these two extremes is enormous. Can we find a tractable middle ground that achieves position-dependent processing without storing $T$ full weight matrices?</p>
+
+    <h2>IV. TTT: Horizontal Looping with Learned Gradient Steps</h2>
+
+    <p>Test-Time Training (TTT) [<a href="#ref-sun2024">Sun et al., 2024</a>] closes this gap by replacing the static weight $W$ with a <strong>fast-weight model</strong> $W_t$ that is updated at each position via gradient descent. The key idea is that instead of storing a per-position weight matrix, we <em>generate</em> it on the fly by running a small optimization.</p>
+
+    <h3>Setup: The Fast-Weight Model</h3>
+
+    <p>At each position $t$, TTT maintains a weight matrix $W_t \in \mathbb{R}^{d \times d}$ (or a small neural network parameterized by $W_t$). The hidden state of the sequence model <em>is</em> $W_t$.</p>
+
+    <p>For each incoming token $x_t \in \mathbb{R}^d$, TTT constructs a self-supervised task:</p>
+
+    <div class="math-block">
+      <div class="label">TTT Self-Supervised Loss at Position $t$</div>
+      $$\mathcal{L}_t(W) = \left\| W \cdot k_t - v_t \right\|^2$$
+      <p>where $k_t = x_t W_K \in \mathbb{R}^d$ is the key and $v_t = x_t W_V \in \mathbb{R}^d$ is the target value, with $W_K, W_V \in \mathbb{R}^{d \times d}$ being outer (slow) weights shared across all positions.</p>
+    </div>
+
+    <p>This is a simple ridge regression objective: the fast-weight matrix $W_t$ is asked to map the current key to the current value.</p>
+
+    <h3>The Recurrent Update Rule</h3>
+
+    <p>The weight is updated by a gradient step:</p>
+
+    <div class="math-block">
+      <div class="label">TTT Update (one gradient step)</div>
+      $$W_t = W_{t-1} - \eta \,\nabla_W \mathcal{L}_t(W_{t-1})$$
+      $$= W_{t-1} - \eta \left(W_{t-1} k_t - v_t\right) k_t^\top$$
+      <p>where $\eta > 0$ is a learned step size (scalar or per-parameter), and the gradient $\nabla_W \mathcal{L}_t(W) = (Wk_t - v_t)k_t^\top \in \mathbb{R}^{d \times d}$ is the outer product of the residual and the key.</p>
+    </div>
+
+    <p>The output at position $t$ is then read out by querying the updated model:</p>
+
+    $$z_t = W_t \cdot q_t \qquad z_t \in \mathbb{R}^d$$
+
+    <p>where $q_t = x_t W_Q \in \mathbb{R}^d$ is the query, again using a shared slow weight $W_Q \in \mathbb{R}^{d \times d}$.</p>
+
+    <h3>Why This is Per-Position Weights</h3>
+
+    <p>After $t$ gradient steps, the fast weight $W_t$ encodes the accumulated gradient information from all positions $1, \ldots, t$:</p>
+
+    $$W_t = W_0 - \eta \sum_{s=1}^{t} \left(W_{s-1} k_s - v_s\right) k_s^\top$$
+
+    <p>Each $W_t$ is distinct — it depends on the entire history $(x_1, \ldots, x_t)$. This is precisely the per-position weight matrix $W^{(t)}$ from the general model, but expressed implicitly through gradient accumulation rather than stored explicitly.</p>
+
+    <div class="insight-box">
+      <h3>TTT = Horizontal Looping + Gradient Descent as the Loop Body</h3>
+      <p>The standard Transformer loops the same static function $f_W$ over positions. TTT loops a function whose <em>weights change</em> at each step via gradient descent. The loop body is not $f_W$ but $f_{W_t}$, and $W_t$ evolves by a local optimization step at each position.</p>
+      <p>This gives TTT the expressivity of per-position weights without the $O(T \cdot d^2)$ storage cost. The trade-off: the per-position weight is determined by a fixed optimization trajectory (gradient descent from $W_0$), not a freely learned mapping.</p>
+    </div>
+
+    <h2>V. The LocoProp Connection</h2>
+
+    <p>The TTT update is more than vanilla gradient descent — it is closely related to <strong>LocoProp</strong> [<a href="#ref-amid2022">Amid et al., 2022</a>], a local propagation algorithm for training neural networks layer by layer.</p>
+
+    <p>LocoProp decomposes the global training objective into local per-layer targets. Each layer is trained to minimize:</p>
+
+    <div class="math-block">
+      <div class="label">LocoProp Local Objective</div>
+      $$\mathcal{L}^{\text{loco}}_\ell(W_\ell) = \left\| W_\ell \cdot h_{\ell-1} - \hat{h}_\ell \right\|^2 + \lambda \left\| W_\ell - W_\ell^{\text{prev}} \right\|^2_F$$
+      <p>where $h_{\ell-1} \in \mathbb{R}^d$ is the input to layer $\ell$, $\hat{h}_\ell \in \mathbb{R}^d$ is the local target (a detached signal from the next layer's gradient), $W_\ell^{\text{prev}}$ is the previous iterate, and $\|\cdot\|_F$ denotes the Frobenius norm.</p>
+    </div>
+
+    <p>TTT's self-supervised loss $\mathcal{L}_t(W) = \|W k_t - v_t\|^2$ is structurally identical, with the key $k_t$ playing the role of the layer input and the value $v_t$ as the local target. TTT is therefore LocoProp applied <em>horizontally across time</em> rather than vertically across depth.</p>
+
+    <div class="comparison-grid">
+      <div class="comparison-cell">
+        <h3>LocoProp (Vertical)</h3>
+        <p>Axis: depth (layer $\ell$)</p>
+        <p>Target: signal from adjacent layer</p>
+        <p>Update: local regression per layer</p>
+        <p>Purpose: credit assignment without full backprop</p>
+      </div>
+      <div class="comparison-cell">
+        <h3>TTT (Horizontal)</h3>
+        <p>Axis: time (position $t$)</p>
+        <p>Target: value $v_t$ at current position</p>
+        <p>Update: local regression per position</p>
+        <p>Purpose: per-position weight adaptation</p>
+      </div>
+    </div>
+
+    <h2>VI. Connecting Everything: A Unified View</h2>
+
+    <p>We can now arrange these architectures on a spectrum of how much weight sharing they enforce along the time axis:</p>
+
+    <div class="math-block">
+      <div class="label">Spectrum of Time-Axis Weight Sharing</div>
+      <p><strong>Full sharing (Standard Transformer):</strong> $W^{(t)} = W$ for all $t \in \{1,\ldots,T\}$. One matrix, reused everywhere. Cheapest, but position-invariant.</p>
+      <p><strong>Gradient-accumulated sharing (TTT):</strong> $W^{(t)} = W_0 - \eta\sum_{s \leq t} g_s$, where $g_s$ is the gradient at step $s$. Position-dependent, but constrained to a gradient descent trajectory. $O(d^2)$ hidden state.</p>
+      <p><strong>No sharing (Per-Position Model):</strong> $W^{(t)}$ freely chosen for each $t$. Most expressive, but $O(T \cdot d^2)$ parameters — infeasible for long sequences.</p>
+    </div>
+
+    <p>The standard Transformer's position-invariance is its defining limitation at long context. When processing position $t = 1{,}000{,}000$, the model uses the exact same weight matrices as at position $t = 1$. The only differentiation comes from the attention pattern over context, not from the processing function itself.</p>
+
+    <p>TTT breaks this invariance in a principled, memory-efficient way. The fast weight $W_t$ at position $t$ encodes a compressed summary of all keys and values seen so far, updated via a gradient step that costs only $O(d^2)$ per position — the same asymptotic cost as a standard attention operation.</p>
+
+    <h2>VII. Summary</h2>
+
+    <ul>
+      <li><strong>Transformers are horizontally looped:</strong> They apply the same weight matrices at every position, making them a time-recurrent loop with a static body $f_W$.</li>
+      <li><strong>The general model has per-position weights:</strong> $W^{(t)}$ distinct for each $t$, giving $O(T \cdot d^2)$ parameters — expressive but infeasible.</li>
+      <li><strong>TTT bridges the gap:</strong> It replaces the static $W$ with a fast-weight model $W_t$ updated by gradient descent at each position, achieving per-position weight adaptation at $O(d^2)$ memory cost.</li>
+      <li><strong>TTT is LocoProp along the time axis:</strong> The self-supervised key-value regression at each position is structurally identical to LocoProp's local layer-wise objectives, transposed from the depth axis to the time axis.</li>
+    </ul>
+
+    <h2>References</h2>
+
+    <ul class="ref-list" id="references">
+      <li id="ref-sun2024">
+        <strong>[Sun et al., 2024]</strong> Yu Sun, Xinhao Li, Karan Dalal, Jiarui Xu, Arjun Garg, Guanhua Chen, Penghao Zhao, Wentao Zhu, Yann LeCun, Xiaolong Wang, Xinlei Chen. <em>Learning to (Learn at Test Time): RNNs with Expressive Hidden States.</em> arXiv:2407.04620, 2024.
+      </li>
+      <li id="ref-amid2022">
+        <strong>[Amid et al., 2022]</strong> Ehsan Amid, Rohan Anil, Tomer Koren. <em>LocoProp: Enhancing BackProp via Local Loss Optimization.</em> AISTATS, 2022.
+      </li>
+      <li id="ref-vaswani2017">
+        <strong>[Vaswani et al., 2017]</strong> Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N. Gomez, Łukasz Kaiser, Illia Polosukhin. <em>Attention Is All You Need.</em> NeurIPS, 2017.
+      </li>
+      <li id="ref-schmidhuber1992">
+        <strong>[Schmidhuber, 1992]</strong> Jürgen Schmidhuber. <em>Learning to Control Fast-Weight Memories: An Alternative to Dynamic Recurrent Networks.</em> Neural Computation, 4(1):131–139, 1992.
+      </li>
+      <li id="ref-ba2016">
+        <strong>[Ba et al., 2016]</strong> Jimmy Ba, Geoffrey E. Hinton, Volodymyr Mnih, Joel Z. Leibo, Catalin Ionescu. <em>Using Fast Weights to Attend to the Recent Past.</em> NeurIPS, 2016.
+      </li>
+    </ul>
+
+  </div>
+
+  <footer>
+    <span>Chunyuan Deng &mdash; Rice University</span>
+  </footer>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: "$$", right: "$$", display: true},
+        {left: "$", right: "$", display: false},
+        {left: "\\(", right: "\\)", display: false},
+        {left: "\\[", right: "\\]", display: true}
+      ],
+      throwOnError: false
+    });
+  });
+</script>
+</body>
+</html>

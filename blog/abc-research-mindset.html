@@ -1,271 +1,201 @@
-<!DOCTYPE HTML>
-<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-
-  <title>The ABC Research Mindset - Chunyuan Deng</title>
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The ABC Research Mindset — Chunyuan Deng</title>
   <meta name="author" content="Chunyuan Deng">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <!-- Renaissance-inspired fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
 
   <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
     :root {
-      /* True Morandi — greyed, dusty, aged pigments */
-      --morandi-parchment: #f2ece4;
-      --morandi-warm-white: #f8f4ee;
-      --morandi-linen: #eee7dd;
-      --morandi-dusty-rose: #b09a92;
-      --morandi-terracotta: #a08070;
-      --morandi-mauve: #9a8585;
-      --morandi-warm-gray: #968e85;
-      --morandi-charcoal: #4a4440;
-      --morandi-soft-brown: #7a706a;
-      /* Deep Renaissance — muted, aged tones */
-      --renaissance-umber: #6a4e4e;
-      --renaissance-sienna: #7a6050;
-      --renaissance-ochre: #8a7a58;
-      --renaissance-deep: #5a4a42;
+      --bg: #ffffff;
+      --text: #1c1c1e;
+      --text-secondary: #555;
+      --text-light: #888;
+      --accent: #2b5ecc;
+      --accent-light: #eef2fb;
+      --border: #e2e2e2;
+      --surface: #f6f7f9;
     }
 
     body {
-      background: linear-gradient(135deg, var(--morandi-warm-white) 0%, var(--morandi-linen) 50%, var(--morandi-parchment) 100%);
-      min-height: 100vh;
-      font-family: 'EB Garamond', 'Georgia', serif;
-      color: var(--morandi-charcoal);
-      line-height: 1.8;
-      padding: 20px;
-    }
-
-    a {
-      color: var(--renaissance-umber);
-      text-decoration: none;
-      transition: all 0.3s ease;
-      border-bottom: 1px solid transparent;
-    }
-    a:hover {
-      color: var(--renaissance-sienna);
-      border-bottom: 1px solid var(--renaissance-sienna);
-    }
-
-    .back-link {
-      display: inline-block;
-      margin-bottom: 30px;
-      font-family: 'Cormorant Garamond', serif;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-    }
-
-    .container {
-      max-width: 750px;
-      margin: 0 auto;
-      background: linear-gradient(145deg, rgba(255,255,255,0.7) 0%, rgba(248,244,238,0.5) 100%);
-      padding: 50px;
-      border-radius: 8px;
-      box-shadow: 0 4px 20px rgba(106, 78, 78, 0.08);
-    }
-
-    h1 {
-      font-family: 'Cormorant Garamond', 'Georgia', serif;
-      font-weight: 700;
-      font-size: 36px;
-      color: var(--renaissance-umber);
-      letter-spacing: 1px;
-      margin-bottom: 8px;
-      line-height: 1.3;
-    }
-
-    .subtitle {
-      font-family: 'EB Garamond', serif;
-      font-size: 17px;
-      color: var(--morandi-soft-brown);
-      font-style: italic;
-      margin-bottom: 5px;
-    }
-
-    .meta {
-      font-family: 'Cormorant Garamond', serif;
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
       font-size: 14px;
-      color: var(--morandi-soft-brown);
-      margin-bottom: 35px;
-      padding-bottom: 20px;
-      border-bottom: 2px solid;
-      border-image: linear-gradient(90deg, var(--renaissance-umber) 0%, var(--morandi-dusty-rose) 60%, transparent 100%) 1;
+      line-height: 1.7;
     }
+
+    .container { max-width: 860px; margin: 0 auto; padding: 0 28px; }
+
+    /* ── Header ── */
+    header { border-bottom: 1px solid var(--border); padding: 16px 0; }
+    header a { font-size: 12px; color: var(--text-secondary); text-decoration: none; }
+    header a:hover { color: var(--accent); }
+
+    /* ── Hero ── */
+    .hero { padding: 52px 0 36px; }
+    .hero h1 {
+      font-family: 'Source Serif 4', Georgia, serif;
+      font-size: 2.2rem;
+      font-weight: 600;
+      letter-spacing: -0.025em;
+      line-height: 1.2;
+      color: var(--text);
+      margin-bottom: 14px;
+    }
+    .hero .subtitle { font-size: 15px; color: var(--text-secondary); font-style: italic; margin-bottom: 8px; }
+    .hero .meta { font-size: 12px; color: var(--text-light); }
+
+    .divider { border: none; border-top: 1px solid var(--border); margin: 0; }
+
+    /* ── Prose ── */
+    .prose { padding: 36px 0; font-size: 14px; line-height: 1.8; color: var(--text); }
+    .prose p { margin-bottom: 1.1em; }
+    .prose p:last-child { margin-bottom: 0; }
+    .prose strong { font-weight: 600; }
+    .prose em { font-style: italic; color: var(--text-secondary); }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
 
     h2 {
-      font-family: 'Cormorant Garamond', 'Georgia', serif;
-      font-weight: 700;
-      font-size: 24px;
-      color: var(--renaissance-umber);
-      margin-top: 40px;
-      margin-bottom: 15px;
-      letter-spacing: 0.5px;
-    }
-
-    p {
-      margin-bottom: 20px;
-      font-size: 17px;
-    }
-
-    em {
-      font-style: italic;
-      color: var(--morandi-soft-brown);
-    }
-
-    strong {
-      color: var(--renaissance-umber);
+      font-family: 'Source Serif 4', Georgia, serif;
+      font-size: 1.35rem;
       font-weight: 600;
+      color: var(--text);
+      margin: 36px 0 14px;
+      letter-spacing: -0.01em;
     }
 
     blockquote {
-      margin: 30px 0;
-      padding: 20px 25px;
-      background: linear-gradient(135deg, rgba(106, 78, 78, 0.05) 0%, rgba(138, 122, 88, 0.04) 100%);
-      border-left: 4px solid var(--morandi-dusty-rose);
+      margin: 22px 0;
+      padding: 14px 20px;
+      background: var(--surface);
+      border-left: 3px solid var(--border);
       font-style: italic;
-      color: var(--morandi-soft-brown);
+      color: var(--text-secondary);
+      border-radius: 0 4px 4px 0;
     }
 
-    /* Figure container */
-    .figure-container {
-      margin: 35px 0;
+    /* ── Figures ── */
+    figure.fig { margin: 28px 0; text-align: center; }
+    figure.fig svg { max-width: 100%; height: auto; }
+    figcaption {
+      margin-top: 10px;
+      font-size: 12.5px;
+      color: var(--text-secondary);
+      line-height: 1.6;
       text-align: center;
     }
+    figcaption strong { color: var(--text); }
 
-    .figure-container svg {
-      max-width: 100%;
-      height: auto;
-    }
-
-    .figure-caption {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 13px;
-      color: var(--morandi-warm-gray);
-      font-style: italic;
-      margin-top: 10px;
-      letter-spacing: 0.3px;
-    }
-
-    /* Diptych panels for comparisons */
-    .diptych {
-      display: flex;
-      gap: 16px;
-      margin: 35px 0;
-    }
+    /* ── Diptych ── */
+    .diptych { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 24px 0; }
+    @media (max-width: 600px) { .diptych { grid-template-columns: 1fr; } }
 
     .diptych-panel {
-      flex: 1;
-      padding: 22px 20px;
+      padding: 18px 20px;
+      border: 1px solid var(--border);
       border-radius: 6px;
-      border: 1px solid rgba(106, 78, 78, 0.12);
-      position: relative;
+      background: var(--surface);
     }
-
-    .diptych-panel.panel-natural {
-      background: linear-gradient(145deg, rgba(160, 128, 112, 0.06) 0%, rgba(176, 154, 146, 0.08) 100%);
-      border-top: 3px solid var(--morandi-terracotta);
-    }
-
-    .diptych-panel.panel-reordered {
-      background: linear-gradient(145deg, rgba(138, 122, 88, 0.05) 0%, rgba(106, 78, 78, 0.05) 100%);
-      border-top: 3px solid var(--renaissance-umber);
-    }
+    .diptych-panel.panel-reordered { background: var(--accent-light); border-color: #c5d6f5; }
 
     .panel-header {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 16px;
-      font-weight: 700;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
       margin-bottom: 4px;
-      letter-spacing: 0.3px;
     }
-
-    .panel-natural .panel-header { color: var(--renaissance-sienna); }
-    .panel-reordered .panel-header { color: var(--renaissance-umber); }
+    .panel-reordered .panel-header { color: var(--accent); }
 
     .panel-subtitle-text {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 13px;
-      color: var(--morandi-warm-gray);
-      font-style: italic;
-      margin-bottom: 14px;
+      font-size: 12px;
+      color: var(--text-light);
+      margin-bottom: 12px;
       padding-bottom: 10px;
-      border-bottom: 1px solid rgba(0,0,0,0.06);
+      border-bottom: 1px solid var(--border);
     }
 
     .panel-item {
-      font-size: 14.5px;
+      font-size: 13px;
       line-height: 1.6;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       padding-left: 14px;
       position: relative;
+      color: var(--text-secondary);
     }
-
     .panel-item::before {
       content: '';
       position: absolute;
-      left: 0;
-      top: 9px;
-      width: 5px;
-      height: 5px;
+      left: 0; top: 8px;
+      width: 5px; height: 5px;
       border-radius: 50%;
+      background: var(--border);
     }
-
-    .panel-natural .panel-item::before { background: var(--morandi-terracotta); }
-    .panel-reordered .panel-item::before { background: var(--renaissance-umber); }
-
-    .panel-item.con { opacity: 0.7; }
+    .panel-reordered .panel-item::before { background: var(--accent); }
+    .panel-item.con { opacity: 0.65; }
 
     .verdict-row {
-      margin: 25px 0;
-      padding: 18px 22px;
-      background: linear-gradient(135deg, rgba(106, 78, 78, 0.04) 0%, rgba(138, 122, 88, 0.04) 100%);
-      border: 1px solid rgba(106, 78, 78, 0.08);
+      margin: 22px 0;
+      padding: 14px 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
       border-radius: 6px;
       text-align: center;
+      font-size: 14px;
+      color: var(--text-secondary);
     }
 
-    .verdict-text {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 17px;
-      font-weight: 600;
-      color: var(--renaissance-umber);
-      letter-spacing: 0.5px;
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 24px 0;
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-light);
+      margin-top: 0;
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+
+    .prose-footer {
+      margin-top: 36px;
+      padding-top: 22px;
+      border-top: 1px solid var(--border);
+      font-size: 13px;
+      color: var(--text-light);
     }
 
-    @media screen and (max-width: 600px) {
-      .container {
-        padding: 30px 20px;
-      }
-      h1 {
-        font-size: 28px;
-      }
-      h2 {
-        font-size: 20px;
-      }
-      p {
-        font-size: 15px;
-      }
-      .diptych {
-        flex-direction: column;
-        gap: 12px;
-      }
-      .panel-item {
-        font-size: 13.5px;
-      }
+    @media (max-width: 600px) {
+      .hero h1 { font-size: 1.7rem; }
     }
   </style>
 </head>
-
 <body>
-  <div class="container">
-    <a href="../index.html" class="back-link">&larr; Back to Home</a>
 
+<header>
+  <div class="container">
+    <a href="../index.html">&larr; Back to Home</a>
+  </div>
+</header>
+
+<div class="container">
+  <div class="hero">
     <h1>The ABC Research Mindset</h1>
-    <div class="subtitle">A small habit that helps me think more honestly about new ideas</div>
-    <div class="meta">February 2026</div>
+    <p class="subtitle">A small habit that helps me think more honestly about new ideas</p>
+    <p class="meta">February 2026</p>
+  </div>
+
+  <hr class="divider">
+
+  <div class="prose">
 
     <p>I want to share a small thinking tool I've been playing with. I'm definitely not an established researcher&mdash;just someone trying to get better at evaluating ideas honestly. I've found this little habit helpful for myself, so I figured I'd write it up. Maybe it resonates with you, maybe not. Either way, here it is.</p>
 
@@ -285,76 +215,59 @@
 
     <p>That's basically it. The idea is that by swapping the order, you can maybe peel away some of the novelty bias. Instead of comparing "the new thing" against "the established things," you're trying to put them on more equal footing and see what you actually think.</p>
 
-    <!-- Figure 1: The ABC Principle Diagram -->
-    <div class="figure-container">
+    <!-- Figure 1 -->
+    <figure class="fig">
       <svg viewBox="0 0 560 310" xmlns="http://www.w3.org/2000/svg" style="max-width: 520px;">
-        <!-- Decorative outer frame -->
-        <rect x="8" y="8" width="544" height="294" rx="6" fill="none" stroke="#6a4e4e" stroke-width="1" opacity="0.15"/>
-        <rect x="14" y="14" width="532" height="282" rx="4" fill="none" stroke="#6a4e4e" stroke-width="0.5" opacity="0.08"/>
+        <rect x="8" y="8" width="544" height="294" rx="6" fill="none" stroke="#e2e2e2" stroke-width="1.5"/>
 
-        <!-- Title -->
-        <text x="280" y="46" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-size="16" fill="#6a4e4e" font-weight="700" letter-spacing="1.5">THE  SCALES  OF  JUDGMENT</text>
-        <line x1="140" y1="55" x2="420" y2="55" stroke="#6a4e4e" stroke-width="0.5" opacity="0.18"/>
+        <text x="280" y="46" text-anchor="middle" font-family="'Source Serif 4', Georgia, serif" font-size="15" fill="#1c1c1e" font-weight="600" letter-spacing="1">THE  SCALES  OF  JUDGMENT</text>
+        <line x1="140" y1="55" x2="420" y2="55" stroke="#e2e2e2" stroke-width="1"/>
 
-        <!-- === Natural Order Row === -->
-        <text x="38" y="102" font-family="EB Garamond, Georgia, serif" font-size="13" fill="#7a706a" font-style="italic">Natural order:</text>
+        <text x="38" y="102" font-family="'Inter', sans-serif" font-size="12" fill="#888" font-style="italic">Natural order:</text>
 
-        <!-- Circle A -->
-        <circle cx="170" cy="97" r="20" fill="#b09a92" opacity="0.18" stroke="#b09a92" stroke-width="1.2"/>
-        <text x="170" y="102" text-anchor="middle" font-family="Cormorant Garamond, serif" font-size="17" fill="#6a4e4e" font-weight="700">A</text>
+        <circle cx="170" cy="97" r="20" fill="#eef2fb" stroke="#2b5ecc" stroke-width="1.2"/>
+        <text x="170" y="102" text-anchor="middle" font-family="'Source Serif 4', Georgia, serif" font-size="17" fill="#1c1c1e" font-weight="600">A</text>
 
-        <!-- Circle B -->
-        <circle cx="222" cy="97" r="20" fill="#8a7a58" opacity="0.15" stroke="#8a7a58" stroke-width="1.2"/>
-        <text x="222" y="102" text-anchor="middle" font-family="Cormorant Garamond, serif" font-size="17" fill="#7a6050" font-weight="700">B</text>
+        <circle cx="222" cy="97" r="20" fill="#f6f7f9" stroke="#e2e2e2" stroke-width="1.2"/>
+        <text x="222" y="102" text-anchor="middle" font-family="'Source Serif 4', Georgia, serif" font-size="17" fill="#555" font-weight="600">B</text>
 
-        <!-- Arrow -->
-        <line x1="256" y1="97" x2="310" y2="97" stroke="#7a706a" stroke-width="1.2"/>
-        <polygon points="310,93 319,97 310,101" fill="#7a706a"/>
+        <line x1="256" y1="97" x2="310" y2="97" stroke="#888" stroke-width="1.2"/>
+        <polygon points="310,93 319,97 310,101" fill="#888"/>
 
-        <!-- Circle C (proposed, dashed) -->
-        <circle cx="355" cy="97" r="22" fill="#6a4e4e" opacity="0.08" stroke="#6a4e4e" stroke-width="1.3" stroke-dasharray="4,3"/>
-        <text x="355" y="102" text-anchor="middle" font-family="Cormorant Garamond, serif" font-size="17" fill="#6a4e4e" font-weight="700">C</text>
-        <text x="355" y="130" text-anchor="middle" font-family="EB Garamond, serif" font-size="10.5" fill="#6a4e4e" font-style="italic">proposed</text>
+        <circle cx="355" cy="97" r="22" fill="none" stroke="#2b5ecc" stroke-width="1.3" stroke-dasharray="4,3"/>
+        <text x="355" y="102" text-anchor="middle" font-family="'Source Serif 4', Georgia, serif" font-size="17" fill="#2b5ecc" font-weight="600">C</text>
+        <text x="355" y="130" text-anchor="middle" font-family="'Inter', sans-serif" font-size="10" fill="#2b5ecc" font-style="italic">proposed</text>
 
-        <!-- "feels novel!" label -->
-        <text x="448" y="93" font-family="EB Garamond, Georgia, serif" font-size="12.5" fill="#6a4e4e" font-style="italic">"feels novel</text>
-        <text x="448" y="108" font-family="EB Garamond, Georgia, serif" font-size="12.5" fill="#6a4e4e" font-style="italic">&nbsp;because it's new"</text>
+        <text x="448" y="93" font-family="'Inter', sans-serif" font-size="11.5" fill="#888" font-style="italic">"feels novel</text>
+        <text x="448" y="108" font-family="'Inter', sans-serif" font-size="11.5" fill="#888" font-style="italic"> because it's new"</text>
 
-        <!-- === Divider with swap label === -->
-        <line x1="40" y1="155" x2="520" y2="155" stroke="#6a4e4e" opacity="0.08"/>
-        <rect x="228" y="145" width="104" height="20" rx="10" fill="#f8f4ee" stroke="#b09a92" stroke-width="0.8" opacity="0.6"/>
-        <text x="280" y="159" text-anchor="middle" font-family="Cormorant Garamond, serif" font-size="11" fill="#a08070" font-weight="600" letter-spacing="0.5">swap B and C</text>
+        <line x1="40" y1="155" x2="520" y2="155" stroke="#e2e2e2"/>
+        <rect x="228" y="145" width="104" height="20" rx="10" fill="#f6f7f9" stroke="#e2e2e2" stroke-width="1"/>
+        <text x="280" y="159" text-anchor="middle" font-family="'Inter', sans-serif" font-size="11" fill="#555" font-weight="500">swap B and C</text>
 
-        <!-- === Reordered Row === -->
-        <text x="38" y="207" font-family="EB Garamond, Georgia, serif" font-size="13" fill="#7a706a" font-style="italic">Reordered:</text>
+        <text x="38" y="207" font-family="'Inter', sans-serif" font-size="12" fill="#888" font-style="italic">Reordered:</text>
 
-        <!-- Circle A -->
-        <circle cx="170" cy="202" r="20" fill="#b09a92" opacity="0.18" stroke="#b09a92" stroke-width="1.2"/>
-        <text x="170" y="207" text-anchor="middle" font-family="Cormorant Garamond, serif" font-size="17" fill="#6a4e4e" font-weight="700">A</text>
+        <circle cx="170" cy="202" r="20" fill="#eef2fb" stroke="#2b5ecc" stroke-width="1.2"/>
+        <text x="170" y="207" text-anchor="middle" font-family="'Source Serif 4', Georgia, serif" font-size="17" fill="#1c1c1e" font-weight="600">A</text>
 
-        <!-- Circle C (now established) -->
-        <circle cx="222" cy="202" r="20" fill="#6a4e4e" opacity="0.12" stroke="#6a4e4e" stroke-width="1.2"/>
-        <text x="222" y="207" text-anchor="middle" font-family="Cormorant Garamond, serif" font-size="17" fill="#6a4e4e" font-weight="700">C</text>
+        <circle cx="222" cy="202" r="20" fill="#f6f7f9" stroke="#e2e2e2" stroke-width="1.2"/>
+        <text x="222" y="207" text-anchor="middle" font-family="'Source Serif 4', Georgia, serif" font-size="17" fill="#555" font-weight="600">C</text>
 
-        <!-- Arrow -->
-        <line x1="256" y1="202" x2="310" y2="202" stroke="#7a706a" stroke-width="1.2"/>
-        <polygon points="310,198 319,202 310,206" fill="#7a706a"/>
+        <line x1="256" y1="202" x2="310" y2="202" stroke="#888" stroke-width="1.2"/>
+        <polygon points="310,198 319,202 310,206" fill="#888"/>
 
-        <!-- Circle B (proposed, dashed) -->
-        <circle cx="355" cy="202" r="22" fill="#8a7a58" opacity="0.1" stroke="#8a7a58" stroke-width="1.3" stroke-dasharray="4,3"/>
-        <text x="355" y="207" text-anchor="middle" font-family="Cormorant Garamond, serif" font-size="17" fill="#7a6050" font-weight="700">B</text>
-        <text x="355" y="235" text-anchor="middle" font-family="EB Garamond, serif" font-size="10.5" fill="#7a6050" font-style="italic">proposed</text>
+        <circle cx="355" cy="202" r="22" fill="none" stroke="#555" stroke-width="1.3" stroke-dasharray="4,3"/>
+        <text x="355" y="207" text-anchor="middle" font-family="'Source Serif 4', Georgia, serif" font-size="17" fill="#555" font-weight="600">B</text>
+        <text x="355" y="235" text-anchor="middle" font-family="'Inter', sans-serif" font-size="10" fill="#555" font-style="italic">proposed</text>
 
-        <!-- "is it actually better?" label -->
-        <text x="448" y="198" font-family="EB Garamond, Georgia, serif" font-size="12.5" fill="#5a4a42" font-style="italic">"now compare</text>
-        <text x="448" y="213" font-family="EB Garamond, Georgia, serif" font-size="12.5" fill="#5a4a42" font-style="italic">&nbsp;on equal footing"</text>
+        <text x="448" y="198" font-family="'Inter', sans-serif" font-size="11.5" fill="#555" font-style="italic">"now compare</text>
+        <text x="448" y="213" font-family="'Inter', sans-serif" font-size="11.5" fill="#555" font-style="italic"> on equal footing"</text>
 
-        <!-- === Bottom comparison === -->
-        <line x1="40" y1="258" x2="520" y2="258" stroke="#6a4e4e" opacity="0.08"/>
-        <text x="280" y="284" text-anchor="middle" font-family="Cormorant Garamond, serif" font-size="15" fill="#6a4e4e" font-weight="700" letter-spacing="0.8">C | A,B &nbsp;&nbsp;versus&nbsp;&nbsp; B | A,C</text>
+        <line x1="40" y1="258" x2="520" y2="258" stroke="#e2e2e2"/>
+        <text x="280" y="284" text-anchor="middle" font-family="'Source Serif 4', Georgia, serif" font-size="14" fill="#1c1c1e" font-weight="600" letter-spacing="0.5">C | A,B &nbsp;&nbsp;versus&nbsp;&nbsp; B | A,C</text>
       </svg>
-      <div class="figure-caption">Fig. 1 &mdash; The ABC Principle: strip away the novelty premium by reordering the timeline.</div>
-    </div>
+      <figcaption><strong>Fig. 1</strong> &mdash; The ABC Principle: strip away the novelty premium by reordering the timeline.</figcaption>
+    </figure>
 
     <h2>Example I: Latent Reasoning</h2>
 
@@ -374,7 +287,7 @@
 
     <p>I think that's a pretty interesting pitch.</p>
 
-    <!-- Diptych comparison -->
+    <!-- Diptych -->
     <div class="diptych">
       <div class="diptych-panel panel-natural">
         <div class="panel-header">Propose C | A, B</div>
@@ -398,9 +311,9 @@
       </div>
     </div>
 
-    <div class="figure-container">
-      <div class="figure-caption">Fig. 2 &mdash; The Latent Reasoning Diptych: compare the two proposals side by side.</div>
-    </div>
+    <figure class="fig">
+      <figcaption><strong>Fig. 2</strong> &mdash; The Latent Reasoning Diptych: compare the two proposals side by side.</figcaption>
+    </figure>
 
     <p>If you look at the two columns side by side, it seems like <strong>C&thinsp;|&thinsp;A,B</strong>&mdash;latent reasoning, given we already have CoT&mdash;is kind of asking us to trade some pretty concrete advantages for something less transparent. Meanwhile <strong>B&thinsp;|&thinsp;A,C</strong>&mdash;CoT, given we already have latent reasoning&mdash;feels like a really practical, scalable idea that anyone can inspect and build on.</p>
 
@@ -414,78 +327,64 @@
 
     <p>A lot of architectures are finicky. You spend a lot of time tuning hyperparameters, finding the right configuration, trying to make things competitive. The Transformer just kind of... stands there. (My friend <a href="https://zhouxiangfang.github.io/">@zhouxiang</a> and I once did a funny cosplay of it&mdash;long story.) You train it, and it gives you good performance. It's really quite robust.</p>
 
-    <!-- Figure 3: The Transformer Pillar -->
-    <div class="figure-container">
+    <!-- Figure 3 -->
+    <figure class="fig">
       <svg viewBox="0 0 640 350" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%;">
-        <!-- Gradient definition -->
         <defs>
           <linearGradient id="columnGrad" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stop-color="#b09a92" stop-opacity="0.12"/>
-            <stop offset="50%" stop-color="#f2ece4" stop-opacity="0.4"/>
-            <stop offset="100%" stop-color="#b09a92" stop-opacity="0.12"/>
+            <stop offset="0%" stop-color="#e2e2e2" stop-opacity="0.4"/>
+            <stop offset="50%" stop-color="#f6f7f9" stop-opacity="0.8"/>
+            <stop offset="100%" stop-color="#e2e2e2" stop-opacity="0.4"/>
           </linearGradient>
         </defs>
 
-        <!-- Decorative frame -->
-        <rect x="8" y="8" width="624" height="334" rx="6" fill="none" stroke="#6a4e4e" stroke-width="1" opacity="0.15"/>
+        <rect x="8" y="8" width="624" height="334" rx="6" fill="none" stroke="#e2e2e2" stroke-width="1.5"/>
 
-        <!-- Background subtle arch -->
-        <path d="M 220 300 L 220 125 Q 220 60 320 60 Q 420 60 420 125 L 420 300" fill="none" stroke="#6a4e4e" stroke-width="0.8" opacity="0.05"/>
+        <rect x="280" y="275" width="80" height="16" rx="2" fill="#f6f7f9" stroke="#e2e2e2" stroke-width="1"/>
+        <rect x="285" y="265" width="70" height="14" rx="2" fill="#f6f7f9" stroke="#e2e2e2" stroke-width="0.8"/>
 
-        <!-- Column base -->
-        <rect x="280" y="275" width="80" height="16" rx="2" fill="#6a4e4e" fill-opacity="0.08" stroke="#6a4e4e" stroke-width="0.8" stroke-opacity="0.15"/>
-        <rect x="285" y="265" width="70" height="14" rx="2" fill="#6a4e4e" fill-opacity="0.06" stroke="#6a4e4e" stroke-width="0.6" stroke-opacity="0.12"/>
+        <rect x="295" y="112" width="50" height="156" rx="3" fill="url(#columnGrad)" stroke="#e2e2e2" stroke-width="1.2"/>
 
-        <!-- Column shaft -->
-        <rect x="295" y="112" width="50" height="156" rx="3" fill="url(#columnGrad)" stroke="#6a4e4e" stroke-width="1" stroke-opacity="0.28"/>
+        <line x1="305" y1="118" x2="305" y2="263" stroke="#888" stroke-width="0.4" opacity="0.3"/>
+        <line x1="315" y1="118" x2="315" y2="263" stroke="#888" stroke-width="0.4" opacity="0.3"/>
+        <line x1="325" y1="118" x2="325" y2="263" stroke="#888" stroke-width="0.4" opacity="0.3"/>
+        <line x1="335" y1="118" x2="335" y2="263" stroke="#888" stroke-width="0.4" opacity="0.3"/>
 
-        <!-- Column fluting lines -->
-        <line x1="305" y1="118" x2="305" y2="263" stroke="#6a4e4e" stroke-width="0.4" opacity="0.10"/>
-        <line x1="315" y1="118" x2="315" y2="263" stroke="#6a4e4e" stroke-width="0.4" opacity="0.10"/>
-        <line x1="325" y1="118" x2="325" y2="263" stroke="#6a4e4e" stroke-width="0.4" opacity="0.10"/>
-        <line x1="335" y1="118" x2="335" y2="263" stroke="#6a4e4e" stroke-width="0.4" opacity="0.10"/>
+        <rect x="285" y="104" width="70" height="12" rx="2" fill="#f6f7f9" stroke="#e2e2e2" stroke-width="0.8"/>
+        <rect x="280" y="94" width="80" height="14" rx="2" fill="#f6f7f9" stroke="#e2e2e2" stroke-width="1"/>
 
-        <!-- Column capital -->
-        <rect x="285" y="104" width="70" height="12" rx="2" fill="#6a4e4e" fill-opacity="0.06" stroke="#6a4e4e" stroke-width="0.6" stroke-opacity="0.12"/>
-        <rect x="280" y="94" width="80" height="14" rx="2" fill="#6a4e4e" fill-opacity="0.08" stroke="#6a4e4e" stroke-width="0.8" stroke-opacity="0.15"/>
+        <rect x="268" y="38" width="104" height="48" rx="4" fill="#eef2fb" stroke="#2b5ecc" stroke-width="1"/>
+        <text x="320" y="59" text-anchor="middle" font-family="'Source Serif 4', Georgia, serif" font-size="13" fill="#1c1c1e" font-weight="600" letter-spacing="1.5">TRANSFORMER</text>
+        <text x="320" y="77" text-anchor="middle" font-family="'Inter', sans-serif" font-size="11" fill="#888" font-style="italic">est. 2017</text>
 
-        <!-- Pediment / name plate -->
-        <rect x="270" y="38" width="100" height="48" rx="3" fill="rgba(106,78,78,0.04)" stroke="#6a4e4e" stroke-width="0.8" stroke-opacity="0.2"/>
-        <text x="320" y="60" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-size="14" fill="#6a4e4e" font-weight="700" letter-spacing="2">TRANSFORMER</text>
-        <text x="320" y="78" text-anchor="middle" font-family="EB Garamond, Georgia, serif" font-size="11" fill="#7a6050" font-style="italic">est. 2017</text>
+        <line x1="290" y1="140" x2="195" y2="118" stroke="#e2e2e2" stroke-width="1"/>
+        <text x="188" y="115" text-anchor="end" font-family="'Inter', sans-serif" font-size="13" fill="#1c1c1e" font-weight="500">Just works</text>
 
-        <!-- Property labels radiating outward -->
-        <!-- Left side -->
-        <line x1="290" y1="140" x2="195" y2="118" stroke="#a08070" stroke-width="0.8" opacity="0.45"/>
-        <text x="188" y="115" text-anchor="end" font-family="EB Garamond, Georgia, serif" font-size="14" fill="#4a4440" font-weight="500">Just works</text>
+        <line x1="290" y1="175" x2="168" y2="170" stroke="#e2e2e2" stroke-width="1"/>
+        <text x="161" y="167" text-anchor="end" font-family="'Inter', sans-serif" font-size="13" fill="#1c1c1e" font-weight="500">Exact KV cache</text>
 
-        <line x1="290" y1="175" x2="168" y2="170" stroke="#a08070" stroke-width="0.8" opacity="0.45"/>
-        <text x="161" y="167" text-anchor="end" font-family="EB Garamond, Georgia, serif" font-size="14" fill="#4a4440" font-weight="500">Exact KV cache</text>
+        <line x1="290" y1="210" x2="208" y2="222" stroke="#e2e2e2" stroke-width="1"/>
+        <text x="200" y="219" text-anchor="end" font-family="'Inter', sans-serif" font-size="13" fill="#1c1c1e" font-weight="500">Expressive (with CoT)</text>
 
-        <line x1="290" y1="210" x2="208" y2="222" stroke="#a08070" stroke-width="0.8" opacity="0.45"/>
-        <text x="200" y="219" text-anchor="end" font-family="EB Garamond, Georgia, serif" font-size="14" fill="#4a4440" font-weight="500">Expressive (with CoT)</text>
+        <line x1="290" y1="245" x2="175" y2="268" stroke="#e2e2e2" stroke-width="1"/>
+        <text x="168" y="265" text-anchor="end" font-family="'Inter', sans-serif" font-size="13" fill="#1c1c1e" font-weight="500">Robust to configs</text>
 
-        <line x1="290" y1="245" x2="175" y2="268" stroke="#a08070" stroke-width="0.8" opacity="0.45"/>
-        <text x="168" y="265" text-anchor="end" font-family="EB Garamond, Georgia, serif" font-size="14" fill="#4a4440" font-weight="500">Robust to configs</text>
+        <line x1="350" y1="140" x2="445" y2="118" stroke="#e2e2e2" stroke-width="1"/>
+        <text x="452" y="115" text-anchor="start" font-family="'Inter', sans-serif" font-size="13" fill="#1c1c1e" font-weight="500">Scales predictably</text>
 
-        <!-- Right side -->
-        <line x1="350" y1="140" x2="445" y2="118" stroke="#a08070" stroke-width="0.8" opacity="0.45"/>
-        <text x="452" y="115" text-anchor="start" font-family="EB Garamond, Georgia, serif" font-size="14" fill="#4a4440" font-weight="500">Scales predictably</text>
+        <line x1="350" y1="175" x2="470" y2="170" stroke="#e2e2e2" stroke-width="1"/>
+        <text x="477" y="167" text-anchor="start" font-family="'Inter', sans-serif" font-size="13" fill="#1c1c1e" font-weight="500">Fast inference</text>
 
-        <line x1="350" y1="175" x2="470" y2="170" stroke="#a08070" stroke-width="0.8" opacity="0.45"/>
-        <text x="477" y="167" text-anchor="start" font-family="EB Garamond, Georgia, serif" font-size="14" fill="#4a4440" font-weight="500">Fast inference</text>
+        <line x1="350" y1="210" x2="460" y2="222" stroke="#e2e2e2" stroke-width="1"/>
+        <text x="467" y="219" text-anchor="start" font-family="'Inter', sans-serif" font-size="13" fill="#1c1c1e" font-weight="500">Supports post-training</text>
 
-        <line x1="350" y1="210" x2="460" y2="222" stroke="#a08070" stroke-width="0.8" opacity="0.45"/>
-        <text x="467" y="219" text-anchor="start" font-family="EB Garamond, Georgia, serif" font-size="14" fill="#4a4440" font-weight="500">Supports post-training</text>
+        <line x1="350" y1="245" x2="450" y2="268" stroke="#e2e2e2" stroke-width="1"/>
+        <text x="457" y="265" text-anchor="start" font-family="'Inter', sans-serif" font-size="13" fill="#1c1c1e" font-weight="500">Agentic RL-friendly</text>
 
-        <line x1="350" y1="245" x2="450" y2="268" stroke="#a08070" stroke-width="0.8" opacity="0.45"/>
-        <text x="457" y="265" text-anchor="start" font-family="EB Garamond, Georgia, serif" font-size="14" fill="#4a4440" font-weight="500">Agentic RL-friendly</text>
-
-        <!-- Bottom inscription -->
-        <text x="320" y="320" text-anchor="middle" font-family="EB Garamond, Georgia, serif" font-size="13" fill="#7a706a" font-style="italic">"it just stands there"</text>
+        <text x="320" y="320" text-anchor="middle" font-family="'Inter', sans-serif" font-size="12" fill="#888" font-style="italic">"it just stands there"</text>
       </svg>
-      <div class="figure-caption">Fig. 3 &mdash; The Transformer, rendered as a classical column. It just stands there, and everything works.</div>
-    </div>
+      <figcaption><strong>Fig. 3</strong> &mdash; The Transformer, rendered as a classical column. It just stands there, and everything works.</figcaption>
+    </figure>
 
     <p>And the nice properties keep adding up. Transformers with CoT are theoretically Turing-complete&mdash;they can, in principle, compute anything. They maintain exact KV caches, which means fast inference and good recall over long contexts. They seem like a natural fit for post-training, for agentic RL, for a lot of the things people want to build on top.</p>
 
@@ -507,11 +406,14 @@
 
     <p>If you have thoughts on this, or examples where this kind of thinking breaks down, or cases where flipping the order actually reveals the opposite of what you'd expect&mdash;I'd genuinely love to hear about them. This is very much a work in progress, like pretty much everything else in my research life.</p>
 
-    <p style="margin-top: 40px; padding-top: 20px; border-top: 1px solid rgba(106, 78, 78, 0.15); color: var(--morandi-soft-brown); font-size: 15px;">
-      <em>Just a personal reflection, not trying to claim any authority here. If the ABC framing is useful to you, feel free to borrow it. If you think it's wrong, I'd honestly love to know why.</em>
-    </p>
+    <p class="prose-footer"><em>Just a personal reflection, not trying to claim any authority here. If the ABC framing is useful to you, feel free to borrow it. If you think it's wrong, I'd honestly love to know why.</em></p>
 
   </div>
-</body>
 
+  <footer>
+    <span>Chunyuan Deng &mdash; Rice University</span>
+  </footer>
+</div>
+
+</body>
 </html>

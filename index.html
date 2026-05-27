@@ -300,49 +300,16 @@
       margin-bottom: 8px;
     }
 
-    /* Gradient animations for blog heading and cards */
-    @keyframes gradient-shift {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-
-    @keyframes card-sage {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-
-    @keyframes card-wine {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-
-    /* Card 1: Warm olive/khaki — matches the linear attention blog */
-    .blog-card-1 {
-      background: linear-gradient(135deg, #faf8f4, #f5f2ea, #f0ece2, #eae6da, #e5e1d4, #eae6da, #f0ece2, #f5f2ea, #faf8f4);
-      background-size: 300% 300%;
-      animation: card-sage 2s ease infinite;
-    }
-
-    .blog-card-1:hover {
-      background: linear-gradient(135deg, #f7f5f0, #f2eee5, #ece8dd, #e6e2d5, #e0dcce, #e6e2d5, #ece8dd, #f2eee5, #f7f5f0);
-      background-size: 300% 300%;
-      animation: card-sage 1.5s ease infinite;
-    }
-
-    /* Card 2: Warm umber/parchment — matches the ABC research blog */
+    /* Blog cards — lt2 clean style */
+    .blog-card-1,
     .blog-card-2 {
-      background: linear-gradient(135deg, #fcf8f2, #f7f1e9, #f2eae0, #ece3d8, #e6ddd0, #ece3d8, #f2eae0, #f7f1e9, #fcf8f2);
-      background-size: 300% 300%;
-      animation: card-wine 2.5s ease infinite;
+      background: #f6f7f9;
+      transition: background 0.2s, border-color 0.2s;
     }
 
+    .blog-card-1:hover,
     .blog-card-2:hover {
-      background: linear-gradient(135deg, #faf5ee, #f4ede4, #eee6db, #e8dfd3, #e1d8cb, #e8dfd3, #eee6db, #f4ede4, #faf5ee);
-      background-size: 300% 300%;
-      animation: card-wine 1.5s ease infinite;
+      background: #eef2fb;
     }
 
     /* Horizontal scrolling blog container */
@@ -359,17 +326,17 @@
     }
 
     .blog-scroll::-webkit-scrollbar-track {
-      background: rgba(138, 154, 123, 0.06);
+      background: #f6f7f9;
       border-radius: 3px;
     }
 
     .blog-scroll::-webkit-scrollbar-thumb {
-      background: rgba(138, 154, 123, 0.2);
+      background: #e2e2e2;
       border-radius: 3px;
     }
 
     .blog-scroll::-webkit-scrollbar-thumb:hover {
-      background: rgba(138, 154, 123, 0.35);
+      background: #c5d6f5;
     }
 
     .blog-scroll-inner {
@@ -537,35 +504,25 @@
 <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
 	<tr>
             <td style="padding:20px;width:100%;vertical-align:middle">
-              <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 20px;">
-                <heading style="background: linear-gradient(120deg, #b5c2aa, #a0b095, #8a9a7b, #7d8a6e, #6b7a5e, #7d8a6e, #8a9a7b, #a0b095, #b5c2aa); background-size: 400% 400%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradient-shift 10s ease infinite;">✨ Blog</heading>
+              <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 14px;">
+                <heading>Blog</heading>
                 <a href="blog/archive.html" style="font-size: 13px; font-family: 'Cormorant Garamond', serif; font-weight: 600; letter-spacing: 0.5px;">View All →</a>
               </div>
 
-              <!-- Horizontal Scrolling Blog Posts -->
-              <div class="blog-scroll">
-                <div class="blog-scroll-inner">
-
-                  <!-- Blog Post - ABC Research Mindset (warm umber theme) -->
-                  <a href="blog/abc-research-mindset.html">
-                    <div class="blog-card-2" style="padding: 20px 22px; border-radius: 6px; border: 1px solid rgba(106, 78, 78, 0.15); box-shadow: 0 3px 12px rgba(106, 78, 78, 0.08); transition: all 0.3s ease; min-height: 125px; display: flex; flex-direction: column; justify-content: center;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 6px 20px rgba(106, 78, 78, 0.18)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 3px 12px rgba(106, 78, 78, 0.08)';">
-                      <div style="font-family: 'Cormorant Garamond', serif; font-size: 11px; font-weight: 600; color: #b09a92; letter-spacing: 0.5px; margin-bottom: 8px; text-align: center; opacity: 0.85;">February 2026</div>
-                      <div style="font-family: 'Cormorant Garamond', serif; font-size: 17px; font-weight: 700; color: #6a4e4e; line-height: 1.4; text-align: center; letter-spacing: 0.3px; margin-bottom: 8px;">The ABC Research Mindset</div>
-                      <div style="font-size: 12px; line-height: 1.45; color: #7a706a; text-align: center; opacity: 0.75;">Debiasing novelty when judging research ideas</div>
-                    </div>
-                  </a>
-
-                  <!-- Blog Post - Linear Attention (warm olive theme) -->
-                  <a href="blog/linear-attention-key-value.html">
-                    <div class="blog-card-1" style="padding: 20px 22px; border-radius: 6px; border: 1px solid rgba(90, 85, 70, 0.15); box-shadow: 0 3px 12px rgba(90, 85, 70, 0.08); transition: all 0.3s ease; min-height: 125px; display: flex; flex-direction: column; justify-content: center;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 6px 20px rgba(90, 85, 70, 0.18)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 3px 12px rgba(90, 85, 70, 0.08)';">
-                      <div style="font-family: 'Cormorant Garamond', serif; font-size: 11px; font-weight: 600; color: #9a9482; letter-spacing: 0.5px; margin-bottom: 8px; text-align: center; opacity: 0.85;">February 2026</div>
-                      <div style="font-family: 'Cormorant Garamond', serif; font-size: 17px; font-weight: 700; color: #4a4a3e; line-height: 1.4; text-align: center; letter-spacing: 0.3px; margin-bottom: 8px;">Rethinking Key-Value Relationships in Linear Attention</div>
-                      <div style="font-size: 12px; line-height: 1.45; color: #6a6858; text-align: center; opacity: 0.75;">How non-linearities of key-value affect online loss in linear attention? A empirical study.</div>
-                    </div>
-                  </a>
-
-                </div>
-              </div>
+              <ul style="margin: 0; padding-left: 20px;">
+                <li style="margin-bottom: 10px;">
+                  <a href="blog/abc-research-mindset.html"><strong>The ABC Research Mindset</strong></a>
+                  <span style="color: var(--morandi-warm-gray); font-size: 13px;"> — Feb 2026</span>
+                  <br>
+                  <span style="font-size: 13px; color: var(--morandi-soft-brown);">Debiasing novelty when judging research ideas.</span>
+                </li>
+                <li style="margin-bottom: 10px;">
+                  <a href="blog/linear-attention-key-value.html"><strong>Rethinking Key-Value Relationships in Linear Attention</strong></a>
+                  <span style="color: var(--morandi-warm-gray); font-size: 13px;"> — Feb 2026</span>
+                  <br>
+                  <span style="font-size: 13px; color: var(--morandi-soft-brown);">How non-linearities of key-value affect online loss in linear attention? An empirical study.</span>
+                </li>
+              </ul>
 
             </td>
         </tr>
@@ -775,6 +732,7 @@
 
 
 	
+	<!-- Service section commented out
 	<table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;">
 
         <tr>
@@ -789,6 +747,7 @@
         </tr>
 
 </table>
+-->
 
 
 			

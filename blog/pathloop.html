@@ -206,7 +206,7 @@
 
     <div class="tldr">
       <strong>TL;DR</strong><br><br>
-      We fine-tune a 30B mixture-of-experts model with its middle layers looped three times, which turns 48 layers into 96 executed ones. Looping helps, but not where you would guess: on the coding data we train on it adds nothing, while on the nine benchmarks we never train on it prevents the forgetting that plain fine-tuning suffers. Reading the probes then showed why the loop is weaker than it should be &mdash; <strong>the second and third passes are near-copies of each other</strong>. They route to nearly the same experts and barely change the representation. The loop is not building three different paths through the model; it is building one path and two near-repeats. <strong>Pathloop</strong> is our attempt to force the passes apart by making the router sample a little during training, and then letting the three passes compete. It is implemented and a first run is in progress.
+      We fine-tune a 30B mixture-of-experts model with its middle layers looped three times, which turns 48 layers into 96 executed ones. Looping helps, but not where you would guess: on the coding data we train on it adds nothing, and on the nine benchmarks we never train on it does not raise the peak either &mdash; it holds the peak. Plain fine-tuning gains five points out-of-domain and then gives all of them back; the looped runs keep most of theirs. Reading the probes then showed why the loop is weaker than it should be &mdash; <strong>the second and third passes are near-copies of each other</strong>. They route to nearly the same experts and barely change the representation. The loop is not building three different paths through the model; it is building one path and two near-repeats. <strong>Pathloop</strong> is our attempt to force the passes apart by making the router sample a little during training, and then letting the three passes compete. It is implemented and a first run is in progress.
     </div>
 
     <h2>I. The problem, in plain terms</h2>
@@ -304,36 +304,51 @@
           <th>Benchmark</th><th></th>
           <th class="num">Base</th><th class="num">Plain SFT</th><th class="num">Looped SFT</th><th class="num">Looped SFT (fast gates)</th>
         </tr>
-        <tr><td>HumanEval</td><td><span class="tag tag-in">in</span></td><td class="num">72.0</td><td class="num">88.4</td><td class="num best">90.2</td><td class="num">89.0</td></tr>
-        <tr><td>HumanEval+</td><td><span class="tag tag-in">in</span></td><td class="num">66.5</td><td class="num">82.9</td><td class="num best">85.4</td><td class="num">84.1</td></tr>
-        <tr><td>MBPP</td><td><span class="tag tag-in">in</span></td><td class="num">68.5</td><td class="num">73.5</td><td class="num">73.0</td><td class="num best">75.0</td></tr>
-        <tr><td>MBPP+</td><td><span class="tag tag-in">in</span></td><td class="num best">76.0</td><td class="num">74.4</td><td class="num">72.8</td><td class="num">73.2</td></tr>
-        <tr><td>LiveCodeBench</td><td><span class="tag tag-in">in</span></td><td class="num">14.9</td><td class="num">30.9</td><td class="num best">31.4</td><td class="num">28.6</td></tr>
-        <tr><td>GSM8K</td><td><span class="tag tag-ood">ood</span></td><td class="num">52.8</td><td class="num">52.0</td><td class="num best">69.2</td><td class="num">65.2</td></tr>
-        <tr><td>MATH500</td><td><span class="tag tag-ood">ood</span></td><td class="num best">60.8</td><td class="num">48.0</td><td class="num">50.0</td><td class="num">50.0</td></tr>
-        <tr><td>MATH500-flex</td><td><span class="tag tag-ood">ood</span></td><td class="num best">60.8</td><td class="num">50.4</td><td class="num">53.6</td><td class="num">52.0</td></tr>
-        <tr><td>AMC23</td><td><span class="tag tag-ood">ood</span></td><td class="num">27.9</td><td class="num">30.0</td><td class="num">26.7</td><td class="num best">39.6</td></tr>
-        <tr><td>AIME24</td><td><span class="tag tag-ood">ood</span></td><td class="num">4.4</td><td class="num best">10.0</td><td class="num">6.1</td><td class="num best">10.0</td></tr>
-        <tr><td>AIME25</td><td><span class="tag tag-ood">ood</span></td><td class="num">2.8</td><td class="num">5.0</td><td class="num best">7.2</td><td class="num">6.1</td></tr>
-        <tr><td>MMLU-Pro</td><td><span class="tag tag-ood">ood</span></td><td class="num">52.4</td><td class="num">49.6</td><td class="num best">52.8</td><td class="num">49.2</td></tr>
-        <tr><td>GPQA-Diamond</td><td><span class="tag tag-ood">ood</span></td><td class="num">38.9</td><td class="num">40.4</td><td class="num best">43.4</td><td class="num">42.4</td></tr>
-        <tr><td>IFEval</td><td><span class="tag tag-ood">ood</span></td><td class="num">35.2</td><td class="num">52.0</td><td class="num">53.6</td><td class="num best">54.0</td></tr>
-        <tr class="sep"><td>Mean, all 14</td><td></td><td class="num">45.27</td><td class="num">49.11</td><td class="num">51.11</td><td class="num best">51.32</td></tr>
-        <tr><td>Mean, in-domain</td><td><span class="tag tag-in">in</span></td><td class="num">59.55</td><td class="num">70.02</td><td class="num best">70.57</td><td class="num">69.99</td></tr>
-        <tr><td>Mean, out-of-domain</td><td><span class="tag tag-ood">ood</span></td><td class="num">37.34</td><td class="num">37.49</td><td class="num">40.29</td><td class="num best">40.95</td></tr>
+        <tr><td>HumanEval</td><td><span class="tag tag-in">in</span></td><td class="num">72.0</td><td class="num">90.2 <span style="font-size:10px;color:#aaa">149</span></td><td class="num">90.2 <span style="font-size:10px;color:#aaa">299</span></td><td class="num best">91.5 <span style="font-size:10px;color:#aaa">299</span></td></tr>
+        <tr><td>HumanEval+</td><td><span class="tag tag-in">in</span></td><td class="num">66.5</td><td class="num">84.1 <span style="font-size:10px;color:#aaa">149</span></td><td class="num">86.0 <span style="font-size:10px;color:#aaa">299</span></td><td class="num best">87.2 <span style="font-size:10px;color:#aaa">299</span></td></tr>
+        <tr><td>MBPP</td><td><span class="tag tag-in">in</span></td><td class="num">68.5</td><td class="num">74.5 <span style="font-size:10px;color:#aaa">299</span></td><td class="num">73.0 <span style="font-size:10px;color:#aaa">299</span></td><td class="num best">75.5 <span style="font-size:10px;color:#aaa">299</span></td></tr>
+        <tr><td>MBPP+</td><td><span class="tag tag-in">in</span></td><td class="num best">76.0</td><td class="num">74.4 <span style="font-size:10px;color:#aaa">415</span></td><td class="num">73.6 <span style="font-size:10px;color:#aaa">299</span></td><td class="num">74.0 <span style="font-size:10px;color:#aaa">299</span></td></tr>
+        <tr><td>LiveCodeBench</td><td><span class="tag tag-in">in</span></td><td class="num">14.9</td><td class="num">31.4 <span style="font-size:10px;color:#aaa">149</span></td><td class="num best">32.6 <span style="font-size:10px;color:#aaa">299</span></td><td class="num">29.7 <span style="font-size:10px;color:#aaa">299</span></td></tr>
+        <tr><td>GSM8K</td><td><span class="tag tag-ood">ood</span></td><td class="num">52.8</td><td class="num best">72.4 <span style="font-size:10px;color:#aaa">149</span></td><td class="num">69.2 <span style="font-size:10px;color:#aaa">415</span></td><td class="num">65.2 <span style="font-size:10px;color:#aaa">415</span></td></tr>
+        <tr><td>MATH500</td><td><span class="tag tag-ood">ood</span></td><td class="num">60.8</td><td class="num">57.6 <span style="font-size:10px;color:#aaa">149</span></td><td class="num">59.6 <span style="font-size:10px;color:#aaa">149</span></td><td class="num best">66.0 <span style="font-size:10px;color:#aaa">149</span></td></tr>
+        <tr><td>MATH500-flex</td><td><span class="tag tag-ood">ood</span></td><td class="num">60.8</td><td class="num">58.0 <span style="font-size:10px;color:#aaa">149</span></td><td class="num">62.4 <span style="font-size:10px;color:#aaa">149</span></td><td class="num best">67.2 <span style="font-size:10px;color:#aaa">149</span></td></tr>
+        <tr><td>AMC23</td><td><span class="tag tag-ood">ood</span></td><td class="num">27.9</td><td class="num">32.5 <span style="font-size:10px;color:#aaa">149</span></td><td class="num">30.8 <span style="font-size:10px;color:#aaa">149</span></td><td class="num best">39.6 <span style="font-size:10px;color:#aaa">415</span></td></tr>
+        <tr><td>AIME24</td><td><span class="tag tag-ood">ood</span></td><td class="num">4.4</td><td class="num">10.0 <span style="font-size:10px;color:#aaa">415</span></td><td class="num">10.0 <span style="font-size:10px;color:#aaa">299</span></td><td class="num best">11.7 <span style="font-size:10px;color:#aaa">149</span></td></tr>
+        <tr><td>AIME25</td><td><span class="tag tag-ood">ood</span></td><td class="num">2.8</td><td class="num">5.0 <span style="font-size:10px;color:#aaa">415</span></td><td class="num best">7.2 <span style="font-size:10px;color:#aaa">415</span></td><td class="num">6.7 <span style="font-size:10px;color:#aaa">149</span></td></tr>
+        <tr><td>MMLU-Pro</td><td><span class="tag tag-ood">ood</span></td><td class="num">52.4</td><td class="num">51.6 <span style="font-size:10px;color:#aaa">149</span></td><td class="num best">52.8 <span style="font-size:10px;color:#aaa">415</span></td><td class="num">51.2 <span style="font-size:10px;color:#aaa">149</span></td></tr>
+        <tr><td>GPQA-Diamond</td><td><span class="tag tag-ood">ood</span></td><td class="num">38.9</td><td class="num best">43.9 <span style="font-size:10px;color:#aaa">299</span></td><td class="num">43.4 <span style="font-size:10px;color:#aaa">415</span></td><td class="num">43.9 <span style="font-size:10px;color:#aaa">299</span></td></tr>
+        <tr><td>IFEval</td><td><span class="tag tag-ood">ood</span></td><td class="num">35.2</td><td class="num">53.6 <span style="font-size:10px;color:#aaa">299</span></td><td class="num">53.6 <span style="font-size:10px;color:#aaa">415</span></td><td class="num best">56.0 <span style="font-size:10px;color:#aaa">299</span></td></tr>
+        <tr class="sep"><td>Mean of best, all 14</td><td></td><td class="num">45.27</td><td class="num">52.81</td><td class="num">53.18</td><td class="num best">54.67</td></tr>
+        <tr class=""><td>Mean of best, in-domain</td><td><span class="tag tag-in">in</span></td><td class="num">59.55</td><td class="num">70.94</td><td class="num">71.08</td><td class="num best">71.57</td></tr>
+        <tr class=""><td>Mean of best, out-of-domain</td><td><span class="tag tag-ood">ood</span></td><td class="num">37.34</td><td class="num">42.74</td><td class="num">43.23</td><td class="num best">45.27</td></tr>
       </table>
     </div>
 
+    <p style="font-size:12.5px;color:#555;margin-top:-6px">Each fine-tuned number is that arm's <em>best</em> across the three checkpoints we saved (149, 299, 415); the small grey figure is which one. Taking a per-benchmark maximum is optimistic &mdash; it picks the checkpoint after seeing the score &mdash; but it is optimistic for every arm equally, and it avoids crediting a method merely for degrading more slowly.</p>
+
     <div class="insight-box">
       <h3>Splitting the benchmarks changes the conclusion</h3>
-      <p>On the overall mean, looping looks like a modest <strong>+2.0</strong> over plain fine-tuning. Split by domain, that average is hiding two different stories.</p>
-      <p><strong>In-domain, looping does nothing.</strong> Fine-tuning lifts coding from 59.6 to 70.0, and all three fine-tuned arms land within half a point of each other. Whatever the loop is contributing, it is not coding ability.</p>
-      <p><strong>Out-of-domain, plain fine-tuning gains nothing at all</strong> &mdash; 37.34 to 37.49 &mdash; while the looped arms gain about three points. The entire measured benefit of looping sits on tasks we never trained on.</p>
+      <p><strong>In-domain, looping does nothing.</strong> Fine-tuning lifts coding from 59.6 to about 71, and all three fine-tuned arms land within 0.6 of each other. Whatever the loop contributes, it is not coding ability.</p>
+      <p><strong>Out-of-domain is where the arms separate</strong>, but by less than a final-checkpoint comparison suggests. At its best checkpoint plain fine-tuning reaches 42.7 &mdash; a real gain of five points over the base model. Standard-gate looping reaches 43.2, barely ahead. Only the fast-gate arm opens a clear margin, at 45.3.</p>
+      <p>This matters because comparing final checkpoints tells a much flattering story: there, plain fine-tuning scores 37.5 against 40.3 and 40.9 for the looped arms. That gap is almost entirely plain fine-tuning having fallen back to the base model by step 415, not the looped arms having learned more.</p>
     </div>
 
-    <h3>It is retention, not learning</h3>
+    <h3>It is retention, not a higher peak</h3>
 
-    <p>Evaluating at three checkpoints shows what is actually happening. Out-of-domain, every arm <em>starts</em> around 41&ndash;44 at step 149 and then declines as training continues. Plain fine-tuning declines all the way back to the base model. The looped arms decline more slowly and stop above it.</p>
+    <p>Evaluating at three checkpoints shows what is actually happening. Out-of-domain, every arm peaks at step 149 &mdash; the earliest checkpoint we saved &mdash; and declines from there. Plain fine-tuning declines all the way back to the base model. The looped arms decline more slowly and stop above it.</p>
+
+    <p>Read three ways, out-of-domain:</p>
+
+    <div class="table-wrap">
+      <table>
+        <tr><th>Out-of-domain mean (9 benchmarks)</th><th class="num">Base</th><th class="num">Plain SFT</th><th class="num">Looped SFT</th><th class="num">Looped SFT (fast gates)</th></tr>
+        <tr><td>Best single checkpoint (step 149 for all)</td><td class="num">37.34</td><td class="num">41.24</td><td class="num">41.39</td><td class="num best">43.95</td></tr>
+        <tr><td>Best per benchmark, any checkpoint</td><td class="num">37.34</td><td class="num">42.74</td><td class="num">43.23</td><td class="num best">45.27</td></tr>
+        <tr><td>Final checkpoint (step 415)</td><td class="num">37.34</td><td class="num">37.49</td><td class="num">40.29</td><td class="num best">40.95</td></tr>
+      </table>
+    </div>
+
+    <p>The top two rows say the loop does not lift the peak: with standard gates it lands within 0.2 of plain fine-tuning however you measure. The bottom row says it holds that peak far better &mdash; plain fine-tuning gives back all five points it gained, the looped arms give back one to three. Only raising the gate learning rate moves the peak itself, by about 2.7 points.</p>
 
     <figure class="fig">
       <svg viewBox="0 0 600 290" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif">

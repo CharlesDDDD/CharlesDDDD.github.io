@@ -302,7 +302,7 @@
       <table>
         <tr>
           <th>Benchmark</th><th></th>
-          <th class="num">Base</th><th class="num">Plain SFT</th><th class="num">Looped</th><th class="num">Looped (fast gates)</th>
+          <th class="num">Base</th><th class="num">Plain SFT</th><th class="num">Looped SFT</th><th class="num">Looped SFT (fast gates)</th>
         </tr>
         <tr><td>HumanEval</td><td><span class="tag tag-in">in</span></td><td class="num">72.0</td><td class="num">88.4</td><td class="num best">90.2</td><td class="num">89.0</td></tr>
         <tr><td>HumanEval+</td><td><span class="tag tag-in">in</span></td><td class="num">66.5</td><td class="num">82.9</td><td class="num best">85.4</td><td class="num">84.1</td></tr>
@@ -359,8 +359,8 @@
         <circle cx="60" cy="63.3" r="3.6" fill="#1b7a4b"/><circle cx="310" cy="113.1" r="3.6" fill="#1b7a4b"/><circle cx="540" cy="130.0" r="3.6" fill="#1b7a4b"/>
 
         <rect x="352" y="34" width="200" height="52" fill="#fff" stroke="#e2e2e2" rx="4"/>
-        <line x1="362" y1="47" x2="382" y2="47" stroke="#1b7a4b" stroke-width="2.2"/><text x="388" y="51" font-size="10.5" fill="#333">looped, fast gates</text>
-        <line x1="362" y1="61" x2="382" y2="61" stroke="#2b5ecc" stroke-width="2.2"/><text x="388" y="65" font-size="10.5" fill="#333">looped</text>
+        <line x1="362" y1="47" x2="382" y2="47" stroke="#1b7a4b" stroke-width="2.2"/><text x="388" y="51" font-size="10.5" fill="#333">looped SFT, fast gates</text>
+        <line x1="362" y1="61" x2="382" y2="61" stroke="#2b5ecc" stroke-width="2.2"/><text x="388" y="65" font-size="10.5" fill="#333">looped SFT</text>
         <line x1="362" y1="75" x2="382" y2="75" stroke="#c0392b" stroke-width="2.2"/><text x="388" y="79" font-size="10.5" fill="#333">plain SFT</text>
       </svg>
       <figcaption><strong>Figure 1:</strong> Out-of-domain average across the nine benchmarks we never train on. All arms peak at the earliest checkpoint we saved and decline from there. Plain fine-tuning (red) returns essentially to the base model by step 415 &mdash; it forgets everything it gained. The looped arms hold roughly three points above it. Note that every arm is best at step 149, so the true optimum is earlier than anything we measured.</figcaption>

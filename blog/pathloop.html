@@ -431,6 +431,314 @@
       <figcaption><strong>Figure 1:</strong> Out-of-domain average across the nine benchmarks we never train on. All arms peak at the earliest checkpoint we saved and decline from there. Plain fine-tuning (red) returns essentially to the base model by step 415 &mdash; it forgets everything it gained. The looped arms hold roughly three points above it. Note that every arm is best at step 149, so the true optimum is earlier than anything we measured.</figcaption>
     </figure>
 
+
+    <h3>Every benchmark, checkpoint by checkpoint</h3>
+
+    <p>The means above hide a lot. Below is every benchmark on its own axis, all three arms plotted across the three checkpoints, with the base model as a dashed reference. The panels with a green tint are the five coding benchmarks we actually train on.</p>
+
+    <figure class="fig">
+<svg viewBox="0 0 600 458" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif">
+<rect x="12" y="8" width="138" height="92" fill="#f4f8f4" rx="4"/>
+<text x="15" y="20" font-size="10.5" fill="#1c1c1e" font-weight="600">HumanEval <tspan font-size="8.5" fill="#2c6e2c" font-weight="600">in-domain</tspan></text>
+<line x1="43" y1="23" x2="43" y2="89" stroke="#ccc" stroke-width="1"/>
+<line x1="43" y1="89" x2="146" y2="89" stroke="#ccc" stroke-width="1"/>
+<text x="39" y="30" font-size="8" fill="#888" text-anchor="end">94</text>
+<text x="39" y="92" font-size="8" fill="#888" text-anchor="end">69</text>
+<line x1="43" y1="82.2" x2="146" y2="82.2" stroke="#999" stroke-width="1.2" stroke-dasharray="4,3"/>
+<text x="146" y="79.2" font-size="7.5" fill="#999" text-anchor="end">base 72.0</text>
+<polyline points="43.0,36.8 94.5,41.3 146.0,41.3" fill="none" stroke="#c0392b" stroke-width="1.8"/>
+<circle cx="43.0" cy="36.8" r="2.4" fill="#c0392b"/>
+<circle cx="94.5" cy="41.3" r="2.4" fill="#c0392b"/>
+<circle cx="146.0" cy="41.3" r="2.4" fill="#c0392b"/>
+<polyline points="43.0,39.8 94.5,36.8 146.0,36.8" fill="none" stroke="#2b5ecc" stroke-width="1.8"/>
+<circle cx="43.0" cy="39.8" r="2.4" fill="#2b5ecc"/>
+<circle cx="94.5" cy="36.8" r="2.4" fill="#2b5ecc"/>
+<circle cx="146.0" cy="36.8" r="2.4" fill="#2b5ecc"/>
+<polyline points="43.0,39.8 94.5,33.8 146.0,39.8" fill="none" stroke="#1b7a4b" stroke-width="1.8"/>
+<circle cx="43.0" cy="39.8" r="2.4" fill="#1b7a4b"/>
+<circle cx="94.5" cy="33.8" r="2.4" fill="#1b7a4b"/>
+<circle cx="146.0" cy="39.8" r="2.4" fill="#1b7a4b"/>
+<rect x="158" y="8" width="138" height="92" fill="#f4f8f4" rx="4"/>
+<text x="161" y="20" font-size="10.5" fill="#1c1c1e" font-weight="600">HumanEval+ <tspan font-size="8.5" fill="#2c6e2c" font-weight="600">in-domain</tspan></text>
+<line x1="189" y1="23" x2="189" y2="89" stroke="#ccc" stroke-width="1"/>
+<line x1="189" y1="89" x2="292" y2="89" stroke="#ccc" stroke-width="1"/>
+<text x="185" y="30" font-size="8" fill="#888" text-anchor="end">90</text>
+<text x="185" y="92" font-size="8" fill="#888" text-anchor="end">64</text>
+<line x1="189" y1="82.2" x2="292" y2="82.2" stroke="#999" stroke-width="1.2" stroke-dasharray="4,3"/>
+<text x="292" y="79.2" font-size="7.5" fill="#999" text-anchor="end">base 66.5</text>
+<polyline points="189.0,40.9 240.5,40.9 292.0,43.8" fill="none" stroke="#c0392b" stroke-width="1.8"/>
+<circle cx="189.0" cy="40.9" r="2.4" fill="#c0392b"/>
+<circle cx="240.5" cy="40.9" r="2.4" fill="#c0392b"/>
+<circle cx="292.0" cy="43.8" r="2.4" fill="#c0392b"/>
+<polyline points="189.0,40.9 240.5,36.6 292.0,38.1" fill="none" stroke="#2b5ecc" stroke-width="1.8"/>
+<circle cx="189.0" cy="40.9" r="2.4" fill="#2b5ecc"/>
+<circle cx="240.5" cy="36.6" r="2.4" fill="#2b5ecc"/>
+<circle cx="292.0" cy="38.1" r="2.4" fill="#2b5ecc"/>
+<polyline points="189.0,42.3 240.5,33.8 292.0,40.9" fill="none" stroke="#1b7a4b" stroke-width="1.8"/>
+<circle cx="189.0" cy="42.3" r="2.4" fill="#1b7a4b"/>
+<circle cx="240.5" cy="33.8" r="2.4" fill="#1b7a4b"/>
+<circle cx="292.0" cy="40.9" r="2.4" fill="#1b7a4b"/>
+<rect x="304" y="8" width="138" height="92" fill="#f4f8f4" rx="4"/>
+<text x="307" y="20" font-size="10.5" fill="#1c1c1e" font-weight="600">MBPP <tspan font-size="8.5" fill="#2c6e2c" font-weight="600">in-domain</tspan></text>
+<line x1="335" y1="23" x2="335" y2="89" stroke="#ccc" stroke-width="1"/>
+<line x1="335" y1="89" x2="438" y2="89" stroke="#ccc" stroke-width="1"/>
+<text x="331" y="30" font-size="8" fill="#888" text-anchor="end">76</text>
+<text x="331" y="92" font-size="8" fill="#888" text-anchor="end">68</text>
+<line x1="335" y1="82.2" x2="438" y2="82.2" stroke="#999" stroke-width="1.2" stroke-dasharray="4,3"/>
+<text x="438" y="79.2" font-size="7.5" fill="#999" text-anchor="end">base 68.5</text>
+<polyline points="335.0,54.5 386.5,40.7 438.0,47.6" fill="none" stroke="#c0392b" stroke-width="1.8"/>
+<circle cx="335.0" cy="54.5" r="2.4" fill="#c0392b"/>
+<circle cx="386.5" cy="40.7" r="2.4" fill="#c0392b"/>
+<circle cx="438.0" cy="47.6" r="2.4" fill="#c0392b"/>
+<polyline points="335.0,58.0 386.5,51.1 438.0,51.1" fill="none" stroke="#2b5ecc" stroke-width="1.8"/>
+<circle cx="335.0" cy="58.0" r="2.4" fill="#2b5ecc"/>
+<circle cx="386.5" cy="51.1" r="2.4" fill="#2b5ecc"/>
+<circle cx="438.0" cy="51.1" r="2.4" fill="#2b5ecc"/>
+<polyline points="335.0,47.6 386.5,33.8 438.0,37.2" fill="none" stroke="#1b7a4b" stroke-width="1.8"/>
+<circle cx="335.0" cy="47.6" r="2.4" fill="#1b7a4b"/>
+<circle cx="386.5" cy="33.8" r="2.4" fill="#1b7a4b"/>
+<circle cx="438.0" cy="37.2" r="2.4" fill="#1b7a4b"/>
+<rect x="450" y="8" width="138" height="92" fill="#f4f8f4" rx="4"/>
+<text x="453" y="20" font-size="10.5" fill="#1c1c1e" font-weight="600">MBPP+ <tspan font-size="8.5" fill="#2c6e2c" font-weight="600">in-domain</tspan></text>
+<line x1="481" y1="23" x2="481" y2="89" stroke="#ccc" stroke-width="1"/>
+<line x1="481" y1="89" x2="584" y2="89" stroke="#ccc" stroke-width="1"/>
+<text x="477" y="30" font-size="8" fill="#888" text-anchor="end">77</text>
+<text x="477" y="92" font-size="8" fill="#888" text-anchor="end">71</text>
+<line x1="481" y1="33.8" x2="584" y2="33.8" stroke="#999" stroke-width="1.2" stroke-dasharray="4,3"/>
+<text x="584" y="30.8" font-size="7.5" fill="#999" text-anchor="end">base 76.0</text>
+<polyline points="481.0,64.6 532.5,82.2 584.0,51.4" fill="none" stroke="#c0392b" stroke-width="1.8"/>
+<circle cx="481.0" cy="64.6" r="2.4" fill="#c0392b"/>
+<circle cx="532.5" cy="82.2" r="2.4" fill="#c0392b"/>
+<circle cx="584.0" cy="51.4" r="2.4" fill="#c0392b"/>
+<polyline points="481.0,82.2 532.5,60.2 584.0,69.0" fill="none" stroke="#2b5ecc" stroke-width="1.8"/>
+<circle cx="481.0" cy="82.2" r="2.4" fill="#2b5ecc"/>
+<circle cx="532.5" cy="60.2" r="2.4" fill="#2b5ecc"/>
+<circle cx="584.0" cy="69.0" r="2.4" fill="#2b5ecc"/>
+<polyline points="481.0,69.0 532.5,55.8 584.0,64.6" fill="none" stroke="#1b7a4b" stroke-width="1.8"/>
+<circle cx="481.0" cy="69.0" r="2.4" fill="#1b7a4b"/>
+<circle cx="532.5" cy="55.8" r="2.4" fill="#1b7a4b"/>
+<circle cx="584.0" cy="64.6" r="2.4" fill="#1b7a4b"/>
+<rect x="12" y="120" width="138" height="92" fill="#f4f8f4" rx="4"/>
+<text x="15" y="132" font-size="10.5" fill="#1c1c1e" font-weight="600">LiveCodeBench <tspan font-size="8.5" fill="#2c6e2c" font-weight="600">in-domain</tspan></text>
+<line x1="43" y1="135" x2="43" y2="201" stroke="#ccc" stroke-width="1"/>
+<line x1="43" y1="201" x2="146" y2="201" stroke="#ccc" stroke-width="1"/>
+<text x="39" y="142" font-size="8" fill="#888" text-anchor="end">35</text>
+<text x="39" y="204" font-size="8" fill="#888" text-anchor="end">12</text>
+<line x1="43" y1="194.2" x2="146" y2="194.2" stroke="#999" stroke-width="1.2" stroke-dasharray="4,3"/>
+<text x="146" y="191.2" font-size="7.5" fill="#999" text-anchor="end">base 14.9</text>
+<polyline points="43.0,148.9 94.5,155.2 146.0,150.5" fill="none" stroke="#c0392b" stroke-width="1.8"/>
+<circle cx="43.0" cy="148.9" r="2.4" fill="#c0392b"/>
+<circle cx="94.5" cy="155.2" r="2.4" fill="#c0392b"/>
+<circle cx="146.0" cy="150.5" r="2.4" fill="#c0392b"/>
+<polyline points="43.0,150.5 94.5,145.8 146.0,148.9" fill="none" stroke="#2b5ecc" stroke-width="1.8"/>
+<circle cx="43.0" cy="150.5" r="2.4" fill="#2b5ecc"/>
+<circle cx="94.5" cy="145.8" r="2.4" fill="#2b5ecc"/>
+<circle cx="146.0" cy="148.9" r="2.4" fill="#2b5ecc"/>
+<polyline points="43.0,156.7 94.5,153.6 146.0,156.7" fill="none" stroke="#1b7a4b" stroke-width="1.8"/>
+<circle cx="43.0" cy="156.7" r="2.4" fill="#1b7a4b"/>
+<circle cx="94.5" cy="153.6" r="2.4" fill="#1b7a4b"/>
+<circle cx="146.0" cy="156.7" r="2.4" fill="#1b7a4b"/>
+<text x="161" y="132" font-size="10.5" fill="#1c1c1e" font-weight="600">GSM8K</text>
+<line x1="189" y1="135" x2="189" y2="201" stroke="#ccc" stroke-width="1"/>
+<line x1="189" y1="201" x2="292" y2="201" stroke="#ccc" stroke-width="1"/>
+<text x="185" y="142" font-size="8" fill="#888" text-anchor="end">75</text>
+<text x="185" y="204" font-size="8" fill="#888" text-anchor="end">49</text>
+<line x1="189" y1="192.3" x2="292" y2="192.3" stroke="#999" stroke-width="1.2" stroke-dasharray="4,3"/>
+<text x="292" y="189.3" font-size="7.5" fill="#999" text-anchor="end">base 52.8</text>
+<polyline points="189.0,145.8 240.5,180.0 292.0,194.2" fill="none" stroke="#c0392b" stroke-width="1.8"/>
+<circle cx="189.0" cy="145.8" r="2.4" fill="#c0392b"/>
+<circle cx="240.5" cy="180.0" r="2.4" fill="#c0392b"/>
+<circle cx="292.0" cy="194.2" r="2.4" fill="#c0392b"/>
+<polyline points="189.0,154.3 240.5,159.1 292.0,153.4" fill="none" stroke="#2b5ecc" stroke-width="1.8"/>
+<circle cx="189.0" cy="154.3" r="2.4" fill="#2b5ecc"/>
+<circle cx="240.5" cy="159.1" r="2.4" fill="#2b5ecc"/>
+<circle cx="292.0" cy="153.4" r="2.4" fill="#2b5ecc"/>
+<polyline points="189.0,167.6 240.5,166.7 292.0,162.9" fill="none" stroke="#1b7a4b" stroke-width="1.8"/>
+<circle cx="189.0" cy="167.6" r="2.4" fill="#1b7a4b"/>
+<circle cx="240.5" cy="166.7" r="2.4" fill="#1b7a4b"/>
+<circle cx="292.0" cy="162.9" r="2.4" fill="#1b7a4b"/>
+<text x="307" y="132" font-size="10.5" fill="#1c1c1e" font-weight="600">MATH500</text>
+<line x1="335" y1="135" x2="335" y2="201" stroke="#ccc" stroke-width="1"/>
+<line x1="335" y1="201" x2="438" y2="201" stroke="#ccc" stroke-width="1"/>
+<text x="331" y="142" font-size="8" fill="#888" text-anchor="end">69</text>
+<text x="331" y="204" font-size="8" fill="#888" text-anchor="end">45</text>
+<line x1="335" y1="159.8" x2="438" y2="159.8" stroke="#999" stroke-width="1.2" stroke-dasharray="4,3"/>
+<text x="438" y="156.8" font-size="7.5" fill="#999" text-anchor="end">base 60.8</text>
+<polyline points="335.0,168.4 386.5,184.5 438.0,194.2" fill="none" stroke="#c0392b" stroke-width="1.8"/>
+<circle cx="335.0" cy="168.4" r="2.4" fill="#c0392b"/>
+<circle cx="386.5" cy="184.5" r="2.4" fill="#c0392b"/>
+<circle cx="438.0" cy="194.2" r="2.4" fill="#c0392b"/>
+<polyline points="335.0,163.0 386.5,184.5 438.0,188.8" fill="none" stroke="#2b5ecc" stroke-width="1.8"/>
+<circle cx="335.0" cy="163.0" r="2.4" fill="#2b5ecc"/>
+<circle cx="386.5" cy="184.5" r="2.4" fill="#2b5ecc"/>
+<circle cx="438.0" cy="188.8" r="2.4" fill="#2b5ecc"/>
+<polyline points="335.0,145.8 386.5,177.0 438.0,188.8" fill="none" stroke="#1b7a4b" stroke-width="1.8"/>
+<circle cx="335.0" cy="145.8" r="2.4" fill="#1b7a4b"/>
+<circle cx="386.5" cy="177.0" r="2.4" fill="#1b7a4b"/>
+<circle cx="438.0" cy="188.8" r="2.4" fill="#1b7a4b"/>
+<text x="453" y="132" font-size="10.5" fill="#1c1c1e" font-weight="600">MATH500-flex</text>
+<line x1="481" y1="135" x2="481" y2="201" stroke="#ccc" stroke-width="1"/>
+<line x1="481" y1="201" x2="584" y2="201" stroke="#ccc" stroke-width="1"/>
+<text x="477" y="142" font-size="8" fill="#888" text-anchor="end">70</text>
+<text x="477" y="204" font-size="8" fill="#888" text-anchor="end">48</text>
+<line x1="481" y1="164.2" x2="584" y2="164.2" stroke="#999" stroke-width="1.2" stroke-dasharray="4,3"/>
+<text x="584" y="161.2" font-size="7.5" fill="#999" text-anchor="end">base 60.8</text>
+<polyline points="481.0,172.3 532.5,185.0 584.0,194.2" fill="none" stroke="#c0392b" stroke-width="1.8"/>
+<circle cx="481.0" cy="172.3" r="2.4" fill="#c0392b"/>
+<circle cx="532.5" cy="185.0" r="2.4" fill="#c0392b"/>
+<circle cx="584.0" cy="194.2" r="2.4" fill="#c0392b"/>
+<polyline points="481.0,159.6 532.5,182.7 584.0,185.0" fill="none" stroke="#2b5ecc" stroke-width="1.8"/>
+<circle cx="481.0" cy="159.6" r="2.4" fill="#2b5ecc"/>
+<circle cx="532.5" cy="182.7" r="2.4" fill="#2b5ecc"/>
+<circle cx="584.0" cy="185.0" r="2.4" fill="#2b5ecc"/>
+<polyline points="481.0,145.8 532.5,181.5 584.0,189.6" fill="none" stroke="#1b7a4b" stroke-width="1.8"/>
+<circle cx="481.0" cy="145.8" r="2.4" fill="#1b7a4b"/>
+<circle cx="532.5" cy="181.5" r="2.4" fill="#1b7a4b"/>
+<circle cx="584.0" cy="189.6" r="2.4" fill="#1b7a4b"/>
+<text x="15" y="244" font-size="10.5" fill="#1c1c1e" font-weight="600">AMC23</text>
+<line x1="43" y1="247" x2="43" y2="313" stroke="#ccc" stroke-width="1"/>
+<line x1="43" y1="313" x2="146" y2="313" stroke="#ccc" stroke-width="1"/>
+<text x="39" y="254" font-size="8" fill="#888" text-anchor="end">41</text>
+<text x="39" y="316" font-size="8" fill="#888" text-anchor="end">25</text>
+<line x1="43" y1="301.5" x2="146" y2="301.5" stroke="#999" stroke-width="1.2" stroke-dasharray="4,3"/>
+<text x="146" y="298.5" font-size="7.5" fill="#999" text-anchor="end">base 27.9</text>
+<polyline points="43.0,284.3 94.5,304.7 146.0,293.7" fill="none" stroke="#c0392b" stroke-width="1.8"/>
+<circle cx="43.0" cy="284.3" r="2.4" fill="#c0392b"/>
+<circle cx="94.5" cy="304.7" r="2.4" fill="#c0392b"/>
+<circle cx="146.0" cy="293.7" r="2.4" fill="#c0392b"/>
+<polyline points="43.0,290.6 94.5,293.7 146.0,306.2" fill="none" stroke="#2b5ecc" stroke-width="1.8"/>
+<circle cx="43.0" cy="290.6" r="2.4" fill="#2b5ecc"/>
+<circle cx="94.5" cy="293.7" r="2.4" fill="#2b5ecc"/>
+<circle cx="146.0" cy="306.2" r="2.4" fill="#2b5ecc"/>
+<polyline points="43.0,271.8 94.5,267.2 146.0,257.8" fill="none" stroke="#1b7a4b" stroke-width="1.8"/>
+<circle cx="43.0" cy="271.8" r="2.4" fill="#1b7a4b"/>
+<circle cx="94.5" cy="267.2" r="2.4" fill="#1b7a4b"/>
+<circle cx="146.0" cy="257.8" r="2.4" fill="#1b7a4b"/>
+<text x="161" y="244" font-size="10.5" fill="#1c1c1e" font-weight="600">AIME24</text>
+<line x1="189" y1="247" x2="189" y2="313" stroke="#ccc" stroke-width="1"/>
+<line x1="189" y1="313" x2="292" y2="313" stroke="#ccc" stroke-width="1"/>
+<text x="185" y="254" font-size="8" fill="#888" text-anchor="end">13</text>
+<text x="185" y="316" font-size="8" fill="#888" text-anchor="end">3</text>
+<line x1="189" y1="306.2" x2="292" y2="306.2" stroke="#999" stroke-width="1.2" stroke-dasharray="4,3"/>
+<text x="292" y="303.2" font-size="7.5" fill="#999" text-anchor="end">base 4.4</text>
+<polyline points="189.0,283.9 240.5,276.4 292.0,269.0" fill="none" stroke="#c0392b" stroke-width="1.8"/>
+<circle cx="189.0" cy="283.9" r="2.4" fill="#c0392b"/>
+<circle cx="240.5" cy="276.4" r="2.4" fill="#c0392b"/>
+<circle cx="292.0" cy="269.0" r="2.4" fill="#c0392b"/>
+<polyline points="189.0,287.6 240.5,269.0 292.0,295.0" fill="none" stroke="#2b5ecc" stroke-width="1.8"/>
+<circle cx="189.0" cy="287.6" r="2.4" fill="#2b5ecc"/>
+<circle cx="240.5" cy="269.0" r="2.4" fill="#2b5ecc"/>
+<circle cx="292.0" cy="295.0" r="2.4" fill="#2b5ecc"/>
+<polyline points="189.0,257.8 240.5,272.7 292.0,269.0" fill="none" stroke="#1b7a4b" stroke-width="1.8"/>
+<circle cx="189.0" cy="257.8" r="2.4" fill="#1b7a4b"/>
+<circle cx="240.5" cy="272.7" r="2.4" fill="#1b7a4b"/>
+<circle cx="292.0" cy="269.0" r="2.4" fill="#1b7a4b"/>
+<text x="307" y="244" font-size="10.5" fill="#1c1c1e" font-weight="600">AIME25</text>
+<line x1="335" y1="247" x2="335" y2="313" stroke="#ccc" stroke-width="1"/>
+<line x1="335" y1="313" x2="438" y2="313" stroke="#ccc" stroke-width="1"/>
+<text x="331" y="254" font-size="8" fill="#888" text-anchor="end">8</text>
+<text x="331" y="316" font-size="8" fill="#888" text-anchor="end">2</text>
+<line x1="335" y1="306.2" x2="438" y2="306.2" stroke="#999" stroke-width="1.2" stroke-dasharray="4,3"/>
+<text x="438" y="303.2" font-size="7.5" fill="#999" text-anchor="end">base 2.8</text>
+<polyline points="335.0,300.2 386.5,294.1 438.0,282.0" fill="none" stroke="#c0392b" stroke-width="1.8"/>
+<circle cx="335.0" cy="300.2" r="2.4" fill="#c0392b"/>
+<circle cx="386.5" cy="294.1" r="2.4" fill="#c0392b"/>
+<circle cx="438.0" cy="282.0" r="2.4" fill="#c0392b"/>
+<polyline points="335.0,300.2 386.5,288.1 438.0,257.8" fill="none" stroke="#2b5ecc" stroke-width="1.8"/>
+<circle cx="335.0" cy="300.2" r="2.4" fill="#2b5ecc"/>
+<circle cx="386.5" cy="288.1" r="2.4" fill="#2b5ecc"/>
+<circle cx="438.0" cy="257.8" r="2.4" fill="#2b5ecc"/>
+<polyline points="335.0,263.8 386.5,269.9 438.0,269.9" fill="none" stroke="#1b7a4b" stroke-width="1.8"/>
+<circle cx="335.0" cy="263.8" r="2.4" fill="#1b7a4b"/>
+<circle cx="386.5" cy="269.9" r="2.4" fill="#1b7a4b"/>
+<circle cx="438.0" cy="269.9" r="2.4" fill="#1b7a4b"/>
+<text x="335.0" y="324" font-size="8" fill="#777" text-anchor="middle">149</text>
+<text x="386.5" y="324" font-size="8" fill="#777" text-anchor="middle">299</text>
+<text x="438.0" y="324" font-size="8" fill="#777" text-anchor="middle">415</text>
+<text x="453" y="244" font-size="10.5" fill="#1c1c1e" font-weight="600">MMLU-Pro</text>
+<line x1="481" y1="247" x2="481" y2="313" stroke="#ccc" stroke-width="1"/>
+<line x1="481" y1="313" x2="584" y2="313" stroke="#ccc" stroke-width="1"/>
+<text x="477" y="254" font-size="8" fill="#888" text-anchor="end">53</text>
+<text x="477" y="316" font-size="8" fill="#888" text-anchor="end">49</text>
+<line x1="481" y1="263.9" x2="584" y2="263.9" stroke="#999" stroke-width="1.2" stroke-dasharray="4,3"/>
+<text x="584" y="260.9" font-size="7.5" fill="#999" text-anchor="end">base 52.4</text>
+<polyline points="481.0,274.3 532.5,284.6 584.0,300.1" fill="none" stroke="#c0392b" stroke-width="1.8"/>
+<circle cx="481.0" cy="274.3" r="2.4" fill="#c0392b"/>
+<circle cx="532.5" cy="284.6" r="2.4" fill="#c0392b"/>
+<circle cx="584.0" cy="300.1" r="2.4" fill="#c0392b"/>
+<polyline points="481.0,274.3 532.5,279.4 584.0,258.8" fill="none" stroke="#2b5ecc" stroke-width="1.8"/>
+<circle cx="481.0" cy="274.3" r="2.4" fill="#2b5ecc"/>
+<circle cx="532.5" cy="279.4" r="2.4" fill="#2b5ecc"/>
+<circle cx="584.0" cy="258.8" r="2.4" fill="#2b5ecc"/>
+<polyline points="481.0,279.4 532.5,294.9 584.0,305.2" fill="none" stroke="#1b7a4b" stroke-width="1.8"/>
+<circle cx="481.0" cy="279.4" r="2.4" fill="#1b7a4b"/>
+<circle cx="532.5" cy="294.9" r="2.4" fill="#1b7a4b"/>
+<circle cx="584.0" cy="305.2" r="2.4" fill="#1b7a4b"/>
+<text x="481.0" y="324" font-size="8" fill="#777" text-anchor="middle">149</text>
+<text x="532.5" y="324" font-size="8" fill="#777" text-anchor="middle">299</text>
+<text x="584.0" y="324" font-size="8" fill="#777" text-anchor="middle">415</text>
+<text x="15" y="356" font-size="10.5" fill="#1c1c1e" font-weight="600">GPQA-Diamond</text>
+<line x1="43" y1="359" x2="43" y2="425" stroke="#ccc" stroke-width="1"/>
+<line x1="43" y1="425" x2="146" y2="425" stroke="#ccc" stroke-width="1"/>
+<text x="39" y="366" font-size="8" fill="#888" text-anchor="end">45</text>
+<text x="39" y="428" font-size="8" fill="#888" text-anchor="end">38</text>
+<line x1="43" y1="418.2" x2="146" y2="418.2" stroke="#999" stroke-width="1.2" stroke-dasharray="4,3"/>
+<text x="146" y="415.2" font-size="7.5" fill="#999" text-anchor="end">base 38.9</text>
+<polyline points="43.0,389.2 94.5,369.8 146.0,403.7" fill="none" stroke="#c0392b" stroke-width="1.8"/>
+<circle cx="43.0" cy="389.2" r="2.4" fill="#c0392b"/>
+<circle cx="94.5" cy="369.8" r="2.4" fill="#c0392b"/>
+<circle cx="146.0" cy="403.7" r="2.4" fill="#c0392b"/>
+<polyline points="43.0,389.2 94.5,384.3 146.0,374.6" fill="none" stroke="#2b5ecc" stroke-width="1.8"/>
+<circle cx="43.0" cy="389.2" r="2.4" fill="#2b5ecc"/>
+<circle cx="94.5" cy="384.3" r="2.4" fill="#2b5ecc"/>
+<circle cx="146.0" cy="374.6" r="2.4" fill="#2b5ecc"/>
+<polyline points="43.0,394.0 94.5,369.8 146.0,384.3" fill="none" stroke="#1b7a4b" stroke-width="1.8"/>
+<circle cx="43.0" cy="394.0" r="2.4" fill="#1b7a4b"/>
+<circle cx="94.5" cy="369.8" r="2.4" fill="#1b7a4b"/>
+<circle cx="146.0" cy="384.3" r="2.4" fill="#1b7a4b"/>
+<text x="43.0" y="436" font-size="8" fill="#777" text-anchor="middle">149</text>
+<text x="94.5" y="436" font-size="8" fill="#777" text-anchor="middle">299</text>
+<text x="146.0" y="436" font-size="8" fill="#777" text-anchor="middle">415</text>
+<text x="161" y="356" font-size="10.5" fill="#1c1c1e" font-weight="600">IFEval</text>
+<line x1="189" y1="359" x2="189" y2="425" stroke="#ccc" stroke-width="1"/>
+<line x1="189" y1="425" x2="292" y2="425" stroke="#ccc" stroke-width="1"/>
+<text x="185" y="366" font-size="8" fill="#888" text-anchor="end">59</text>
+<text x="185" y="428" font-size="8" fill="#888" text-anchor="end">32</text>
+<line x1="189" y1="418.2" x2="292" y2="418.2" stroke="#999" stroke-width="1.2" stroke-dasharray="4,3"/>
+<text x="292" y="415.2" font-size="7.5" fill="#999" text-anchor="end">base 35.2</text>
+<polyline points="189.0,393.1 240.5,375.4 292.0,379.1" fill="none" stroke="#c0392b" stroke-width="1.8"/>
+<circle cx="189.0" cy="393.1" r="2.4" fill="#c0392b"/>
+<circle cx="240.5" cy="375.4" r="2.4" fill="#c0392b"/>
+<circle cx="292.0" cy="379.1" r="2.4" fill="#c0392b"/>
+<polyline points="189.0,391.2 240.5,380.0 292.0,375.4" fill="none" stroke="#2b5ecc" stroke-width="1.8"/>
+<circle cx="189.0" cy="391.2" r="2.4" fill="#2b5ecc"/>
+<circle cx="240.5" cy="380.0" r="2.4" fill="#2b5ecc"/>
+<circle cx="292.0" cy="375.4" r="2.4" fill="#2b5ecc"/>
+<polyline points="189.0,378.2 240.5,369.8 292.0,374.4" fill="none" stroke="#1b7a4b" stroke-width="1.8"/>
+<circle cx="189.0" cy="378.2" r="2.4" fill="#1b7a4b"/>
+<circle cx="240.5" cy="369.8" r="2.4" fill="#1b7a4b"/>
+<circle cx="292.0" cy="374.4" r="2.4" fill="#1b7a4b"/>
+<text x="189.0" y="436" font-size="8" fill="#777" text-anchor="middle">149</text>
+<text x="240.5" y="436" font-size="8" fill="#777" text-anchor="middle">299</text>
+<text x="292.0" y="436" font-size="8" fill="#777" text-anchor="middle">415</text>
+<rect x="304" y="356" width="284" height="60" fill="#fff" stroke="#e2e2e2" rx="5"/>
+<line x1="318" y1="372" x2="342" y2="372" stroke="#1b7a4b" stroke-width="2"/>
+<circle cx="330" cy="372" r="2.4" fill="#1b7a4b"/>
+<text x="348" y="375.5" font-size="10" fill="#333">looped SFT, fast gates</text>
+<line x1="318" y1="386" x2="342" y2="386" stroke="#2b5ecc" stroke-width="2"/>
+<circle cx="330" cy="386" r="2.4" fill="#2b5ecc"/>
+<text x="348" y="389.5" font-size="10" fill="#333">looped SFT</text>
+<line x1="318" y1="400" x2="342" y2="400" stroke="#c0392b" stroke-width="2"/>
+<circle cx="330" cy="400" r="2.4" fill="#c0392b"/>
+<text x="348" y="403.5" font-size="10" fill="#333">plain SFT</text>
+<line x1="464" y1="372" x2="488" y2="372" stroke="#999" stroke-width="1.2" stroke-dasharray="4,3"/>
+<text x="494" y="375.5" font-size="10" fill="#333">base model</text>
+<text x="464" y="393" font-size="9" fill="#777">x-axis: checkpoint 149 / 299 / 415</text>
+<text x="464" y="406" font-size="9" fill="#777">y-axis scaled per panel</text>
+</svg>
+      <figcaption><strong>Figure 2:</strong> All 14 benchmarks across training. Each panel is scaled to its own range, so compare shapes rather than heights. Two patterns run through the grid. On the tinted coding panels every arm jumps well above the dashed base line at the first checkpoint and then stays flat &mdash; that gain arrives early and belongs to fine-tuning, not to the loop. On the untinted panels the arms separate: plain fine-tuning (red) peaks and then falls back toward the base line, most starkly on GSM8K, MATH500 and MMLU-Pro, while the looped arms (blue, green) decline more slowly or hold. AMC23 and AIME25 are the only benchmarks anywhere that are still climbing at step 415.</figcaption>
+    </figure>
+
     <h2 id="probes">What the probes say</h2>
 
     <p>We log internal statistics every 25 steps. Two of them reframed the project.</p>
@@ -466,7 +774,7 @@
         <text x="548" y="42" font-size="10.5" fill="#1b7a4b" text-anchor="end">fast gates &rarr; 0.059</text>
         <text x="548" y="164" font-size="10.5" fill="#2b5ecc" text-anchor="end">standard &rarr; 0.021</text>
       </svg>
-      <figcaption><strong>Figure 2:</strong> How far the loop gates open during training, with pathloop's exploration window shaded. The gates start at exactly zero, so the extra passes begin as no-ops. Raising the gate learning rate 100&times; makes them open roughly 2.7&times; wider (0.059 vs 0.021) and much sooner. The shaded region is where our first pathloop run explores: exploration before the gates open would perturb passes that are still doing nothing.</figcaption>
+      <figcaption><strong>Figure 3:</strong> How far the loop gates open during training, with pathloop's exploration window shaded. The gates start at exactly zero, so the extra passes begin as no-ops. Raising the gate learning rate 100&times; makes them open roughly 2.7&times; wider (0.059 vs 0.021) and much sooner. The shaded region is where our first pathloop run explores: exploration before the gates open would perturb passes that are still doing nothing.</figcaption>
     </figure>
 
     <h3>Does the router move at all during fine-tuning?</h3>
@@ -523,7 +831,7 @@
         <text x="465" y="219" font-size="12" fill="#333" text-anchor="middle">pass 2</text>
         <text x="397" y="240" font-size="11" fill="#777" text-anchor="middle">passes 1 and 2 are near-identical to each other</text>
       </svg>
-      <figcaption><strong>Figure 3:</strong> How much each loop pass actually changes the hidden state, averaged over the 24 looped layers at step 400. Pass 0 does about <strong>five times</strong> as much work as passes 1 and 2, which are indistinguishable from each other to four decimal places on every statistic we record. The loop is not producing three paths; it is producing one substantive pass and two near-repeats.</figcaption>
+      <figcaption><strong>Figure 4:</strong> How much each loop pass actually changes the hidden state, averaged over the 24 looped layers at step 400. Pass 0 does about <strong>five times</strong> as much work as passes 1 and 2, which are indistinguishable from each other to four decimal places on every statistic we record. The loop is not producing three paths; it is producing one substantive pass and two near-repeats.</figcaption>
     </figure>
 
     <div class="insight-box">
@@ -551,7 +859,7 @@
       <li>The tier-2 auxiliary loss ignored the schedule, so tier 1 and tier 2 differed from step 0 by an amount that had nothing to do with the idea being tested.</li>
     </ul>
 
-    <p>The run in progress places exploration in the middle of training &mdash; off for the first 100 steps, easing to $q{=}1$, full at $q{=}2$ from 150 to 300, then easing back to zero by 350. The shaded band in Figure 2 shows why: exploring before the gates open would perturb passes that are still doing nothing.</p>
+    <p>The run in progress places exploration in the middle of training &mdash; off for the first 100 steps, easing to $q{=}1$, full at $q{=}2$ from 150 to 300, then easing back to zero by 350. The shaded band in Figure 3 shows why: exploring before the gates open would perturb passes that are still doing nothing.</p>
 
     <p><strong>The question this run answers</strong> is narrow and prior to everything else: once the gates are open, do the three passes ever become different enough to compare? If the reward spread lifts off the floor, the comparison is real and tier 2 is worth training. If it stays at zero through the exploration window, then the passes are copies no matter what the router does, and the honest next step is not more pathloop but changing how the loop is built &mdash; starting the gates away from zero, so the passes are distinct from the beginning.</p>
 

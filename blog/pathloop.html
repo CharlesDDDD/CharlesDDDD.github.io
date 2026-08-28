@@ -219,82 +219,100 @@
 
     <h2>I. Problem</h2>
 
-    <p>A mixture-of-experts layer scores every expert for each token but evaluates only the best $k$ of $E$:</p>
+    <p>A mixture-of-experts layer scores every expert for each token, then evaluates only the best $k$ of $E$.</p>
 
-    <div class="eq"><div class="b">$s_t = \mathrm{softmax}\big(W_r h_t\big) \in \mathbb{R}^E, \qquad \mathcal{S}_t = \operatorname*{arg\,top-}_{k} s_t, \qquad \mathrm{MoE}(h_t) = \sum_{e \in \mathcal{S}_t} \frac{s_{t,e}}{\sum_{e' \in \mathcal{S}_t} s_{t,e'}}\, f_e(h_t)$</div><div class="n">(1)</div></div>
+    <div class="eq"><div class="b">$s_t \;=\; \mathrm{softmax}\big(W_r\, h_t\big) \;\in\; \mathbb{R}^{E}$</div><div class="n">(1)</div></div>
+    <div class="eq"><div class="b">$\mathcal{S}_t \;=\; \operatorname*{arg\,top-}_{k}\, s_t, \qquad \big|\mathcal{S}_t\big| = k$</div><div class="n">(2)</div></div>
+    <div class="eq"><div class="b">$w_{t,e} \;=\; \dfrac{s_{t,e}}{\sum_{e' \in \mathcal{S}_t} s_{t,e'}}$</div><div class="n">(3)</div></div>
+    <div class="eq"><div class="b">$\mathrm{MoE}(h_t) \;=\; \sum_{e \in \mathcal{S}_t} w_{t,e}\; f_e(h_t)$</div><div class="n">(4)</div></div>
+    <div class="eq"><div class="b">$f_e(h) \;=\; W^e_{\text{down}}\Big(\sigma\big(W^e_{\text{gate}}\,h\big) \odot W^e_{\text{up}}\,h\Big)$</div><div class="n">(5)</div></div>
 
-    <p class="where"><b>$\mathcal{S}_t$ is the token's path</b> &mdash; which 8 of 128 experts it passes through. $f_e(h) = W^e_{\text{down}}\big(\sigma(W^e_{\text{gate}}h) \odot W^e_{\text{up}}h\big)$.</p>
+    <p class="where"><b>$\mathcal{S}_t$ is the token's path</b>: which $k=8$ of $E=128$ experts it passes through. $W_r$ is the router; $f_e$ is one expert.</p>
 
-    <p>Two facts about $\mathcal{S}_t$ motivate the project. First, unselected experts are never evaluated:</p>
+    <p>The other $E-k$ experts are not evaluated, so nothing flows back to them:</p>
 
-    <div class="eq"><div class="b">$\dfrac{\partial \mathcal{L}}{\partial \theta_e} = 0 \quad \text{for all } e \notin \mathcal{S}_t$</div><div class="n">(2)</div></div>
+    <div class="eq"><div class="b">$\dfrac{\partial \mathcal{L}}{\partial \theta_e} \;=\; 0 \qquad \text{for all } e \notin \mathcal{S}_t$</div><div class="n">(6)</div></div>
 
-    <p class="where">so fine-tuning cannot re-route: only $W_r$ moves, and slowly. Measured in &sect;VI &mdash; one epoch shifts the routing distribution by about 2%.</p>
+    <p class="where">Only $W_r$ moves, and slowly &mdash; one epoch shifts the routing distribution by about 2% (&sect;VI). Fine-tuning cannot re-route.</p>
 
-    <p>Second, running the same layers $K$ times should yield $K$ distinct paths $\mathcal{S}^0_t, \dots, \mathcal{S}^{K-1}_t$. It does not (&sect;VI). Pathloop is an attempt to force them apart.</p>
+    <p>Running the same layers $K$ times should give $K$ distinct paths $\mathcal{S}^0_t, \dots, \mathcal{S}^{K-1}_t$. It does not (&sect;VI). Pathloop tries to force them apart.</p>
 
     <h2>II. Looped SFT</h2>
 
     <div class="table-wrap">
       <table class="nota">
-        <tr><td>$x \in \mathbb{N}^T,\; d = 2048$</td><td>input tokens; model width</td></tr>
-        <tr><td>$T_0,\dots,T_{L-1},\; L = 48$</td><td>transformer layers</td></tr>
-        <tr><td>$[a,b) = [12,36),\; W = 24$</td><td>looped window and its width</td></tr>
+        <tr><td>$x \in \mathbb{N}^T, \;\; d = 2048$</td><td>input tokens; model width</td></tr>
+        <tr><td>$T_0, \dots, T_{L-1}, \;\; L = 48$</td><td>transformer layers</td></tr>
+        <tr><td>$[a,b) = [12,36), \;\; W = 24$</td><td>looped window; its width</td></tr>
         <tr><td>$K = 3$</td><td>passes through the window</td></tr>
-        <tr><td>$E = 128,\; k = 8$</td><td>experts per layer; experts used per token</td></tr>
-        <tr><td>$g_1,\dots,g_{K-1} \in \mathbb{R}^d$</td><td>gates, one per pass after the first, initialised to $0$</td></tr>
+        <tr><td>$g_1, \dots, g_{K-1} \in \mathbb{R}^{d}$</td><td>gates, initialised to $0$</td></tr>
       </table>
     </div>
 
-    <div class="eq"><div class="b">$z = h + \mathrm{Attn}_\ell\big(\mathrm{Norm}(h)\big), \qquad T_\ell(h) = z + \mathrm{MoE}_\ell\big(\mathrm{Norm}(z)\big)$</div><div class="n">(3)</div></div>
+    <h3>A layer</h3>
 
-    <div class="eq"><div class="b">$h_{-1} = \big(T_{a-1} \circ \cdots \circ T_0\big)\big(\mathrm{Embed}(x)\big), \qquad F = T_{b-1} \circ \cdots \circ T_a$</div><div class="n">(4)</div></div>
+    <div class="eq"><div class="b">$z \;=\; h + \mathrm{Attn}_\ell\big(\mathrm{Norm}(h)\big)$</div><div class="n">(7)</div></div>
+    <div class="eq"><div class="b">$T_\ell(h) \;=\; z + \mathrm{MoE}_\ell\big(\mathrm{Norm}(z)\big)$</div><div class="n">(8)</div></div>
 
-    <div class="eq"><div class="b">$u_\tau = F\big(h_{\tau-1}\big), \qquad h_\tau = \begin{cases} u_0 & \tau = 0 \\[3pt] h_{\tau-1} + g_\tau \odot \big(u_\tau - h_{\tau-1}\big) & 1 \leq \tau \leq K-1\end{cases}$</div><div class="n">(5)</div></div>
+    <h3>The forward pass</h3>
 
-    <div class="eq"><div class="b">$\text{logits} = W_U\,\mathrm{Norm}\Big(\big(T_{L-1} \circ \cdots \circ T_b\big)\big(h_{K-1}\big)\Big)$</div><div class="n">(6)</div></div>
+    <div class="eq"><div class="b">$h_{-1} \;=\; \big(T_{a-1} \circ \cdots \circ T_0\big)\big(\mathrm{Embed}(x)\big)$</div><div class="n">(9)</div></div>
+    <div class="eq"><div class="b">$F \;=\; T_{b-1} \circ \cdots \circ T_a$</div><div class="n">(10)</div></div>
+    <div class="eq"><div class="b">$u_\tau \;=\; F\big(h_{\tau-1}\big), \qquad \tau = 0, \dots, K-1$</div><div class="n">(11)</div></div>
+    <div class="eq"><div class="b">$h_0 \;=\; u_0$</div><div class="n">(12)</div></div>
+    <div class="eq"><div class="b">$h_\tau \;=\; h_{\tau-1} \;+\; g_\tau \odot \big(u_\tau - h_{\tau-1}\big), \qquad \tau \geq 1$</div><div class="n">(13)</div></div>
+    <div class="eq"><div class="b">$\text{logits} \;=\; W_U\, \mathrm{Norm}\Big(\big(T_{L-1} \circ \cdots \circ T_b\big)\big(h_{K-1}\big)\Big)$</div><div class="n">(14)</div></div>
+    <div class="eq"><div class="b">$\text{executed depth} \;=\; a + KW + (L-b) \;=\; 12 + 72 + 12 \;=\; 96$</div><div class="n">(15)</div></div>
 
-    <div class="eq"><div class="b">$\text{executed depth} \;=\; a + KW + (L-b) \;=\; 12 + 72 + 12 \;=\; 96$</div><div class="n">(7)</div></div>
+    <p class="where">Layers outside $[a,b)$ run once; layers inside run $K$ times with the same weights. Pass $0$ is ungated, by (12). Only the $2d$ gate values are new parameters.</p>
 
-    <p class="where"><b>Pass 0 is ungated</b>, taken in full. Weights are shared across passes; only the $2d$ gate values are new.</p>
+    <h3>Consequence A &mdash; the loop starts as an exact no-op</h3>
 
-    <p><strong>Consequence A.</strong> At $g_\tau = 0$, (5) gives $h_\tau = h_{\tau-1}$, so $h_{K-1} = u_0 = F(h_{-1})$ and the looped model equals the original bit-for-bit. Training starts from a known-good point; the extra passes start as exact no-ops.</p>
+    <p>At $g_\tau = 0$, (13) gives $h_\tau = h_{\tau-1}$, so $h_{K-1} = u_0 = F(h_{-1})$ and the looped model equals the original bit-for-bit. Training starts from a known-good point; passes $1 \dots K\!-\!1$ start doing nothing.</p>
 
-    <p><strong>Consequence B.</strong> $W_r$ is shared across passes, so pass $\tau$ routes differently from pass $\tau-1$ only if the router's input moved enough to reorder its top $k$. From (5),</p>
+    <h3>Consequence B &mdash; small gates force identical routing</h3>
 
-    <div class="eq"><div class="b">$h_\tau - h_{\tau-1} = g_\tau \odot \big(u_\tau - h_{\tau-1}\big) \;\xrightarrow[\;\|g_\tau\| \to 0\;]{}\; 0 \qquad\Longrightarrow\qquad \mathcal{S}^\tau_t = \mathcal{S}^{\tau-1}_t$</div><div class="n">(8)</div></div>
+    <p>$W_r$ is shared across passes, so pass $\tau$ can route differently from pass $\tau-1$ only if the router's input moved enough to reorder its top $k$. From (13):</p>
 
-    <p class="where">Small gates force the passes to route identically. &sect;VI measures $\|g_\tau\|_{\text{rms}} \approx 0.02$&ndash;$0.06$ after a full epoch, and finds exactly this.</p>
+    <div class="eq"><div class="b">$h_\tau - h_{\tau-1} \;=\; g_\tau \odot \big(u_\tau - h_{\tau-1}\big)$</div><div class="n">(16)</div></div>
+    <div class="eq"><div class="b">$\|g_\tau\| \to 0 \quad\Longrightarrow\quad h_\tau \to h_{\tau-1} \quad\Longrightarrow\quad \mathcal{S}^{\tau}_t = \mathcal{S}^{\tau-1}_t$</div><div class="n">(17)</div></div>
+
+    <p class="where">&sect;VI measures $\|g_\tau\|_{\text{rms}} \approx 0.02\text{--}0.06$ after a full epoch, and finds exactly this.</p>
 
     <h2>III. Pathloop</h2>
 
-    <p>Training-time only: replace $\mathcal{S}_t$ in (1) with a partly sampled set. Inference is unchanged plain top-$k$.</p>
+    <p>Training-time only: replace $\mathcal{S}_t$ in (2) with a partly sampled set, per pass. Inference is unchanged plain top-$k$.</p>
 
-    <div class="eq"><div class="b">$k = p + q, \qquad \mathcal{P}_t = \operatorname*{arg\,top-}_{p}\big\{s_{t,e} : e \in \mathcal{S}_t\big\}$</div><div class="n">(9)</div></div>
+    <h3>Sampling part of the path</h3>
 
-    <div class="eq"><div class="b">$\beta : \{1,\dots,E\} \to \{0,\dots,K\!-\!1\}, \qquad \mathcal{T}^\tau_t = \big\{e \notin \mathcal{S}_t \;:\; \beta(e) = \tau\big\}$</div><div class="n">(10)</div></div>
+    <div class="eq"><div class="b">$k \;=\; p + q$</div><div class="n">(18)</div></div>
+    <div class="eq"><div class="b">$\mathcal{P}_t \;=\; \operatorname*{arg\,top-}_{p}\big\{\, s_{t,e} \;:\; e \in \mathcal{S}_t \,\big\}$</div><div class="n">(19)</div></div>
+    <div class="eq"><div class="b">$\beta : \{1,\dots,E\} \to \{0,\dots,K\!-\!1\}, \qquad \mathcal{T}^\tau_t \;=\; \big\{\, e \notin \mathcal{S}_t \;:\; \beta(e) = \tau \,\big\}$</div><div class="n">(20)</div></div>
+    <div class="eq"><div class="b">$\mathcal{Q}^\tau_t \;=\; \operatorname*{arg\,top-}_{q}\Big\{\, \log s_{t,e} - \log(-\log u_e) \;:\; e \in \mathcal{T}^\tau_t \,\Big\}, \qquad u_e \sim \mathcal{U}(0,1)$</div><div class="n">(21)</div></div>
+    <div class="eq"><div class="b">$\tilde{\mathcal{S}}^\tau_t \;=\; \mathcal{P}_t \cup \mathcal{Q}^\tau_t, \qquad \big|\tilde{\mathcal{S}}^\tau_t\big| = p + q = k$</div><div class="n">(22)</div></div>
+    <div class="eq"><div class="b">$\tilde{w}_{t,e} \;=\; \dfrac{s_{t,e}}{\sum_{e' \in \tilde{\mathcal{S}}^\tau_t} s_{t,e'}}$</div><div class="n">(23)</div></div>
 
-    <div class="eq"><div class="b">$\mathcal{Q}^\tau_t = \operatorname*{arg\,top-}_{q}\Big\{\log s_{t,e} - \log(-\log u_e) \;:\; e \in \mathcal{T}^\tau_t\Big\}, \quad u_e \sim \mathcal{U}(0,1)$</div><div class="n">(11)</div></div>
+    <p class="where"><b>(19)</b> keeps the $p$ best of the model's own choice. <b>(20)</b> $\beta$ is redrawn every step and gives each pass a disjoint candidate pool, so the $K$ passes explore different experts rather than colliding. <b>(21)</b> is Gumbel top-$q$: $q$ experts drawn without replacement with probability proportional to $s_t$. <b>(22)</b> cost is unchanged &mdash; still $k$ experts per token &mdash; but the $q$ sampled ones now receive gradient, which (6) otherwise forbids.</p>
 
-    <div class="eq"><div class="b">$\tilde{\mathcal{S}}^\tau_t = \mathcal{P}_t \cup \mathcal{Q}^\tau_t, \qquad \big|\tilde{\mathcal{S}}^\tau_t\big| = p + q = k, \qquad \tilde{w}_{t,e} = \frac{s_{t,e}}{\sum_{e' \in \tilde{\mathcal{S}}^\tau_t} s_{t,e'}}$</div><div class="n">(12)</div></div>
+    <h3>Comparing the passes</h3>
 
-    <p class="where"><b>$\beta$</b> is redrawn every step and gives each pass a disjoint pool, so the $K$ passes explore different candidates rather than colliding. <b>(11)</b> is Gumbel top-$q$: sampling $q$ experts without replacement with probability proportional to $s_t$. <b>Cost is unchanged</b> &mdash; still $k$ experts per token &mdash; but the $q$ sampled experts now receive gradient, which (2) otherwise forbids.</p>
+    <div class="eq"><div class="b">$R_\tau(t) \;=\; \log P\big(y_t \;\big|\; W_U\,\mathrm{Norm}(h_\tau)_t\big)$</div><div class="n">(24)</div></div>
+    <div class="eq"><div class="b">$A_\tau(t) \;=\; R_\tau(t) \;-\; \dfrac{1}{K-1}\sum_{\tau' \neq \tau} R_{\tau'}(t)$</div><div class="n">(25)</div></div>
 
-    <p>The loop supplies $K$ states per token for free. Score each through the output head and compare them:</p>
+    <p class="where"><b>(24)</b> reads each pass's state through the model's own output head and scores it on the true next token $y_t$. <b>(25)</b> compares a pass against its siblings, which saw the same token in the same context, so token difficulty cancels and no baseline model is needed. By construction $\sum_\tau A_\tau(t) = 0$.</p>
 
-    <div class="eq"><div class="b">$R_\tau(t) = \log P\big(y_t \mid W_U \mathrm{Norm}(h_\tau)_t\big), \qquad A_\tau(t) = R_\tau(t) - \frac{1}{K-1}\sum_{\tau' \neq \tau} R_{\tau'}(t)$</div><div class="n">(13)</div></div>
+    <h3>Training terms</h3>
 
-    <p class="where"><b>$A_\tau$</b> compares a pass against its own siblings, which saw the same token in the same context &mdash; so token difficulty cancels and no baseline model is needed. By construction $\sum_\tau A_\tau(t) = 0$.</p>
+    <div class="eq"><div class="b">$\mathcal{L}_{\text{path}} \;=\; -\sum_{\tau} \mathbb{E}_t\Big[\, A_\tau(t)\; \log \pi_\tau\big(\mathcal{Q}^\tau_t \mid h_{\tau-1}\big) \Big]$</div><div class="n">(26)</div></div>
+    <div class="eq"><div class="b">$\mathcal{L}_{\text{ladder}} \;=\; -\sum_{\tau} \frac{\lambda\,(\tau+1)}{K}\; \mathbb{E}_t\big[\, R_\tau(t) \,\big]$</div><div class="n">(27)</div></div>
 
-    <div class="eq"><div class="b">$\mathcal{L}_{\text{path}} = -\sum_{\tau} \mathbb{E}_t\Big[A_\tau(t)\,\log \pi_\tau\big(\mathcal{Q}^\tau_t \mid h_{\tau-1}\big)\Big], \qquad \mathcal{L}_{\text{ladder}} = -\sum_\tau \frac{\lambda(\tau+1)}{K}\,\mathbb{E}_t\big[R_\tau(t)\big]$</div><div class="n">(14)</div></div>
+    <p class="where"><b>$\pi_\tau$</b> is the router's probability of having drawn that set, as an ordered draw without replacement. <b>(27)</b> uses the label rather than agreement between passes: the cheapest way to make passes agree is $g_\tau \to 0$, the degenerate solution the gates already sit next to. Both terms vanish wherever $q = 0$, so $q = 0$ is exactly plain looped SFT.</p>
 
-    <p class="where"><b>$\pi_\tau$</b> is the router's probability of having drawn that set, as an ordered draw without replacement. <b>$\mathcal{L}_{\text{ladder}}$</b> uses the label, not agreement between passes: the cheapest way to make passes agree is $g_\tau \to 0$, the degenerate solution the gates already sit next to. Both terms are switched off wherever $q = 0$, so $q = 0$ is exactly plain looped SFT.</p>
-
-    <p><strong>Tier 1</strong> samples and measures $R_\tau, A_\tau$ without training on them &mdash; it asks whether the comparison carries signal before anything is built on it. <strong>Tier 2</strong> adds (14). $q$ follows a schedule and returns to $0$ before training ends, so the final model is trained under the policy it is served with.</p>
+    <p><strong>Tier 1</strong> samples and measures $R_\tau, A_\tau$ without training on them &mdash; it asks whether the comparison carries signal before anything is built on it. <strong>Tier 2</strong> adds (26) and (27). $q$ follows a schedule and returns to $0$ before training ends, so the final model is trained under the policy it is served with.</p>
 
     <h2>IV. Setup</h2>
 
-    <p>Base model is a 30B-parameter mixture-of-experts with 3B active per token: 48 layers, 128 experts per layer, top-8 routing. The loop covers layers 12&ndash;35, repeated three times.</p>
+    <p>Base model is <strong>Qwen3-30B-A3B-Base</strong> &mdash; 30B parameters with 3B active per token, 48 layers, 128 experts per layer, top-8 routing. The loop covers layers 12&ndash;35, repeated three times.</p>
 
     <p>We fine-tune on <strong>Ling-Coder</strong>, a 400k-example coding instruction set, for one epoch (415 steps). A math dataset (OT3) is the alternative we have also used; everything reported here is Ling-Coder.</p>
 
@@ -312,26 +330,26 @@
     <div class="table-wrap">
       <table>
         <tr>
-          <th>Benchmark</th><th></th>
+          <th>Category</th><th>Benchmark</th><th></th>
           <th class="num">Base</th><th class="num">Plain SFT</th><th class="num">Looped SFT</th><th class="num">Looped SFT (fast gates)</th>
         </tr>
-        <tr><td>HumanEval</td><td><span class="tag tag-in">in</span></td><td class="num">72.0</td><td class="num">90.2 <span style="font-size:10px;color:#aaa">149</span></td><td class="num">90.2 <span style="font-size:10px;color:#aaa">299</span></td><td class="num best">91.5 <span style="font-size:10px;color:#aaa">299</span></td></tr>
+        <tr><td rowspan="5" style="font-weight:600;color:#1b3a6f;vertical-align:middle">coding</td><td>HumanEval</td><td><span class="tag tag-in">in</span></td><td class="num">72.0</td><td class="num">90.2 <span style="font-size:10px;color:#aaa">149</span></td><td class="num">90.2 <span style="font-size:10px;color:#aaa">299</span></td><td class="num best">91.5 <span style="font-size:10px;color:#aaa">299</span></td></tr>
         <tr><td>HumanEval+</td><td><span class="tag tag-in">in</span></td><td class="num">66.5</td><td class="num">84.1 <span style="font-size:10px;color:#aaa">149</span></td><td class="num">86.0 <span style="font-size:10px;color:#aaa">299</span></td><td class="num best">87.2 <span style="font-size:10px;color:#aaa">299</span></td></tr>
         <tr><td>MBPP</td><td><span class="tag tag-in">in</span></td><td class="num">68.5</td><td class="num">74.5 <span style="font-size:10px;color:#aaa">299</span></td><td class="num">73.0 <span style="font-size:10px;color:#aaa">299</span></td><td class="num best">75.5 <span style="font-size:10px;color:#aaa">299</span></td></tr>
         <tr><td>MBPP+</td><td><span class="tag tag-in">in</span></td><td class="num best">76.0</td><td class="num">74.4 <span style="font-size:10px;color:#aaa">415</span></td><td class="num">73.6 <span style="font-size:10px;color:#aaa">299</span></td><td class="num">74.0 <span style="font-size:10px;color:#aaa">299</span></td></tr>
         <tr><td>LiveCodeBench</td><td><span class="tag tag-in">in</span></td><td class="num">14.9</td><td class="num">31.4 <span style="font-size:10px;color:#aaa">149</span></td><td class="num best">32.6 <span style="font-size:10px;color:#aaa">299</span></td><td class="num">29.7 <span style="font-size:10px;color:#aaa">299</span></td></tr>
-        <tr><td>GSM8K</td><td><span class="tag tag-ood">ood</span></td><td class="num">52.8</td><td class="num best">72.4 <span style="font-size:10px;color:#aaa">149</span></td><td class="num">69.2 <span style="font-size:10px;color:#aaa">415</span></td><td class="num">65.2 <span style="font-size:10px;color:#aaa">415</span></td></tr>
+        <tr><td rowspan="6" style="font-weight:600;color:#1b3a6f;vertical-align:middle">math</td><td>GSM8K</td><td><span class="tag tag-ood">ood</span></td><td class="num">52.8</td><td class="num best">72.4 <span style="font-size:10px;color:#aaa">149</span></td><td class="num">69.2 <span style="font-size:10px;color:#aaa">415</span></td><td class="num">65.2 <span style="font-size:10px;color:#aaa">415</span></td></tr>
         <tr><td>MATH500</td><td><span class="tag tag-ood">ood</span></td><td class="num">60.8</td><td class="num">57.6 <span style="font-size:10px;color:#aaa">149</span></td><td class="num">59.6 <span style="font-size:10px;color:#aaa">149</span></td><td class="num best">66.0 <span style="font-size:10px;color:#aaa">149</span></td></tr>
         <tr><td>MATH500-flex</td><td><span class="tag tag-ood">ood</span></td><td class="num">60.8</td><td class="num">58.0 <span style="font-size:10px;color:#aaa">149</span></td><td class="num">62.4 <span style="font-size:10px;color:#aaa">149</span></td><td class="num best">67.2 <span style="font-size:10px;color:#aaa">149</span></td></tr>
         <tr><td>AMC23</td><td><span class="tag tag-ood">ood</span></td><td class="num">27.9</td><td class="num">32.5 <span style="font-size:10px;color:#aaa">149</span></td><td class="num">30.8 <span style="font-size:10px;color:#aaa">149</span></td><td class="num best">39.6 <span style="font-size:10px;color:#aaa">415</span></td></tr>
         <tr><td>AIME24</td><td><span class="tag tag-ood">ood</span></td><td class="num">4.4</td><td class="num">10.0 <span style="font-size:10px;color:#aaa">415</span></td><td class="num">10.0 <span style="font-size:10px;color:#aaa">299</span></td><td class="num best">11.7 <span style="font-size:10px;color:#aaa">149</span></td></tr>
         <tr><td>AIME25</td><td><span class="tag tag-ood">ood</span></td><td class="num">2.8</td><td class="num">5.0 <span style="font-size:10px;color:#aaa">415</span></td><td class="num best">7.2 <span style="font-size:10px;color:#aaa">415</span></td><td class="num">6.7 <span style="font-size:10px;color:#aaa">149</span></td></tr>
-        <tr><td>MMLU-Pro</td><td><span class="tag tag-ood">ood</span></td><td class="num">52.4</td><td class="num">51.6 <span style="font-size:10px;color:#aaa">149</span></td><td class="num best">52.8 <span style="font-size:10px;color:#aaa">415</span></td><td class="num">51.2 <span style="font-size:10px;color:#aaa">149</span></td></tr>
+        <tr><td rowspan="2" style="font-weight:600;color:#1b3a6f;vertical-align:middle">knowledge</td><td>MMLU-Pro</td><td><span class="tag tag-ood">ood</span></td><td class="num">52.4</td><td class="num">51.6 <span style="font-size:10px;color:#aaa">149</span></td><td class="num best">52.8 <span style="font-size:10px;color:#aaa">415</span></td><td class="num">51.2 <span style="font-size:10px;color:#aaa">149</span></td></tr>
         <tr><td>GPQA-Diamond</td><td><span class="tag tag-ood">ood</span></td><td class="num">38.9</td><td class="num best">43.9 <span style="font-size:10px;color:#aaa">299</span></td><td class="num">43.4 <span style="font-size:10px;color:#aaa">415</span></td><td class="num">43.9 <span style="font-size:10px;color:#aaa">299</span></td></tr>
-        <tr><td>IFEval</td><td><span class="tag tag-ood">ood</span></td><td class="num">35.2</td><td class="num">53.6 <span style="font-size:10px;color:#aaa">299</span></td><td class="num">53.6 <span style="font-size:10px;color:#aaa">415</span></td><td class="num best">56.0 <span style="font-size:10px;color:#aaa">299</span></td></tr>
-        <tr class="sep"><td>Mean of best, all 14</td><td></td><td class="num">45.27</td><td class="num">52.81</td><td class="num">53.18</td><td class="num best">54.67</td></tr>
-        <tr class=""><td>Mean of best, in-domain</td><td><span class="tag tag-in">in</span></td><td class="num">59.55</td><td class="num">70.94</td><td class="num">71.08</td><td class="num best">71.57</td></tr>
-        <tr class=""><td>Mean of best, out-of-domain</td><td><span class="tag tag-ood">ood</span></td><td class="num">37.34</td><td class="num">42.74</td><td class="num">43.23</td><td class="num best">45.27</td></tr>
+        <tr><td rowspan="1" style="font-weight:600;color:#1b3a6f;vertical-align:middle">instruction following</td><td>IFEval</td><td><span class="tag tag-ood">ood</span></td><td class="num">35.2</td><td class="num">53.6 <span style="font-size:10px;color:#aaa">299</span></td><td class="num">53.6 <span style="font-size:10px;color:#aaa">415</span></td><td class="num best">56.0 <span style="font-size:10px;color:#aaa">299</span></td></tr>
+        <tr class="sep"><td colspan="2">Mean of best, all 14</td><td></td><td class="num">45.27</td><td class="num">52.81</td><td class="num">53.18</td><td class="num best">54.67</td></tr>
+        <tr class=""><td colspan="2">Mean of best, in-domain</td><td><span class="tag tag-in">in</span></td><td class="num">59.55</td><td class="num">70.94</td><td class="num">71.08</td><td class="num best">71.57</td></tr>
+        <tr class=""><td colspan="2">Mean of best, out-of-domain</td><td><span class="tag tag-ood">ood</span></td><td class="num">37.34</td><td class="num">42.74</td><td class="num">43.23</td><td class="num best">45.27</td></tr>
       </table>
     </div>
 

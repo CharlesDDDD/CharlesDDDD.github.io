@@ -74,7 +74,8 @@
       letter-spacing: -0.01em;
     }
     h3 {
-      font-size: 0.9rem;
+      font-family: 'Source Serif 4', Georgia, serif;
+      font-size: 1.05rem;
       font-weight: 600;
       color: var(--text);
       margin: 24px 0 10px;
@@ -134,9 +135,8 @@
     .tag-ood { background: #f2ecdc; color: #8a6d1f; }
     .best { font-weight: 600; color: #1b3a6f; }
 
-    .eq { display: flex; align-items: center; gap: 14px; margin: 15px 0; }
-    .eq .b { flex: 1; text-align: center; overflow-x: auto; }
-    .eq .n { color: #aaa; font-size: 12px; min-width: 26px; text-align: right; }
+    .eqn { margin: 18px 0; text-align: center; overflow-x: auto; overflow-y: hidden; padding: 2px 0; }
+    .eqn .katex { font-size: 1.02em; }
     .where { font-size: 12.5px; color: var(--text-secondary); margin: 6px 0 14px; line-height: 1.75; }
     .where b { color: var(--text); font-weight: 600; }
     table.nota td { padding: 5px 10px; font-size: 12.5px; }
@@ -217,100 +217,121 @@
       We fine-tune a 30B mixture-of-experts model with its middle layers looped three times, which turns 48 layers into 96 executed ones. Looping helps, but not where you would guess: on the coding data we train on it adds nothing, and on the nine benchmarks we never train on it does not raise the peak either &mdash; it holds the peak. Plain fine-tuning gains five points out-of-domain and then gives all of them back; the looped runs keep most of theirs. Reading the probes then showed why the loop is weaker than it should be &mdash; <strong>the second and third passes are near-copies of each other</strong>. They route to nearly the same experts and barely change the representation. The loop is not building three different paths through the model; it is building one path and two near-repeats. <strong>Pathloop</strong> is our attempt to force the passes apart by making the router sample a little during training, and then letting the three passes compete. It is implemented and a first run is in progress.
     </div>
 
-    <h2>I. Problem</h2>
+    <h2>What does fine-tuning actually train in a mixture-of-experts model?</h2>
 
-    <p>A mixture-of-experts layer scores every expert for each token, then evaluates only the best $k$ of $E$.</p>
+    <p>Start with a single MoE layer. A token arrives with hidden state $h_t \in \mathbb{R}^d$, and a small linear router scores every one of the $E$ experts:</p>
 
-    <div class="eq"><div class="b">$s_t \;=\; \mathrm{softmax}\big(W_r\, h_t\big) \;\in\; \mathbb{R}^{E}$</div><div class="n">(1)</div></div>
-    <div class="eq"><div class="b">$\mathcal{S}_t \;=\; \operatorname*{arg\,top-}_{k}\, s_t, \qquad \big|\mathcal{S}_t\big| = k$</div><div class="n">(2)</div></div>
-    <div class="eq"><div class="b">$w_{t,e} \;=\; \dfrac{s_{t,e}}{\sum_{e' \in \mathcal{S}_t} s_{t,e'}}$</div><div class="n">(3)</div></div>
-    <div class="eq"><div class="b">$\mathrm{MoE}(h_t) \;=\; \sum_{e \in \mathcal{S}_t} w_{t,e}\; f_e(h_t)$</div><div class="n">(4)</div></div>
-    <div class="eq"><div class="b">$f_e(h) \;=\; W^e_{\text{down}}\Big(\sigma\big(W^e_{\text{gate}}\,h\big) \odot W^e_{\text{up}}\,h\Big)$</div><div class="n">(5)</div></div>
+    <div class="eqn">$$s_t \;=\; \mathrm{softmax}\big(W_r\, h_t\big) \;\in\; \mathbb{R}^{E}.$$</div>
 
-    <p class="where"><b>$\mathcal{S}_t$ is the token's path</b>: which $k=8$ of $E=128$ experts it passes through. $W_r$ is the router; $f_e$ is one expert.</p>
+    <p>In the model we use, $E = 128$. Evaluating all of them would defeat the purpose, so the layer keeps only the best $k = 8$,</p>
 
-    <p>The other $E-k$ experts are not evaluated, so nothing flows back to them:</p>
+    <div class="eqn">$$\mathcal{S}_t \;=\; \operatorname*{arg\,top-}_{k}\; s_t,$$</div>
 
-    <div class="eq"><div class="b">$\dfrac{\partial \mathcal{L}}{\partial \theta_e} \;=\; 0 \qquad \text{for all } e \notin \mathcal{S}_t$</div><div class="n">(6)</div></div>
+    <p>renormalises the scores over the survivors, and mixes their outputs:</p>
 
-    <p class="where">Only $W_r$ moves, and slowly &mdash; one epoch shifts the routing distribution by about 2% (&sect;VI). Fine-tuning cannot re-route.</p>
+    <div class="eqn">$$\mathrm{MoE}(h_t) \;=\; \sum_{e \in \mathcal{S}_t} \frac{s_{t,e}}{\sum_{e' \in \mathcal{S}_t} s_{t,e'}}\; f_e(h_t), \qquad f_e(h) = W^e_{\text{down}}\big(\sigma(W^e_{\text{gate}}h) \odot W^e_{\text{up}}h\big).$$</div>
 
-    <p>Running the same layers $K$ times should give $K$ distinct paths $\mathcal{S}^0_t, \dots, \mathcal{S}^{K-1}_t$. It does not (&sect;VI). Pathloop tries to force them apart.</p>
+    <p>We will call $\mathcal{S}_t$ the token's <strong>path</strong>: the eight-expert route it takes through this layer. Stack 48 such layers and a token's full journey through the model is a sequence of 48 such choices.</p>
 
-    <h2>II. Looped SFT</h2>
+    <p>Now the part that matters for fine-tuning. The other $E-k = 120$ experts are never evaluated, so they appear nowhere in the computation graph, so nothing flows back to them:</p>
 
-    <div class="table-wrap">
-      <table class="nota">
-        <tr><td>$x \in \mathbb{N}^T, \;\; d = 2048$</td><td>input tokens; model width</td></tr>
-        <tr><td>$T_0, \dots, T_{L-1}, \;\; L = 48$</td><td>transformer layers</td></tr>
-        <tr><td>$[a,b) = [12,36), \;\; W = 24$</td><td>looped window; its width</td></tr>
-        <tr><td>$K = 3$</td><td>passes through the window</td></tr>
-        <tr><td>$g_1, \dots, g_{K-1} \in \mathbb{R}^{d}$</td><td>gates, initialised to $0$</td></tr>
-      </table>
-    </div>
+    <div class="eqn">$$\frac{\partial \mathcal{L}}{\partial \theta_e} \;=\; 0 \qquad \text{for every } e \notin \mathcal{S}_t.$$</div>
 
-    <h3>A layer</h3>
+    <p>Fine-tuning therefore trains the experts that the <em>pretrained</em> router already liked. In principle the router could learn to like different ones &mdash; $W_r$ does receive gradient. In practice it barely moves: over a full epoch we measure the routing entropy shifting by 2% and top-1 confidence by 4% (see <a href="#probes">the probes</a>). Whatever paths pretraining laid down, fine-tuning walks along them.</p>
 
-    <div class="eq"><div class="b">$z \;=\; h + \mathrm{Attn}_\ell\big(\mathrm{Norm}(h)\big)$</div><div class="n">(7)</div></div>
-    <div class="eq"><div class="b">$T_\ell(h) \;=\; z + \mathrm{MoE}_\ell\big(\mathrm{Norm}(z)\big)$</div><div class="n">(8)</div></div>
+    <p>So here is the question this project starts from. <strong>Can we give a token more than one path through the same weights?</strong></p>
 
-    <h3>The forward pass</h3>
+    <h2>Looping the middle layers</h2>
 
-    <div class="eq"><div class="b">$h_{-1} \;=\; \big(T_{a-1} \circ \cdots \circ T_0\big)\big(\mathrm{Embed}(x)\big)$</div><div class="n">(9)</div></div>
-    <div class="eq"><div class="b">$F \;=\; T_{b-1} \circ \cdots \circ T_a$</div><div class="n">(10)</div></div>
-    <div class="eq"><div class="b">$u_\tau \;=\; F\big(h_{\tau-1}\big), \qquad \tau = 0, \dots, K-1$</div><div class="n">(11)</div></div>
-    <div class="eq"><div class="b">$h_0 \;=\; u_0$</div><div class="n">(12)</div></div>
-    <div class="eq"><div class="b">$h_\tau \;=\; h_{\tau-1} \;+\; g_\tau \odot \big(u_\tau - h_{\tau-1}\big), \qquad \tau \geq 1$</div><div class="n">(13)</div></div>
-    <div class="eq"><div class="b">$\text{logits} \;=\; W_U\, \mathrm{Norm}\Big(\big(T_{L-1} \circ \cdots \circ T_b\big)\big(h_{K-1}\big)\Big)$</div><div class="n">(14)</div></div>
-    <div class="eq"><div class="b">$\text{executed depth} \;=\; a + KW + (L-b) \;=\; 12 + 72 + 12 \;=\; 96$</div><div class="n">(15)</div></div>
+    <p>The simplest way to get a second path is to run the same layers a second time. Write one transformer layer as</p>
 
-    <p class="where">Layers outside $[a,b)$ run once; layers inside run $K$ times with the same weights. Pass $0$ is ungated, by (12). Only the $2d$ gate values are new parameters.</p>
+    <div class="eqn">$$T_\ell(h) \;=\; z + \mathrm{MoE}_\ell\big(\mathrm{Norm}(z)\big), \qquad z \;=\; h + \mathrm{Attn}_\ell\big(\mathrm{Norm}(h)\big),$$</div>
 
-    <h3>Consequence A &mdash; the loop starts as an exact no-op</h3>
+    <p>and pick a window of consecutive layers to repeat &mdash; for us layers $[a,b) = [12,36)$, so $W = 24$ layers wide, sitting in the middle of the 48. Call the composition of that window $F = T_{b-1} \circ \cdots \circ T_a$.</p>
 
-    <p>At $g_\tau = 0$, (13) gives $h_\tau = h_{\tau-1}$, so $h_{K-1} = u_0 = F(h_{-1})$ and the looped model equals the original bit-for-bit. Training starts from a known-good point; passes $1 \dots K\!-\!1$ start doing nothing.</p>
+    <p>A token first runs the layers below the window, once:</p>
 
-    <h3>Consequence B &mdash; small gates force identical routing</h3>
+    <div class="eqn">$$h_{-1} \;=\; \big(T_{a-1} \circ \cdots \circ T_0\big)\big(\mathrm{Embed}(x)\big).$$</div>
 
-    <p>$W_r$ is shared across passes, so pass $\tau$ can route differently from pass $\tau-1$ only if the router's input moved enough to reorder its top $k$. From (13):</p>
+    <p>Then the window runs $K = 3$ times. Each pass $\tau$ produces a candidate state</p>
 
-    <div class="eq"><div class="b">$h_\tau - h_{\tau-1} \;=\; g_\tau \odot \big(u_\tau - h_{\tau-1}\big)$</div><div class="n">(16)</div></div>
-    <div class="eq"><div class="b">$\|g_\tau\| \to 0 \quad\Longrightarrow\quad h_\tau \to h_{\tau-1} \quad\Longrightarrow\quad \mathcal{S}^{\tau}_t = \mathcal{S}^{\tau-1}_t$</div><div class="n">(17)</div></div>
+    <div class="eqn">$$u_\tau \;=\; F\big(h_{\tau-1}\big), \qquad \tau = 0, 1, \dots, K-1,$$</div>
 
-    <p class="where">&sect;VI measures $\|g_\tau\|_{\text{rms}} \approx 0.02\text{--}0.06$ after a full epoch, and finds exactly this.</p>
+    <p>and the obvious question is how to combine the passes. Simply chaining them ($h_\tau = u_\tau$) makes the model three times deeper on day one, which is a large and untested change to a pretrained network. Instead each pass after the first gets a learned gate $g_\tau \in \mathbb{R}^d$ that decides, per channel, how much of the new candidate to accept:</p>
 
-    <h2>III. Pathloop</h2>
+    <div class="eqn">$$h_0 \;=\; u_0, \qquad h_\tau \;=\; h_{\tau-1} \;+\; g_\tau \odot \big(u_\tau - h_{\tau-1}\big) \quad (\tau \geq 1).$$</div>
 
-    <p>Training-time only: replace $\mathcal{S}_t$ in (2) with a partly sampled set, per pass. Inference is unchanged plain top-$k$.</p>
+    <p>Finally the layers above the window run once on the last state:</p>
 
-    <h3>Sampling part of the path</h3>
+    <div class="eqn">$$\text{logits} \;=\; W_U\, \mathrm{Norm}\Big(\big(T_{L-1} \circ \cdots \circ T_b\big)\big(h_{K-1}\big)\Big).$$</div>
 
-    <div class="eq"><div class="b">$k \;=\; p + q$</div><div class="n">(18)</div></div>
-    <div class="eq"><div class="b">$\mathcal{P}_t \;=\; \operatorname*{arg\,top-}_{p}\big\{\, s_{t,e} \;:\; e \in \mathcal{S}_t \,\big\}$</div><div class="n">(19)</div></div>
-    <div class="eq"><div class="b">$\beta : \{1,\dots,E\} \to \{0,\dots,K\!-\!1\}, \qquad \mathcal{T}^\tau_t \;=\; \big\{\, e \notin \mathcal{S}_t \;:\; \beta(e) = \tau \,\big\}$</div><div class="n">(20)</div></div>
-    <div class="eq"><div class="b">$\mathcal{Q}^\tau_t \;=\; \operatorname*{arg\,top-}_{q}\Big\{\, \log s_{t,e} - \log(-\log u_e) \;:\; e \in \mathcal{T}^\tau_t \,\Big\}, \qquad u_e \sim \mathcal{U}(0,1)$</div><div class="n">(21)</div></div>
-    <div class="eq"><div class="b">$\tilde{\mathcal{S}}^\tau_t \;=\; \mathcal{P}_t \cup \mathcal{Q}^\tau_t, \qquad \big|\tilde{\mathcal{S}}^\tau_t\big| = p + q = k$</div><div class="n">(22)</div></div>
-    <div class="eq"><div class="b">$\tilde{w}_{t,e} \;=\; \dfrac{s_{t,e}}{\sum_{e' \in \tilde{\mathcal{S}}^\tau_t} s_{t,e'}}$</div><div class="n">(23)</div></div>
+    <p>The token has now been through $a + KW + (L-b) = 12 + 72 + 12 = 96$ executed layers using 48 layers' worth of weights. The only new parameters anywhere are the $2d$ gate values.</p>
 
-    <p class="where"><b>(19)</b> keeps the $p$ best of the model's own choice. <b>(20)</b> $\beta$ is redrawn every step and gives each pass a disjoint candidate pool, so the $K$ passes explore different experts rather than colliding. <b>(21)</b> is Gumbel top-$q$: $q$ experts drawn without replacement with probability proportional to $s_t$. <b>(22)</b> cost is unchanged &mdash; still $k$ experts per token &mdash; but the $q$ sampled ones now receive gradient, which (6) otherwise forbids.</p>
+    <h3>Why do the gates start at zero?</h3>
 
-    <h3>Comparing the passes</h3>
+    <p>Set $g_\tau = 0$ and the update above gives $h_\tau = h_{\tau-1}$ for every $\tau \geq 1$, so $h_{K-1} = u_0 = F(h_{-1})$ and the looped model reproduces the base model bit for bit. Fine-tuning then starts from a known-good point and opens the loop only as far as the loss rewards. That is a real advantage: there is no initialisation shock, and no risk that a promising idea is buried under the damage of turning a 48-layer model into a 96-layer one overnight.</p>
 
-    <div class="eq"><div class="b">$R_\tau(t) \;=\; \log P\big(y_t \;\big|\; W_U\,\mathrm{Norm}(h_\tau)_t\big)$</div><div class="n">(24)</div></div>
-    <div class="eq"><div class="b">$A_\tau(t) \;=\; R_\tau(t) \;-\; \dfrac{1}{K-1}\sum_{\tau' \neq \tau} R_{\tau'}(t)$</div><div class="n">(25)</div></div>
+    <p>It also has a cost, and the cost turns out to dominate everything else in this post. Because $W_r$ is shared across passes, pass $\tau$ can route differently from pass $\tau-1$ only if the router's input moved enough to reorder its top eight. From the update rule, that movement is</p>
 
-    <p class="where"><b>(24)</b> reads each pass's state through the model's own output head and scores it on the true next token $y_t$. <b>(25)</b> compares a pass against its siblings, which saw the same token in the same context, so token difficulty cancels and no baseline model is needed. By construction $\sum_\tau A_\tau(t) = 0$.</p>
+    <div class="eqn">$$h_\tau - h_{\tau-1} \;=\; g_\tau \odot \big(u_\tau - h_{\tau-1}\big),$$</div>
 
-    <h3>Training terms</h3>
+    <p>which is proportional to the gate. So small gates give small movement, small movement gives the same routing:</p>
 
-    <div class="eq"><div class="b">$\mathcal{L}_{\text{path}} \;=\; -\sum_{\tau} \mathbb{E}_t\Big[\, A_\tau(t)\; \log \pi_\tau\big(\mathcal{Q}^\tau_t \mid h_{\tau-1}\big) \Big]$</div><div class="n">(26)</div></div>
-    <div class="eq"><div class="b">$\mathcal{L}_{\text{ladder}} \;=\; -\sum_{\tau} \frac{\lambda\,(\tau+1)}{K}\; \mathbb{E}_t\big[\, R_\tau(t) \,\big]$</div><div class="n">(27)</div></div>
+    <div class="eqn">$$\|g_\tau\| \to 0 \quad\Longrightarrow\quad h_\tau \to h_{\tau-1} \quad\Longrightarrow\quad \mathcal{S}^{\tau}_t = \mathcal{S}^{\tau-1}_t.$$</div>
 
-    <p class="where"><b>$\pi_\tau$</b> is the router's probability of having drawn that set, as an ordered draw without replacement. <b>(27)</b> uses the label rather than agreement between passes: the cheapest way to make passes agree is $g_\tau \to 0$, the degenerate solution the gates already sit next to. Both terms vanish wherever $q = 0$, so $q = 0$ is exactly plain looped SFT.</p>
+    <p>The safe initialisation and the goal are in tension: the gates start where the passes are guaranteed identical, and they have to travel a long way before the passes are meaningfully different. We measure how far they actually travel below &mdash; the answer is $\|g_\tau\|_{\text{rms}} \approx 0.02$ after a full epoch, and the passes are indeed near-copies.</p>
 
-    <p><strong>Tier 1</strong> samples and measures $R_\tau, A_\tau$ without training on them &mdash; it asks whether the comparison carries signal before anything is built on it. <strong>Tier 2</strong> adds (26) and (27). $q$ follows a schedule and returns to $0$ before training ends, so the final model is trained under the policy it is served with.</p>
+    <h2>Pathloop: forcing the passes apart</h2>
 
-    <h2>IV. Setup</h2>
+    <p>The probes below say this tension resolves the wrong way: <a href="#key">passes 1 and 2 are near-copies of each other</a>. Pathloop attacks that from the router's side rather than the gate's. If the passes will not become different on their own, make them different by construction: during training, let each pass sample part of its own path. Inference is untouched &mdash; the served model is plain top-$k$ routing.</p>
+
+    <h3>What if the router sampled part of the path?</h3>
+
+    <p>Split the budget $k = p + q$. The first $p$ experts are the model's own top choices, kept as-is:</p>
+
+    <div class="eqn">$$\mathcal{P}_t \;=\; \operatorname*{arg\,top-}_{p}\big\{\, s_{t,e} \;:\; e \in \mathcal{S}_t \,\big\}.$$</div>
+
+    <p>The remaining $q$ slots are for exploration. If every pass sampled from the same pool of non-selected experts they would frequently draw the same ones, which is exactly the collision we are trying to avoid. So we first partition the experts by a random assignment $\beta$, redrawn every step, which hands each pass a disjoint candidate pool:</p>
+
+    <div class="eqn">$$\beta : \{1,\dots,E\} \to \{0,\dots,K\!-\!1\}, \qquad \mathcal{T}^\tau_t \;=\; \big\{\, e \notin \mathcal{S}_t \;:\; \beta(e) = \tau \,\big\}.$$</div>
+
+    <p>Within its own pool, pass $\tau$ draws $q$ experts without replacement, with probability proportional to the router's own scores. The standard trick for this is Gumbel top-$q$:</p>
+
+    <div class="eqn">$$\mathcal{Q}^\tau_t \;=\; \operatorname*{arg\,top-}_{q}\Big\{\, \log s_{t,e} - \log(-\log u_e) \;:\; e \in \mathcal{T}^\tau_t \,\Big\}, \qquad u_e \sim \mathcal{U}(0,1).$$</div>
+
+    <p>The path this pass actually takes is the union, renormalised over its own members:</p>
+
+    <div class="eqn">$$\tilde{\mathcal{S}}^\tau_t \;=\; \mathcal{P}_t \cup \mathcal{Q}^\tau_t, \qquad \big|\tilde{\mathcal{S}}^\tau_t\big| = p + q = k.$$</div>
+
+    <p>Two things are worth noticing. The cost is unchanged &mdash; still exactly $k$ experts evaluated per token, so this is not a compute-for-quality trade. And the $q$ sampled experts now sit in the computation graph, so they receive gradient, which the zero-gradient property above otherwise forbids. With $q = 0$ the whole construction collapses back to ordinary top-$k$, which is what makes it safe to schedule.</p>
+
+    <h3>Which pass was better?</h3>
+
+    <p>Sampling only helps if we can tell a good draw from a bad one. Because every pass produces a full-width hidden state, we can read each one through the model's own output head and score it on the true next token:</p>
+
+    <div class="eqn">$$R_\tau(t) \;=\; \log P\big(y_t \;\big|\; W_U\,\mathrm{Norm}(h_\tau)_t\big).$$</div>
+
+    <p>This is a logit lens: a cheap, honest measure of how much of the answer pass $\tau$ has already assembled. It is not calibrated in absolute terms &mdash; mid-depth states read poorly through a head trained on final-depth states &mdash; but we only ever use differences.</p>
+
+    <p>Which is the second point. The $K$ passes saw the same token in the same context, so comparing a pass against its own siblings cancels token difficulty exactly, with no baseline model and no value network:</p>
+
+    <div class="eqn">$$A_\tau(t) \;=\; R_\tau(t) \;-\; \frac{1}{K-1}\sum_{\tau' \neq \tau} R_{\tau'}(t), \qquad \sum_\tau A_\tau(t) = 0.$$</div>
+
+    <h3>The two training terms</h3>
+
+    <p>Given an advantage per pass, the sampled experts are reinforced by an ordinary policy gradient, where $\pi_\tau$ is the router's probability of having drawn that particular set as an ordered draw without replacement:</p>
+
+    <div class="eqn">$$\mathcal{L}_{\text{path}} \;=\; -\sum_{\tau} \mathbb{E}_t\Big[\, A_\tau(t)\; \log \pi_\tau\big(\mathcal{Q}^\tau_t \mid h_{\tau-1}\big) \Big].$$</div>
+
+    <p>A second term pushes the passes to improve monotonically, weighting later passes more:</p>
+
+    <div class="eqn">$$\mathcal{L}_{\text{ladder}} \;=\; -\sum_{\tau} \frac{\lambda\,(\tau+1)}{K}\; \mathbb{E}_t\big[\, R_\tau(t) \,\big].$$</div>
+
+    <p>Why score each pass against the label rather than, say, rewarding the passes for agreeing with each other? Because the cheapest way to make passes agree is to send $g_\tau \to 0$ &mdash; the degenerate solution the gates are already sitting next to. Scoring against the label makes the shortcut worthless.</p>
+
+    <p>Both terms are multiplied by the exploration schedule and vanish wherever $q = 0$, so <strong>$q = 0$ is exactly plain looped SFT</strong>, bit for bit. We run this in two stages. <strong>Tier 1</strong> samples and logs $R_\tau$ and $A_\tau$ without training on them: it asks whether the comparison carries any signal at all before anything is built on top of it. <strong>Tier 2</strong> switches on the two losses. In both, $q$ follows a schedule that returns to $0$ before training ends, so the final model is trained under the same policy it is served with.</p>
+
+    <h2>The setup</h2>
 
     <p>Base model is <strong>Qwen3-30B-A3B-Base</strong> &mdash; 30B parameters with 3B active per token, 48 layers, 128 experts per layer, top-8 routing. The loop covers layers 12&ndash;35, repeated three times.</p>
 
@@ -323,9 +344,9 @@
       <li><strong>Out-of-domain (9)</strong> &mdash; GSM8K, MATH500, MATH500-flex, AMC23, AIME24, AIME25, MMLU-Pro, GPQA-Diamond, IFEval. Math, knowledge and instruction-following, none of which appear in the training data.</li>
     </ul>
 
-    <h2>V. Baseline results</h2>
+    <h2>Does looping help?</h2>
 
-    <p>Three fine-tuned arms against the untouched base model. "Looped" is the method of Section II; the two looped arms differ only in how fast the gates are allowed to learn (100&times; the base rate in the second).</p>
+    <p>Three fine-tuned arms against the untouched base model. "Looped" is the gated loop described above; the two looped arms differ only in how fast the gates are allowed to learn (100&times; the base rate in the second).</p>
 
     <div class="table-wrap">
       <table>
@@ -410,11 +431,11 @@
       <figcaption><strong>Figure 1:</strong> Out-of-domain average across the nine benchmarks we never train on. All arms peak at the earliest checkpoint we saved and decline from there. Plain fine-tuning (red) returns essentially to the base model by step 415 &mdash; it forgets everything it gained. The looped arms hold roughly three points above it. Note that every arm is best at step 149, so the true optimum is earlier than anything we measured.</figcaption>
     </figure>
 
-    <h2>VI. What the probes say</h2>
+    <h2 id="probes">What the probes say</h2>
 
     <p>We log internal statistics every 25 steps. Two of them reframed the project.</p>
 
-    <h3>The gates open slowly, and they matter</h3>
+    <h3>How far do the gates actually open?</h3>
 
     <figure class="fig">
       <svg viewBox="0 0 600 290" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif">
@@ -448,7 +469,7 @@
       <figcaption><strong>Figure 2:</strong> How far the loop gates open during training, with pathloop's exploration window shaded. The gates start at exactly zero, so the extra passes begin as no-ops. Raising the gate learning rate 100&times; makes them open roughly 2.7&times; wider (0.059 vs 0.021) and much sooner. The shaded region is where our first pathloop run explores: exploration before the gates open would perturb passes that are still doing nothing.</figcaption>
     </figure>
 
-    <h3>The router barely moves during fine-tuning</h3>
+    <h3>Does the router move at all during fine-tuning?</h3>
 
     <p>This is the assumption pathloop is built on, and the probes confirm it. Over a full epoch, the routing distribution is almost unchanged:</p>
 
@@ -463,7 +484,7 @@
 
     <p>A full epoch of fine-tuning moves the router by a couple of percent. Routing established in pretraining survives fine-tuning essentially intact &mdash; which is exactly why an intervention that forces the router to try alternatives might be worth something.</p>
 
-    <h3 id="key">The three loop passes are not three different paths</h3>
+    <h3 id="key">Do the three passes take three different paths?</h3>
 
     <p>This is the measurement that matters most, and the one that reframed the project. The probes are keyed by <em>executed</em> position, not by parameter layer, so all 96 executed layers are recorded separately. Parameter layer $L$ appears at executed positions $L$, $L+24$ and $L+48$ &mdash; once per loop pass. Comparing those three tells us directly what each pass does with the same weights.</p>
 
@@ -506,7 +527,7 @@
     </figure>
 
     <div class="insight-box">
-      <h3>Why this happens, and why it matters</h3>
+      <h3>Why does this happen, and why does it matter?</h3>
       <p>Pass 0 is ungated and always applied in full, so it does real work. Passes 1 and 2 are multiplied by a gate that reaches only about 0.02&ndash;0.06, so they nudge the state rather than transform it. A nudged state produces nearly the same router scores, so it selects nearly the same experts &mdash; and the two nudges land in nearly the same place as each other.</p>
       <p>This is a problem for pathloop specifically. Its whole mechanism is to compare passes against each other and reward the better one. If the passes are copies, every comparison is between identical things, the advantage $A_\tau$ is zero, and there is nothing to learn from. We confirmed this directly: in short test runs the spread of reward across passes sat at roughly $10^{-7}$, i.e. exactly zero.</p>
       <p>It is also a caveat on the claim of "96 effective layers". By this measurement the model behaves closer to 48 real layers plus two cheap refinement passes.</p>
@@ -514,7 +535,7 @@
 
     <p>One honest limit on the table above: these are distributional statistics &mdash; entropy, top-1 probability, load spread. Two genuinely different sets of 8 experts could in principle produce the same entropy. The statistics being identical to four decimals is strong evidence the passes route the same way, but it is not proof. We have since added a metric that compares the selected expert sets directly, token by token, and reports what fraction of each token's 8 experts carries over from one pass to the next. The current run is the first to record it.</p>
 
-    <h2>VII. Where pathloop stands</h2>
+    <h2>Where this stands</h2>
 
     <div class="status">
       <strong>In progress.</strong> Pathloop is implemented and unit-tested, and the first tier-1 run on Ling-Coder is training now. No pathloop results yet.

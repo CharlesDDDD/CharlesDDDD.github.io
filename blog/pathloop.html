@@ -134,6 +134,13 @@
     .tag-in { background: #e4f0e4; color: #2c6e2c; }
     .tag-ood { background: #f2ecdc; color: #8a6d1f; }
     .best { font-weight: 600; color: #1b3a6f; }
+    tr.band td { background: #ebeaf7; font-weight: 600; color: #2c2a5a; padding: 6px 10px; }
+    tr.band:hover td { background: #ebeaf7; }
+    tr.sub td { background: #f0f0f0; color: #444; font-size: 12px; padding: 5px 10px; }
+    tr.sub:hover td { background: #f0f0f0; }
+    td.u, span.u { text-decoration: underline; text-underline-offset: 2px; }
+    .dg, .dr { font-size: 10px; margin-left: 3px; }
+    .dg { color: #1b7a4b; } .dr { color: #c0392b; }
 
     .eqn { margin: 18px 0; text-align: center; overflow-x: auto; overflow-y: hidden; padding: 2px 0; }
     .eqn .katex { font-size: 1.02em; }
@@ -382,6 +389,42 @@
       <p><strong>Out-of-domain is where the arms separate</strong>, but by less than a final-checkpoint comparison suggests. At its best checkpoint plain fine-tuning reaches 42.7 &mdash; a real gain of five points over the base model. Standard-gate looping reaches 43.2, barely ahead. Only the fast-gate arm opens a clear margin, at 45.3.</p>
       <p>This matters because comparing final checkpoints tells a much flattering story: there, plain fine-tuning scores 37.5 against 40.3 and 40.9 for the looped arms. That gap is almost entirely plain fine-tuning having fallen back to the base model by step 415, not the looped arms having learned more.</p>
     </div>
+
+    <h3>How do the coding numbers compare to published models?</h3>
+
+    <p>For context, here are our five coding benchmarks against open-source coding models, diffusion language models, and Ouro &mdash; the one other looped latent-reasoning model with published code numbers. Our rows are the same best-of-checkpoint values as the table above.</p>
+
+    <div class="table-wrap">
+      <table>
+        <tr>
+          <th>Model / Method</th><th>Base model</th>
+          <th class="num">MBPP</th><th class="num">MBPP+</th><th class="num">HumanEval</th>
+          <th class="num">HumanEval+</th><th class="num">LCB v6</th><th class="num">Avg.</th>
+        </tr>
+        <tr class="band"><td colspan="8">Published models <span style="font-weight:400">(numbers as reported by their authors)</span></td></tr>
+        <tr class="sub"><td colspan="8">Autoregressive coding models</td></tr>
+        <tr><td>Qwen2.5-Coder</td><td>Qwen2.5-7B</td><td class="num">75.9</td><td class="num">62.9</td><td class="num">66.5</td><td class="num">60.4</td><td class="num">26.8</td><td class="num">59.9</td></tr>
+        <tr><td>OpenCoder</td><td>from scratch (8B)</td><td class="num">79.9</td><td class="num u">70.4</td><td class="num">66.5</td><td class="num">63.4</td><td class="num">29.6</td><td class="num">62.0</td></tr>
+        <tr><td>OlympicCoder</td><td>Qwen2.5-7B</td><td class="num">80.0</td><td class="num">66.4</td><td class="num u">82.1</td><td class="num u">76.9</td><td class="num">37.3</td><td class="num u">68.5</td></tr>
+        <tr><td>Seed-Coder</td><td>from scratch</td><td class="num u">82.0</td><td class="num">69.0</td><td class="num">77.4</td><td class="num">68.3</td><td class="num">28.4</td><td class="num">65.0</td></tr>
+        <tr class="sub"><td colspan="8">Diffusion language models</td></tr>
+        <tr><td>Dream</td><td>Qwen2.5-7B</td><td class="num">68.7</td><td class="num">57.4</td><td class="num">56.7</td><td class="num">50.0</td><td class="num">18.6</td><td class="num">&ndash;</td></tr>
+        <tr><td>LLaDA</td><td>from scratch (8B)</td><td class="num">50.1</td><td class="num">42.1</td><td class="num">35.4</td><td class="num">30.5</td><td class="num">12.4</td><td class="num">&ndash;</td></tr>
+        <tr><td>DiffuCoder</td><td>Qwen2.5-Coder-7B</td><td class="num">75.1</td><td class="num">61.9</td><td class="num">72.0</td><td class="num">65.2</td><td class="num">24.5</td><td class="num">59.7</td></tr>
+        <tr><td>Dream-Coder</td><td>Qwen2.5-Coder-7B</td><td class="num">75.9</td><td class="num">61.6</td><td class="num">66.5</td><td class="num">60.4</td><td class="num">21.4</td><td class="num">57.2</td></tr>
+        <tr><td>d1</td><td>LLaDA + RL</td><td class="num">39.0</td><td class="num">&ndash;</td><td class="num">45.5</td><td class="num">&ndash;</td><td class="num">&ndash;</td><td class="num">&ndash;</td></tr>
+        <tr class="sub"><td colspan="8">Looped latent-reasoning models</td></tr>
+        <tr><td>Ouro</td><td>from scratch (2.6B)</td><td class="num">80.4</td><td class="num">66.6</td><td class="num">78.2</td><td class="num">70.7</td><td class="num u">38.7</td><td class="num">66.9</td></tr>
+        <tr class="band"><td colspan="8">This work <span style="font-weight:400">(our eval harness, greedy decoding, best of checkpoints 149 / 299 / 415)</span></td></tr>
+        <tr><td>Base model</td><td>Qwen3-30B-A3B-Base</td><td class="num">68.5</td><td class="num">76.0</td><td class="num">72.0</td><td class="num">66.5</td><td class="num">14.9</td><td class="num">59.6</td></tr>
+        <tr><td>Plain SFT</td><td>Qwen3-30B-A3B-Base</td><td class="num">74.5<span class="dg">+6.0</span></td><td class="num best">74.4<span class="dr">&minus;1.6</span></td><td class="num">90.2<span class="dg">+18.2</span></td><td class="num">84.1<span class="dg">+17.6</span></td><td class="num">31.4<span class="dg">+16.5</span></td><td class="num">70.9<span class="dg">+11.4</span></td></tr>
+        <tr><td>Looped SFT</td><td>Qwen3-30B-A3B-Base</td><td class="num">73.0<span class="dg">+4.5</span></td><td class="num">73.6<span class="dr">&minus;2.4</span></td><td class="num">90.2<span class="dg">+18.2</span></td><td class="num">86.0<span class="dg">+19.5</span></td><td class="num best">32.6<span class="dg">+17.7</span></td><td class="num">71.1<span class="dg">+11.5</span></td></tr>
+        <tr><td>Looped SFT (fast gates)</td><td>Qwen3-30B-A3B-Base</td><td class="num best">75.5<span class="dg">+7.0</span></td><td class="num">74.0<span class="dr">&minus;2.0</span></td><td class="num best">91.5<span class="dg">+19.5</span></td><td class="num best">87.2<span class="dg">+20.7</span></td><td class="num">29.7<span class="dg">+14.8</span></td><td class="num best">71.6<span class="dg">+12.0</span></td></tr>
+      </table>
+    </div>
+
+    <p style="font-size:12.5px;color:#555;margin-top:-6px">Subscripts are the change from our base model. <span class="u">Underlined</span> is the best published number in that column; <span class="best">bold</span> is the best of our three fine-tuned arms. The two blocks are <strong>not</strong> a head-to-head: the published numbers come from each paper's own harness and ours from a shared few-shot greedy setup, and the gap is large enough to see &mdash; a Qwen3-8B base is reported at 78.2 on HumanEval where our larger Qwen3-30B-A3B base measures 72.0. Read the top block as a scale for what these benchmarks look like, and the bottom block as the comparison that is actually controlled.</p>
+
 
     <h3>It is retention, not a higher peak</h3>
 

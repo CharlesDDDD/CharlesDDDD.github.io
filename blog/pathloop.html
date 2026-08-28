@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pathloop: Making a Looped MoE Take Different Paths — Chunyuan Deng</title>
+  <meta name="author" content="Chunyuan Deng">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #ffffff;
+      --text: #1c1c1e;
+      --text-secondary: #555;
+      --text-light: #888;
+      --accent: #2b5ecc;
+      --accent-light: #eef2fb;
+      --border: #e2e2e2;
+      --surface: #f6f7f9;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .container { max-width: 860px; margin: 0 auto; padding: 0 28px; }
+
+    header { border-bottom: 1px solid var(--border); padding: 16px 0; }
+    header a { font-size: 12px; color: var(--text-secondary); text-decoration: none; }
+    header a:hover { color: var(--accent); }
+
+    .hero { padding: 52px 0 36px; }
+    .hero h1 {
+      font-family: 'Source Serif 4', Georgia, serif;
+      font-size: 2.2rem;
+      font-weight: 600;
+      letter-spacing: -0.025em;
+      line-height: 1.2;
+      color: var(--text);
+      margin-bottom: 14px;
+    }
+    .hero .subtitle { font-size: 15px; color: var(--text-secondary); font-style: italic; margin-bottom: 8px; }
+    .hero .meta { font-size: 12px; color: var(--text-light); }
+
+    .divider { border: none; border-top: 1px solid var(--border); }
+
+    .prose { padding: 36px 0; font-size: 14px; line-height: 1.8; color: var(--text); }
+    .prose p { margin-bottom: 1.1em; }
+    .prose p:last-child { margin-bottom: 0; }
+    .prose strong { font-weight: 600; }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    h2 {
+      font-family: 'Source Serif 4', Georgia, serif;
+      font-size: 1.35rem;
+      font-weight: 600;
+      color: var(--text);
+      margin: 36px 0 14px;
+      letter-spacing: -0.01em;
+    }
+    h3 {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text);
+      margin: 24px 0 10px;
+    }
+
+    .tldr {
+      background: var(--accent-light);
+      border-left: 3px solid var(--accent);
+      padding: 14px 18px;
+      margin: 24px 0;
+      border-radius: 0 4px 4px 0;
+      font-size: 13.5px;
+      line-height: 1.6;
+      color: var(--text-secondary);
+    }
+    .tldr strong { color: var(--text); font-size: 14px; }
+
+    figure.fig { margin: 28px 0; text-align: center; }
+    figure.fig svg { max-width: 100%; height: auto; border: 1px solid var(--border); border-radius: 6px; background: #fff; }
+    figcaption {
+      margin-top: 10px;
+      font-size: 12.5px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      text-align: left;
+    }
+    figcaption strong { color: var(--text); }
+
+    .table-wrap {
+      margin: 20px 0;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow-x: auto;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th {
+      background: #1b3a6f;
+      color: #fff;
+      padding: 7px 10px;
+      text-align: left;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    td {
+      padding: 7px 10px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--surface); }
+    td.num, th.num { text-align: right; }
+    tr.sep td { border-top: 2px solid #c9d3e6; font-weight: 600; }
+    .tag { font-size: 10.5px; padding: 1px 6px; border-radius: 3px; font-weight: 600; }
+    .tag-in { background: #e4f0e4; color: #2c6e2c; }
+    .tag-ood { background: #f2ecdc; color: #8a6d1f; }
+    .best { font-weight: 600; color: #1b3a6f; }
+
+    .insight-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 16px 20px;
+      margin: 20px 0;
+      font-size: 13.5px;
+    }
+    .insight-box h3 { margin-top: 0; margin-bottom: 10px; color: var(--text); }
+    .insight-box p { margin-bottom: 10px; color: var(--text-secondary); }
+    .insight-box p:last-child { margin-bottom: 0; }
+
+    .status {
+      border-left: 3px solid #c8a33a;
+      background: #fdf9ee;
+      padding: 12px 16px;
+      margin: 18px 0;
+      font-size: 13px;
+      color: var(--text-secondary);
+      border-radius: 0 4px 4px 0;
+    }
+    .status strong { color: var(--text); }
+
+    ul, ol { margin: 10px 0 12px 24px; }
+    li { margin-bottom: 5px; font-size: 14px; color: var(--text-secondary); }
+    li strong { color: var(--text); }
+
+    code {
+      font-family: 'Courier New', monospace;
+      background: var(--surface);
+      padding: 2px 5px;
+      border-radius: 3px;
+      font-size: 12.5px;
+      border: 1px solid var(--border);
+    }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 24px 0;
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-light);
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+
+    @media (max-width: 600px) {
+      .hero h1 { font-size: 1.7rem; }
+      th, td { padding: 6px 8px; font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <a href="../index.html">&larr; Back to Home</a>
+  </div>
+</header>
+
+<div class="container">
+  <div class="hero">
+    <h1>Pathloop: Making a Looped MoE Take Different Paths</h1>
+    <p class="subtitle">A looped mixture-of-experts runs the same layers three times. Does it do anything different on each pass?</p>
+    <p class="meta">Chunyuan Deng &middot; August 2026 &middot; project log</p>
+  </div>
+
+  <hr class="divider">
+
+  <div class="prose">
+
+    <div class="tldr">
+      <strong>TL;DR</strong><br><br>
+      We fine-tune a 30B mixture-of-experts model with its middle layers looped three times, which turns 48 layers into 96 executed ones. Looping helps, but not where you would guess: on the coding data we train on it adds nothing, while on the nine benchmarks we never train on it prevents the forgetting that plain fine-tuning suffers. Reading the probes then showed why the loop is weaker than it should be &mdash; <strong>the second and third passes are near-copies of each other</strong>. They route to nearly the same experts and barely change the representation. The loop is not building three different paths through the model; it is building one path and two near-repeats. <strong>Pathloop</strong> is our attempt to force the passes apart by making the router sample a little during training, and then letting the three passes compete. It is implemented and a first run is in progress.
+    </div>
+
+    <h2>I. The problem, in plain terms</h2>
+
+    <p>A mixture-of-experts layer does not use all of its experts. For each token it scores all 128 experts and keeps the best 8. Everything else is switched off. That choice is a hard, discrete decision, and it is the thing we want to study: <strong>which experts a token actually passes through is the token's "path" through the model.</strong></p>
+
+    <p>Two facts about that path motivate this project.</p>
+
+    <p><strong>First, fine-tuning barely changes it.</strong> The experts that were not selected receive no gradient at all &mdash; they are switched off, so nothing flows back to them. Only the router's scores move, and slowly. A fine-tuning run is far too short to re-arrange routing that was set during pretraining.</p>
+
+    <p><strong>Second, looping ought to create several paths but does not.</strong> If we run the same block of layers three times, each pass could in principle select different experts and do different work. Our measurements say it mostly does not. That is the finding this log is built around.</p>
+
+    <h2>II. Method 1: looped fine-tuning</h2>
+
+    <p>We take the middle 24 layers of a 48-layer model and run them three times instead of once. The model executes 96 layers using the weights of 48. Each repeat is blended into the previous state with a learned gate:</p>
+
+    <p style="text-align:center">$h_\tau = h_{\tau-1} + g_\tau \odot \big(F(h_{\tau-1}) - h_{\tau-1}\big)$</p>
+
+    <ul>
+      <li>$h_\tau$ &mdash; the hidden state after loop pass $\tau$, for $\tau = 0, 1, 2$.</li>
+      <li>$F$ &mdash; the looped block of 24 layers. The <em>same weights</em> every pass.</li>
+      <li>$g_\tau$ &mdash; a learned gate, one number per feature, controlling how much of the new pass is kept. Pass 0 is ungated and always applied in full.</li>
+      <li>$\odot$ &mdash; elementwise multiply.</li>
+    </ul>
+
+    <p>The gates start at exactly zero. That is deliberate: at zero, $h_\tau = h_{\tau-1}$, the loop does nothing, and the looped model is bit-for-bit the original model. Training starts from a known-good point and the gates open only if opening them helps. The cost is that <strong>early in training the extra passes are no-ops by construction</strong>, which turns out to matter a great deal later in this log.</p>
+
+    <h2>III. Method 2: pathloop</h2>
+
+    <p>Pathloop adds one idea: during training only, let the router explore, and let the loop's repeated passes act as competing candidates that can be compared against each other.</p>
+
+    <h3>Sampling instead of always taking the top 8</h3>
+
+    <p>Normally the router keeps the 8 highest-scoring experts. Pathloop keeps the top $p$ and draws the remaining $q$ at random from the experts that did <em>not</em> make the cut, with $p + q = 8$:</p>
+
+    <p style="text-align:center">$\text{experts} = \underbrace{\text{top-}p(s)}_{\text{kept, deterministic}} \;\cup\; \underbrace{\text{sample-}q(s \mid \text{outside top-}8)}_{\text{explored}}$</p>
+
+    <ul>
+      <li>$s$ &mdash; the router's scores over the 128 experts.</li>
+      <li>$p$ &mdash; how many of the model's own choices we keep. With $q=2$, we keep 6.</li>
+      <li>$q$ &mdash; how many slots we hand to experts the model would not have picked.</li>
+    </ul>
+
+    <p>The token still passes through exactly 8 experts, so <strong>the compute cost is unchanged</strong>. Sampling happens during training only; at inference the router goes back to plain top-8. Experts outside the top-8 finally receive gradient, which is the whole point.</p>
+
+    <p>The $q$ sampled experts are drawn from a different slice of the expert pool on each loop pass, so the three passes explore different candidates rather than stumbling onto the same ones.</p>
+
+    <h3>Comparing the three passes</h3>
+
+    <p>The loop gives us three versions of the same token's state for free. We score each one by how well it predicts the next token:</p>
+
+    <p style="text-align:center">$R_\tau = -\text{NLL}\big(\text{head}(h_\tau),\, y\big) \qquad\qquad A_\tau = R_\tau - \frac{1}{K-1}\sum_{\tau' \neq \tau} R_{\tau'}$</p>
+
+    <ul>
+      <li>$R_\tau$ &mdash; the reward for pass $\tau$: higher means that pass predicted the next token better. We read $h_\tau$ through the model's own output head.</li>
+      <li>$y$ &mdash; the true next token.</li>
+      <li>$A_\tau$ &mdash; the advantage: how much better pass $\tau$ did than the <em>average of the other passes</em>. Comparing against the others rather than against a fixed number means we need no separate baseline model, and the comparison is between paths that saw the same token in the same context.</li>
+    </ul>
+
+    <p>Then we push the router toward the choices that scored above average:</p>
+
+    <p style="text-align:center">$\mathcal{L}_{\text{path}} = -\sum_\tau A_\tau \, \log \pi\big(\text{sampled experts} \mid h_\tau\big)$</p>
+
+    <p>$\pi$ is the router's own probability of having drawn those experts. If a pass did better than its siblings, its expert choice is made more likely; if worse, less likely.</p>
+
+    <h3>Two tiers</h3>
+
+    <ul>
+      <li><strong>Tier 1</strong> &mdash; sample and <em>measure</em> only. Record $R_\tau$ and how much the passes differ, but do not train on it. This tells us whether the comparison carries any signal before we build on it.</li>
+      <li><strong>Tier 2</strong> &mdash; also train: the policy-gradient term above, plus a "ladder" term asking every pass to predict the next token, weighted more heavily for later passes.</li>
+    </ul>
+
+    <p>Exploration is scheduled rather than constant, and ends at zero so the final model is trained under exactly the policy it is served with.</p>
+
+    <h2>IV. Setup</h2>
+
+    <p>Base model is a 30B-parameter mixture-of-experts with 3B active per token: 48 layers, 128 experts per layer, top-8 routing. The loop covers layers 12&ndash;35, repeated three times.</p>
+
+    <p>We fine-tune on <strong>Ling-Coder</strong>, a 400k-example coding instruction set, for one epoch (415 steps). A math dataset (OT3) is the alternative we have also used; everything reported here is Ling-Coder.</p>
+
+    <p>We evaluate on 14 benchmarks with greedy decoding. Because we fine-tune on coding data, the benchmarks split into two groups, and keeping them apart turns out to matter more than any single number:</p>
+
+    <ul>
+      <li><strong>In-domain (5)</strong> &mdash; HumanEval, HumanEval+, MBPP, MBPP+, LiveCodeBench. Coding, the same skill we train.</li>
+      <li><strong>Out-of-domain (9)</strong> &mdash; GSM8K, MATH500, MATH500-flex, AMC23, AIME24, AIME25, MMLU-Pro, GPQA-Diamond, IFEval. Math, knowledge and instruction-following, none of which appear in the training data.</li>
+    </ul>
+
+    <h2>V. Baseline results</h2>
+
+    <p>Three fine-tuned arms against the untouched base model. "Looped" is the method of Section II; the two looped arms differ only in how fast the gates are allowed to learn (100&times; the base rate in the second).</p>
+
+    <div class="table-wrap">
+      <table>
+        <tr>
+          <th>Benchmark</th><th></th>
+          <th class="num">Base</th><th class="num">Plain SFT</th><th class="num">Looped</th><th class="num">Looped (fast gates)</th>
+        </tr>
+        <tr><td>HumanEval</td><td><span class="tag tag-in">in</span></td><td class="num">72.0</td><td class="num">88.4</td><td class="num best">90.2</td><td class="num">89.0</td></tr>
+        <tr><td>HumanEval+</td><td><span class="tag tag-in">in</span></td><td class="num">66.5</td><td class="num">82.9</td><td class="num best">85.4</td><td class="num">84.1</td></tr>
+        <tr><td>MBPP</td><td><span class="tag tag-in">in</span></td><td class="num">68.5</td><td class="num">73.5</td><td class="num">73.0</td><td class="num best">75.0</td></tr>
+        <tr><td>MBPP+</td><td><span class="tag tag-in">in</span></td><td class="num best">76.0</td><td class="num">74.4</td><td class="num">72.8</td><td class="num">73.2</td></tr>
+        <tr><td>LiveCodeBench</td><td><span class="tag tag-in">in</span></td><td class="num">14.9</td><td class="num">30.9</td><td class="num best">31.4</td><td class="num">28.6</td></tr>
+        <tr><td>GSM8K</td><td><span class="tag tag-ood">ood</span></td><td class="num">52.8</td><td class="num">52.0</td><td class="num best">69.2</td><td class="num">65.2</td></tr>
+        <tr><td>MATH500</td><td><span class="tag tag-ood">ood</span></td><td class="num best">60.8</td><td class="num">48.0</td><td class="num">50.0</td><td class="num">50.0</td></tr>
+        <tr><td>MATH500-flex</td><td><span class="tag tag-ood">ood</span></td><td class="num best">60.8</td><td class="num">50.4</td><td class="num">53.6</td><td class="num">52.0</td></tr>
+        <tr><td>AMC23</td><td><span class="tag tag-ood">ood</span></td><td class="num">27.9</td><td class="num">30.0</td><td class="num">26.7</td><td class="num best">39.6</td></tr>
+        <tr><td>AIME24</td><td><span class="tag tag-ood">ood</span></td><td class="num">4.4</td><td class="num best">10.0</td><td class="num">6.1</td><td class="num best">10.0</td></tr>
+        <tr><td>AIME25</td><td><span class="tag tag-ood">ood</span></td><td class="num">2.8</td><td class="num">5.0</td><td class="num best">7.2</td><td class="num">6.1</td></tr>
+        <tr><td>MMLU-Pro</td><td><span class="tag tag-ood">ood</span></td><td class="num">52.4</td><td class="num">49.6</td><td class="num best">52.8</td><td class="num">49.2</td></tr>
+        <tr><td>GPQA-Diamond</td><td><span class="tag tag-ood">ood</span></td><td class="num">38.9</td><td class="num">40.4</td><td class="num best">43.4</td><td class="num">42.4</td></tr>
+        <tr><td>IFEval</td><td><span class="tag tag-ood">ood</span></td><td class="num">35.2</td><td class="num">52.0</td><td class="num">53.6</td><td class="num best">54.0</td></tr>
+        <tr class="sep"><td>Mean, all 14</td><td></td><td class="num">45.27</td><td class="num">49.11</td><td class="num">51.11</td><td class="num best">51.32</td></tr>
+        <tr><td>Mean, in-domain</td><td><span class="tag tag-in">in</span></td><td class="num">59.55</td><td class="num">70.02</td><td class="num best">70.57</td><td class="num">69.99</td></tr>
+        <tr><td>Mean, out-of-domain</td><td><span class="tag tag-ood">ood</span></td><td class="num">37.34</td><td class="num">37.49</td><td class="num">40.29</td><td class="num best">40.95</td></tr>
+      </table>
+    </div>
+
+    <div class="insight-box">
+      <h3>Splitting the benchmarks changes the conclusion</h3>
+      <p>On the overall mean, looping looks like a modest <strong>+2.0</strong> over plain fine-tuning. Split by domain, that average is hiding two different stories.</p>
+      <p><strong>In-domain, looping does nothing.</strong> Fine-tuning lifts coding from 59.6 to 70.0, and all three fine-tuned arms land within half a point of each other. Whatever the loop is contributing, it is not coding ability.</p>
+      <p><strong>Out-of-domain, plain fine-tuning gains nothing at all</strong> &mdash; 37.34 to 37.49 &mdash; while the looped arms gain about three points. The entire measured benefit of looping sits on tasks we never trained on.</p>
+    </div>
+
+    <h3>It is retention, not learning</h3>
+
+    <p>Evaluating at three checkpoints shows what is actually happening. Out-of-domain, every arm <em>starts</em> around 41&ndash;44 at step 149 and then declines as training continues. Plain fine-tuning declines all the way back to the base model. The looped arms decline more slowly and stop above it.</p>
+
+    <figure class="fig">
+      <svg viewBox="0 0 600 290" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif">
+        <line x1="60" y1="40" x2="60" y2="240" stroke="#999" stroke-width="1"/>
+        <line x1="60" y1="240" x2="560" y2="240" stroke="#999" stroke-width="1"/>
+        <text x="60" y="262" font-size="11" fill="#555" text-anchor="middle">149</text>
+        <text x="310" y="262" font-size="11" fill="#555" text-anchor="middle">299</text>
+        <text x="540" y="262" font-size="11" fill="#555" text-anchor="middle">415</text>
+        <text x="310" y="281" font-size="11.5" fill="#333" text-anchor="middle">training step (checkpoint)</text>
+        <text x="52" y="44" font-size="10.5" fill="#555" text-anchor="end">45</text>
+        <text x="52" y="155" font-size="10.5" fill="#555" text-anchor="end">40</text>
+        <text x="52" y="244" font-size="10.5" fill="#555" text-anchor="end">36</text>
+        <text x="18" y="150" font-size="11.5" fill="#333" text-anchor="middle" transform="rotate(-90 18 150)">OOD mean (9 benchmarks)</text>
+
+        <line x1="60" y1="210.2" x2="560" y2="210.2" stroke="#999" stroke-dasharray="5,4" stroke-width="1.4"/>
+        <text x="556" y="205" font-size="10.5" fill="#777" text-anchor="end">base model 37.34</text>
+
+        <polyline points="60,123.6 310,172.4 540,206.9" fill="none" stroke="#c0392b" stroke-width="2.2"/>
+        <circle cx="60" cy="123.6" r="3.6" fill="#c0392b"/><circle cx="310" cy="172.4" r="3.6" fill="#c0392b"/><circle cx="540" cy="206.9" r="3.6" fill="#c0392b"/>
+        <polyline points="60,120.2 310,145.1 540,144.7" fill="none" stroke="#2b5ecc" stroke-width="2.2"/>
+        <circle cx="60" cy="120.2" r="3.6" fill="#2b5ecc"/><circle cx="310" cy="145.1" r="3.6" fill="#2b5ecc"/><circle cx="540" cy="144.7" r="3.6" fill="#2b5ecc"/>
+        <polyline points="60,63.3 310,113.1 540,130.0" fill="none" stroke="#1b7a4b" stroke-width="2.2"/>
+        <circle cx="60" cy="63.3" r="3.6" fill="#1b7a4b"/><circle cx="310" cy="113.1" r="3.6" fill="#1b7a4b"/><circle cx="540" cy="130.0" r="3.6" fill="#1b7a4b"/>
+
+        <rect x="352" y="34" width="200" height="52" fill="#fff" stroke="#e2e2e2" rx="4"/>
+        <line x1="362" y1="47" x2="382" y2="47" stroke="#1b7a4b" stroke-width="2.2"/><text x="388" y="51" font-size="10.5" fill="#333">looped, fast gates</text>
+        <line x1="362" y1="61" x2="382" y2="61" stroke="#2b5ecc" stroke-width="2.2"/><text x="388" y="65" font-size="10.5" fill="#333">looped</text>
+        <line x1="362" y1="75" x2="382" y2="75" stroke="#c0392b" stroke-width="2.2"/><text x="388" y="79" font-size="10.5" fill="#333">plain SFT</text>
+      </svg>
+      <figcaption><strong>Figure 1:</strong> Out-of-domain average across the nine benchmarks we never train on. All arms peak at the earliest checkpoint we saved and decline from there. Plain fine-tuning (red) returns essentially to the base model by step 415 &mdash; it forgets everything it gained. The looped arms hold roughly three points above it. Note that every arm is best at step 149, so the true optimum is earlier than anything we measured.</figcaption>
+    </figure>
+
+    <h2>VI. What the probes say</h2>
+
+    <p>We log internal statistics every 25 steps. Two of them reframed the project.</p>
+
+    <h3>The gates open slowly, and they matter</h3>
+
+    <figure class="fig">
+      <svg viewBox="0 0 600 290" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif">
+        <rect x="180.5" y="40" width="60.2" height="200" fill="#f0f4fb"/>
+        <rect x="240.7" y="40" width="180.7" height="200" fill="#e3ebf9"/>
+        <rect x="421.4" y="40" width="60.2" height="200" fill="#f0f4fb"/>
+        <text x="331" y="54" font-size="10.5" fill="#4a6fb5" text-anchor="middle">pathloop explores here (q=2)</text>
+        <text x="210" y="234" font-size="9.5" fill="#4a6fb5" text-anchor="middle">q=1</text>
+        <text x="451" y="234" font-size="9.5" fill="#4a6fb5" text-anchor="middle">q=1</text>
+
+        <line x1="60" y1="40" x2="60" y2="240" stroke="#999" stroke-width="1"/>
+        <line x1="60" y1="240" x2="560" y2="240" stroke="#999" stroke-width="1"/>
+        <text x="60" y="262" font-size="11" fill="#555" text-anchor="middle">0</text>
+        <text x="180" y="262" font-size="11" fill="#555" text-anchor="middle">100</text>
+        <text x="301" y="262" font-size="11" fill="#555" text-anchor="middle">200</text>
+        <text x="421" y="262" font-size="11" fill="#555" text-anchor="middle">300</text>
+        <text x="542" y="262" font-size="11" fill="#555" text-anchor="middle">400</text>
+        <text x="310" y="281" font-size="11.5" fill="#333" text-anchor="middle">training step</text>
+        <text x="52" y="44" font-size="10.5" fill="#555" text-anchor="end">0.06</text>
+        <text x="52" y="144" font-size="10.5" fill="#555" text-anchor="end">0.03</text>
+        <text x="52" y="244" font-size="10.5" fill="#555" text-anchor="end">0</text>
+        <text x="18" y="140" font-size="11.5" fill="#333" text-anchor="middle" transform="rotate(-90 18 140)">gate size (rms)</text>
+
+        <polyline points="60,240 120.2,208.9 180.5,170.5 240.7,130.1 300.9,97.4 361.1,73.7 421.4,58.5 481.6,49.6 541.8,44.8"
+                  fill="none" stroke="#1b7a4b" stroke-width="2.2"/>
+        <polyline points="60,240 120.2,231.7 180.5,217.0 240.7,201.7 300.9,188.6 361.1,179.1 421.4,172.9 481.6,169.9 541.8,168.7"
+                  fill="none" stroke="#2b5ecc" stroke-width="2.2"/>
+        <text x="548" y="42" font-size="10.5" fill="#1b7a4b" text-anchor="end">fast gates &rarr; 0.059</text>
+        <text x="548" y="164" font-size="10.5" fill="#2b5ecc" text-anchor="end">standard &rarr; 0.021</text>
+      </svg>
+      <figcaption><strong>Figure 2:</strong> How far the loop gates open during training, with pathloop's exploration window shaded. The gates start at exactly zero, so the extra passes begin as no-ops. Raising the gate learning rate 100&times; makes them open roughly 2.7&times; wider (0.059 vs 0.021) and much sooner. The shaded region is where our first pathloop run explores: exploration before the gates open would perturb passes that are still doing nothing.</figcaption>
+    </figure>
+
+    <h3>The router barely moves during fine-tuning</h3>
+
+    <p>This is the assumption pathloop is built on, and the probes confirm it. Over a full epoch, the routing distribution is almost unchanged:</p>
+
+    <div class="table-wrap">
+      <table>
+        <tr><th>Router statistic</th><th class="num">Step 0</th><th class="num">Step 400</th><th class="num">Change</th><th>What it measures</th></tr>
+        <tr><td>Routing entropy</td><td class="num">0.8905</td><td class="num">0.9094</td><td class="num">+2.1%</td><td>how spread out the expert choice is</td></tr>
+        <tr><td>Top-1 probability</td><td class="num">0.0587</td><td class="num">0.0563</td><td class="num">&minus;4.1%</td><td>confidence in the single best expert</td></tr>
+        <tr><td>Load imbalance (cv)</td><td class="num">1.012</td><td class="num">1.130</td><td class="num">+11.7%</td><td>how unevenly tokens spread over experts</td></tr>
+      </table>
+    </div>
+
+    <p>A full epoch of fine-tuning moves the router by a couple of percent. Routing established in pretraining survives fine-tuning essentially intact &mdash; which is exactly why an intervention that forces the router to try alternatives might be worth something.</p>
+
+    <h3 id="key">The three loop passes are not three different paths</h3>
+
+    <p>This is the measurement that matters most, and the one that reframed the project. The probes are keyed by <em>executed</em> position, not by parameter layer, so all 96 executed layers are recorded separately. Parameter layer $L$ appears at executed positions $L$, $L+24$ and $L+48$ &mdash; once per loop pass. Comparing those three tells us directly what each pass does with the same weights.</p>
+
+    <div class="table-wrap">
+      <table>
+        <tr>
+          <th>Measured at each pass</th>
+          <th class="num">Pass 0</th><th class="num">Pass 1</th><th class="num">Pass 2</th>
+          <th class="num">Pass 1 &rarr; 2</th><th class="num">Pass 0 &rarr; 1</th>
+        </tr>
+        <tr><td>Routing entropy</td><td class="num">0.9113</td><td class="num">0.9136</td><td class="num">0.9136</td><td class="num">0.0000</td><td class="num">0.0023</td></tr>
+        <tr><td>Top-1 probability</td><td class="num">0.0586</td><td class="num">0.0529</td><td class="num">0.0529</td><td class="num">0.0000</td><td class="num">0.0057</td></tr>
+        <tr><td>Representation change (1 &minus; cos)</td><td class="num">0.0144</td><td class="num">0.0028</td><td class="num">0.0028</td><td class="num">0.0000</td><td class="num">0.0116</td></tr>
+        <tr><td>Load imbalance (cv)</td><td class="num">1.168</td><td class="num">1.198</td><td class="num">1.196</td><td class="num">0.002</td><td class="num">0.030</td></tr>
+      </table>
+    </div>
+
+    <figure class="fig">
+      <svg viewBox="0 0 600 250" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif">
+        <line x1="90" y1="30" x2="90" y2="200" stroke="#999" stroke-width="1"/>
+        <line x1="90" y1="200" x2="540" y2="200" stroke="#999" stroke-width="1"/>
+        <text x="82" y="34" font-size="10.5" fill="#555" text-anchor="end">0.016</text>
+        <text x="82" y="119" font-size="10.5" fill="#555" text-anchor="end">0.008</text>
+        <text x="82" y="204" font-size="10.5" fill="#555" text-anchor="end">0</text>
+        <text x="30" y="115" font-size="11.5" fill="#333" text-anchor="middle" transform="rotate(-90 30 115)">how much the pass</text>
+        <text x="46" y="115" font-size="11.5" fill="#333" text-anchor="middle" transform="rotate(-90 46 115)">changes the state</text>
+
+        <rect x="150" y="47" width="90" height="153" fill="#1b3a6f"/>
+        <rect x="285" y="170" width="90" height="30" fill="#7f9dc9"/>
+        <rect x="420" y="170" width="90" height="30" fill="#7f9dc9"/>
+        <text x="195" y="41" font-size="11" fill="#1b3a6f" text-anchor="middle" font-weight="600">0.0144</text>
+        <text x="330" y="164" font-size="11" fill="#4a6fb5" text-anchor="middle" font-weight="600">0.0028</text>
+        <text x="465" y="164" font-size="11" fill="#4a6fb5" text-anchor="middle" font-weight="600">0.0028</text>
+        <text x="195" y="219" font-size="12" fill="#333" text-anchor="middle">pass 0</text>
+        <text x="330" y="219" font-size="12" fill="#333" text-anchor="middle">pass 1</text>
+        <text x="465" y="219" font-size="12" fill="#333" text-anchor="middle">pass 2</text>
+        <text x="397" y="240" font-size="11" fill="#777" text-anchor="middle">passes 1 and 2 are near-identical to each other</text>
+      </svg>
+      <figcaption><strong>Figure 3:</strong> How much each loop pass actually changes the hidden state, averaged over the 24 looped layers at step 400. Pass 0 does about <strong>five times</strong> as much work as passes 1 and 2, which are indistinguishable from each other to four decimal places on every statistic we record. The loop is not producing three paths; it is producing one substantive pass and two near-repeats.</figcaption>
+    </figure>
+
+    <div class="insight-box">
+      <h3>Why this happens, and why it matters</h3>
+      <p>Pass 0 is ungated and always applied in full, so it does real work. Passes 1 and 2 are multiplied by a gate that reaches only about 0.02&ndash;0.06, so they nudge the state rather than transform it. A nudged state produces nearly the same router scores, so it selects nearly the same experts &mdash; and the two nudges land in nearly the same place as each other.</p>
+      <p>This is a problem for pathloop specifically. Its whole mechanism is to compare passes against each other and reward the better one. If the passes are copies, every comparison is between identical things, the advantage $A_\tau$ is zero, and there is nothing to learn from. We confirmed this directly: in short test runs the spread of reward across passes sat at roughly $10^{-7}$, i.e. exactly zero.</p>
+      <p>It is also a caveat on the claim of "96 effective layers". By this measurement the model behaves closer to 48 real layers plus two cheap refinement passes.</p>
+    </div>
+
+    <p>One honest limit on the table above: these are distributional statistics &mdash; entropy, top-1 probability, load spread. Two genuinely different sets of 8 experts could in principle produce the same entropy. The statistics being identical to four decimals is strong evidence the passes route the same way, but it is not proof. We have since added a metric that compares the selected expert sets directly, token by token, and reports what fraction of each token's 8 experts carries over from one pass to the next. The current run is the first to record it.</p>
+
+    <h2>VII. Where pathloop stands</h2>
+
+    <div class="status">
+      <strong>In progress.</strong> Pathloop is implemented and unit-tested, and the first tier-1 run on Ling-Coder is training now. No pathloop results yet.
+    </div>
+
+    <p>Building it surfaced five bugs, every one silent &mdash; nothing crashed, and each would have produced a clean-looking run that measured nothing:</p>
+
+    <ul>
+      <li>The sampled experts were given roughly a third of their correct weight, because two different normalizations were being mixed.</li>
+      <li>The training step counter never advanced under our trainer, pinning exploration at zero for an entire run while the logs reported it as active.</li>
+      <li>The exploration schedule never wound back down, because the trainer does not expose a total step count.</li>
+      <li>Even with that fixed, an off-by-one meant exploration reached zero one step after training ended, so the model never trained under the policy it is served with.</li>
+      <li>The tier-2 auxiliary loss ignored the schedule, so tier 1 and tier 2 differed from step 0 by an amount that had nothing to do with the idea being tested.</li>
+    </ul>
+
+    <p>The run in progress places exploration in the middle of training &mdash; off for the first 100 steps, easing to $q{=}1$, full at $q{=}2$ from 150 to 300, then easing back to zero by 350. The shaded band in Figure 2 shows why: exploring before the gates open would perturb passes that are still doing nothing.</p>
+
+    <p><strong>The question this run answers</strong> is narrow and prior to everything else: once the gates are open, do the three passes ever become different enough to compare? If the reward spread lifts off the floor, the comparison is real and tier 2 is worth training. If it stays at zero through the exploration window, then the passes are copies no matter what the router does, and the honest next step is not more pathloop but changing how the loop is built &mdash; starting the gates away from zero, so the passes are distinct from the beginning.</p>
+
+  </div>
+
+  <footer>
+    <span>Chunyuan Deng &mdash; Rice University</span>
+  </footer>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: "$$", right: "$$", display: true},
+        {left: "$", right: "$", display: false},
+        {left: "\\(", right: "\\)", display: false},
+        {left: "\\[", right: "\\]", display: true}
+      ],
+      throwOnError: false
+    });
+  });
+</script>
+</body>
+</html>

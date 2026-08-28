@@ -219,67 +219,122 @@
 
     <p><strong>Second, looping ought to create several paths but does not.</strong> If we run the same block of layers three times, each pass could in principle select different experts and do different work. Our measurements say it mostly does not. That is the finding this log is built around.</p>
 
-    <h2>II. Method 1: looped fine-tuning</h2>
+    <h2>II. Method 1: looped SFT, written out</h2>
 
-    <p>We take the middle 24 layers of a 48-layer model and run them three times instead of once. The model executes 96 layers using the weights of 48. Each repeat is blended into the previous state with a learned gate:</p>
-
-    <p style="text-align:center">$h_\tau = h_{\tau-1} + g_\tau \odot \big(F(h_{\tau-1}) - h_{\tau-1}\big)$</p>
+    <h3>Notation</h3>
 
     <ul>
-      <li>$h_\tau$ &mdash; the hidden state after loop pass $\tau$, for $\tau = 0, 1, 2$.</li>
-      <li>$F$ &mdash; the looped block of 24 layers. The <em>same weights</em> every pass.</li>
-      <li>$g_\tau$ &mdash; a learned gate, one number per feature, controlling how much of the new pass is kept. Pass 0 is ungated and always applied in full.</li>
-      <li>$\odot$ &mdash; elementwise multiply.</li>
+      <li>$x = (x_1,\dots,x_T)$ &mdash; the input tokens; $d = 2048$ the model width.</li>
+      <li>$L = 48$ &mdash; transformer layers, written $T_0,\dots,T_{L-1}$.</li>
+      <li>$[a,b) = [12,36)$ &mdash; the looped window; $W = b-a = 24$ layers.</li>
+      <li>$K = 3$ &mdash; how many times the window runs.</li>
+      <li>$E = 128$ experts per layer, $k = 8$ selected per token.</li>
     </ul>
 
-    <p>The gates start at exactly zero. That is deliberate: at zero, $h_\tau = h_{\tau-1}$, the loop does nothing, and the looped model is bit-for-bit the original model. Training starts from a known-good point and the gates open only if opening them helps. The cost is that <strong>early in training the extra passes are no-ops by construction</strong>, which turns out to matter a great deal later in this log.</p>
+    <h3>One layer</h3>
+
+    <p>Each layer carries a running state $h$ forward and adds two things to it: attention, then a mixture-of-experts block.</p>
+
+    <p style="text-align:center">$z = h + \mathrm{Attn}_\ell\big(\mathrm{Norm}(h)\big), \qquad T_\ell(h) = z + \mathrm{MoE}_\ell\big(\mathrm{Norm}(z)\big)$</p>
+
+    <p>The mixture-of-experts block is where the path lives. For a single token's state $h_t$:</p>
+
+    <p style="text-align:center">$s_t = \mathrm{softmax}\big(W_r^\ell\, h_t\big) \in \mathbb{R}^{E}$</p>
+    <p style="text-align:center">$\mathcal{S}_t = \operatorname*{arg\,top-}_{k}\; s_t, \qquad w_{t,e} = \frac{s_{t,e}}{\sum_{e' \in \mathcal{S}_t} s_{t,e'}}$</p>
+    <p style="text-align:center">$\mathrm{MoE}_\ell(h_t) = \sum_{e \in \mathcal{S}_t} w_{t,e}\; f_e(h_t), \qquad f_e(h) = W^e_{\text{down}}\Big(\sigma\big(W^e_{\text{gate}} h\big) \odot W^e_{\text{up}} h\Big)$</p>
+
+    <ul>
+      <li>$W_r^\ell$ &mdash; the router: a single matrix scoring all 128 experts.</li>
+      <li>$\mathcal{S}_t$ &mdash; the 8 experts this token is sent to. <strong>This set is the token's path at this layer.</strong> The other 120 experts are not evaluated and receive no gradient.</li>
+      <li>$w_{t,e}$ &mdash; how much each chosen expert contributes, renormalised so the 8 weights sum to 1.</li>
+      <li>$f_e$ &mdash; one expert: a gated feed-forward network with its own three matrices.</li>
+    </ul>
+
+    <h3>The full forward pass</h3>
+
+    <p>Layers outside the window run once. Layers inside it run $K$ times, with the same weights each time.</p>
+
+    <p style="text-align:center">$h^{\text{pre}} = \big(T_{a-1} \circ \cdots \circ T_0\big)\big(\mathrm{Embed}(x)\big)$</p>
+
+    <p>Write $F = T_{b-1} \circ \cdots \circ T_a$ for one pass through the window. Starting from $h_{-1} = h^{\text{pre}}$, for $\tau = 0,1,\dots,K-1$:</p>
+
+    <p style="text-align:center">$u_\tau = F\big(h_{\tau-1}\big), \qquad h_\tau = \begin{cases} u_0, & \tau = 0 \\[4pt] h_{\tau-1} + g_\tau \odot \big(u_\tau - h_{\tau-1}\big), & \tau \geq 1 \end{cases}$</p>
+
+    <p>Then the remaining layers run once and the output head is applied:</p>
+
+    <p style="text-align:center">$h^{\text{out}} = \big(T_{L-1} \circ \cdots \circ T_b\big)\big(h_{K-1}\big), \qquad \text{logits} = W_U\, \mathrm{Norm}\big(h^{\text{out}}\big)$</p>
+
+    <ul>
+      <li>$u_\tau$ &mdash; what the window computes on pass $\tau$, before any blending.</li>
+      <li>$g_\tau \in \mathbb{R}^d$ &mdash; a learned gate, one value per feature, for $\tau \geq 1$. With $K=3$ there are exactly two gates.</li>
+      <li>Pass 0 is <strong>ungated</strong>: $h_0 = u_0$, taken in full. Passes 1 and 2 are blended by $g_\tau$, which interpolates between keeping the old state ($g_\tau = 0$) and taking the new one ($g_\tau = 1$).</li>
+    </ul>
+
+    <p>Executed depth is $a + KW + (L-b) = 12 + 72 + 12 = 96$ layers from 48 layers of weights. Parameter count is unchanged except for the $2d$ gate values; compute per token scales with the executed depth.</p>
+
+    <h3>Two properties that drive everything later</h3>
+
+    <p><strong>The gates start at exactly zero.</strong> Then $h_\tau = h_{\tau-1}$ for $\tau \geq 1$, the loop collapses to $h_{K-1} = u_0 = F(h^{\text{pre}})$, and the looped model computes bit-for-bit what the original model computes. Training begins from a known-good point. The cost is that the extra passes begin as exact no-ops.</p>
+
+    <p><strong>The router weights $W_r^\ell$ are shared across passes.</strong> The same router runs $K$ times on different inputs. So the only way pass $\tau$ can select different experts from pass $\tau-1$ is if $h_{\tau-1}$ differs enough from $h_{\tau-2}$ to reorder the top 8 scores. Since $h_\tau - h_{\tau-1} = g_\tau \odot (u_\tau - h_{\tau-1})$, and $g_\tau$ is small early in training, the inputs to the router are nearly identical &mdash; and so are its outputs. Section VI measures exactly this.</p>
 
     <h2>III. Method 2: pathloop</h2>
 
-    <p>Pathloop adds one idea: during training only, let the router explore, and let the loop's repeated passes act as competing candidates that can be compared against each other.</p>
+    <p>Pathloop changes one thing during training: how $\mathcal{S}_t$ is chosen. At inference it is switched off and the model is plain top-$k$ again.</p>
 
-    <h3>Sampling instead of always taking the top 8</h3>
+    <h3>Sampling part of the path</h3>
 
-    <p>Normally the router keeps the 8 highest-scoring experts. Pathloop keeps the top $p$ and draws the remaining $q$ at random from the experts that did <em>not</em> make the cut, with $p + q = 8$:</p>
+    <p>Split the budget $k = p + q$. Keep the $p$ best of what the model chose; draw the other $q$ from experts it rejected.</p>
 
-    <p style="text-align:center">$\text{experts} = \underbrace{\text{top-}p(s)}_{\text{kept, deterministic}} \;\cup\; \underbrace{\text{sample-}q(s \mid \text{outside top-}8)}_{\text{explored}}$</p>
+    <p style="text-align:center">$\mathcal{P}_t = \operatorname*{arg\,top-}_{p}\big\{\, s_{t,e} : e \in \mathcal{S}_t \,\big\}$</p>
 
-    <ul>
-      <li>$s$ &mdash; the router's scores over the 128 experts.</li>
-      <li>$p$ &mdash; how many of the model's own choices we keep. With $q=2$, we keep 6.</li>
-      <li>$q$ &mdash; how many slots we hand to experts the model would not have picked.</li>
-    </ul>
+    <p style="text-align:center">$\mathcal{T}^\tau = \big\{\, e \notin \mathcal{S}_t \;:\; \beta(e) = \tau \,\big\}, \qquad \mathcal{Q}^\tau_t \sim \text{sample-}q\big(\mathcal{T}^\tau,\; s_t\big)$</p>
 
-    <p>The token still passes through exactly 8 experts, so <strong>the compute cost is unchanged</strong>. Sampling happens during training only; at inference the router goes back to plain top-8. Experts outside the top-8 finally receive gradient, which is the whole point.</p>
-
-    <p>The $q$ sampled experts are drawn from a different slice of the expert pool on each loop pass, so the three passes explore different candidates rather than stumbling onto the same ones.</p>
-
-    <h3>Comparing the three passes</h3>
-
-    <p>The loop gives us three versions of the same token's state for free. We score each one by how well it predicts the next token:</p>
-
-    <p style="text-align:center">$R_\tau = -\text{NLL}\big(\text{head}(h_\tau),\, y\big) \qquad\qquad A_\tau = R_\tau - \frac{1}{K-1}\sum_{\tau' \neq \tau} R_{\tau'}$</p>
+    <p style="text-align:center">$\tilde{\mathcal{S}}^\tau_t = \mathcal{P}_t \cup \mathcal{Q}^\tau_t, \qquad \tilde{w}_{t,e} = \frac{s_{t,e}}{\sum_{e' \in \tilde{\mathcal{S}}^\tau_t} s_{t,e'}}$</p>
 
     <ul>
-      <li>$R_\tau$ &mdash; the reward for pass $\tau$: higher means that pass predicted the next token better. We read $h_\tau$ through the model's own output head.</li>
-      <li>$y$ &mdash; the true next token.</li>
-      <li>$A_\tau$ &mdash; the advantage: how much better pass $\tau$ did than the <em>average of the other passes</em>. Comparing against the others rather than against a fixed number means we need no separate baseline model, and the comparison is between paths that saw the same token in the same context.</li>
+      <li>$\mathcal{P}_t$ &mdash; the $p$ highest-scoring of the model's own 8. With $q=2$ we keep 6.</li>
+      <li>$\beta : \{1..E\} \to \{0..K-1\}$ &mdash; a bucketing of the experts, redrawn every step, that assigns each rejected expert to one loop pass. Pass $\tau$ may only sample from its own bucket $\mathcal{T}^\tau$, so the three passes explore <strong>disjoint</strong> candidates instead of colliding on the same ones.</li>
+      <li>$\mathcal{Q}^\tau_t$ &mdash; $q$ experts drawn without replacement with probability proportional to their router score, so plausible experts are tried more often than hopeless ones. Implemented as Gumbel top-$q$: take the $q$ largest values of $\log s_{t,e} - \log(-\log u_e)$ with $u_e \sim \mathrm{Uniform}(0,1)$.</li>
+      <li>$\tilde{w}$ &mdash; weights renormalised over the new set, exactly as the unmodified layer would have done for that set.</li>
     </ul>
 
-    <p>Then we push the router toward the choices that scored above average:</p>
+    <p>The token still passes through $|\tilde{\mathcal{S}}^\tau_t| = p + q = k = 8$ experts, so <strong>the compute per token is unchanged</strong>. What changes is that the $q$ sampled experts now receive gradient, which under plain top-$k$ they never would.</p>
 
-    <p style="text-align:center">$\mathcal{L}_{\text{path}} = -\sum_\tau A_\tau \, \log \pi\big(\text{sampled experts} \mid h_\tau\big)$</p>
+    <h3>Scoring the passes against each other</h3>
 
-    <p>$\pi$ is the router's own probability of having drawn those experts. If a pass did better than its siblings, its expert choice is made more likely; if worse, less likely.</p>
+    <p>The loop already produces $K$ versions of every token's state. We read each one through the model's own output head and score it on the next token:</p>
+
+    <p style="text-align:center">$R_\tau(t) = \log P\big(y_t \;\big|\; W_U\,\mathrm{Norm}(h_\tau)_t\big)$</p>
+
+    <p style="text-align:center">$A_\tau(t) = R_\tau(t) - \frac{1}{K-1}\sum_{\tau' \neq \tau} R_{\tau'}(t)$</p>
+
+    <ul>
+      <li>$R_\tau(t)$ &mdash; the reward for pass $\tau$ at token $t$: how well that pass's state predicts the true next token $y_t$. Higher is better.</li>
+      <li>$A_\tau(t)$ &mdash; the advantage: how much better pass $\tau$ did than the average of its siblings. Because the siblings saw the same token in the same context, this subtracts off everything about the token's difficulty and leaves only the effect of the path taken. No separate baseline model is needed.</li>
+      <li>Note $\sum_\tau A_\tau(t) = 0$ by construction: the advantage says which pass was better, never whether the token was easy.</li>
+    </ul>
+
+    <h3>The two training terms</h3>
+
+    <p style="text-align:center">$\mathcal{L}_{\text{path}} = -\sum_\tau \mathbb{E}_t\Big[\, A_\tau(t)\, \log \pi_\tau\big(\mathcal{Q}^\tau_t \mid h_{\tau-1}\big) \Big]$</p>
+
+    <p>$\pi_\tau$ is the router's own probability of having drawn that particular set of $q$ experts, computed as an ordered draw without replacement. Multiplying by $A_\tau$ makes above-average choices more likely and below-average ones less likely. This is the term that turns exploration into learning.</p>
+
+    <p style="text-align:center">$\mathcal{L}_{\text{ladder}} = -\sum_{\tau} \frac{\lambda\,(\tau+1)}{K}\; \mathbb{E}_t\big[\, R_\tau(t) \,\big]$</p>
+
+    <p>Every pass is asked to predict the next token, with later passes weighted more heavily. We use the label rather than a consistency term between passes on purpose: the cheapest way to make the passes agree with each other is to make the loop do nothing, which is the degenerate solution the gates already sit next to. Matching the true next token cannot be satisfied that way.</p>
+
+    <p>The full objective is the ordinary fine-tuning loss plus these two, and both are switched off whenever exploration is off, so a run with $q=0$ is exactly plain looped SFT.</p>
 
     <h3>Two tiers</h3>
 
     <ul>
-      <li><strong>Tier 1</strong> &mdash; sample and <em>measure</em> only. Record $R_\tau$ and how much the passes differ, but do not train on it. This tells us whether the comparison carries any signal before we build on it.</li>
-      <li><strong>Tier 2</strong> &mdash; also train: the policy-gradient term above, plus a "ladder" term asking every pass to predict the next token, weighted more heavily for later passes.</li>
+      <li><strong>Tier 1</strong> &mdash; sample and <em>measure</em>. Record $R_\tau$ and the spread of $A_\tau$, train on neither. This asks whether the comparison carries signal at all before anything is built on it.</li>
+      <li><strong>Tier 2</strong> &mdash; add $\mathcal{L}_{\text{path}}$ and $\mathcal{L}_{\text{ladder}}$.</li>
     </ul>
 
-    <p>Exploration is scheduled rather than constant, and ends at zero so the final model is trained under exactly the policy it is served with.</p>
+    <p>$q$ follows a schedule rather than being constant, and returns to $0$ before training ends so the final model is trained under exactly the policy it is served with.</p>
 
     <h2>IV. Setup</h2>
 

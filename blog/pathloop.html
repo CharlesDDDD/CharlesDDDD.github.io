@@ -884,7 +884,7 @@
       <p>It is also a caveat on the claim of "96 effective layers". By this measurement the model behaves closer to 48 real layers plus two cheap refinement passes.</p>
     </div>
 
-    <p>One honest limit on the table above: these are distributional statistics &mdash; entropy, top-1 probability, load spread. Two genuinely different sets of 8 experts could in principle produce the same entropy. The statistics being identical to four decimals is strong evidence the passes route the same way, but it is not proof. We have since added a metric that compares the selected expert sets directly, token by token, and reports what fraction of each token's 8 experts carries over from one pass to the next. The current run is the first to record it.</p>
+    <p>One honest limit on the table above: these are distributional statistics &mdash; entropy, top-1 probability, load spread. Two genuinely different sets of 8 experts could in principle produce the same entropy. The statistics being identical to four decimals is strong evidence the passes route the same way, but it is not proof. We have since added a metric that compares the selected expert sets directly, token by token, and reports what fraction of each token's 8 experts carries over from one pass to the next. It landed shortly after the current run had already started, so that run does not record it &mdash; the direct measurement still needs a later one.</p>
 
     <h2>Where this stands</h2>
 

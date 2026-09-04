@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pathloop: Making a Looped MoE Take Different Paths — Chunyuan Deng</title>
   <meta name="author" content="Chunyuan Deng">
+  <!-- Unlisted: reachable by URL, but not linked from the index or the archive. -->
+  <meta name="robots" content="noindex, nofollow">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -212,7 +214,7 @@
   <div class="hero">
     <h1>Pathloop: Making a Looped MoE Take Different Paths</h1>
     <p class="subtitle">A looped mixture-of-experts runs the same layers three times. Does it do anything different on each pass?</p>
-    <p class="meta">Chunyuan Deng &middot; August 2026 &middot; project log</p>
+    <p class="meta">Chunyuan Deng &middot; August&ndash;September 2026 &middot; project log</p>
   </div>
 
   <hr class="divider">
@@ -221,7 +223,8 @@
 
     <div class="tldr">
       <strong>TL;DR</strong><br><br>
-      We fine-tune a 30B mixture-of-experts model with its middle layers looped three times, which turns 48 layers into 96 executed ones. Looping helps, but not where you would guess: on the coding data we train on it adds nothing, and on the nine benchmarks we never train on it does not raise the peak either &mdash; it holds the peak. Plain fine-tuning gains five points out-of-domain and then gives all of them back; the looped runs keep most of theirs. Reading the probes then showed why the loop is weaker than it should be &mdash; <strong>the second and third passes are near-copies of each other</strong>. They route to nearly the same experts and barely change the representation. The loop is not building three different paths through the model; it is building one path and two near-repeats. <strong>Pathloop</strong> is our attempt to force the passes apart by making the router sample a little during training, and then letting the three passes compete. It is implemented and a first run is in progress.
+      We fine-tune a 30B mixture-of-experts model with its middle layers looped three times, which turns 48 layers into 96 executed ones. Looping helps, but not where you would guess: on the coding data we train on it adds nothing, and on the nine benchmarks we never train on it does not raise the peak either &mdash; it holds the peak. Plain fine-tuning gains five points out-of-domain and then gives all of them back; the looped runs keep most of theirs. Reading the probes then showed why the loop is weaker than it should be &mdash; <strong>the second and third passes are near-copies of each other</strong>. <strong>Pathloop</strong> was our attempt to force the passes apart by making the router sample a little during training and then letting the passes compete.<br><br>
+      <strong>Pathloop has now run, and the result is a negative one worth writing down.</strong> It buys about a point of coding pass@1 over plain fine-tuning &mdash; small, but reproducible and outside a bootstrap CI. It does not beat plain looped SFT by anything we can resolve. More importantly, the reward signal the whole method rests on was being measured with a broken instrument: the logit lens we scored each pass with recovered <strong>0.8 of the 11.7 nats</strong> the hidden state actually carries, so it was reading noise at 7% of scale, and its apparent ordering of the passes was an artifact of depth, not quality. Replacing the lens with a full readout through the remaining layers fixed the instrument and delivered the real answer: <strong>the three passes are equally good, to within 3%.</strong> There was never anything to select between. A direct token-level probe says why &mdash; pass 2 changes 0.4 of a token's 8 experts relative to pass 1, against 2.6 for pass 1 relative to pass 0. The binding constraint is the gate, not the router, and that is what we are testing next.
     </div>
 
     <h2>What does fine-tuning actually train in a mixture-of-experts model?</h2>
@@ -290,7 +293,7 @@
 
     <h2>Pathloop: forcing the passes apart</h2>
 
-    <p>The probes below say this tension resolves the wrong way: <a href="#key">passes 1 and 2 are near-copies of each other</a>. Pathloop attacks that from the router's side rather than the gate's. If the passes will not become different on their own, make them different by construction: during training, let each pass sample part of its own path. Inference is untouched &mdash; the served model is plain top-$k$ routing.</p>
+    <p>The probes below say this tension resolves the wrong way: <a href="#key">passes 1 and 2 are near-copies of each other</a>, and a <a href="#overlap">direct token-level measurement</a> puts the difference at four tenths of one expert out of eight. Pathloop attacks that from the router's side rather than the gate's. If the passes will not become different on their own, make them different by construction: during training, let each pass sample part of its own path. Inference is untouched &mdash; the served model is plain top-$k$ routing.</p>
 
     <h3>What if the router sampled part of the path?</h3>
 
@@ -318,7 +321,9 @@
 
     <div class="eqn">$$R_\tau(t) \;=\; \log P\big(y_t \;\big|\; W_U\,\mathrm{Norm}(h_\tau)_t\big).$$</div>
 
-    <p>This is a logit lens: a cheap, honest measure of how much of the answer pass $\tau$ has already assembled. It is not calibrated in absolute terms &mdash; mid-depth states read poorly through a head trained on final-depth states &mdash; but we only ever use differences.</p>
+    <p>This is a logit lens: a cheap measure of how much of the answer pass $\tau$ has already assembled. It is not calibrated in absolute terms &mdash; mid-depth states read poorly through a head trained on final-depth states &mdash; but we only ever use differences.</p>
+
+    <div class="status"><strong>This paragraph is wrong, and it is the central mistake of the project.</strong> The argument that miscalibration is harmless because only differences are used does not survive contact with the numbers: the lens recovers 0.79 of the 11.71 nats the state actually carries, and it ranks the passes by how far they have drifted from the head's expectations rather than by quality. <a href="#results">The measurement section</a> works through it and gives the fix. The construction below is stated as we built it.</div>
 
     <p>Which is the second point. The $K$ passes saw the same token in the same context, so comparing a pass against its own siblings cancels token difficulty exactly, with no baseline model and no value network:</p>
 
@@ -330,7 +335,7 @@
 
     <div class="eqn">$$\mathcal{L}_{\text{path}} \;=\; -\sum_{\tau} \mathbb{E}_t\Big[\, A_\tau(t)\; \log \pi_\tau\big(\mathcal{Q}^\tau_t \mid h_{\tau-1}\big) \Big].$$</div>
 
-    <p>A second term pushes the passes to improve monotonically, weighting later passes more:</p>
+    <p>A second term pushes the passes to improve monotonically, weighting later passes more &mdash; on an assumption about the passes that <a href="#results">later turned out to be false</a>:</p>
 
     <div class="eqn">$$\mathcal{L}_{\text{ladder}} \;=\; -\sum_{\tau} \frac{\lambda\,(\tau+1)}{K}\; \mathbb{E}_t\big[\, R_\tau(t) \,\big].$$</div>
 
@@ -788,6 +793,8 @@
 
     <h3>How far do the gates actually open?</h3>
 
+    <p style="font-size:12.5px;color:#777">Updated: we have since started a run from the other side, at =0.3$, to find out whether 0.06 is where fine-tuning wants the gate or just as far as it can crawl. <a href="#gate">That result is below.</a></p>
+
     <figure class="fig">
       <svg viewBox="0 0 600 290" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif">
         <rect x="180.5" y="40" width="60.2" height="200" fill="#f0f4fb"/>
@@ -884,15 +891,196 @@
       <p>It is also a caveat on the claim of "96 effective layers". By this measurement the model behaves closer to 48 real layers plus two cheap refinement passes.</p>
     </div>
 
-    <p>One honest limit on the table above: these are distributional statistics &mdash; entropy, top-1 probability, load spread. Two genuinely different sets of 8 experts could in principle produce the same entropy. The statistics being identical to four decimals is strong evidence the passes route the same way, but it is not proof. We have since added a metric that compares the selected expert sets directly, token by token, and reports what fraction of each token's 8 experts carries over from one pass to the next. It landed shortly after the current run had already started, so that run does not record it &mdash; the direct measurement still needs a later one.</p>
+    <p>One honest limit on the table above: these are distributional statistics &mdash; entropy, top-1 probability, load spread. Two genuinely different sets of 8 experts could in principle produce the same entropy. When this was first written we had just added a metric that compares the selected expert sets directly, token by token, and it had landed too late for the run in progress. It has since run for a full epoch, and it settles the question.</p>
+
+    <h3 id="overlap">The direct measurement: which experts actually carry over</h3>
+
+    <p>For each looped layer and each token we intersect the set of 8 experts chosen on pass $\tau$ with the set chosen on pass $\tau-1$, and report the fraction that survives. It is recorded from the model's own top-$k$ selection <em>before</em> any pathloop substitution, so these are the numbers a plain looped SFT run produces; $1.0$ means an identical path, $0.0$ disjoint.</p>
+
+    <div class="table-wrap">
+      <table>
+        <tr><th>Expert-set overlap (mean over 24 looped layers, all tokens)</th><th class="num">Step 0</th><th class="num">Step 400</th><th class="num">of 8 experts, how many change</th></tr>
+        <tr><td>Pass 0 &rarr; pass 1</td><td class="num">0.664</td><td class="num">0.669</td><td class="num">2.6</td></tr>
+        <tr><td>Pass 1 &rarr; pass 2</td><td class="num">0.938</td><td class="num best">0.947</td><td class="num">0.4</td></tr>
+        <tr class="sep"><td>Pass 0 &rarr; pass 2 (cumulative)</td><td class="num">0.648</td><td class="num">0.651</td><td class="num">2.8</td></tr>
+      </table>
+    </div>
+
+    <figure class="fig">
+      <svg viewBox="0 0 600 210" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif">
+        <line x1="190" y1="28" x2="190" y2="150" stroke="#999" stroke-width="1"/>
+        <line x1="190" y1="150" x2="540" y2="150" stroke="#999" stroke-width="1"/>
+        <text x="190" y="167" font-size="10" fill="#777" text-anchor="middle">0%</text>
+        <text x="365" y="167" font-size="10" fill="#777" text-anchor="middle">20%</text>
+        <text x="540" y="167" font-size="10" fill="#777" text-anchor="middle">40%</text>
+        <text x="365" y="186" font-size="11.5" fill="#333" text-anchor="middle">share of a token's 8 experts that changes</text>
+
+        <rect x="190" y="38" width="289.6" height="26" fill="#1b3a6f"/>
+        <text x="182" y="56" font-size="11.5" fill="#333" text-anchor="end">pass 0 &rarr; 1</text>
+        <text x="489" y="56" font-size="11" fill="#1b3a6f" font-weight="600">33.1%  (2.6 experts)</text>
+
+        <rect x="190" y="76" width="46.4" height="26" fill="#7f9dc9"/>
+        <text x="182" y="94" font-size="11.5" fill="#333" text-anchor="end">pass 1 &rarr; 2</text>
+        <text x="246" y="94" font-size="11" fill="#4a6fb5" font-weight="600">5.3%  (0.4 experts)</text>
+
+        <rect x="190" y="114" width="305.4" height="26" fill="#b9c6dd"/>
+        <text x="182" y="132" font-size="11.5" fill="#333" text-anchor="end">pass 0 &rarr; 2</text>
+        <text x="505" y="132" font-size="11" fill="#5a6b85" font-weight="600">34.9%  (2.8 experts)</text>
+
+        <text x="365" y="203" font-size="10.5" fill="#777" text-anchor="middle">the third pass adds 1.8 points of divergence on top of the second's 33.1</text>
+      </svg>
+      <figcaption><strong>Figure 5:</strong> Expert-set overlap at step 400, read directly off the routing map rather than inferred from entropy. The first extra pass genuinely re-routes: a third of each token's experts change. The second extra pass barely moves &mdash; 5.3% of the set, four tenths of one expert. And the cumulative bar shows the cost of that: after two extra passes a token has diverged 34.9% from its original path, against 33.1% after one. <strong>The third pass contributes 1.8 points of the 34.9.</strong> This is the distributional result of Figure 4 confirmed at the level of individual expert choices, which is what it needed.</figcaption>
+    </figure>
+
+    <p>Two details make this stronger than we expected. It is <strong>flat across training</strong> &mdash; 0.664 at step 0 and 0.669 at step 400, so a full epoch of fine-tuning does not teach the passes to separate. And it is <strong>flat across pathloop's exploration</strong>: at the peak of the schedule, with $q=4$ of the 8 slots drawn by sampling, the overlap of the model's own preferred path reads 0.668. Forcing half the budget to be sampled does not change where the router wants to go.</p>
+
+    <h2 id="results">Pathloop, measured</h2>
+
+    <p>Pathloop has now trained to completion several times. This section reports what it did, and then the larger finding that came out of checking <em>how</em> we were measuring it.</p>
+
+    <h3>The coding scores</h3>
+
+    <p>All arms below are the same checkpoint &mdash; step 415, the end of one epoch &mdash; evaluated on the five coding benchmarks at $n=16$ samples per prompt, temperature 0.6, and scored as pass@1. This is a stricter comparison than the best-of-checkpoints table earlier in this post: same step, same suite, no per-benchmark maximum, and enough samples per prompt to put a confidence interval on the difference.</p>
+
+    <div class="table-wrap">
+      <table>
+        <tr>
+          <th>Arm</th>
+          <th class="num">HumanEval</th><th class="num">HE+</th><th class="num">MBPP</th>
+          <th class="num">MBPP+</th><th class="num">LCB v6</th><th class="num">Mean</th>
+          <th class="num">vs plain SFT</th>
+        </tr>
+        <tr><td>Base model</td><td class="num">56.14</td><td class="num">52.00</td><td class="num">66.71</td><td class="num best">72.17</td><td class="num">12.69</td><td class="num">51.94</td><td class="num">&minus;16.54 <span class="dr">sig</span></td></tr>
+        <tr><td>Plain SFT</td><td class="num">88.72</td><td class="num">83.62</td><td class="num">69.79</td><td class="num">71.20</td><td class="num">29.10</td><td class="num">68.49</td><td class="num">&mdash;</td></tr>
+        <tr><td>Looped SFT</td><td class="num">88.81</td><td class="num">83.97</td><td class="num">70.86</td><td class="num">71.37</td><td class="num">29.39</td><td class="num">68.88</td><td class="num">+0.39 <span style="font-size:10px;color:#888">n.s.</span></td></tr>
+        <tr><td>Pathloop tier 1 <span style="font-size:11px;color:#888">(log only)</span></td><td class="num">89.16</td><td class="num">84.28</td><td class="num">71.04</td><td class="num">70.54</td><td class="num">30.08</td><td class="num">69.02</td><td class="num">+0.65 <span style="font-size:10px;color:#888">n.s.</span></td></tr>
+        <tr><td>Pathloop tier 2 <span style="font-size:11px;color:#888">(v2, schedule fixes)</span></td><td class="num best">89.50</td><td class="num">84.41</td><td class="num best">71.39</td><td class="num">70.57</td><td class="num">30.29</td><td class="num">69.23</td><td class="num">+0.75 <span class="dg">sig</span></td></tr>
+        <tr><td>Pathloop tier 2</td><td class="num best">89.85</td><td class="num best">85.02</td><td class="num">71.00</td><td class="num">70.86</td><td class="num best">30.41</td><td class="num best">69.43</td><td class="num">+1.06 <span class="dg">sig</span></td></tr>
+      </table>
+    </div>
+
+    <p style="font-size:12.5px;color:#555;margin-top:-6px">pass@1 over 14 of the 16 sample slots &mdash; see the serving note below for why two are dropped. The last column is a paired bootstrap over prompts, 2000 resamples; <span class="dg">sig</span> means the 95% CI excludes zero.</p>
+
+    <div class="insight-box">
+      <h3>What the intervals actually license</h3>
+      <p><strong>Fine-tuning is the whole story, again.</strong> Plain SFT is +16.54 over the base model [+15.02, +18.04]. Everything after that is a rounding error by comparison: the five post-SFT arms span 0.94 points, top to bottom.</p>
+      <p><strong>Pathloop does beat plain fine-tuning, barely.</strong> Tier 2 is +1.06 [+0.40, +1.74] and its v2 rerun is +0.75 [+0.13, +1.38]. Both intervals clear zero. That is a real effect, and it is about one point.</p>
+      <p><strong>It does not clearly beat the loop it is built on.</strong> Against plain looped SFT, tier 2 is +0.55 with a CI of [+0.00, +1.05] &mdash; the lower bound sits on zero &mdash; and the v2 rerun is +0.35 [&minus;0.25, +0.90], which does not clear it at all. Nor does tier 2 separate from tier 1, the arm that samples and logs but never trains on the reward: +0.41 [&minus;0.08, +0.91]. <strong>If the two pathloop losses were doing the work, tier 2 should beat tier 1. It does not.</strong></p>
+    </div>
+
+    <h3>An aside that cost us a week: a serving flag</h3>
+
+    <p>Two of those numbers were originally recorded as catastrophic regressions. They were not; our serving configuration was wrong, and it was wrong in a way that only broke <em>looped</em> models.</p>
+
+    <p>SGLang has a <code>--enable-deterministic-inference</code> flag. We had dropped it while chasing an unrelated artifact. On HumanEval at greedy decoding &mdash; temperature 0, so sampling plays no part &mdash; with byte-identical configs otherwise:</p>
+
+    <div class="table-wrap">
+      <table>
+        <tr><th>HumanEval, step 415</th><th class="num">flag on</th><th class="num">flag off</th><th class="num">cost</th></tr>
+        <tr><td>Looped SFT, greedy</td><td class="num">89.02</td><td class="num">59.15</td><td class="num"><span class="dr">&minus;29.9</span></td></tr>
+        <tr><td>Looped SFT, $n{=}16$ @ 0.6</td><td class="num">85.98</td><td class="num">53.96</td><td class="num"><span class="dr">&minus;32.0</span></td></tr>
+        <tr class="sep"><td>Plain SFT (unlooped), greedy</td><td class="num">&mdash;</td><td class="num">89.25</td><td class="num">no effect</td></tr>
+      </table>
+    </div>
+
+    <p>Across the full five-benchmark suite the same model reads <strong>46.45 with the flag off and 68.88 with it on</strong>. The control arm hid it perfectly: an unlooped model is unaffected, and scored a clean 89.25 either way. Our unlooped baseline reproduces to 0.12 points across two independent evaluation batches, which is exactly the kind of number that persuades you the harness is fine.</p>
+
+    <p>The flag has a cost of its own &mdash; it makes two of the 16 sample slots tail-sample badly, with slot 7 running 23&ndash;26 points low and emitting two specific low-probability tokens in 19&ndash;57% of responses and nowhere else. But that damage is confined to identifiable slots and can be scored around; the damage from turning the flag off is uniform across slots and cannot. So: flag on, drop the two bad slots when scoring. Every number in the table above is the mean over the 14 clean ones.</p>
+
+    <p>The general lesson is not about SGLang. It is that a control arm only controls for what it shares with the treatment. A non-looped baseline cannot detect a bug in the looped serving path, and we had built our confidence on exactly that.</p>
+
+    <h3>The reward signal was read through a broken instrument</h3>
+
+    <p>Pathloop scores each pass by pushing its hidden state through the model's own output head &mdash; the logit lens of the method section, $R_\tau = \log P(y_t \mid W_U \mathrm{Norm}(h_\tau))$. The state being read sits at layer 36 of 48. The head was trained on layer-48 states. We knew the readout would be poorly calibrated in absolute terms and argued that this was fine because only differences are used.</p>
+
+    <p>That argument is wrong, and there is a one-line test for it that we should have run on day one. A readout that carries no information about the next token scores $\ln V$ nats, where $V = 151{,}936$ is the vocabulary, so $\ln V = 11.93$. Here is what the lens actually reported, at step 400 of a completed run:</p>
+
+    <div class="table-wrap">
+      <table>
+        <tr><th>Readout at step 400</th><th class="num">Pass 0</th><th class="num">Pass 1</th><th class="num">Pass 2</th><th class="num">Shuffled labels</th><th class="num">Nats below chance</th></tr>
+        <tr><td>Logit lens (layer-36 state &rarr; head)</td><td class="num">10.910</td><td class="num">11.018</td><td class="num">11.137</td><td class="num">16.86</td><td class="num">0.79</td></tr>
+        <tr class="sep"><td>Coda (layer-36 state &rarr; layers 36&ndash;47 &rarr; head)</td><td class="num">0.2309</td><td class="num best">0.2240</td><td class="num">0.2253</td><td class="num">12.00</td><td class="num best">11.71</td></tr>
+      </table>
+    </div>
+
+    <figure class="fig">
+      <svg viewBox="0 0 600 175" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif">
+        <line x1="150" y1="22" x2="150" y2="118" stroke="#999" stroke-width="1"/>
+        <line x1="150" y1="118" x2="540" y2="118" stroke="#999" stroke-width="1"/>
+        <line x1="540" y1="22" x2="540" y2="118" stroke="#c0392b" stroke-width="1.4" stroke-dasharray="5,4"/>
+        <text x="536" y="18" font-size="10.5" fill="#c0392b" text-anchor="end">all the information there is: ln V = 11.93 nats</text>
+
+        <rect x="150" y="34" width="26.0" height="28" fill="#c0392b"/>
+        <text x="142" y="53" font-size="11.5" fill="#333" text-anchor="end">logit lens</text>
+        <text x="186" y="53" font-size="11" fill="#c0392b" font-weight="600">0.79 nats &mdash; 7% of scale</text>
+
+        <rect x="150" y="76" width="382.7" height="28" fill="#1b7a4b"/>
+        <text x="142" y="95" font-size="11.5" fill="#333" text-anchor="end">coda</text>
+        <text x="524" y="95" font-size="11" fill="#fff" font-weight="600" text-anchor="end">11.71 nats</text>
+
+        <text x="345" y="140" font-size="11.5" fill="#333" text-anchor="middle">next-token information recovered from the same hidden state</text>
+        <text x="345" y="160" font-size="10.5" fill="#777" text-anchor="middle">both bars read the identical layer-36 state; only the readout differs</text>
+      </svg>
+      <figcaption><strong>Figure 6:</strong> The same hidden state, two readouts. The logit lens recovers 0.79 of the 11.71 nats the state demonstrably contains &mdash; it was operating at 7% of scale, which is to say it was reading noise. Every reward, every advantage and every policy-gradient step pathloop ever took was computed from the red bar.</figcaption>
+    </figure>
+
+    <p>Three things go wrong at once, and each is worth stating separately.</p>
+
+    <ul>
+      <li><strong>The lens was 93% blind.</strong> It recovered 0.79 nats of the 11.71 that a proper readout gets from the identical state. Differences taken between three numbers that are all sitting at chance are differences between noise.</li>
+      <li><strong>Its ordering was backwards.</strong> The lens ranks the passes 10.91 &lt; 11.02 &lt; 11.14 &mdash; pass 0 best, pass 2 worst, monotonically. That is not quality. It is the state drifting further from the layer-48 distribution the head was calibrated on with every pass, so the lens penalises exactly the thing the loop is supposed to be doing. Pathloop's advantage term was, to the extent it measured anything, rewarding passes for moving <em>less</em>.</li>
+      <li><strong>Our sanity check could not have caught it.</strong> We validated the lens by checking it beat a shuffled-label control by a healthy 5.95 nats. But the shuffled control scores 16.86 &mdash; nearly five nats <em>worse than chance</em>, because feeding a confident head deliberately wrong labels is much worse than feeding it no information. A margin over shuffled labels is a measure of the head's confidence, not of the state's content. <strong>The right reference was always $\ln V$, and it is free.</strong></li>
+    </ul>
+
+    <h3>With a working instrument, the passes are equally good</h3>
+
+    <p>The fix is not subtle: instead of reading the pass-$\tau$ state through the head directly, run it through the layers that would normally follow &mdash; the twelve above the loop window &mdash; and then through the head. We call it the coda. It is the honest question the lens was a cheap proxy for: <em>if we stopped looping now and finished the forward pass, how good would the answer be?</em></p>
+
+    <div class="eqn">$$R^{\mathrm{coda}}_\tau(t) \;=\; \log P\Big(y_t \;\Big|\; W_U\,\mathrm{Norm}\big((T_{L-1} \circ \cdots \circ T_b)(h_\tau)\big)_t\Big).$$</div>
+
+    <p>It costs $K-1$ extra partial forward passes, which is affordable because the readouts for all $K$ passes are concatenated into a single matrix multiply against the head, and because the states can be detached when only the metric is wanted. The result validates immediately. At step 0 the last pass's coda NLL reads 0.773 against a training loss of 0.653 &mdash; the same quantity on the same scale, as it should be, since the last pass's state is the one the model actually finishes on. The lens read 11.27 for that same state. (The two are not expected to be equal: the coda NLL is computed on a 2,048-token slice rather than the full batch, so it drifts from the batch loss by a factor of up to about two over training. It moves with it, which is the point.)</p>
+
+    <p>And with an instrument that works, the answer to the question this whole project was built on is clear and negative:</p>
+
+    <div class="table-wrap">
+      <table>
+        <tr><th>Coda NLL by pass</th><th class="num">Step 0</th><th class="num">Step 150</th><th class="num">Step 400</th></tr>
+        <tr><td>Pass 0</td><td class="num">0.7528</td><td class="num">0.2887</td><td class="num">0.2309</td></tr>
+        <tr><td>Pass 1</td><td class="num">0.7593</td><td class="num best">0.2788</td><td class="num best">0.2240</td></tr>
+        <tr><td>Pass 2 <span style="font-size:11px;color:#888">(the one that is served)</span></td><td class="num">0.7727</td><td class="num">0.2790</td><td class="num">0.2253</td></tr>
+        <tr class="sep"><td>Spread, as a share of the value</td><td class="num">2.6%</td><td class="num">3.4%</td><td class="num">3.0%</td></tr>
+      </table>
+    </div>
+
+    <p>The three passes are the same to within three percent, at every point in training. There is no better pass for a policy gradient to find. Whatever exploration pathloop performs, the comparison it feeds into is between three quantities that do not differ &mdash; the across-pass spread of the reward, normalised by its across-token spread, sits at <strong>0.006</strong> against a threshold of roughly 1 for the comparison to be usable. That is not a weak signal. It is two orders of magnitude short of one.</p>
+
+    <p>The table also quietly falsifies the second training term. $\mathcal{L}_{\text{ladder}}$ weights later passes more, on the assumption that the passes improve monotonically and the last one is the best. Pass 1 is in fact the best pass at every checkpoint after the first, and pass 2 &mdash; the one whose state is actually served &mdash; is very slightly worse. The premise the term encodes is not true, though the margin is small enough that it is fairer to call it "flat" than "decreasing".</p>
+
+    <h3 id="gate">The gate, from above and from below</h3>
+
+    <p>If the passes are near-copies, the reason is the gate: pass $\tau$ can only route differently if $g_\tau \odot (u_\tau - h_{\tau-1})$ is large enough to reorder the router's top eight. Figure 3 showed the gates climbing from zero to 0.021, or 0.059 with a 100&times; learning rate. That leaves an obvious question: is 0.06 where fine-tuning <em>wants</em> the gate, or just as far as it can crawl in one epoch from a standing start?</p>
+
+    <p>So we started a run at $g = 0.3$ and watched which way it moved. It moved down &mdash; and then stopped moving:</p>
+
+    <div class="table-wrap">
+      <table>
+        <tr><th>Gate rms, initialised at 0.30 with 100&times; LR</th><th class="num">0</th><th class="num">100</th><th class="num">200</th><th class="num">300</th><th class="num">400</th></tr>
+        <tr><td>Pass 1 gate</td><td class="num">0.3008</td><td class="num">0.2806</td><td class="num">0.2681</td><td class="num">0.2647</td><td class="num">0.2625</td></tr>
+        <tr><td>Pass 2 gate</td><td class="num">0.3008</td><td class="num">0.2813</td><td class="num">0.2684</td><td class="num">0.2641</td><td class="num">0.2617</td></tr>
+      </table>
+    </div>
+
+    <p>The decay decelerates hard: 0.038 lost over the first 200 steps, 0.006 over the last 200. It is settling near 0.26, not collapsing to zero. Put beside the runs that start at zero and reach 0.021&ndash;0.059, the picture is not "fine-tuning wants the loop closed" &mdash; it is <strong>the loss is nearly flat in the gate over the whole range we have looked at</strong>. The gate ends up wherever it started, plus a slow drift. Which means the gate is not something the model will discover for us. It is a hyperparameter, and we have been leaving it at the one value &mdash; zero &mdash; that guarantees the passes are identical on the first step.</p>
+
+    <p>That reframes the loop's headline claim too. Gates at 0.26 are ten times the earlier runs, and the passes still overlap at 0.947. Whatever is stopping the passes from separating survives an order of magnitude of gate.</p>
 
     <h2>Where this stands</h2>
 
     <div class="status">
-      <strong>In progress.</strong> Pathloop is implemented and unit-tested, and the first tier-1 run on Ling-Coder is training now. No pathloop results yet.
+      <strong>Pathloop: done, and negative.</strong> It is worth about a point of coding pass@1 over plain fine-tuning, and nothing we can resolve over the looped SFT it is built on. Tier 2 does not beat tier 1, which is the cleanest statement that its two losses are not what produced the gain. <strong>Queued next:</strong> a full-strength loop ($g$ initialised at 1.0) with pathloop reduced to diagnostics, to test whether a loop that actually does work produces passes that differ. One further arm &mdash; the coda readout trained with a policy gradient but no ladder term &mdash; is in evaluation as this is written and is not in the table above.
     </div>
 
-    <p>Building it surfaced five bugs, every one silent &mdash; nothing crashed, and each would have produced a clean-looking run that measured nothing:</p>
+    <p>Building pathloop surfaced five bugs, every one silent &mdash; nothing crashed, and each would have produced a clean-looking run that measured nothing:</p>
 
     <ul>
       <li>The sampled experts were given roughly a third of their correct weight, because two different normalizations were being mixed.</li>
@@ -902,9 +1090,28 @@
       <li>The tier-2 auxiliary loss ignored the schedule, so tier 1 and tier 2 differed from step 0 by an amount that had nothing to do with the idea being tested.</li>
     </ul>
 
-    <p>The run in progress places exploration in the middle of training &mdash; off for the first 100 steps, easing to $q{=}1$, full at $q{=}2$ from 150 to 300, then easing back to zero by 350. The shaded band in Figure 3 shows why: exploring before the gates open would perturb passes that are still doing nothing.</p>
+    <p>Two more have since joined them, and they are the expensive ones, because neither was a bug in the method &mdash; both were bugs in how we were <em>looking</em> at the method. The serving flag made a working model score 22 points low, and a control arm that could not possibly have caught it told us the harness was fine. The logit lens reduced an 11.7-nat signal to 0.79 nats and ranked the passes backwards, and the sanity check we ran on it &mdash; beat a shuffled control &mdash; was incapable of failing.</p>
 
-    <p><strong>The question this run answers</strong> is narrow and prior to everything else: once the gates are open, do the three passes ever become different enough to compare? If the reward spread lifts off the floor, the comparison is real and tier 2 is worth training. If it stays at zero through the exploration window, then the passes are copies no matter what the router does, and the honest next step is not more pathloop but changing how the loop is built &mdash; starting the gates away from zero, so the passes are distinct from the beginning.</p>
+    <div class="insight-box">
+      <h3>The generalisable part</h3>
+      <p><strong>Give every diagnostic an absolute reference before you trust a difference.</strong> Our lens had a relative check (beat shuffled labels) and passed it comfortably while operating at 7% of scale. The absolute reference &mdash; $\ln V$ for a next-token readout &mdash; costs one line and would have failed it at step 0 of the first run. Relative controls tell you a number is not <em>nothing</em>. They cannot tell you it is not noise.</p>
+      <p><strong>A control arm only controls for what it shares with the treatment.</strong> An unlooped baseline cannot detect a bug in the looped serving path. When the treatment adds a code path, the control has to exercise it.</p>
+      <p><strong>Measure the mechanism before optimising the objective.</strong> Every bug in the list above delayed pathloop. None of them mattered, because the expert-set overlap probe &mdash; four lines, no gradient, one boolean AND per layer &mdash; would have shown before any of the losses were written that pass 2 changes 0.4 of 8 experts relative to pass 1, and therefore that there was nothing for a comparison across passes to compare.</p>
+    </div>
+
+    <h3>What we would do differently, and what is running now</h3>
+
+    <p>Pathloop attacked the router. The evidence says the router was never the binding constraint: it re-routes 33% of a token's experts on the first extra pass entirely on its own, without any help from sampling, and forcing half the expert budget to be drawn stochastically does not move where it wants to go. What it does not do is re-route again on the <em>second</em> extra pass, and that is a property of the state it is being handed, not of the router reading it.</p>
+
+    <p>Which points at the gate. The earlier version of this post ended by guessing the same thing, and it is one of the few guesses here that survived contact with the data:</p>
+
+    <p style="border-left:3px solid var(--border);padding-left:14px;color:var(--text-secondary);font-style:italic">&ldquo;...then the passes are copies no matter what the router does, and the honest next step is not more pathloop but changing how the loop is built &mdash; starting the gates away from zero, so the passes are distinct from the beginning.&rdquo;</p>
+
+    <p>That is the run in progress. It sets $g_\tau = 1$ at initialisation, which by the update rule $h_\tau = h_{\tau-1} + g_\tau \odot (u_\tau - h_{\tau-1})$ gives $h_\tau = u_\tau = F(h_{\tau-1})$ &mdash; the plain unweighted loop, three genuine applications of the window, no interpolation with the previous state. Everything else is held at the looped-SFT arm's settings, so the initialisation is the only variable against a known 68.88. Pathloop is present but inert: sampling off, no loss attached, the coda readout still logging $\mathrm{NLL}$ per pass. It is there as an instrument, which is what it should probably have been from the start.</p>
+
+    <p>This gives up the property that made the gated loop attractive &mdash; at $g=1$ the model no longer reproduces the base checkpoint on step 0, and the first steps are genuinely a 96-layer network that has never been trained as one. That is the trade the evidence now argues for. A loop initialised where the passes are provably identical, whose gate the loss then barely moves, is a loop that spends its whole life near the degenerate solution. Better to start where the passes are different and find out what it costs.</p>
+
+    <p>The question that run answers is the one this whole post has been circling: <strong>are the passes near-copies because the gate is small, or because the window converges to a fixed point no matter how hard you apply it?</strong> If the overlap between passes 1 and 2 drops from 0.947 once the loop runs at full strength, the gate was the constraint and the gated formulation was the mistake. If it stays at 0.947 with $g=1$, then repeated application of the same 24 layers converges regardless, and no amount of routing intervention or gate tuning will produce three paths &mdash; the loop would need to be made non-identical by construction, with per-pass parameters, and the "48 layers' worth of weights" claim goes with it.</p>
 
   </div>
 

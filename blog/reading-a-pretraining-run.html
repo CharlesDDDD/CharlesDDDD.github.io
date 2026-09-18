@@ -20,342 +20,241 @@
 
     :root {
       --bg: #ffffff;
-      --text: #15181c;
-      --text-secondary: #4d545c;
-      --text-light: #8b929a;
-      --accent: #1f4fa3;
-      --rule: #e7e9ed;
-      --rule-strong: #c8ced6;
-      --surface: #f7f8fa;
-      --p0: #b03a26;
-      --p1: #74808d;
-      --p2: #c2c8d0;
+      --text: #1c1c1e;
+      --text-secondary: #555;
+      --text-light: #888;
+      --accent: #2b5ecc;
+      --accent-light: #eef2fb;
+      --navy: #1b3a6f;
+      --border: #e2e2e2;
+      --surface: #f6f7f9;
     }
 
-    html {
-      scroll-behavior: smooth;
-      scroll-padding-top: 28px;
-    }
+    html { scroll-behavior: smooth; scroll-padding-top: 24px; }
 
     body {
       font-family: 'Inter', sans-serif;
       background: var(--bg);
       color: var(--text);
-      font-size: 15px;
-      line-height: 1.75;
-      -webkit-font-smoothing: antialiased;
+      font-size: 14px;
+      line-height: 1.7;
     }
 
-    .container { max-width: 1120px; margin: 0 auto; padding: 0 32px; }
+    .container { max-width: 1160px; margin: 0 auto; padding: 0 28px; }
 
     .article-layout {
       display: grid;
-      grid-template-columns: 208px minmax(0, 760px);
-      gap: 56px;
-      max-width: 1120px;
+      grid-template-columns: 190px minmax(0, 860px);
+      gap: 40px;
+      max-width: 1160px;
       margin: 0 auto;
-      padding: 0 32px;
+      padding: 0 28px;
     }
     .article-column { min-width: 0; }
 
-    /* ---------- table of contents ---------- */
+    /* ---------- contents ---------- */
 
-    .toc-column { padding-top: 78px; }
+    .toc-column { padding-top: 56px; }
     .toc {
-      max-height: calc(100vh - 56px);
+      max-height: calc(100vh - 48px);
       overflow-y: auto;
       position: sticky;
-      top: 28px;
+      top: 24px;
     }
     .toc-title {
       color: var(--text-light);
-      font-size: 9.5px;
+      font-size: 10px;
       font-weight: 700;
-      letter-spacing: 0.16em;
-      margin: 0 0 14px 13px;
+      letter-spacing: 0.1em;
+      margin: 0 0 10px 11px;
       text-transform: uppercase;
     }
     .toc-part {
-      color: #aab1b9;
-      font-size: 9.5px;
+      border-top: 1px solid var(--border);
+      color: var(--navy);
+      font-size: 10px;
       font-weight: 700;
-      letter-spacing: 0.13em;
-      margin: 18px 0 5px 13px;
+      letter-spacing: 0.08em;
+      margin: 14px 0 5px;
+      padding: 8px 0 0 11px;
       text-transform: uppercase;
     }
-    .toc-part:first-of-type { margin-top: 0; }
+    .toc-part:first-of-type { border-top: none; margin-top: 0; padding-top: 0; }
     .toc a {
-      border-left: 1px solid var(--rule);
+      border-left: 2px solid var(--border);
       color: var(--text-light);
-      display: grid;
-      grid-template-columns: 17px 1fr;
+      display: block;
       font-size: 12px;
-      line-height: 1.4;
-      padding: 5px 8px 5px 12px;
+      line-height: 1.35;
+      padding: 5px 10px;
       text-decoration: none;
       transition: border-color 0.15s, color 0.15s;
     }
-    .toc a .n { color: #b9c0c8; font-variant-numeric: tabular-nums; }
-    .toc a:hover { border-left-color: var(--rule-strong); color: var(--text); text-decoration: none; }
+    .toc a .n { display: inline-block; width: 16px; color: #aaa; }
+    .toc a:hover { border-left-color: #9db5e6; color: var(--text); text-decoration: none; }
     .toc a.active { border-left-color: var(--accent); color: var(--accent); font-weight: 600; }
     .toc a.active .n { color: var(--accent); }
 
     .mobile-toc {
       display: none;
-      margin: 26px 0 0;
-      border-top: 1px solid var(--rule);
-      border-bottom: 1px solid var(--rule);
+      margin: 24px 0 0;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--surface);
     }
-    .mobile-toc summary {
-      cursor: pointer;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      padding: 12px 2px;
-      text-transform: uppercase;
-      color: var(--text-light);
-    }
-    .mobile-toc nav { padding: 0 2px 14px; }
-    .mobile-toc a {
-      color: var(--text-secondary);
-      display: block;
-      font-size: 13px;
-      padding: 4px 0;
-      text-decoration: none;
-    }
+    .mobile-toc summary { cursor: pointer; font-size: 12px; font-weight: 600; padding: 10px 14px; }
+    .mobile-toc nav { border-top: 1px solid var(--border); padding: 8px 14px 10px; }
+    .mobile-toc a { color: var(--text-secondary); display: block; font-size: 12px; padding: 4px 0; text-decoration: none; }
 
     /* ---------- chrome ---------- */
 
-    header { border-bottom: 1px solid var(--rule); padding: 18px 0; }
+    header { border-bottom: 1px solid var(--border); padding: 16px 0; }
     header a { font-size: 12px; color: var(--text-secondary); text-decoration: none; }
     header a:hover { color: var(--accent); }
 
-    .hero { padding: 74px 0 40px; }
-    .hero .kicker {
-      color: var(--text-light);
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 0.16em;
-      margin-bottom: 20px;
-      text-transform: uppercase;
-    }
+    .hero { padding: 52px 0 36px; }
     .hero h1 {
       font-family: 'Source Serif 4', Georgia, serif;
-      font-size: 2.7rem;
+      font-size: 2.2rem;
       font-weight: 600;
-      letter-spacing: -0.032em;
-      line-height: 1.1;
-      margin-bottom: 18px;
-    }
-    .hero .subtitle {
-      max-width: 580px;
-      color: var(--text-secondary);
-      font-size: 16px;
-      line-height: 1.6;
+      letter-spacing: -0.025em;
+      line-height: 1.2;
       margin-bottom: 14px;
     }
-    .hero .meta {
-      color: var(--text-light);
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
+    .hero .meta { color: var(--text-light); font-size: 12px; }
 
-    .divider { border: none; border-top: 1px solid var(--rule); }
+    .divider { border: none; border-top: 1px solid var(--border); }
 
-    .prose { padding: 40px 0 0; color: var(--text); font-size: 15px; line-height: 1.78; }
-    .prose p { margin-bottom: 1.15em; }
-    .prose .lede { font-size: 16.5px; line-height: 1.7; color: var(--text-secondary); }
-    .prose strong { font-weight: 600; color: var(--text); }
+    .prose { padding: 36px 0; color: var(--text); font-size: 14px; line-height: 1.8; }
+    .prose p { margin-bottom: 1.1em; }
+    .prose strong { font-weight: 600; }
 
     .part {
-      align-items: center;
-      display: flex;
-      gap: 18px;
-      margin: 86px 0 0;
-    }
-    .part::after { background: var(--rule); content: ""; flex: 1; height: 1px; }
-    .part span {
-      color: var(--text-light);
-      font-size: 10px;
+      border-top: 2px solid var(--navy);
+      color: var(--navy);
+      font-size: 10.5px;
       font-weight: 700;
-      letter-spacing: 0.18em;
+      letter-spacing: 0.12em;
+      margin: 46px 0 0;
+      padding-top: 9px;
       text-transform: uppercase;
-      white-space: nowrap;
     }
 
     h2 {
-      align-items: baseline;
-      display: flex;
       font-family: 'Source Serif 4', Georgia, serif;
-      font-size: 1.55rem;
+      font-size: 1.38rem;
       font-weight: 600;
-      gap: 14px;
-      letter-spacing: -0.018em;
-      margin: 54px 0 16px;
+      letter-spacing: -0.01em;
+      margin: 36px 0 14px;
     }
-    .part + h2 { margin-top: 24px; }
-    h2 .num {
-      color: #b9c0c8;
-      font-family: 'Inter', sans-serif;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      font-variant-numeric: tabular-nums;
-    }
-    h3 {
-      font-size: 0.95rem;
-      font-weight: 600;
-      margin: 32px 0 10px;
-    }
+    .part + h2 { margin-top: 16px; }
+    h3 { font-size: 0.92rem; font-weight: 600; margin: 26px 0 10px; }
 
     a { color: var(--accent); text-decoration: none; }
     a:hover { text-decoration: underline; }
 
-    /* ---------- priority chips ---------- */
+    /* ---------- priority badges ---------- */
 
     .p {
-      align-items: center;
-      display: inline-flex;
-      font-size: 9.5px;
+      border-radius: 3px;
+      font-size: 10px;
       font-weight: 700;
-      gap: 5px;
-      letter-spacing: 0.1em;
-      margin-left: 9px;
-      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-left: 6px;
+      padding: 1px 6px;
       white-space: nowrap;
     }
-    .p::before { border-radius: 50%; content: ""; flex: none; height: 6px; width: 6px; }
-    .p-0 { color: var(--p0); } .p-0::before { background: var(--p0); }
-    .p-1 { color: var(--p1); } .p-1::before { background: var(--p1); }
-    .p-2 { color: #aab1b9; } .p-2::before { background: var(--p2); }
+    .p-0 { background: #b3341f; color: #fff; }
+    .p-1 { background: #dfe6f4; color: var(--navy); }
+    .p-2 { background: #ececec; color: #6e6e6e; }
+    td .p, .prio-table .p { margin-left: 0; }
 
-    .ladder {
-      border-top: 1px solid var(--rule);
-      margin: 26px 0 8px;
-    }
-    .ladder > div {
-      border-bottom: 1px solid var(--rule);
-      display: grid;
-      gap: 22px;
-      grid-template-columns: 62px 1fr;
-      padding: 13px 0;
-    }
-    .ladder .p { margin-left: 0; padding-top: 4px; }
-    .ladder p { color: var(--text-secondary); font-size: 14px; line-height: 1.6; margin: 0; }
-
-    /* ---------- first-screen cards ---------- */
+    /* ---------- first screen ---------- */
 
     .signal-grid {
-      background: var(--rule);
-      border-bottom: 1px solid var(--rule);
-      border-top: 1px solid var(--rule);
       display: grid;
-      gap: 1px;
+      gap: 10px;
       grid-template-columns: repeat(3, 1fr);
-      margin: 28px 0 30px;
+      margin: 20px 0 24px;
     }
-    .signal { background: var(--bg); padding: 16px 18px 18px; }
+    .signal {
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--navy);
+      border-radius: 4px;
+      padding: 11px 13px 12px;
+    }
     .signal .area {
       color: var(--text-light);
-      font-size: 9.5px;
+      font-size: 10px;
       font-weight: 700;
-      letter-spacing: 0.12em;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
     }
-    .signal .name { font-size: 14.5px; font-weight: 600; line-height: 1.35; margin: 7px 0 5px; }
-    .signal p { color: var(--text-secondary); font-size: 12.5px; line-height: 1.55; margin: 0; }
-
-    .tier { border-top: 1px solid var(--rule); margin: 24px 0 8px; }
-    .tier > div {
-      border-bottom: 1px solid var(--rule);
-      display: grid;
-      gap: 22px;
-      grid-template-columns: 150px 1fr;
-      padding: 13px 0;
-    }
-    .tier .label {
-      color: var(--text);
-      font-size: 10.5px;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      padding-top: 3px;
-      text-transform: uppercase;
-    }
-    .tier p { color: var(--text-secondary); font-size: 14px; line-height: 1.6; margin: 0; }
+    .signal .name { font-size: 13.5px; font-weight: 600; line-height: 1.3; margin: 4px 0 5px; }
+    .signal p { color: var(--text-secondary); font-size: 12.5px; line-height: 1.5; margin: 0; }
 
     /* ---------- tables ---------- */
 
-    .table-wrap { margin: 24px 0 26px; overflow-x: auto; }
-    table { border-collapse: collapse; font-size: 13.5px; min-width: 600px; width: 100%; }
-    thead th {
-      border-bottom: 1px solid var(--rule-strong);
-      color: var(--text-light);
-      font-size: 9.5px;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      padding: 0 14px 9px 0;
+    .table-wrap {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      margin: 20px 0 24px;
+      overflow-x: auto;
+    }
+    table { border-collapse: collapse; font-size: 13px; width: 100%; }
+    th {
+      background: var(--navy);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 8px 10px;
       text-align: left;
-      text-transform: uppercase;
+      white-space: nowrap;
     }
-    td {
-      border-bottom: 1px solid var(--rule);
-      color: var(--text-secondary);
-      line-height: 1.5;
-      padding: 10px 14px 10px 0;
-      vertical-align: top;
-    }
-    td:first-child { color: var(--text); font-weight: 500; }
-    tr.group td {
-      border-bottom: 1px solid var(--rule-strong);
-      color: var(--text);
-      font-size: 9.5px;
-      font-weight: 700;
-      letter-spacing: 0.13em;
-      padding: 26px 0 6px;
-      text-transform: uppercase;
-    }
-    tr.group:first-child td { padding-top: 10px; }
+    td { border-bottom: 1px solid var(--border); padding: 8px 10px; vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--surface); }
+    tr.band td { background: #ebeaf7; color: #2c2a5a; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; padding: 6px 10px; text-transform: uppercase; }
+    tr.band:hover td { background: #ebeaf7; }
 
-    .index-table td:nth-child(3) { color: var(--text-light); font-size: 12.5px; white-space: nowrap; }
-    .index-table th:last-child,
-    .index-table td:last-child { padding-right: 0; text-align: right; white-space: nowrap; }
-    .index-table td .p { margin-left: 0; }
+    .index-table table { min-width: 720px; }
+    .index-table td:first-child { color: var(--text); font-weight: 600; white-space: nowrap; }
+    .index-table td:nth-child(3),
+    .index-table td:last-child { white-space: nowrap; }
+    .index-table td:nth-child(3) { color: var(--text-secondary); }
+
+    .prio-table td:first-child { white-space: nowrap; width: 1%; }
+    .screen-table td:first-child { color: var(--text); font-weight: 600; white-space: nowrap; width: 1%; }
 
     /* ---------- metric entries ---------- */
 
     .metric-entry {
-      border-left: 1px solid var(--rule-strong);
-      margin: 22px 0 26px;
-      padding: 2px 0 2px 18px;
+      border-left: 2px solid #c5d6f5;
+      margin: 18px 0 22px;
+      padding: 2px 0 2px 16px;
     }
     .metric-entry p:last-child { margin-bottom: 0; }
-    .metric-name { color: var(--text); font-weight: 600; }
+    .metric-name { color: var(--accent); font-weight: 600; }
 
     .caution {
-      border-left: 2px solid #d8b468;
-      color: var(--text-secondary);
-      font-size: 14px;
-      margin: 22px 0;
-      padding: 1px 0 1px 18px;
+      background: #fff8e8;
+      border-left: 3px solid #c28a2c;
+      border-radius: 0 4px 4px 0;
+      color: #654b20;
+      margin: 18px 0;
+      padding: 12px 16px;
     }
-    .caution strong { color: var(--text); }
+    .caution strong { color: #533b17; }
 
-    .equation {
-      margin: 20px 0;
-      overflow-x: auto;
-      padding: 4px 0;
-      text-align: center;
-    }
+    .equation { margin: 18px 0; overflow-x: auto; padding: 4px 0; text-align: center; }
 
-    ul, ol { margin: 12px 0 16px 22px; }
-    li { color: var(--text-secondary); margin-bottom: 7px; padding-left: 4px; }
+    ul, ol { margin: 10px 0 14px 24px; }
+    li { color: var(--text-secondary); margin-bottom: 6px; }
     li strong { color: var(--text); }
 
     code {
       background: var(--surface);
-      border: 1px solid var(--rule);
+      border: 1px solid var(--border);
       border-radius: 3px;
       font-family: 'Courier New', monospace;
       font-size: 12.5px;
@@ -363,41 +262,38 @@
     }
 
     .prose-footer {
-      border-top: 1px solid var(--rule);
+      border-top: 1px solid var(--border);
       color: var(--text-light);
-      font-size: 13.5px;
-      margin-top: 60px;
-      padding-top: 24px;
+      font-size: 13px;
+      margin-top: 38px;
+      padding-top: 22px;
     }
 
     footer {
-      border-top: 1px solid var(--rule);
+      border-top: 1px solid var(--border);
       color: var(--text-light);
       font-size: 12px;
-      margin-top: 56px;
-      padding: 26px 0;
+      padding: 24px 0;
       text-align: center;
     }
 
     @media (max-width: 1099px) {
-      .article-layout { display: block; max-width: 800px; }
+      .article-layout { display: block; max-width: 860px; }
       .toc-column { display: none; }
       .mobile-toc { display: block; }
     }
 
-    @media (max-width: 860px) {
+    @media (max-width: 760px) {
       .signal-grid { grid-template-columns: repeat(2, 1fr); }
     }
 
     @media (max-width: 700px) {
-      body { font-size: 14.5px; }
-      .hero { padding: 48px 0 32px; }
-      .hero h1 { font-size: 2rem; }
+      .hero h1 { font-size: 1.75rem; }
       .container { padding: 0 20px; }
       .article-layout { padding: 0 20px; }
       .signal-grid { grid-template-columns: 1fr; }
-      .tier > div, .ladder > div { grid-template-columns: 1fr; gap: 6px; }
-      .katex-display { font-size: 0.9em; }
+      th, td { font-size: 12px; padding: 6px 8px; }
+      .katex-display { font-size: 0.92em; }
     }
   </style>
 </head>
@@ -415,33 +311,31 @@
       <div class="toc-title">Contents</div>
 
       <div class="toc-part">I · Where to look</div>
-      <a href="#first-screen"><span class="n">1</span><span>The first screen</span></a>
-      <a href="#metric-index"><span class="n">2</span><span>Metric index</span></a>
+      <a href="#first-screen"><span class="n">1</span>First screen</a>
+      <a href="#metric-index"><span class="n">2</span>Metric index</a>
 
       <div class="toc-part">II · Every step</div>
-      <a href="#loss"><span class="n">3</span><span>Loss</span></a>
-      <a href="#gradients"><span class="n">4</span><span>Gradients and spikes</span></a>
-      <a href="#system-health"><span class="n">5</span><span>System health</span></a>
+      <a href="#loss"><span class="n">3</span>Loss</a>
+      <a href="#gradients"><span class="n">4</span>Gradients and spikes</a>
+      <a href="#system-health"><span class="n">5</span>System health</a>
 
-      <div class="toc-part">III · Every hundred steps</div>
-      <a href="#tensor-probes"><span class="n">6</span><span>Tensor probes</span></a>
-      <a href="#moe-balance"><span class="n">7</span><span>Expert balance</span></a>
-      <a href="#residual-paths"><span class="n">8</span><span>Residual paths</span></a>
-      <a href="#modality"><span class="n">9</span><span>Modality paths</span></a>
+      <div class="toc-part">III · Every 100 steps</div>
+      <a href="#tensor-probes"><span class="n">6</span>Tensor probes</a>
+      <a href="#moe-balance"><span class="n">7</span>Expert balance</a>
+      <a href="#residual-paths"><span class="n">8</span>Residual paths</a>
+      <a href="#modality"><span class="n">9</span>Modality paths</a>
 
       <div class="toc-part">IV · Every checkpoint</div>
-      <a href="#evaluation"><span class="n">10</span><span>Evaluation</span></a>
+      <a href="#evaluation"><span class="n">10</span>Evaluation</a>
 
       <div class="toc-part">V · Practice</div>
-      <a href="#implementation"><span class="n">11</span><span>Keeping probes cheap</span></a>
+      <a href="#implementation"><span class="n">11</span>Keeping probes cheap</a>
     </nav>
   </aside>
 
   <div class="article-column">
     <div class="hero">
-      <p class="kicker">Training observability</p>
       <h1>Reading a Pretraining Run</h1>
-      <p class="subtitle">What to watch, what to ignore, and how to define each metric so that two runs stay comparable.</p>
       <p class="meta">Chunyuan Deng &middot; September 2026</p>
     </div>
 
@@ -450,7 +344,7 @@
     <details class="mobile-toc">
       <summary>Contents</summary>
       <nav aria-label="Table of contents">
-        <a href="#first-screen">1. The first screen</a>
+        <a href="#first-screen">1. First screen</a>
         <a href="#metric-index">2. Metric index</a>
         <a href="#loss">3. Loss</a>
         <a href="#gradients">4. Gradients and spikes</a>
@@ -465,103 +359,116 @@
     </details>
 
     <main class="prose">
-    <p class="lede">A <em>probe</em> is a measurement attached to a training run. A large run emits tens of thousands of them. The hard part is not collecting more; it is knowing which ten belong in front of a person at three in the morning, which fifty to open once one of those ten moves, and which thousands exist only for a specific investigation.</p>
+    <p>A <em>probe</em> is a measurement attached to a training run. A large run emits tens of thousands of them, and the hard part is knowing which ten to watch. So every metric here carries a priority as well as a definition, an aggregation rule, and a default cadence.</p>
 
-    <p>So every metric here carries a priority as well as a definition, an aggregation rule, and a default cadence.</p>
-
-    <div class="ladder">
-      <div>
-        <span class="p p-0" title="Priority 0 — alert">P0</span>
-        <p><strong>Alert.</strong> Cheap enough to compute every step and wired to a pager. Roughly ten metrics. If one of them moves, the run stops or someone wakes up.</p>
-      </div>
-      <div>
-        <span class="p p-1" title="Priority 1 — diagnose">P1</span>
-        <p><strong>Diagnose.</strong> Read when a P0 moves. Usually per-layer or per-tensor, sampled every hundred steps or so. Nobody watches these continuously.</p>
-      </div>
-      <div>
-        <span class="p p-2" title="Priority 2 — forensics">P2</span>
-        <p><strong>Forensics.</strong> Per-parameter, per-expert, per-domain detail. Opened for one investigation or one design decision, then closed.</p>
-      </div>
+    <div class="table-wrap prio-table">
+      <table>
+        <thead>
+          <tr><th>Level</th><th>Meaning</th><th>Typical cadence</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="p p-0">P0</span></td>
+            <td><strong>Alert.</strong> Wired to a pager. Roughly ten metrics; if one moves, the run stops or someone wakes up.</td>
+            <td>Every step</td>
+          </tr>
+          <tr>
+            <td><span class="p p-1">P1</span></td>
+            <td><strong>Diagnose.</strong> Opened when a P0 moves. Usually per-layer or per-tensor. Nobody watches these continuously.</td>
+            <td>Every 100 steps</td>
+          </tr>
+          <tr>
+            <td><span class="p p-2">P2</span></td>
+            <td><strong>Forensics.</strong> Per-parameter, per-expert, per-domain detail, for one investigation.</td>
+            <td>On demand</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
-    <p>Most of what a training stack emits is P2, and that is fine — as long as nobody is asked to watch it. The failure mode is the opposite one: a dashboard where every panel looks equally urgent, so none of them is.</p>
+    <div class="part">Part I &middot; Where to look</div>
 
-    <div class="part"><span>Part I · Where to look</span></div>
+    <h2 id="first-screen">1. First screen</h2>
 
-    <h2 id="first-screen"><span class="num">01</span> The first screen</h2>
-
-    <p>If you build one page, build this one. Nine signals, all P0, all computed every step except the last.</p>
+    <p>If you build one page, build this one: nine P0 signals, all per-step except the last.</p>
 
     <div class="signal-grid">
       <div class="signal">
         <div class="area">Loss</div>
         <div class="name">Global and worst-rank mean</div>
-        <p>Convergence, plus whether one worker or one data shard is carrying all the damage.</p>
+        <p>Convergence, and whether one worker or shard carries the damage.</p>
       </div>
       <div class="signal">
         <div class="area">Loss</div>
         <div class="name">By source and modality</div>
-        <p>A domain or a modality regressing while the global curve stays flat.</p>
+        <p>A domain or modality regressing under a flat global curve.</p>
       </div>
       <div class="signal">
         <div class="area">Gradients</div>
         <div class="name">Global norm and clip rate</div>
-        <p>The earliest numerical warning. It usually moves before the loss does.</p>
+        <p>The earliest numerical warning; it moves before the loss.</p>
       </div>
       <div class="signal">
         <div class="area">Stability</div>
         <div class="name">Co-spike count</div>
-        <p>Loss and gradient norm spiking on the same step — the highest-confidence instability event.</p>
+        <p>Loss and gradient spiking on the same step.</p>
       </div>
       <div class="signal">
         <div class="area">System</div>
         <div class="name">Step time and throughput</div>
-        <p>Stalls, replays, stragglers, and communication regressions, in one curve.</p>
+        <p>Stalls, replays, stragglers, communication regressions.</p>
       </div>
       <div class="signal">
         <div class="area">System</div>
         <div class="name">Peak memory, max over ranks</div>
-        <p>How much headroom is left before the first device runs out of memory.</p>
+        <p>Headroom before the first out-of-memory failure.</p>
       </div>
       <div class="signal">
         <div class="area">Experts</div>
         <div class="name">Imbalance ratio</div>
-        <p>Routing collapse, and the compute imbalance it creates across the job.</p>
+        <p>Routing collapse and the compute imbalance behind it.</p>
       </div>
       <div class="signal">
         <div class="area">Numerics</div>
-        <div class="name">Absolute maximum at the output</div>
-        <p>Overflow and silent corruption, a few steps before they reach the loss.</p>
+        <div class="name">Absolute max at the output</div>
+        <p>Overflow and corruption, before they reach the loss.</p>
       </div>
       <div class="signal">
         <div class="area">Quality</div>
         <div class="name">Held-out loss per byte</div>
-        <p>Whether the run is still buying quality with compute. Evaluated every 0.5&ndash;2%.</p>
+        <p>Whether compute is still buying quality. Every 0.5&ndash;2%.</p>
       </div>
     </div>
 
-    <p>Three screens sit behind it, opened only when the first one moves.</p>
+    <p>Three screens sit behind it, opened when the first one moves.</p>
 
-    <div class="tier">
-      <div>
-        <div class="label">Data</div>
-        <p>Loss and token share by source and modality, document length, packing statistics.</p>
-      </div>
-      <div>
-        <div class="label">Numerics</div>
-        <p>Tensor scales and maxima, update ratios, residual and gate statistics, per-layer gradient contribution.</p>
-      </div>
-      <div>
-        <div class="label">Quality</div>
-        <p>Held-out loss and milestone evaluations, plotted against cumulative tokens or compute — never against steps.</p>
-      </div>
+    <div class="table-wrap screen-table">
+      <table>
+        <thead>
+          <tr><th>Screen</th><th>Contents</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Data</td>
+            <td>Loss and token share by source and modality; document length; packing statistics</td>
+          </tr>
+          <tr>
+            <td>Numerics</td>
+            <td>Tensor scales and maxima; update ratios; residual and gate statistics; per-layer gradient contribution</td>
+          </tr>
+          <tr>
+            <td>Quality</td>
+            <td>Held-out loss and milestone evaluations against cumulative tokens or compute, never against steps</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
-    <p><strong>Escalation order.</strong> When the first screen moves, this sequence resolves most incidents fastest: job state, then loss, then gradient norm and spikes, then step time, then memory, then expert balance. Open the layer-level views only after that ordering has failed to explain the symptom.</p>
+    <p><strong>Escalation order.</strong> Job state &rarr; loss &rarr; gradient norm and spikes &rarr; step time &rarr; memory &rarr; expert balance. Open the layer-level views only after that ordering fails to explain the symptom.</p>
 
-    <h2 id="metric-index"><span class="num">02</span> Metric index</h2>
+    <h2 id="metric-index">2. Metric index</h2>
 
-    <p>The default monitoring surface, grouped by area. Definitions and aggregation rules follow in the sections below; this table is the map.</p>
+    <p>The default monitoring surface. Definitions and aggregation rules follow in the sections below.</p>
 
     <div class="table-wrap index-table">
       <table>
@@ -574,10 +481,10 @@
           </tr>
         </thead>
         <tbody>
-          <tr class="group"><td colspan="4">Loss</td></tr>
+          <tr class="band"><td colspan="4">Loss</td></tr>
           <tr>
             <td>Global mean $L$</td>
-            <td>Convergence; the number every comparison is built on</td>
+            <td>Convergence; the number every comparison rests on</td>
             <td>Every step</td>
             <td><span class="p p-0">P0</span></td>
           </tr>
@@ -594,10 +501,10 @@
             <td><span class="p p-0">P0</span></td>
           </tr>
 
-          <tr class="group"><td colspan="4">Gradients and stability</td></tr>
+          <tr class="band"><td colspan="4">Gradients and stability</td></tr>
           <tr>
             <td>Global norm $G_2$</td>
-            <td>Numerical stability; moves before the loss does</td>
+            <td>Numerical stability; moves before the loss</td>
             <td>Every step</td>
             <td><span class="p p-0">P0</span></td>
           </tr>
@@ -620,28 +527,28 @@
             <td><span class="p p-1">P1</span></td>
           </tr>
           <tr>
-            <td>Mean and maximum $|g|$</td>
+            <td>Mean and max $|g|$</td>
             <td>Typical scale versus one exploding element</td>
             <td>Every step</td>
             <td><span class="p p-1">P1</span></td>
           </tr>
           <tr>
             <td>Zero fraction $Z_g$</td>
-            <td>Dead paths, underflow, parameters receiving no gradient</td>
+            <td>Dead paths, underflow, parameters getting no gradient</td>
             <td>Every step</td>
             <td><span class="p p-1">P1</span></td>
           </tr>
           <tr>
             <td>Skip and replay counters</td>
-            <td>Steps discarded by the spike guard; nondeterministic replays</td>
+            <td>Steps dropped by the spike guard; nondeterministic replays</td>
             <td>Every step</td>
             <td><span class="p p-1">P1</span></td>
           </tr>
 
-          <tr class="group"><td colspan="4">System</td></tr>
+          <tr class="band"><td colspan="4">System</td></tr>
           <tr>
-            <td>Step time and throughput</td>
-            <td>Stalls, replays, and slow shards</td>
+            <td>Step time, throughput</td>
+            <td>Stalls, replays, slow shards</td>
             <td>Every step</td>
             <td><span class="p p-0">P0</span></td>
           </tr>
@@ -659,7 +566,7 @@
           </tr>
           <tr>
             <td>Straggler score $S$</td>
-            <td>One rank setting the pace for the whole job</td>
+            <td>One rank setting the pace for the job</td>
             <td>Every step</td>
             <td><span class="p p-1">P1</span></td>
           </tr>
@@ -676,7 +583,7 @@
             <td><span class="p p-1">P1</span></td>
           </tr>
 
-          <tr class="group"><td colspan="4">Tensors and optimizer</td></tr>
+          <tr class="band"><td colspan="4">Tensors and optimizer</td></tr>
           <tr>
             <td>Absolute maximum</td>
             <td>Overflow, non-finite values, silent corruption</td>
@@ -685,7 +592,7 @@
           </tr>
           <tr>
             <td>RMS and absolute mean</td>
-            <td>Scale drift in activations, gradients, and updates</td>
+            <td>Scale drift in activations, gradients, updates</td>
             <td>Every 100 steps</td>
             <td><span class="p p-1">P1</span></td>
           </tr>
@@ -714,7 +621,7 @@
             <td><span class="p p-2">P2</span></td>
           </tr>
 
-          <tr class="group"><td colspan="4">Experts</td></tr>
+          <tr class="band"><td colspan="4">Experts</td></tr>
           <tr>
             <td>Imbalance $I$, excess load $V$</td>
             <td>Routing collapse and wasted expert compute</td>
@@ -729,7 +636,7 @@
           </tr>
           <tr>
             <td>Normalized entropy $H_{\mathrm{norm}}$</td>
-            <td>Routing sharpening toward a few experts</td>
+            <td>Routing sharpening onto a few experts</td>
             <td>Every 100 steps</td>
             <td><span class="p p-1">P1</span></td>
           </tr>
@@ -740,16 +647,16 @@
             <td><span class="p p-2">P2</span></td>
           </tr>
 
-          <tr class="group"><td colspan="4">Residual paths</td></tr>
+          <tr class="band"><td colspan="4">Residual paths</td></tr>
           <tr>
             <td>Relative branch scale $R_b$</td>
-            <td>A branch too weak to matter, or one that dominates the stream</td>
+            <td>A branch too weak to matter, or one that dominates</td>
             <td>Every 100 steps</td>
             <td><span class="p p-0">P0</span></td>
           </tr>
           <tr>
-            <td>Block importance $B$, angular distance $A$</td>
-            <td>Layers that have stopped changing the stream</td>
+            <td>Block importance $B$, angle $A$</td>
+            <td>Layers that stopped changing the stream</td>
             <td>Every 100 steps</td>
             <td><span class="p p-1">P1</span></td>
           </tr>
@@ -766,27 +673,27 @@
             <td><span class="p p-1">P1</span></td>
           </tr>
 
-          <tr class="group"><td colspan="4">Modality</td></tr>
+          <tr class="band"><td colspan="4">Modality</td></tr>
           <tr>
-            <td>Token share by modality $\pi^{(\mu)}$</td>
+            <td>Token share $\pi^{(\mu)}$</td>
             <td>Data-mix and packing changes</td>
             <td>Every 1&ndash;10 steps</td>
             <td><span class="p p-0">P0</span></td>
           </tr>
           <tr>
-            <td>Projected media scale ratio $\gamma$</td>
+            <td>Media scale ratio $\gamma$</td>
             <td>Media embeddings the backbone ignores, or that swamp it</td>
             <td>Every 100 steps</td>
             <td><span class="p p-0">P0</span></td>
           </tr>
           <tr>
             <td>Encoder gradient share $S_{\mathrm{enc}}$</td>
-            <td>An encoder that has quietly stopped learning</td>
+            <td>An encoder that stopped learning</td>
             <td>Every 100 steps</td>
             <td><span class="p p-1">P1</span></td>
           </tr>
 
-          <tr class="group"><td colspan="4">Evaluation</td></tr>
+          <tr class="band"><td colspan="4">Evaluation</td></tr>
           <tr>
             <td>Held-out NLL, bits per byte</td>
             <td>Generalization and the scaling trend</td>
@@ -807,13 +714,13 @@
           </tr>
           <tr>
             <td>Media gain</td>
-            <td>Whether media inputs are carrying any information</td>
+            <td>Whether media inputs carry information at all</td>
             <td>Key checkpoints</td>
             <td><span class="p p-0">P0</span></td>
           </tr>
           <tr>
-            <td>Sampled generation, pass@$k$, IoU</td>
-            <td>Coverage under sampling, and grounding quality</td>
+            <td>Sampled generation, IoU</td>
+            <td>Coverage under sampling; grounding quality</td>
             <td>Final checkpoints</td>
             <td><span class="p p-1">P1</span></td>
           </tr>
@@ -827,13 +734,13 @@
       </table>
     </div>
 
-    <p><strong>Cadence rule.</strong> Cheap alerting metrics run every step. Tensor scans run every hundred steps. Evaluation runs every 0.5&ndash;2% of training. An anomaly triggers denser probes or a replay. These are starting points, not constants — benchmark them on the target model before tightening any of them.</p>
+    <p><strong>Cadence rule.</strong> Cheap alerting metrics run every step, tensor scans every 100 steps, evaluation every 0.5&ndash;2% of training. An anomaly triggers denser probes or a replay.</p>
 
     <p><strong>Comparison axis.</strong> If batch size changes, compare runs by cumulative tokens or estimated floating-point operations, never by step.</p>
 
-    <div class="part"><span>Part II · Every step</span></div>
+    <div class="part">Part II &middot; Every step</div>
 
-    <h2 id="loss"><span class="num">03</span> Loss</h2>
+    <h2 id="loss">3. Loss</h2>
 
     <p>Let $R$ be the number of GPU ranks — one training process each. Rank $r$ contains $T_r$ token positions. For token $t$ on rank $r$, $\ell_{r,t}$ is its negative log-likelihood and $m_{r,t}$ is 1 for a valid target and 0 otherwise.</p>
 
@@ -847,7 +754,7 @@
     </div>
 
     <div class="metric-entry">
-      <p><span class="metric-name">Local mean loss $L_r$.</span><span class="p p-1">P1</span> Compute the valid-token mean on rank $r$.</p>
+      <p><span class="metric-name">Local mean loss $L_r$.</span><span class="p p-1">P1</span> The valid-token mean on rank $r$.</p>
       <div class="equation">
         $$L_r = \frac{\sum_{t=1}^{T_r}m_{r,t}\ell_{r,t}}
         {\sum_{t=1}^{T_r}m_{r,t}}.$$
@@ -856,15 +763,15 @@
     </div>
 
     <div class="metric-entry">
-      <p><span class="metric-name">Worst-rank loss $L_{\max}$.</span><span class="p p-0">P0</span> Take the maximum local mean over ranks.</p>
+      <p><span class="metric-name">Worst-rank loss $L_{\max}$.</span><span class="p p-0">P0</span> The maximum local mean over ranks.</p>
       <div class="equation">
         $$L_{\max}=\max_{1\le r\le R}L_r.$$
       </div>
-      <p>Use $L_{\max}$ to detect a bad worker or an unusual data shard hidden by $L$. It is a maximum over GPU ranks, not over tokens or examples.</p>
+      <p>This is a maximum over GPU ranks, not over tokens or examples. It catches a bad worker or an unusual shard that $L$ averages away.</p>
     </div>
 
     <div class="metric-entry">
-      <p><span class="metric-name">Loss by source and modality.</span><span class="p p-0">P0</span> Let $\mu$ index a stable data source or modality, and let $m^{(\mu)}_{r,t}$ be 1 when token $t$ on rank $r$ is a valid target belonging to $\mu$. Report the group loss together with its token share.</p>
+      <p><span class="metric-name">Loss by source and modality.</span><span class="p p-0">P0</span> Let $\mu$ index a stable data source or modality, and $m^{(\mu)}_{r,t}$ be 1 when token $t$ on rank $r$ is a valid target belonging to $\mu$. Report the group loss with its token share.</p>
       <div class="equation">
         $$L^{(\mu)}=\frac{\sum_{r,t} m^{(\mu)}_{r,t}\ell_{r,t}}
         {\sum_{r,t} m^{(\mu)}_{r,t}},
@@ -872,75 +779,68 @@
         \pi^{(\mu)}=\frac{\sum_{r,t} m^{(\mu)}_{r,t}}
         {\sum_{r,t} m_{r,t}}.$$
       </div>
-      <p>A group holding a few percent of the tokens can regress for thousands of steps without moving $L$. That is the single most common way a real problem stays invisible, which is why this belongs on the first screen rather than in a drill-down. Compare each group against its own history: absolute loss levels are not comparable across sources, because their token entropies differ.</p>
+      <p>A group holding a few percent of the tokens can regress for thousands of steps without moving $L$. Compare each group against its own history: absolute levels are not comparable across sources, whose token entropies differ.</p>
     </div>
 
     <p class="caution"><strong>Aggregation:</strong> do not average $L_r$ when valid-token counts differ. Reduce the loss sum and the token count separately, then divide.</p>
 
-    <h2 id="gradients"><span class="num">04</span> Gradients and spikes</h2>
+    <h2 id="gradients">4. Gradients and spikes</h2>
 
-    <p>Let $g=(g_1,\ldots,g_P)$ contain all $P$ gradient elements. The index $j$ selects one element. Measure after gradient accumulation and loss-scale removal, but before global clipping.</p>
+    <p>Let $g=(g_1,\ldots,g_P)$ contain all $P$ gradient elements. Measure after gradient accumulation and loss-scale removal, but before global clipping.</p>
 
     <div class="metric-entry">
-      <p><span class="metric-name">Global gradient norm $G_2$.</span><span class="p p-0">P0</span> Compute the Euclidean norm over all gradient elements.</p>
+      <p><span class="metric-name">Global gradient norm $G_2$.</span><span class="p p-0">P0</span> The Euclidean norm over all gradient elements.</p>
       <div class="equation">
         $$G_2=\sqrt{\sum_{j=1}^{P}g_j^2}.$$
       </div>
-      <p>This is the primary numerical-stability signal, and usually the first thing to move in a failing run.</p>
+      <p>The primary stability signal, and usually the first thing to move in a failing run.</p>
     </div>
 
     <div class="metric-entry">
-      <p><span class="metric-name">Clip rate.</span><span class="p p-0">P0</span> With clip threshold $c$ and a window of $W$ recent steps, report the fraction of steps that were clipped.</p>
+      <p><span class="metric-name">Clip rate.</span><span class="p p-0">P0</span> With clip threshold $c$ over a window of $W$ recent steps:</p>
       <div class="equation">
         $$\operatorname{Clip}=\frac{1}{W}\sum_{t}\mathbf{1}[G_{2,t}>c].$$
       </div>
-      <p>A low steady rate is normal. A sustained rise means the threshold no longer matches the run's gradient scale, and clipping has quietly become a learning-rate schedule you did not design.</p>
+      <p>A low steady rate is normal. A sustained rise means clipping has become an unplanned learning-rate schedule.</p>
     </div>
 
     <div class="metric-entry">
-      <p><span class="metric-name">Mean absolute gradient $G_{\mathrm{mean}}$.</span><span class="p p-1">P1</span> Average the absolute gradient elements.</p>
+      <p><span class="metric-name">Mean absolute gradient $G_{\mathrm{mean}}$.</span><span class="p p-1">P1</span> The average absolute gradient element.</p>
       <div class="equation">
         $$G_{\mathrm{mean}}=\frac{1}{P}\sum_{j=1}^{P}|g_j|.$$
       </div>
-      <p>This tracks typical element scale and is less sensitive to one outlier than $G_{\max}$.</p>
+      <p>Tracks typical element scale, and is less sensitive to one outlier than $G_{\max}$.</p>
     </div>
 
     <div class="metric-entry">
-      <p><span class="metric-name">Maximum absolute gradient $G_{\max}$.</span><span class="p p-1">P1</span> Take the largest absolute gradient element.</p>
+      <p><span class="metric-name">Maximum absolute gradient $G_{\max}$.</span><span class="p p-1">P1</span> The largest absolute gradient element.</p>
       <div class="equation">
         $$G_{\max}=\max_{1\le j\le P}|g_j|.$$
       </div>
-      <p>This detects localized explosion that $G_{\mathrm{mean}}$ dilutes away.</p>
+      <p>Detects localized explosion that $G_{\mathrm{mean}}$ dilutes away.</p>
     </div>
 
     <div class="metric-entry">
-      <p><span class="metric-name">Gradient zero fraction $Z_g$.</span><span class="p p-1">P1</span> Count exact zeros and divide by the number of gradient elements.</p>
+      <p><span class="metric-name">Gradient zero fraction $Z_g$.</span><span class="p p-1">P1</span> Exact zeros divided by the element count.</p>
       <div class="equation">
         $$Z_g=\frac{1}{P}\sum_{j=1}^{P}\mathbf{1}[g_j=0].$$
       </div>
-      <p>The indicator $\mathbf{1}[\mathcal{C}]$ equals 1 when condition $\mathcal{C}$ is true and 0 otherwise. A rise in $Z_g$ indicates sparse paths, underflow, or parameters receiving no gradient at all. Report it separately for embeddings and for expert parameters, where sparsity is expected and a change in it still matters.</p>
+      <p>The indicator $\mathbf{1}[\mathcal{C}]$ is 1 when $\mathcal{C}$ holds and 0 otherwise. A rise means sparse paths, underflow, or parameters receiving no gradient. Report embeddings and expert parameters separately, where sparsity is expected and a change in it still matters.</p>
     </div>
 
-    <p class="caution"><strong>Timing:</strong> record whether each gradient metric is scaled or unscaled, accumulated or per-microbatch, and before or after clipping. Two runs whose gradient norms are measured at different points in the optimizer are not comparable.</p>
+    <p class="caution"><strong>Timing:</strong> record whether each gradient metric is scaled or unscaled, accumulated or per-microbatch, and before or after clipping. Norms measured at different points in the optimizer are not comparable.</p>
 
     <h3>Spike detection</h3>
 
-    <p>For a positive scalar $x_t$ at step $t$, define $u_t=\log(x_t+\varepsilon)$, where $\varepsilon>0$ is a numerical floor and $\log$ is the natural logarithm. Let $W_t$ contain earlier $u$-values.</p>
+    <p>For a positive scalar $x_t$ at step $t$, define $u_t=\log(x_t+\varepsilon)$ with numerical floor $\varepsilon>0$ and natural $\log$. Let $W_t$ contain earlier $u$-values.</p>
 
     <div class="metric-entry">
-      <p><span class="metric-name">Rolling median $q_t$.</span><span class="p p-1">P1</span> Use the median of the log-space window as the local baseline.</p>
+      <p><span class="metric-name">Rolling median $q_t$ and deviation $D_t$.</span><span class="p p-1">P1</span> A local baseline and a spread estimate that a spike cannot inflate.</p>
       <div class="equation">
-        $$q_t=\operatorname{median}(W_t).$$
+        $$q_t=\operatorname{median}(W_t),
+        \qquad
+        D_t=\operatorname{median}_{u\in W_t}|u-q_t|.$$
       </div>
-      <p>The median is robust to isolated spikes.</p>
-    </div>
-
-    <div class="metric-entry">
-      <p><span class="metric-name">Median absolute deviation $D_t$.</span><span class="p p-1">P1</span> Measure the median distance from the rolling median.</p>
-      <div class="equation">
-        $$D_t=\operatorname{median}_{u\in W_t}|u-q_t|.$$
-      </div>
-      <p>$D_t$ estimates recent variability without using a variance that a spike can inflate.</p>
     </div>
 
     <div class="metric-entry">
@@ -957,226 +857,210 @@
         $$C_t=\mathbf{1}[\text{loss spike at step }t]\,
         \mathbf{1}[\text{gradient-norm spike at step }t].$$
       </div>
-      <p>$C_t=1$ is a far higher-confidence instability event than either detector alone, and it is the one worth paging on. Track the cumulative count and the cumulative magnitude, not just the instantaneous flag.</p>
+      <p>This is the one worth paging on. Track cumulative count and cumulative magnitude, not just the instantaneous flag.</p>
     </div>
 
     <div class="metric-entry">
-      <p><span class="metric-name">Skip and replay counters.</span><span class="p p-1">P1</span> Some runs discard the optimizer update on a detected spike and re-run the step. Count skipped updates, replayed steps, and replays that did not reproduce the original loss.</p>
-      <p>The last counter is the valuable one: a replay that returns a different loss on identical inputs points at hardware, not at data.</p>
+      <p><span class="metric-name">Skip and replay counters.</span><span class="p p-1">P1</span> Count skipped updates, replayed steps, and replays that did not reproduce the original loss.</p>
+      <p>The last one is the valuable counter: a replay that returns a different loss on identical inputs points at hardware, not data.</p>
     </div>
 
     <p class="caution"><strong>Thresholds:</strong> calibrate the window length and the $z_t$ threshold on stable runs. Do not tune them on a single failure.</p>
 
-    <h2 id="system-health"><span class="num">05</span> System health</h2>
+    <h2 id="system-health">5. System health</h2>
 
-    <p>Let $\tau_r$ be the local step time on rank $r$, and let $\tau=\max_r\tau_r$ be the global wall time of the step.</p>
+    <p>Let $\tau_r$ be the local step time on rank $r$, and $\tau=\max_r\tau_r$ the global wall time of the step.</p>
 
     <div class="metric-entry">
-      <p><span class="metric-name">Token throughput $\operatorname{TPS}$.</span><span class="p p-0">P0</span> Let $N_{\mathrm{tok}}$ be the global number of valid tokens processed in one step.</p>
+      <p><span class="metric-name">Token throughput $\operatorname{TPS}$.</span><span class="p p-0">P0</span> With $N_{\mathrm{tok}}$ the global valid tokens in one step:</p>
       <div class="equation">
         $$\operatorname{TPS}=\frac{N_{\mathrm{tok}}}{\tau}.$$
       </div>
-      <p>This is the end-to-end training rate. Include data loading, forward, backward, optimizer, and synchronization in $\tau$.</p>
+      <p>Include data loading, forward, backward, optimizer, and synchronization in $\tau$.</p>
     </div>
 
     <div class="metric-entry">
-      <p><span class="metric-name">Compute rate $\Phi$.</span><span class="p p-0">P0</span> Let $F_{\mathrm{step}}$ be estimated floating-point operations per step and $D$ the number of accelerator devices.</p>
+      <p><span class="metric-name">Compute rate $\Phi$.</span><span class="p p-0">P0</span> With $F_{\mathrm{step}}$ estimated operations per step and $D$ devices:</p>
       <div class="equation">
         $$\Phi=\frac{F_{\mathrm{step}}}{D\tau}.$$
       </div>
-      <p>$\Phi$ is estimated operations per second per device. Keep the FLOP estimator fixed across compared runs; changing the estimator changes the metric without changing the hardware.</p>
+      <p>Keep the FLOP estimator fixed across compared runs; changing it changes the metric without changing the hardware.</p>
     </div>
 
     <div class="metric-entry">
-      <p><span class="metric-name">Straggler score $S$.</span><span class="p p-1">P1</span> Divide the global step time by the median local step time.</p>
+      <p><span class="metric-name">Straggler score $S$.</span><span class="p p-1">P1</span> Global step time over median local step time.</p>
       <div class="equation">
         $$S=\frac{\tau}{\operatorname{median}_r(\tau_r)+\varepsilon}.$$
       </div>
-      <p>$S$ is close to 1 when ranks progress together. It rises when one slow rank sets the step time for everyone.</p>
+      <p>$S\approx1$ when ranks progress together. It rises when one slow rank sets the pace.</p>
     </div>
 
     <div class="metric-entry">
-      <p><span class="metric-name">Peak memory.</span><span class="p p-0">P0</span> Maximum allocated or reserved bytes observed during the measurement interval, reduced with a maximum over ranks.</p>
-      <p>The maximum over ranks is the number that matters: it identifies the device closest to an out-of-memory failure. Reset peak counters only at documented boundaries; otherwise adjacent points describe different windows.</p>
+      <p><span class="metric-name">Peak memory.</span><span class="p p-0">P0</span> Maximum allocated or reserved bytes in the interval, reduced with a maximum over ranks.</p>
+      <p>The max over ranks identifies the device closest to failure. Reset peak counters only at documented boundaries, or adjacent points describe different windows.</p>
     </div>
 
     <div class="metric-entry">
-      <p><span class="metric-name">Allocated and reserved memory.</span><span class="p p-1">P1</span> Allocated bytes are held by live tensors; reserved bytes are held by the device allocator, including cached blocks.</p>
-      <p>A widening reserved-minus-allocated gap indicates fragmentation or an oversized allocator cache, not a larger model.</p>
+      <p><span class="metric-name">Allocated and reserved memory.</span><span class="p p-1">P1</span> Allocated bytes are held by live tensors; reserved bytes are held by the allocator, including cached blocks.</p>
+      <p>A widening reserved-minus-allocated gap means fragmentation or an oversized cache, not a larger model.</p>
     </div>
 
     <div class="metric-entry">
-      <p><span class="metric-name">Exposed collective wait $W_{\mathrm{comm}}$.</span><span class="p p-1">P1</span> Let $\tau_{\mathrm{wait}}$ be collective time on the critical path that is not overlapped with useful computation.</p>
+      <p><span class="metric-name">Exposed collective wait $W_{\mathrm{comm}}$.</span><span class="p p-1">P1</span> With $\tau_{\mathrm{wait}}$ the critical-path collective time not overlapped with computation:</p>
       <div class="equation">
         $$W_{\mathrm{comm}}=\frac{\tau_{\mathrm{wait}}}{\tau}.$$
       </div>
-      <p>Report collective count and payload alongside $W_{\mathrm{comm}}$, to separate many small calls from one bandwidth-limited large call.</p>
+      <p>Report collective count and payload alongside it, to separate many small calls from one bandwidth-limited large call.</p>
     </div>
 
     <div class="metric-entry">
-      <p><span class="metric-name">Device and host telemetry.</span><span class="p p-1">P1</span> Record device utilization, power, temperature, clock, process memory, CPU pressure, page faults, and network traffic.</p>
-      <p>These signals separate model regressions from host, thermal, allocator, and network failures — which is most of what a throughput drop turns out to be.</p>
+      <p><span class="metric-name">Device and host telemetry.</span><span class="p p-1">P1</span> Utilization, power, temperature, clock, process memory, CPU pressure, page faults, network traffic.</p>
+      <p>These separate model regressions from host, thermal, allocator, and network failures — which is most of what a throughput drop turns out to be.</p>
     </div>
 
-    <p class="caution"><strong>Timing:</strong> place device events around the real asynchronous wait and read them at an existing synchronization boundary. Adding host synchronization changes the overlap you are trying to measure.</p>
+    <p class="caution"><strong>Timing:</strong> place device events around the real asynchronous wait and read them at an existing synchronization boundary. Adding host synchronization changes the overlap you are measuring.</p>
 
-    <p class="caution"><strong>Node counters:</strong> sample each network interface once per node. Reading it from every local rank multiplies the reported traffic by the number of ranks.</p>
+    <p class="caution"><strong>Node counters:</strong> sample each network interface once per node. Reading it from every local rank multiplies the reported traffic.</p>
 
-    <div class="part"><span>Part III · Every hundred steps</span></div>
+    <div class="part">Part III &middot; Every 100 steps</div>
 
-    <h2 id="tensor-probes"><span class="num">06</span> Tensor probes</h2>
+    <h2 id="tensor-probes">6. Tensor probes</h2>
 
-    <p>Let $x=(x_1,\ldots,x_N)$ be a flattened tensor with $N$ scalar elements. The index $j$ selects one element. One pass over memory can produce all of the statistics below at once.</p>
+    <p>Let $x=(x_1,\ldots,x_N)$ be a flattened tensor with $N$ elements. One pass over memory can produce all of the statistics below at once.</p>
 
     <div class="metric-entry">
-      <p><span class="metric-name">Absolute maximum.</span><span class="p p-0">P0</span> Take the largest absolute element.</p>
+      <p><span class="metric-name">Absolute maximum.</span><span class="p p-0">P0</span> The largest absolute element.</p>
       <div class="equation">
         $$\operatorname{AbsMax}(x)=\max_{1\le j\le N}|x_j|.$$
       </div>
-      <p>This is the fastest indicator of an outlier, an overflow, or a local numerical explosion. At the model output it is a P0 signal in its own right: it moves before the loss does.</p>
+      <p>The fastest indicator of an outlier, overflow, or local explosion. At the model output it is P0 in its own right: it moves before the loss.</p>
     </div>
 
     <div class="metric-entry">
-      <p><span class="metric-name">Root mean square.</span><span class="p p-1">P1</span> Take the square root of the mean squared element value.</p>
+      <p><span class="metric-name">Root mean square.</span><span class="p p-1">P1</span> The square root of the mean squared element value.</p>
       <div class="equation">
         $$\operatorname{RMS}(x)=\sqrt{\frac{1}{N}\sum_{j=1}^{N}x_j^2}.$$
       </div>
-      <p>RMS measures energy scale and stays comparable across tensors with different element counts. Store the square mean $M_2(x)=\frac1N\sum_j x_j^2$ rather than RMS itself: ranks can reduce the squared sum and the element count separately, and RMS follows.</p>
+      <p>RMS measures energy scale and stays comparable across tensor sizes. Store the square mean $M_2(x)=\frac1N\sum_j x_j^2$ instead: ranks reduce the squared sum and element count separately, and RMS follows.</p>
     </div>
 
     <div class="metric-entry">
-      <p><span class="metric-name">Absolute mean.</span><span class="p p-1">P1</span> Average the absolute element values.</p>
+      <p><span class="metric-name">Absolute mean.</span><span class="p p-1">P1</span> The average absolute element value.</p>
       <div class="equation">
         $$\operatorname{AbsMean}(x)=\frac{1}{N}\sum_{j=1}^{N}|x_j|.$$
       </div>
-      <p>This measures typical scale without sign cancellation. Compared with RMS it is insensitive to a few large elements, so the gap between the two is itself informative.</p>
+      <p>Typical scale without sign cancellation. It ignores a few large elements, so its gap from RMS is itself informative.</p>
     </div>
 
     <div class="metric-entry">
-      <p><span class="metric-name">Zero fraction $Z_x$.</span><span class="p p-1">P1</span> Count exact zeros and divide by $N$.</p>
+      <p><span class="metric-name">Zero fraction $Z_x$.</span><span class="p p-1">P1</span> Exact zeros divided by $N$.</p>
       <div class="equation">
         $$Z_x=\frac{1}{N}\sum_{j=1}^{N}\mathbf{1}[x_j=0].$$
       </div>
-      <p>$Z_x$ measures sparsity, underflow, and inactive paths.</p>
+      <p>Measures sparsity, underflow, and inactive paths.</p>
     </div>
 
     <div class="metric-entry">
-      <p><span class="metric-name">Excess kurtosis $\kappa$.</span><span class="p p-2">P2</span> Let $\mu=\frac{1}{N}\sum_{j=1}^{N}x_j$ be the empirical mean. Normalize the fourth central moment by the squared variance.</p>
+      <p><span class="metric-name">Excess kurtosis $\kappa$.</span><span class="p p-2">P2</span> With empirical mean $\mu$, normalize the fourth central moment by the squared variance.</p>
       <div class="equation">
         $$\kappa=
         \frac{\frac{1}{N}\sum_{j=1}^{N}(x_j-\mu)^4}
         {\left(\frac{1}{N}\sum_{j=1}^{N}(x_j-\mu)^2\right)^2}-3.$$
       </div>
-      <p>Large positive $\kappa$ indicates heavy tails, which is a low-precision risk. The metric is undefined when the empirical variance is zero. Weights are worth tracking here; activations usually are not.</p>
+      <p>Large positive $\kappa$ means heavy tails, a low-precision risk. Undefined at zero variance. Worth tracking on weights, rarely on activations.</p>
     </div>
 
-    <p><strong>Observation points.</strong> Embeddings, logits, query/key/value tensors, normalized query and key, attention output, feed-forward activations, residual streams, expert inputs and outputs, parameter gradients, and applied updates. Use distinct names for forward activations and backward gradients — the pair is what makes the scan diagnostic.</p>
+    <p><strong>Observation points.</strong> Embeddings, logits, query/key/value, normalized query and key, attention output, feed-forward activations, residual streams, expert inputs and outputs, parameter gradients, applied updates. Name forward activations and backward gradients distinctly — the pair is what makes the scan diagnostic.</p>
 
-    <p><strong>Reading an explosion.</strong> Walk the absolute maximum of the backward pass from the output inward: model output, then each block's pre-clip tensors, then attention and feed-forward internals. The first layer that jumps is the layer to investigate.</p>
+    <p><strong>Reading an explosion.</strong> Walk the backward absolute maximum inward from the output: model output, each block's pre-clip tensors, then attention and feed-forward internals. The first layer that jumps is the one to investigate.</p>
 
-    <p class="caution"><strong>Distributed reduction:</strong> aggregate sums and element counts before computing means. Aggregate maxima with a maximum reduction. Never average local maxima, or ratios whose denominators differ.</p>
+    <p class="caution"><strong>Distributed reduction:</strong> aggregate sums and element counts before computing means, and aggregate maxima with a maximum reduction. Never average local maxima, or ratios whose denominators differ.</p>
 
     <h3>Relative update size</h3>
 
     <div class="metric-entry">
-      <p><span class="metric-name">Relative update size $\rho$.</span><span class="p p-1">P1</span> Let $w$ be a parameter tensor and $\Delta w$ the update applied to it.</p>
+      <p><span class="metric-name">Relative update size $\rho$.</span><span class="p p-1">P1</span> For parameter tensor $w$ and applied update $\Delta w$:</p>
       <div class="equation">
         $$\rho=\frac{\operatorname{RMS}(\Delta w)}
         {\operatorname{RMS}(w)+\varepsilon}.$$
       </div>
-      <p>A persistent fall toward zero indicates ineffective updates. A sudden rise indicates an update large relative to the parameter scale. This ratio is comparable across layers and across runs; the raw update norm is not.</p>
+      <p>A persistent fall toward zero means ineffective updates; a sudden rise means an update large relative to the parameter scale. The ratio is comparable across layers and runs; the raw update norm is not.</p>
     </div>
 
     <div class="metric-entry">
-      <p><span class="metric-name">Optimizer chain.</span><span class="p p-2">P2</span> For the same parameter group, record the raw gradient, the normalized gradient, the preconditioned direction, and the final applied update as separate tensors.</p>
-      <p>This locates the stage that introduces a scale or direction change. It is a lot of series for a lot of parameters, so keep it out of the standing dashboard and turn it on for an investigation.</p>
+      <p><span class="metric-name">Optimizer chain.</span><span class="p p-2">P2</span> Record the raw gradient, normalized gradient, preconditioned direction, and applied update as separate tensors.</p>
+      <p>This locates the stage that introduces a scale or direction change. Too many series for a standing dashboard; turn it on for an investigation.</p>
     </div>
 
     <p class="caution"><strong>Naming:</strong> specify whether an optimizer tensor is before or after normalization, preconditioning, weight decay, learning-rate scaling, and clipping.</p>
 
-    <h2 id="moe-balance"><span class="num">07</span> Expert balance</h2>
+    <h2 id="moe-balance">7. Expert balance</h2>
 
-    <p>Let $E$ be the number of experts and $c_i$ the number of valid tokens sent to expert $i$, where $1\le i\le E$.</p>
+    <p>Let $E$ be the number of experts and $c_i$ the valid tokens sent to expert $i$, with mean load $\bar c=\frac1E\sum_i c_i$.</p>
 
     <div class="metric-entry">
-      <p><span class="metric-name">Imbalance ratio $I$.</span><span class="p p-0">P0</span> Compare the busiest expert with the mean load $\bar c=\frac1E\sum_i c_i$.</p>
+      <p><span class="metric-name">Imbalance ratio $I$ and excess load $V$.</span><span class="p p-0">P0</span> Compare the busiest expert with the mean.</p>
       <div class="equation">
-        $$I=\frac{\max_{1\le i\le E}c_i}{\bar c}.$$
+        $$I=\frac{\max_{1\le i\le E}c_i}{\bar c},
+        \qquad
+        V=I-1.$$
       </div>
-      <p>Perfect balance gives $I=1$. Larger values identify routing collapse and the compute imbalance that follows it.</p>
+      <p>Perfect balance gives $I=1$ and $V=0$; $V=0.25$ means the busiest expert takes 25% more tokens than the mean. $V$ reads better on a dashboard, because it is zero when nothing is wrong.</p>
     </div>
 
     <div class="metric-entry">
-      <p><span class="metric-name">Excess load $V$.</span><span class="p p-0">P0</span> Subtract the balanced baseline from $I$.</p>
-      <div class="equation">
-        $$V=I-1.$$
-      </div>
-      <p>Perfect balance gives $V=0$. A value of 0.25 means the busiest expert receives 25% more tokens than the mean. $V$ is the more readable of the two on a dashboard, because it is zero when nothing is wrong.</p>
+      <p><span class="metric-name">Shard imbalance.</span><span class="p p-0">P0</span> The same ratio applied to expert-parallel shard loads.</p>
+      <p>Expert-level balance does not imply balanced communication groups, and it is the shard load that sets the step time.</p>
     </div>
 
     <div class="metric-entry">
-      <p><span class="metric-name">Shard imbalance.</span><span class="p p-0">P0</span> Apply the definition of $I$ to expert-parallel shard loads rather than to individual experts.</p>
-      <p>Expert-level balance does not guarantee balanced communication groups, and it is the shard load, not the expert load, that sets the step time.</p>
-    </div>
-
-    <div class="metric-entry">
-      <p><span class="metric-name">Normalized expert load $p_i$.</span><span class="p p-1">P1</span> Divide expert $i$'s token count by the total routed-token count.</p>
-      <div class="equation">
-        $$p_i=\frac{c_i}{\sum_{j=1}^{E}c_j}.$$
-      </div>
-      <p>The symbol $j$ is a dummy index over all experts, and $\sum_i p_i=1$.</p>
-    </div>
-
-    <div class="metric-entry">
-      <p><span class="metric-name">Routing entropy $H$ and its normalized form.</span><span class="p p-1">P1</span> Compute Shannon entropy from the normalized loads and divide by its maximum for $E$ experts.</p>
+      <p><span class="metric-name">Routing entropy $H$ and $H_{\mathrm{norm}}$.</span><span class="p p-1">P1</span> With normalized loads $p_i=c_i/\sum_j c_j$:</p>
       <div class="equation">
         $$H=-\sum_{i=1}^{E}p_i\log p_i,
         \qquad
         H_{\mathrm{norm}}=\frac{H}{\log E}.$$
       </div>
-      <p>$H_{\mathrm{norm}}=0$ means complete concentration; $H_{\mathrm{norm}}=1$ means uniform routing. A sharp drop means the router is collapsing onto a few experts, usually before $I$ makes it obvious.</p>
+      <p>$H_{\mathrm{norm}}=0$ is complete concentration, 1 is uniform routing. A sharp drop means the router is collapsing onto a few experts, usually before $I$ makes it obvious.</p>
     </div>
 
     <div class="metric-entry">
-      <p><span class="metric-name">Per-expert load and router scores.</span><span class="p p-2">P2</span> Per-expert token fractions, routing bias terms, and the distribution of top-$k$ margins.</p>
-      <p>These answer <em>which</em> expert and <em>by how much</em>, once the aggregate has already told you that something is wrong.</p>
+      <p><span class="metric-name">Per-expert load and router scores.</span><span class="p p-2">P2</span> Per-expert token fractions, routing bias terms, top-$k$ margin distributions.</p>
+      <p>These answer <em>which</em> expert once the aggregate has already said that something is wrong.</p>
     </div>
 
-    <p class="caution"><strong>Masking:</strong> exclude padding and invalid tokens. Skip ratios entirely when no valid token reaches the layer — an empty shard is not a measured zero.</p>
+    <p class="caution"><strong>Masking:</strong> exclude padding and invalid tokens, and skip ratios entirely when no valid token reaches the layer. An empty shard is not a measured zero.</p>
 
-    <h2 id="residual-paths"><span class="num">08</span> Residual paths</h2>
+    <h2 id="residual-paths">8. Residual paths</h2>
 
-    <p>Let $s\in\mathbb{R}^{d}$ be one token's residual-stream vector and $b\in\mathbb{R}^{d}$ the branch output added to it, where $d$ is the hidden dimension. Let $a=s+b$ be the updated stream.</p>
+    <p>Let $s\in\mathbb{R}^{d}$ be one token's residual-stream vector, $b\in\mathbb{R}^{d}$ the branch output added to it, and $a=s+b$ the updated stream.</p>
 
     <div class="metric-entry">
-      <p><span class="metric-name">Relative branch scale $R_b$.</span><span class="p p-0">P0</span> Divide the branch norm $N_b=\lVert b\rVert_2$ by the stream norm $N_s=\lVert s\rVert_2$.</p>
+      <p><span class="metric-name">Relative branch scale $R_b$.</span><span class="p p-0">P0</span> Branch norm $N_b=\lVert b\rVert_2$ over stream norm $N_s=\lVert s\rVert_2$.</p>
       <div class="equation">
         $$R_b=\frac{N_b}{N_s+\varepsilon}.$$
       </div>
-      <p>A small $R_b$ indicates a branch too weak to matter; a large one indicates a branch that overwrites the stream. Plotted across depth it is the clearest single view of whether a deep model is actually using its depth. Report $N_s$ and $N_b$ separately as well — the ratio alone cannot distinguish a shrinking branch from a growing stream.</p>
+      <p>Small means a branch too weak to matter; large means a branch that overwrites the stream. Plotted across depth, it is the clearest single view of whether a deep model uses its depth. Report $N_s$ and $N_b$ too: the ratio cannot distinguish a shrinking branch from a growing stream.</p>
     </div>
 
-    <p>For vectors $u$ and $v$, define cosine similarity as</p>
+    <p>For vectors $u$ and $v$, cosine similarity is</p>
 
     <div class="equation">
       $$\cos(u,v)=
       \frac{u^\top v}{\lVert u\rVert_2\lVert v\rVert_2+\varepsilon}.$$
     </div>
 
-    <p>The product $u^\top v$ is the dot product, $\lVert\cdot\rVert_2$ is the Euclidean norm, and $\varepsilon>0$ prevents division by zero.</p>
-
     <div class="metric-entry">
-      <p><span class="metric-name">Block importance $B$ and angular distance $A$.</span><span class="p p-1">P1</span> Measure the directional change from $s$ to $a$, raw and normalized.</p>
+      <p><span class="metric-name">Block importance $B$ and angular distance $A$.</span><span class="p p-1">P1</span> The directional change from $s$ to $a$, raw and normalized.</p>
       <div class="equation">
         $$B=1-\cos(s,a),
         \qquad
         A=\frac{\arccos(\cos(s,a))}{\pi}.$$
       </div>
-      <p>$B=0$ when the update preserves direction, and $A$ lies between 0 and 1. A block whose $B$ decays toward zero has stopped contributing, whatever its branch norm says.</p>
+      <p>$B=0$ when the update preserves direction, and $A$ lies in $[0,1]$. A block whose $B$ decays toward zero has stopped contributing, whatever its branch norm says.</p>
     </div>
 
     <div class="metric-entry">
-      <p><span class="metric-name">BF16 no-op fraction $F_{\mathrm{noop}}$.</span><span class="p p-1">P1</span> Let $Q_{\mathrm{BF16}}(\cdot)$ round a real value to bfloat16. For feature index $j$, count a nonzero branch update that rounded addition throws away.</p>
+      <p><span class="metric-name">BF16 no-op fraction $F_{\mathrm{noop}}$.</span><span class="p p-1">P1</span> With $Q_{\mathrm{BF16}}(\cdot)$ rounding to bfloat16, count nonzero branch updates that rounded addition throws away.</p>
       <div class="equation">
         $$F_{\mathrm{noop}}=
         \frac{1}{d}\sum_{j=1}^{d}
@@ -1185,130 +1069,128 @@
         \ \land\ b_j\ne0
         \right].$$
       </div>
-      <p>A large value means residual updates are being swallowed by precision. This grows naturally as the stream norm grows, so watch it together with $N_s$.</p>
+      <p>A large value means residual updates are being swallowed by precision. It grows as the stream norm grows, so watch it with $N_s$.</p>
     </div>
 
     <div class="metric-entry">
-      <p><span class="metric-name">Gate saturation fraction.</span><span class="p p-1">P1</span> For architectures that scale a branch by a learned gate, let $\beta_j=\sigma(g_j/T)$ with logistic $\sigma$, gate parameter $g_j$, and temperature $T$. Report the fraction of channels below a small threshold $\theta$.</p>
+      <p><span class="metric-name">Gate saturation fraction.</span><span class="p p-1">P1</span> For a branch scaled by a learned gate, let $\beta_j=\sigma(g_j/T)$ with logistic $\sigma$, gate $g_j$, temperature $T$. Report channels below a threshold $\theta$.</p>
       <div class="equation">
         $$F_{\mathrm{gate}}(\theta)=\frac{1}{d}\sum_{j=1}^{d}\mathbf{1}[\beta_j<\theta].$$
       </div>
-      <p>Track a few thresholds, for example $\theta\in\{0.05,0.1,0.25\}$. A branch whose gates have all closed contributes nothing and will not usually reopen on its own.</p>
+      <p>Track a few thresholds, say $\theta\in\{0.05,0.1,0.25\}$. A branch whose gates have all closed contributes nothing and rarely reopens.</p>
     </div>
 
-    <p class="caution"><strong>Aggregation:</strong> compute these per valid token, then report the mean and the upper quantiles. Flattening all tokens and features together hides exactly the token-level outliers you are looking for.</p>
+    <p class="caution"><strong>Aggregation:</strong> compute these per valid token, then report the mean and upper quantiles. Flattening all tokens and features together hides the token-level outliers you are looking for.</p>
 
-    <h2 id="modality"><span class="num">09</span> Modality paths</h2>
+    <h2 id="modality">9. Modality paths</h2>
 
-    <p>A multimodal run has all of the failure modes above, plus a class of its own: one modality degrading, or never contributing in the first place, while the aggregate curves look healthy. Three probes cover most of it. The fourth check — whether media inputs carry information at all — belongs to evaluation, and appears in the next section.</p>
+    <p>A multimodal run adds one failure mode: a modality degrading, or never contributing, while the aggregate curves look healthy. Three probes cover most of it; the fourth check — whether media inputs carry information at all — is an evaluation, in Section 10.</p>
 
     <div class="metric-entry">
-      <p><span class="metric-name">Token share $\pi^{(\mu)}$.</span><span class="p p-0">P0</span> The fraction of valid target tokens belonging to modality $\mu$, defined in Section 3 alongside $L^{(\mu)}$.</p>
-      <p>Plot it next to the per-modality loss. A data-mix change, a packing bug, or a decoder that silently dropped a shard shows up here first, and it explains loss movements that otherwise look like model regressions.</p>
+      <p><span class="metric-name">Token share $\pi^{(\mu)}$.</span><span class="p p-0">P0</span> The fraction of valid targets belonging to modality $\mu$, defined in Section 3 alongside $L^{(\mu)}$.</p>
+      <p>Plot it next to the per-modality loss. A data-mix change, a packing bug, or a decoder that dropped a shard shows up here first, and explains loss movements that otherwise look like model regressions.</p>
     </div>
 
     <div class="metric-entry">
-      <p><span class="metric-name">Projected media scale ratio $\gamma$.</span><span class="p p-0">P0</span> Let $e^{(\mathrm{media})}$ be the embeddings that an encoder and its projector hand to the language backbone, and $e^{(\mathrm{text})}$ the text-token embeddings entering at the same point.</p>
+      <p><span class="metric-name">Media scale ratio $\gamma$.</span><span class="p p-0">P0</span> Let $e^{(\mathrm{media})}$ be the embeddings an encoder and its projector hand to the backbone, and $e^{(\mathrm{text})}$ the text embeddings entering at the same point.</p>
       <div class="equation">
         $$\gamma=\frac{\operatorname{RMS}(e^{(\mathrm{media})})}
         {\operatorname{RMS}(e^{(\mathrm{text})})+\varepsilon}.$$
       </div>
-      <p>Values near 1 mean the two streams enter at the same scale. A persistently small $\gamma$ means the backbone can ignore media tokens at no cost to the loss, and it will. A large $\gamma$ means media tokens dominate the early layers, and the encoder's gradients set the pace for the whole model. Both are projector problems far more often than encoder problems.</p>
+      <p>Near 1, the two streams enter at the same scale. Persistently small, and the backbone can ignore media tokens at no cost to the loss — so it will. Large, and media tokens dominate the early layers. Both are projector problems more often than encoder problems.</p>
     </div>
 
     <div class="metric-entry">
-      <p><span class="metric-name">Encoder gradient share $S_{\mathrm{enc}}$.</span><span class="p p-1">P1</span> Divide the squared gradient norm of the encoder parameters by the squared global gradient norm.</p>
+      <p><span class="metric-name">Encoder gradient share $S_{\mathrm{enc}}$.</span><span class="p p-1">P1</span> Squared gradient norm of the encoder parameters over the squared global norm.</p>
       <div class="equation">
         $$S_{\mathrm{enc}}=
         \frac{\lVert g_{\mathrm{enc}}\rVert_2^{2}}
         {\lVert g\rVert_2^{2}}.$$
       </div>
-      <p>Compare it against the encoder's share of parameters. A share collapsing toward zero means the encoder has effectively frozen itself; a share far above its parameter share early in training points at the same projector scale problem that $\gamma$ measures. The same decomposition applies per layer and per module, which is how a gradient-contribution view is built.</p>
+      <p>Compare against the encoder's share of parameters. Collapsing toward zero means the encoder has effectively frozen itself; far above its parameter share early points at the same projector scale problem $\gamma$ measures. The same decomposition per layer gives a gradient-contribution view.</p>
     </div>
 
-    <p class="caution"><strong>Variable media length:</strong> samples carry different numbers of tiles or frames, so weight per-modality statistics by token count rather than averaging over samples. A rank that received no media in a step has no measurement, not a zero.</p>
+    <p class="caution"><strong>Variable media length:</strong> samples carry different numbers of tiles or frames, so weight per-modality statistics by token count rather than averaging over samples. A rank that received no media has no measurement, not a zero.</p>
 
-    <p class="caution"><strong>Scale honestly:</strong> a modality with a small token share produces a noisy loss curve. Publish $\pi^{(\mu)}$ next to $L^{(\mu)}$ so a reader can tell a real regression from a thin sample.</p>
+    <div class="part">Part IV &middot; Every checkpoint</div>
 
-    <div class="part"><span>Part IV · Every checkpoint</span></div>
+    <h2 id="evaluation">10. Evaluation</h2>
 
-    <h2 id="evaluation"><span class="num">10</span> Evaluation</h2>
-
-    <p>Let $M$ be the number of valid held-out tokens, $\ell_k$ the negative log-likelihood of token $k$, and $k\in\{1,\ldots,M\}$ the token index.</p>
+    <p>Let $M$ be the number of valid held-out tokens and $\ell_k$ the negative log-likelihood of token $k$.</p>
 
     <div class="metric-entry">
-      <p><span class="metric-name">Mean negative log-likelihood and perplexity.</span><span class="p p-0">P0</span> Average held-out token losses, and exponentiate.</p>
+      <p><span class="metric-name">Negative log-likelihood and perplexity.</span><span class="p p-0">P0</span> Average held-out token losses, and exponentiate.</p>
       <div class="equation">
         $$\operatorname{NLL}=\frac{1}{M}\sum_{k=1}^{M}\ell_k,
         \qquad
         \operatorname{PPL}=\exp(\operatorname{NLL}).$$
       </div>
-      <p>Lower is better. Perplexity adds no information over NLL; it is comparable only when tokenization and loss normalization are held fixed.</p>
+      <p>Perplexity adds no information over NLL, and is comparable only when tokenization and loss normalization are fixed.</p>
     </div>
 
     <div class="metric-entry">
-      <p><span class="metric-name">Bits per byte.</span><span class="p p-0">P0</span> Let $N_{\mathrm{byte}}$ be the number of source bytes covered by the held-out tokens.</p>
+      <p><span class="metric-name">Bits per byte.</span><span class="p p-0">P0</span> With $N_{\mathrm{byte}}$ the source bytes covered by the held-out tokens:</p>
       <div class="equation">
         $$\operatorname{BPB}=\frac{\sum_{k=1}^{M}\ell_k}
         {N_{\mathrm{byte}}\log 2}.$$
       </div>
-      <p>BPB is the right default for comparing runs, because it is insensitive to tokenizer vocabulary and segmentation in a way token-level perplexity is not.</p>
+      <p>The right default for comparing runs: insensitive to tokenizer vocabulary and segmentation, which token-level perplexity is not.</p>
     </div>
 
     <div class="metric-entry">
-      <p><span class="metric-name">Choice accuracy.</span><span class="p p-0">P0</span> Let $Q$ be the number of questions, $\hat a_q$ the prediction for question $q$, and $a_q$ its reference answer.</p>
+      <p><span class="metric-name">Choice accuracy.</span><span class="p p-0">P0</span> Over $Q$ questions with prediction $\hat a_q$ and reference $a_q$:</p>
       <div class="equation">
         $$\operatorname{Accuracy}=
         \frac{1}{Q}\sum_{q=1}^{Q}\mathbf{1}[\hat a_q=a_q].$$
       </div>
-      <p>For multiple choice, select $\hat a_q$ by length-normalized option NLL. Keep prompt construction and answer normalization frozen for the life of the run.</p>
+      <p>For multiple choice, select $\hat a_q$ by length-normalized option NLL. Freeze prompt construction and answer normalization for the life of the run.</p>
     </div>
 
     <div class="metric-entry">
       <p><span class="metric-name">Greedy generation.</span><span class="p p-0">P0</span> Decode at temperature 0 and score after task-specific post-processing: exact match, pass@1, or a symbolic checker.</p>
-      <p>This is the cheapest evaluation that exposes failures likelihood-based scoring cannot see, and it is worth running on every key checkpoint rather than only at the end.</p>
+      <p>The cheapest evaluation that exposes failures likelihood scoring cannot see. Worth running on every key checkpoint, not only at the end.</p>
     </div>
 
     <div class="metric-entry">
-      <p><span class="metric-name">Media gain $\Delta_{\mathrm{media}}$.</span><span class="p p-0">P0</span> Let $Q_{\mathrm{with}}$ and $Q_{\mathrm{without}}$ be the same higher-is-better score computed with and without the media input.</p>
+      <p><span class="metric-name">Media gain $\Delta_{\mathrm{media}}$.</span><span class="p p-0">P0</span> The same higher-is-better score computed with and without the media input.</p>
       <div class="equation">
         $$\Delta_{\mathrm{media}}=
         Q_{\mathrm{with}}-Q_{\mathrm{without}}.$$
       </div>
-      <p>This is the only metric that proves a multimodal model is using its media input rather than answering from text priors. A capable model with $\Delta_{\mathrm{media}}\approx 0$ is a unimodal model with extra cost.</p>
+      <p>The only metric that proves a multimodal model uses its media input rather than answering from text priors. A capable model with $\Delta_{\mathrm{media}}\approx0$ is a unimodal model with extra cost.</p>
     </div>
 
     <div class="metric-entry">
-      <p><span class="metric-name">Pass at $k$.</span><span class="p p-1">P1</span> For one problem, let $n$ be the number of generated samples, $c$ the number that pass, and $k\le n$ the evaluation sample count.</p>
+      <p><span class="metric-name">Pass at $k$.</span><span class="p p-1">P1</span> For one problem with $n$ samples, $c$ of them passing, and $k\le n$:</p>
       <div class="equation">
         $$\widehat{\operatorname{pass@}k}
         =1-\frac{\binom{n-c}{k}}{\binom{n}{k}}.$$
       </div>
-      <p>The binomial coefficient $\binom{a}{b}$ counts size-$b$ subsets of $a$ items. If $n-c&lt;k$, the estimate is 1. Pass@1 evaluates one attempt; larger $k$ measures coverage under repeated sampling.</p>
+      <p>If $n-c&lt;k$, the estimate is 1. Pass@1 evaluates one attempt; larger $k$ measures coverage under repeated sampling.</p>
     </div>
 
     <div class="metric-entry">
-      <p><span class="metric-name">Intersection over union.</span><span class="p p-1">P1</span> Let $\mathcal{P}$ be a predicted region and $\mathcal{G}$ its reference region, with $|\mathcal{A}|$ the area of region $\mathcal{A}$.</p>
+      <p><span class="metric-name">Intersection over union.</span><span class="p p-1">P1</span> For predicted region $\mathcal{P}$ and reference $\mathcal{G}$:</p>
       <div class="equation">
         $$\operatorname{IoU}=
         \frac{|\mathcal{P}\cap\mathcal{G}|}
         {|\mathcal{P}\cup\mathcal{G}|}.$$
       </div>
-      <p>IoU is 0 for no overlap and 1 for identical regions. Promote it to P0 for a run whose target capabilities are grounding-heavy.</p>
+      <p>0 for no overlap, 1 for identical regions. Promote to P0 for a run whose target capabilities are grounding-heavy.</p>
     </div>
 
     <div class="metric-entry">
       <p><span class="metric-name">Averaged-weight evaluation.</span><span class="p p-1">P1</span> Evaluate a running average of the weights alongside the raw ones.</p>
-      <p>Mid-run comparisons on raw weights are noisy enough to reverse a ranking between two recipes. Decide once which weight stream is the reference for decisions, and report it consistently.</p>
+      <p>Mid-run comparisons on raw weights are noisy enough to reverse a ranking between two recipes. Decide once which weight stream is the reference for decisions.</p>
     </div>
 
     <p class="caution"><strong>Comparability:</strong> version the dataset, tokenizer, prompt, decoding parameters, post-processing, and judge. A metric change is uninterpretable if its definition also changed.</p>
 
-    <p class="caution"><strong>Extrapolation:</strong> when a scaling fit is used to predict a larger run, report a bound outside the fitted range rather than a point estimate. The fit is evidence about the region it covers.</p>
+    <p class="caution"><strong>Extrapolation:</strong> when a scaling fit predicts a larger run, report a bound outside the fitted range rather than a point estimate.</p>
 
-    <div class="part"><span>Part V · Practice</span></div>
+    <div class="part">Part V &middot; Practice</div>
 
-    <h2 id="implementation"><span class="num">11</span> Keeping probes cheap</h2>
+    <h2 id="implementation">11. Keeping probes cheap</h2>
 
     <ol>
       <li><strong>Register once.</strong> Choose tensor locations while building the model.</li>
@@ -1319,14 +1201,14 @@
       <li><strong>Write asynchronously.</strong> Never put storage latency on the training path.</li>
     </ol>
 
-    <p>Let $K$ be the regular sampling interval in steps. Retain every $K$-th sample, every anomaly step, the warm-up and final steps, and a window on both sides of each anomaly. Small runs can use $K=1$. Long runs typically use $K$ between 100 and 200 for expensive views, while cheap detectors keep running every step. A reasonable default for retention around an event is 50 to 100 steps on each side.</p>
+    <p>Let $K$ be the sampling interval in steps. Retain every $K$-th sample, every anomaly step, the warm-up and final steps, and 50&ndash;100 steps on each side of an anomaly. Small runs can use $K=1$; long runs use $K$ between 100 and 200 for expensive views, while cheap detectors keep running every step.</p>
 
     <p>A detector cannot recover expensive measurements from before the event that triggered it. If that context matters, keep a short in-memory ring buffer, or replay the affected batch under denser probes.</p>
 
     <h3>Common mistakes</h3>
 
     <ul>
-      <li><strong>Everything is P0:</strong> if every panel can page you, none of them does. The priority ladder is only useful if most metrics sit below the top of it.</li>
+      <li><strong>Everything is P0:</strong> if every panel can page you, none of them does.</li>
       <li><strong>Wrong reduction group:</strong> data, tensor, pipeline, context, and expert-parallel groups have different semantics.</li>
       <li><strong>Unclear maximum:</strong> say whether a maximum is over tensor elements, tokens, examples, or GPU ranks.</li>
       <li><strong>Ambiguous timing:</strong> state whether gradients are scaled, accumulated, clipped, or already applied.</li>
@@ -1338,7 +1220,7 @@
       <li><strong>Sensitive artifacts:</strong> keep raw samples and token-level traces opt-in, access-controlled, and short-lived.</li>
     </ul>
 
-    <p class="prose-footer"><em>The cadences here are initial settings, and the priorities are defaults for a general run — a grounding-heavy or a stability-critical run will move a few metrics up a level. Benchmark probe overhead on the target model, parallel configuration, and hardware before increasing any frequency.</em></p>
+    <p class="prose-footer"><em>Cadences here are initial settings, and priorities are defaults for a general run. Benchmark probe overhead on the target model, parallel configuration, and hardware before increasing any frequency.</em></p>
     </main>
 
     <footer>

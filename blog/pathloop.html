@@ -187,6 +187,31 @@
       border: 1px solid var(--border);
     }
 
+    .cite-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      margin: 30px 0 0;
+      padding: 14px 18px;
+    }
+    .cite-label {
+      color: var(--text-light);
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+    .cite-box pre {
+      color: var(--text-secondary);
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      line-height: 1.65;
+      margin: 0;
+      overflow-x: auto;
+      white-space: pre;
+    }
+
     footer {
       border-top: 1px solid var(--border);
       padding: 24px 0;
@@ -1154,6 +1179,17 @@
 
     <p>The question that run answers is the one this whole post has been circling: <strong>are the passes near-copies because the gate is small, or because the window converges to a fixed point no matter how hard you apply it?</strong> If the overlap between passes 1 and 2 drops from 0.947 once the loop runs at full strength, the gate was the constraint and the gated formulation was the mistake. If it stays at 0.947 with $g=1$, then repeated application of the same 24 layers converges regardless, and no amount of routing intervention or gate tuning will produce three paths &mdash; the loop would need to be made non-identical by construction, with per-pass parameters, and the "48 layers' worth of weights" claim goes with it.</p>
 
+    <div class="cite-box">
+      <div class="cite-label">Cite this post</div>
+      <pre>@misc{deng2026pathloop,
+  title        = {Pathloop: Making a Looped {MoE} Take Different Paths},
+  author       = {Chunyuan Deng},
+  year         = {2026},
+  month        = sep,
+  howpublished = {Blog post},
+  url          = {https://charlesdddd.github.io/blog/pathloop.html}
+}</pre>
+    </div>
   </div>
 
   <footer>

@@ -275,6 +275,31 @@
       padding-top: 22px;
     }
 
+    .cite-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      margin: 30px 0 0;
+      padding: 14px 18px;
+    }
+    .cite-label {
+      color: var(--text-light);
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+    .cite-box pre {
+      color: var(--text-secondary);
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      line-height: 1.65;
+      margin: 0;
+      overflow-x: auto;
+      white-space: pre;
+    }
+
     footer {
       border-top: 1px solid var(--border);
       color: var(--text-light);
@@ -433,7 +458,7 @@
       </div>
       <div class="signal">
         <div class="area">Experts</div>
-        <div class="name">Imbalance ratio</div>
+        <div class="name">Expert load MaxVio</div>
         <p>Routing collapse and the compute imbalance behind it.</p>
       </div>
       <div class="signal">
@@ -607,7 +632,7 @@
 
           <tr class="band"><td colspan="4"><a href="#moe-balance">Experts</a></td></tr>
           <tr>
-            <td><a href="#m-imbalance">Imbalance $I$, excess load $V$</a></td>
+            <td><a href="#m-imbalance">MaxVio, imbalance ratio $I$</a></td>
             <td>Routing collapse and wasted expert compute</td>
             <td>Every step</td>
             <td><span class="p p-0">P0</span></td>
@@ -983,13 +1008,13 @@
     <p>Let $E$ be the number of experts and $c_i$ the valid tokens sent to expert $i$, with mean load $\bar c=\frac1E\sum_i c_i$.</p>
 
     <div class="metric-entry" id="m-imbalance">
-      <p><span class="metric-name">Imbalance ratio $I$ and excess load $V$.</span><span class="p p-0">P0</span> Compare the busiest expert with the mean.</p>
+      <p><span class="metric-name">Imbalance ratio $I$ and maximum violation.</span><span class="p p-0">P0</span> Compare the busiest expert with the mean.</p>
       <div class="equation">
         $$I=\frac{\max_{1\le i\le E}c_i}{\bar c},
         \qquad
-        V=I-1.$$
+        \operatorname{MaxVio}=\frac{\max_{1\le i\le E}c_i-\bar c}{\bar c}=I-1.$$
       </div>
-      <p>Perfect balance gives $I=1$ and $V=0$; $V=0.25$ means the busiest expert takes 25% more tokens than the mean. $V$ reads better on a dashboard, because it is zero when nothing is wrong.</p>
+      <p>Perfect balance gives $I=1$ and $\operatorname{MaxVio}=0$; $\operatorname{MaxVio}=0.25$ means the busiest expert takes 25% more tokens than the mean. MaxVio is the form to put on a dashboard, because it is zero when nothing is wrong.</p>
     </div>
 
     <div class="metric-entry" id="m-shard">
@@ -1244,6 +1269,17 @@
     <p>A detector cannot recover expensive measurements from before the event that triggered it. If that context matters, keep a short in-memory ring buffer, or replay the affected batch under denser probes.</p>
 
     <p class="prose-footer"><em>Cadences here are initial settings, and priorities are defaults for a general run. Benchmark probe overhead on the target model, parallel configuration, and hardware before increasing any frequency.</em></p>
+    <div class="cite-box">
+      <div class="cite-label">Cite this post</div>
+      <pre>@misc{deng2026pretraining,
+  title        = {Reading a Pretraining Run},
+  author       = {Chunyuan Deng},
+  year         = {2026},
+  month        = sep,
+  howpublished = {Blog post},
+  url          = {https://charlesdddd.github.io/blog/reading-a-pretraining-run.html}
+}</pre>
+    </div>
     </main>
 
     <footer>

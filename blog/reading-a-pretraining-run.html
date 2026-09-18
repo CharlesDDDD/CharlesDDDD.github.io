@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="How to read a large-scale training run through loss, gradients, tensor statistics, routing, system health, and evaluation.">
+  <meta name="author" content="Chunyuan Deng">
+  <title>Reading a Pre-training Run — Chunyuan Deng</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #ffffff;
+      --text: #1c1c1e;
+      --text-secondary: #555;
+      --text-light: #888;
+      --accent: #2b5ecc;
+      --accent-light: #eef2fb;
+      --border: #e2e2e2;
+      --surface: #f6f7f9;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 24px;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.75;
+    }
+
+    .container { max-width: 1160px; margin: 0 auto; padding: 0 28px; }
+
+    .article-layout {
+      display: grid;
+      grid-template-columns: 200px minmax(0, 860px);
+      gap: 40px;
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 0 28px;
+    }
+    .article-column { min-width: 0; }
+
+    .toc-column { padding-top: 56px; }
+    .toc {
+      max-height: calc(100vh - 48px);
+      overflow-y: auto;
+      position: sticky;
+      top: 24px;
+    }
+    .toc-title {
+      color: var(--text-light);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      margin: 0 0 10px 11px;
+      text-transform: uppercase;
+    }
+    .toc a {
+      border-left: 2px solid var(--border);
+      color: var(--text-light);
+      display: block;
+      font-size: 12px;
+      line-height: 1.35;
+      padding: 6px 10px;
+      text-decoration: none;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .toc a:hover {
+      border-left-color: #9db5e6;
+      color: var(--text);
+      text-decoration: none;
+    }
+    .toc a.active {
+      border-left-color: var(--accent);
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .mobile-toc {
+      display: none;
+      margin: 24px 0 0;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--surface);
+    }
+    .mobile-toc summary {
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 10px 14px;
+    }
+    .mobile-toc nav {
+      border-top: 1px solid var(--border);
+      padding: 8px 14px 10px;
+    }
+    .mobile-toc a {
+      color: var(--text-secondary);
+      display: block;
+      font-size: 12px;
+      padding: 4px 0;
+      text-decoration: none;
+    }
+
+    header { border-bottom: 1px solid var(--border); padding: 16px 0; }
+    header a { font-size: 12px; color: var(--text-secondary); text-decoration: none; }
+    header a:hover { color: var(--accent); }
+
+    .hero { padding: 52px 0 36px; }
+    .hero h1 {
+      max-width: 700px;
+      font-family: 'Source Serif 4', Georgia, serif;
+      font-size: 2.2rem;
+      font-weight: 600;
+      letter-spacing: -0.025em;
+      line-height: 1.2;
+      margin-bottom: 14px;
+    }
+    .hero .subtitle {
+      max-width: 660px;
+      color: var(--text-secondary);
+      font-size: 15px;
+      font-style: italic;
+      margin-bottom: 8px;
+    }
+    .hero .meta { color: var(--text-light); font-size: 12px; }
+
+    .divider { border: none; border-top: 1px solid var(--border); }
+
+    .prose { padding: 36px 0; color: var(--text); font-size: 14px; line-height: 1.8; }
+    .prose p { margin-bottom: 1.1em; }
+    .prose strong { font-weight: 600; }
+    .prose em { color: var(--text-secondary); }
+
+    h2 {
+      font-family: 'Source Serif 4', Georgia, serif;
+      font-size: 1.38rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      margin: 40px 0 14px;
+    }
+    h3 {
+      font-size: 0.92rem;
+      font-weight: 600;
+      margin: 26px 0 10px;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .table-wrap {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      margin: 20px 0 24px;
+      overflow-x: auto;
+    }
+    table { border-collapse: collapse; font-size: 13px; min-width: 620px; width: 100%; }
+    th {
+      background: #1b3a6f;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 8px 10px;
+      text-align: left;
+    }
+    td {
+      border-bottom: 1px solid var(--border);
+      padding: 8px 10px;
+      vertical-align: top;
+    }
+    tr:last-child td { border-bottom: none; }
+
+    .master-table table { min-width: 980px; }
+    .master-table td:nth-child(1) {
+      color: var(--text-light);
+      font-size: 11.5px;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .master-table td:nth-child(2) {
+      color: var(--text);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .metric-entry {
+      border-left: 2px solid #c5d6f5;
+      margin: 18px 0 22px;
+      padding: 2px 0 2px 16px;
+    }
+    .metric-entry p:last-child { margin-bottom: 0; }
+    .metric-name {
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .caution {
+      background: #fff8e8;
+      border-left: 3px solid #c28a2c;
+      border-radius: 0 4px 4px 0;
+      color: #654b20;
+      margin: 18px 0;
+      padding: 12px 16px;
+    }
+    .caution strong { color: #533b17; }
+
+    .definition,
+    .note {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-secondary);
+      font-size: 13.5px;
+      margin: 18px 0;
+      padding: 15px 18px;
+    }
+    .definition strong,
+    .note strong { color: var(--text); }
+    .definition p:last-child,
+    .note p:last-child { margin-bottom: 0; }
+
+    .equation {
+      margin: 18px 0;
+      overflow-x: auto;
+      padding: 4px 0;
+      text-align: center;
+    }
+
+    ul, ol { margin: 10px 0 14px 24px; }
+    li { color: var(--text-secondary); margin-bottom: 6px; }
+    li strong { color: var(--text); }
+
+    code {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+      font-size: 12.5px;
+      padding: 2px 5px;
+    }
+
+    .dashboard-list {
+      counter-reset: dashboard;
+      list-style: none;
+      margin-left: 0;
+    }
+    .dashboard-list li {
+      border-bottom: 1px solid var(--border);
+      counter-increment: dashboard;
+      padding: 10px 0 10px 34px;
+      position: relative;
+    }
+    .dashboard-list li::before {
+      color: var(--text-light);
+      content: counter(dashboard, decimal-leading-zero);
+      font-size: 11px;
+      font-weight: 600;
+      left: 0;
+      position: absolute;
+      top: 13px;
+    }
+    .dashboard-list li:last-child { border-bottom: none; }
+
+    .prose-footer {
+      border-top: 1px solid var(--border);
+      color: var(--text-light);
+      font-size: 13px;
+      margin-top: 38px;
+      padding-top: 22px;
+    }
+
+    footer {
+      border-top: 1px solid var(--border);
+      color: var(--text-light);
+      font-size: 12px;
+      padding: 24px 0;
+      text-align: center;
+    }
+
+    @media (max-width: 1099px) {
+      .article-layout {
+        display: block;
+        max-width: 860px;
+      }
+      .toc-column { display: none; }
+      .mobile-toc { display: block; }
+    }
+
+    @media (max-width: 700px) {
+      .hero h1 { font-size: 1.75rem; }
+      .container { padding: 0 20px; }
+      .article-layout { padding: 0 20px; }
+      .katex-display { font-size: 0.92em; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <a href="../index.html">&larr; Back to Home</a>
+  </div>
+</header>
+
+<div class="article-layout">
+  <aside class="toc-column">
+    <nav class="toc" aria-label="Table of contents">
+      <div class="toc-title">Contents</div>
+      <a href="#metric-index">Metric index</a>
+      <a href="#optimization">Optimization</a>
+      <a href="#tensor-probes">Tensor probes</a>
+      <a href="#moe-balance">Expert balance</a>
+      <a href="#residual-paths">Residual paths</a>
+      <a href="#system-health">System health</a>
+      <a href="#evaluation">Evaluation</a>
+      <a href="#implementation">Implementation</a>
+      <a href="#dashboard">Dashboard</a>
+    </nav>
+  </aside>
+
+  <div class="article-column">
+    <div class="hero">
+      <h1>Reading a Pre-training Run</h1>
+      <p class="subtitle">Metrics, definitions, aggregation semantics, and sampling cadence</p>
+      <p class="meta">Chunyuan Deng &middot; September 2026</p>
+    </div>
+
+    <hr class="divider">
+
+    <details class="mobile-toc">
+      <summary>Contents</summary>
+      <nav aria-label="Table of contents">
+        <a href="#metric-index">Metric index</a>
+        <a href="#optimization">Optimization</a>
+        <a href="#tensor-probes">Tensor probes</a>
+        <a href="#moe-balance">Expert balance</a>
+        <a href="#residual-paths">Residual paths</a>
+        <a href="#system-health">System health</a>
+        <a href="#evaluation">Evaluation</a>
+        <a href="#implementation">Implementation</a>
+        <a href="#dashboard">Dashboard</a>
+      </nav>
+    </details>
+
+    <main class="prose">
+    <p>A <em>probe</em> is a measurement attached to training. The monitoring stack has three levels: per-step health metrics, periodic tensor diagnostics, and checkpoint evaluation.</p>
+
+    <div class="definition">
+      <p><strong>A note on “rank.”</strong> In this post, a <em>rank</em> is one process in a distributed training job. It does not mean matrix rank.</p>
+    </div>
+
+    <h2 id="metric-index">1. Metric index</h2>
+
+    <p>The table gives the default monitoring surface. Detailed definitions and aggregation rules follow in later sections.</p>
+
+    <div class="table-wrap master-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Area</th>
+            <th>Metric</th>
+            <th>Definition</th>
+            <th>Interpretation</th>
+            <th>Cadence</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Loss</td>
+            <td>Global mean $L$</td>
+            <td>Total valid-token negative log-likelihood divided by total valid-token count</td>
+            <td>Primary convergence signal</td>
+            <td>Every step</td>
+          </tr>
+          <tr>
+            <td>Loss</td>
+            <td>Worst-rank mean $L_{\max}$</td>
+            <td>Maximum local valid-token mean over distributed ranks</td>
+            <td>Detects a bad worker or data shard hidden by $L$</td>
+            <td>Every step</td>
+          </tr>
+          <tr>
+            <td>Loss</td>
+            <td>Source loss</td>
+            <td>Valid-token mean loss grouped by stable data source or modality</td>
+            <td>Detects local regressions hidden by aggregate loss</td>
+            <td>Every 10 steps</td>
+          </tr>
+          <tr>
+            <td>Gradient</td>
+            <td>L2 norm $G_2$</td>
+            <td>Euclidean norm of the unscaled, accumulated, pre-clipping gradient</td>
+            <td>Primary numerical-stability signal</td>
+            <td>Every step</td>
+          </tr>
+          <tr>
+            <td>Gradient</td>
+            <td>Absolute mean $G_{\mathrm{mean}}$</td>
+            <td>Mean absolute value over all gradient elements</td>
+            <td>Tracks typical gradient scale</td>
+            <td>Every step</td>
+          </tr>
+          <tr>
+            <td>Gradient</td>
+            <td>Absolute maximum $G_{\max}$</td>
+            <td>Largest absolute gradient element</td>
+            <td>Detects localized explosion</td>
+            <td>Every step</td>
+          </tr>
+          <tr>
+            <td>Gradient</td>
+            <td>Zero fraction $Z_g$</td>
+            <td>Fraction of gradient elements equal to zero</td>
+            <td>Detects dead, sparse, or underflowed paths</td>
+            <td>Every step</td>
+          </tr>
+          <tr>
+            <td>Stability</td>
+            <td>Co-spike count</td>
+            <td>Number of steps where loss and $G_2$ both exceed their robust thresholds</td>
+            <td>Higher-confidence instability event</td>
+            <td>Every step</td>
+          </tr>
+          <tr>
+            <td>Stability</td>
+            <td>Robust spike score $z_t$</td>
+            <td>Log-space deviation from a rolling median, normalized by median absolute deviation</td>
+            <td>Detects spikes without relying on a Gaussian mean and variance</td>
+            <td>Every step</td>
+          </tr>
+          <tr>
+            <td>Tensor</td>
+            <td>Absolute mean</td>
+            <td>Mean absolute element value</td>
+            <td>Typical activation, gradient, or update scale</td>
+            <td>Every 100 steps</td>
+          </tr>
+          <tr>
+            <td>Tensor</td>
+            <td>Square mean $M_2$</td>
+            <td>Mean squared element value</td>
+            <td>Additive statistic used to derive RMS</td>
+            <td>Every 100 steps</td>
+          </tr>
+          <tr>
+            <td>Tensor</td>
+            <td>RMS</td>
+            <td>Root mean square of tensor elements</td>
+            <td>Energy scale; comparable across tensor sizes</td>
+            <td>Every 100 steps</td>
+          </tr>
+          <tr>
+            <td>Tensor</td>
+            <td>Absolute maximum</td>
+            <td>Largest absolute tensor element</td>
+            <td>Outlier and overflow warning</td>
+            <td>Every 100 steps</td>
+          </tr>
+          <tr>
+            <td>Tensor</td>
+            <td>Zero fraction</td>
+            <td>Fraction of tensor elements equal to zero</td>
+            <td>Sparsity, underflow, or inactive path</td>
+            <td>Every 100 steps</td>
+          </tr>
+          <tr>
+            <td>Tensor</td>
+            <td>Excess kurtosis</td>
+            <td>Normalized fourth central moment minus 3</td>
+            <td>Heavy tails and low-precision risk</td>
+            <td>Every 100 steps</td>
+          </tr>
+          <tr>
+            <td>Optimizer</td>
+            <td>Update ratio $\rho$</td>
+            <td>RMS of applied update divided by RMS of parameter</td>
+            <td>Detects ineffective or destructive update scale</td>
+            <td>Every 100 steps</td>
+          </tr>
+          <tr>
+            <td>Mixture of Experts</td>
+            <td>Imbalance $I$</td>
+            <td>Maximum expert token count divided by mean expert token count</td>
+            <td>Routing collapse and compute imbalance</td>
+            <td>Every step</td>
+          </tr>
+          <tr>
+            <td>Mixture of Experts</td>
+            <td>Excess load $V$</td>
+            <td>$I-1$</td>
+            <td>Load above the balanced baseline</td>
+            <td>Every step</td>
+          </tr>
+          <tr>
+            <td>Mixture of Experts</td>
+            <td>Normalized entropy $H_{\mathrm{norm}}$</td>
+            <td>Routing entropy divided by its maximum $\log E$</td>
+            <td>0 means concentrated routing; 1 means uniform routing</td>
+            <td>Every 100 steps</td>
+          </tr>
+          <tr>
+            <td>Residual</td>
+            <td>Branch norm</td>
+            <td>L2 norm of the branch output</td>
+            <td>Absolute branch scale</td>
+            <td>Every 100 steps</td>
+          </tr>
+          <tr>
+            <td>Residual</td>
+            <td>Stream norm</td>
+            <td>L2 norm of the incoming residual stream</td>
+            <td>Residual scale across depth</td>
+            <td>Every 100 steps</td>
+          </tr>
+          <tr>
+            <td>Residual</td>
+            <td>Relative scale $R_b$</td>
+            <td>Branch norm divided by stream norm</td>
+            <td>Detects weak or dominant branches</td>
+            <td>Every 100 steps</td>
+          </tr>
+          <tr>
+            <td>Residual</td>
+            <td>Block importance $B$</td>
+            <td>One minus cosine similarity before and after the residual update</td>
+            <td>Measures directional change</td>
+            <td>Every 100 steps</td>
+          </tr>
+          <tr>
+            <td>Residual</td>
+            <td>Angular distance $A$</td>
+            <td>Angle between the incoming and updated streams, divided by $\pi$</td>
+            <td>Normalized directional change from 0 to 1</td>
+            <td>Every 100 steps</td>
+          </tr>
+          <tr>
+            <td>Residual</td>
+            <td>Bfloat16 no-op fraction</td>
+            <td>Fraction of nonzero updates lost after bfloat16 rounding</td>
+            <td>Detects precision-swallowed residual updates</td>
+            <td>Every 100 steps</td>
+          </tr>
+          <tr>
+            <td>System</td>
+            <td>Throughput $\operatorname{TPS}$</td>
+            <td>Global valid tokens divided by global step time</td>
+            <td>End-to-end training rate</td>
+            <td>Every step</td>
+          </tr>
+          <tr>
+            <td>System</td>
+            <td>Compute rate $\Phi$</td>
+            <td>Estimated operations divided by device count and step time</td>
+            <td>Hardware efficiency</td>
+            <td>Every step</td>
+          </tr>
+          <tr>
+            <td>System</td>
+            <td>Straggler score $S$</td>
+            <td>Maximum rank step time divided by median rank step time</td>
+            <td>Detects slow workers</td>
+            <td>Every step</td>
+          </tr>
+          <tr>
+            <td>System</td>
+            <td>Maximum memory</td>
+            <td>Maximum allocated, reserved, or peak bytes over ranks</td>
+            <td>Predicts the first out-of-memory device</td>
+            <td>Every step</td>
+          </tr>
+          <tr>
+            <td>System</td>
+            <td>Exposed collective wait</td>
+            <td>Collective duration not hidden by useful computation</td>
+            <td>Communication bottleneck</td>
+            <td>Every 10 steps</td>
+          </tr>
+          <tr>
+            <td>Evaluation</td>
+            <td>Negative log-likelihood / perplexity</td>
+            <td>Held-out negative log-likelihood and its exponential</td>
+            <td>Generalization and scaling trend</td>
+            <td>Every 0.5&ndash;2%</td>
+          </tr>
+          <tr>
+            <td>Evaluation</td>
+            <td>Bits per byte</td>
+            <td>Total natural-log loss divided by source bytes and $\log 2$</td>
+            <td>Tokenizer-independent language-model comparison</td>
+            <td>Every 0.5&ndash;2%</td>
+          </tr>
+          <tr>
+            <td>Evaluation</td>
+            <td>Task metrics</td>
+            <td>Accuracy, pass@k, media gain, or intersection over union</td>
+            <td>Capability and modality-specific quality</td>
+            <td>Key checkpoints</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p><strong>Cadence rule.</strong> Cheap alerting metrics run every step. Tensor scans run every 100 steps. Evaluation runs every 0.5&ndash;2% of training. An anomaly triggers denser probes or replay.</p>
+
+    <p><strong>Comparison axis.</strong> If batch size changes, compare runs by cumulative tokens or estimated floating-point operations, not by step.</p>
+
+    <h2 id="optimization">2. Core optimization health</h2>
+
+    <h3>Loss</h3>
+
+    <p>Let $R$ be the number of distributed ranks. Rank $r$ contains $T_r$ token positions. For token $t$ on rank $r$, $\ell_{r,t}$ is its negative log-likelihood and $m_{r,t}$ is 1 for a valid target and 0 otherwise.</p>
+
+    <div class="metric-entry">
+      <p><span class="metric-name">Global mean loss $L$.</span> Sum valid-token loss and valid-token count over all ranks, then divide.</p>
+      <div class="equation">
+        $$L = \frac{\sum_{r=1}^{R}\sum_{t=1}^{T_r} m_{r,t}\ell_{r,t}}
+        {\sum_{r=1}^{R}\sum_{t=1}^{T_r} m_{r,t}}.$$
+      </div>
+      <p>Use $L$ for convergence and scaling comparisons.</p>
+    </div>
+
+    <div class="metric-entry">
+      <p><span class="metric-name">Local mean loss $L_r$.</span> Compute the valid-token mean on rank $r$.</p>
+      <div class="equation">
+        $$L_r = \frac{\sum_{t=1}^{T_r}m_{r,t}\ell_{r,t}}
+        {\sum_{t=1}^{T_r}m_{r,t}}.$$
+      </div>
+      <p>Omit a rank with no valid target; do not record it as zero.</p>
+    </div>
+
+    <div class="metric-entry">
+      <p><span class="metric-name">Worst-rank loss $L_{\max}$.</span> Take the maximum local mean over ranks.</p>
+      <div class="equation">
+        $$L_{\max}=\max_{1\le r\le R}L_r.$$
+      </div>
+      <p>Use $L_{\max}$ to detect a bad worker or unusual data shard hidden by $L$. It is not a maximum over tokens or examples.</p>
+    </div>
+
+    <p class="caution"><strong>Aggregation:</strong> do not average $L_r$ when valid-token counts differ. Reduce the loss sum and token count separately, then compute $L$.</p>
+
+    <h3>Gradient scale</h3>
+
+    <p>Let $g=(g_1,\ldots,g_P)$ contain all $P$ gradient elements. The index $j$ selects one element. Measure after gradient accumulation and loss-scale removal, but before global clipping.</p>
+
+    <div class="metric-entry">
+      <p><span class="metric-name">Global gradient norm $G_2$.</span> Compute the Euclidean norm over all gradient elements.</p>
+      <div class="equation">
+        $$G_2=\sqrt{\sum_{j=1}^{P}g_j^2}.$$
+      </div>
+      <p>This is the primary gradient-stability signal.</p>
+    </div>
+
+    <div class="metric-entry">
+      <p><span class="metric-name">Mean absolute gradient $G_{\mathrm{mean}}$.</span> Average the absolute gradient elements.</p>
+      <div class="equation">
+        $$G_{\mathrm{mean}}=\frac{1}{P}\sum_{j=1}^{P}|g_j|.$$
+      </div>
+      <p>This tracks typical element scale and is less sensitive to one outlier than $G_{\max}$.</p>
+    </div>
+
+    <div class="metric-entry">
+      <p><span class="metric-name">Maximum absolute gradient $G_{\max}$.</span> Take the largest absolute gradient element.</p>
+      <div class="equation">
+        $$G_{\max}=\max_{1\le j\le P}|g_j|.$$
+      </div>
+      <p>This detects localized explosion that may be diluted in $G_{\mathrm{mean}}$.</p>
+    </div>
+
+    <div class="metric-entry">
+      <p><span class="metric-name">Gradient zero fraction $Z_g$.</span> Count exact zeros and divide by the number of gradient elements.</p>
+      <div class="equation">
+        $$Z_g=\frac{1}{P}\sum_{j=1}^{P}\mathbf{1}[g_j=0].$$
+      </div>
+      <p>The indicator $\mathbf{1}[\mathcal{C}]$ equals 1 when condition $\mathcal{C}$ is true and 0 otherwise. A rise in $Z_g$ can indicate sparse paths, underflow, or parameters receiving no gradient.</p>
+    </div>
+
+    <p class="caution"><strong>Timing:</strong> record whether each gradient metric is scaled or unscaled, accumulated or per-microbatch, and before or after clipping.</p>
+
+    <h3>Spikes</h3>
+
+    <p>For a positive scalar $x_t$ at step $t$, define $u_t=\log(x_t+\varepsilon)$, where $\varepsilon>0$ is a numerical floor and $\log$ is the natural logarithm. Let $W_t$ contain earlier $u$-values.</p>
+
+    <div class="metric-entry">
+      <p><span class="metric-name">Rolling median $q_t$.</span> Use the median of the log-space window as the local baseline.</p>
+      <div class="equation">
+        $$q_t=\operatorname{median}(W_t).$$
+      </div>
+      <p>The median is robust to isolated spikes.</p>
+    </div>
+
+    <div class="metric-entry">
+      <p><span class="metric-name">Median absolute deviation $D_t$.</span> Measure the median distance from the rolling median.</p>
+      <div class="equation">
+        $$D_t=\operatorname{median}_{u\in W_t}|u-q_t|.$$
+      </div>
+      <p>$D_t$ estimates recent variability without using a variance that a spike can inflate.</p>
+    </div>
+
+    <div class="metric-entry">
+      <p><span class="metric-name">Robust spike score $z_t$.</span> Normalize the current deviation by $D_t$.</p>
+      <div class="equation">
+        $$z_t=0.6745\frac{|u_t-q_t|}{D_t+\varepsilon}.$$
+      </div>
+      <p>The factor 0.6745 calibrates the score for normally distributed log-values. Apply the detector separately to $L$ and $G_2$.</p>
+    </div>
+
+    <div class="metric-entry">
+      <p><span class="metric-name">Co-spike indicator $C_t$.</span> Mark a step only when loss and gradient norm both spike.</p>
+      <div class="equation">
+        $$C_t=\mathbf{1}[\text{loss spike at step }t]\,
+        \mathbf{1}[\text{gradient-norm spike at step }t].$$
+      </div>
+      <p>$C_t=1$ is a higher-confidence instability event than either detector alone.</p>
+    </div>
+
+    <p class="caution"><strong>Thresholds:</strong> calibrate the window length and $z_t$ threshold on stable runs. Do not tune them on a single failure.</p>
+
+    <h2 id="tensor-probes">3. Tensor probes</h2>
+
+    <p>Let $x=(x_1,\ldots,x_N)$ be a flattened tensor with $N$ scalar elements. The index $j$ selects one element.</p>
+
+    <div class="metric-entry">
+      <p><span class="metric-name">Absolute mean.</span> Average the absolute element values.</p>
+      <div class="equation">
+        $$\operatorname{AbsMean}(x)=\frac{1}{N}\sum_{j=1}^{N}|x_j|.$$
+      </div>
+      <p>This measures typical scale without sign cancellation.</p>
+    </div>
+
+    <div class="metric-entry">
+      <p><span class="metric-name">Square mean $M_2$.</span> Average the squared element values.</p>
+      <div class="equation">
+        $$M_2(x)=\frac{1}{N}\sum_{j=1}^{N}x_j^2.$$
+      </div>
+      <p>$M_2$ is convenient for aggregation because ranks can reduce the squared sum and element count separately.</p>
+    </div>
+
+    <div class="metric-entry">
+      <p><span class="metric-name">Root mean square.</span> Take the square root of $M_2$.</p>
+      <div class="equation">
+        $$\operatorname{RMS}(x)=\sqrt{\frac{1}{N}\sum_{j=1}^{N}x_j^2}.$$
+      </div>
+      <p>RMS measures energy scale and remains comparable across tensors with different element counts.</p>
+    </div>
+
+    <div class="metric-entry">
+      <p><span class="metric-name">Absolute maximum.</span> Take the largest absolute element.</p>
+      <div class="equation">
+        $$\operatorname{AbsMax}(x)=\max_{1\le j\le N}|x_j|.$$
+      </div>
+      <p>This is the fastest indicator of an outlier, overflow, or local numerical explosion.</p>
+    </div>
+
+    <div class="metric-entry">
+      <p><span class="metric-name">Zero fraction $Z_x$.</span> Count exact zeros and divide by $N$.</p>
+      <div class="equation">
+        $$Z_x=\frac{1}{N}\sum_{j=1}^{N}\mathbf{1}[x_j=0].$$
+      </div>
+      <p>$Z_x$ measures sparsity, underflow, and inactive paths. The indicator function was defined in Section 2.</p>
+    </div>
+
+    <div class="metric-entry">
+      <p><span class="metric-name">Excess kurtosis $\kappa$.</span> Let $\mu=\frac{1}{N}\sum_{j=1}^{N}x_j$ be the empirical mean. Normalize the fourth central moment by the squared variance.</p>
+      <div class="equation">
+        $$\kappa=
+        \frac{\frac{1}{N}\sum_{j=1}^{N}(x_j-\mu)^4}
+        {\left(\frac{1}{N}\sum_{j=1}^{N}(x_j-\mu)^2\right)^2}-3.$$
+      </div>
+      <p>Large positive $\kappa$ indicates heavy tails. The metric is undefined when the empirical variance is zero.</p>
+    </div>
+
+    <p><strong>Observation points.</strong> Measure embeddings, logits, query/key/value tensors, normalized query and key, attention output, feed-forward activations, residual streams, Mixture-of-Experts inputs, parameter gradients, and applied updates. Use distinct names for forward activations and backward gradients.</p>
+
+    <p class="caution"><strong>Distributed reduction:</strong> aggregate sums and element counts before computing means. Aggregate maxima with a maximum reduction. Do not average local maxima or ratios whose denominators differ.</p>
+
+    <h3>Relative update size</h3>
+
+    <div class="metric-entry">
+      <p><span class="metric-name">Optimizer path.</span> For the same parameter group, record the raw gradient, normalized gradient, preconditioned direction, and final applied update as separate tensors.</p>
+      <p>This locates the stage that introduces a scale or direction change.</p>
+    </div>
+
+    <div class="metric-entry">
+      <p><span class="metric-name">Relative update size $\rho$.</span> Let $w$ be a parameter tensor and $\Delta w$ the update applied to it.</p>
+      <div class="equation">
+        $$\rho=\frac{\operatorname{RMS}(\Delta w)}
+        {\operatorname{RMS}(w)+\varepsilon}.$$
+      </div>
+      <p>A persistent fall toward zero indicates ineffective updates. A sudden rise indicates an update large relative to the parameter scale.</p>
+    </div>
+
+    <p class="caution"><strong>Naming:</strong> specify whether an optimizer tensor is before or after normalization, preconditioning, weight decay, learning-rate scaling, and clipping.</p>
+
+    <h2 id="moe-balance">4. Mixture-of-Experts balance</h2>
+
+    <p>Let $E$ be the number of experts and $c_i$ the number of valid tokens sent to expert $i$, where $1\le i\le E$.</p>
+
+    <div class="metric-entry">
+      <p><span class="metric-name">Mean expert load $\bar c$.</span> Average token counts across experts.</p>
+      <div class="equation">
+        $$\bar c=\frac{1}{E}\sum_{i=1}^{E}c_i.$$
+      </div>
+      <p>$\bar c$ is the balanced-load reference.</p>
+    </div>
+
+    <div class="metric-entry">
+      <p><span class="metric-name">Normalized expert load $p_i$.</span> Divide expert $i$'s token count by the total routed-token count.</p>
+      <div class="equation">
+        $$p_i=\frac{c_i}{\sum_{j=1}^{E}c_j}.$$
+      </div>
+      <p>The symbol $j$ is a dummy index over all experts, and $\sum_i p_i=1$.</p>
+    </div>
+
+    <div class="metric-entry">
+      <p><span class="metric-name">Imbalance ratio $I$.</span> Compare the busiest expert with the mean.</p>
+      <div class="equation">
+        $$I=\frac{\max_{1\le i\le E}c_i}{\bar c}.$$
+      </div>
+      <p>Perfect balance gives $I=1$. Larger values identify routing and compute imbalance.</p>
+    </div>
+
+    <div class="metric-entry">
+      <p><span class="metric-name">Excess load $V$.</span> Subtract the balanced baseline from $I$.</p>
+      <div class="equation">
+        $$V=I-1.$$
+      </div>
+      <p>Perfect balance gives $V=0$. A value of 0.25 means the busiest expert receives 25% more tokens than the mean.</p>
+    </div>
+
+    <div class="metric-entry">
+      <p><span class="metric-name">Routing entropy $H$.</span> Compute Shannon entropy from the normalized expert loads.</p>
+      <div class="equation">
+        $$H=-\sum_{i=1}^{E}p_i\log p_i.$$
+      </div>
+      <p>Lower $H$ means routing is concentrated on fewer experts. The logarithm is natural.</p>
+    </div>
+
+    <div class="metric-entry">
+      <p><span class="metric-name">Normalized routing entropy $H_{\mathrm{norm}}$.</span> Divide $H$ by its maximum for $E$ experts.</p>
+      <div class="equation">
+        $$H_{\mathrm{norm}}=\frac{H}{\log E}.$$
+      </div>
+      <p>$H_{\mathrm{norm}}=0$ means complete concentration; $H_{\mathrm{norm}}=1$ means uniform routing.</p>
+    </div>
+
+    <p><strong>Shard imbalance.</strong> Apply the definition of $I$ to expert-parallel shard loads. Expert-level balance does not guarantee balanced communication groups.</p>
+
+    <p class="caution"><strong>Masking:</strong> exclude padding and invalid tokens. Skip ratios when no valid token reaches the layer.</p>
+
+    <h2 id="residual-paths">5. Residual paths</h2>
+
+    <p>Let $s\in\mathbb{R}^{d}$ be one token's residual-stream vector and $b\in\mathbb{R}^{d}$ the branch output added to it. The set $\mathbb{R}^{d}$ contains $d$-dimensional real vectors, and $d$ is the hidden dimension. Let $a=s+b$ be the updated stream.</p>
+
+    <div class="metric-entry">
+      <p><span class="metric-name">Stream norm $N_s$.</span> Measure the incoming residual scale.</p>
+      <div class="equation">
+        $$N_s=\lVert s\rVert_2.$$
+      </div>
+      <p>Plot $N_s$ across depth to detect residual growth or decay.</p>
+    </div>
+
+    <div class="metric-entry">
+      <p><span class="metric-name">Branch norm $N_b$.</span> Measure the branch-output scale.</p>
+      <div class="equation">
+        $$N_b=\lVert b\rVert_2.$$
+      </div>
+      <p>$N_b$ alone is scale-dependent; compare it with $N_s$.</p>
+    </div>
+
+    <div class="metric-entry">
+      <p><span class="metric-name">Relative branch scale $R_b$.</span> Divide branch norm by stream norm.</p>
+      <div class="equation">
+        $$R_b=\frac{N_b}{N_s+\varepsilon}.$$
+      </div>
+      <p>A small $R_b$ indicates a weak branch; a large value indicates a branch that dominates the existing stream.</p>
+    </div>
+
+    <p>For vectors $u$ and $v$, define cosine similarity as</p>
+
+    <div class="equation">
+      $$\cos(u,v)=
+      \frac{u^\top v}{\lVert u\rVert_2\lVert v\rVert_2+\varepsilon}.$$
+    </div>
+
+    <p>The product $u^\top v$ is the dot product, $\lVert\cdot\rVert_2$ is the Euclidean norm, and $\varepsilon>0$ prevents division by zero.</p>
+
+    <div class="metric-entry">
+      <p><span class="metric-name">Block importance $B$.</span> Measure the directional change from $s$ to $a$.</p>
+      <div class="equation">
+        $$B=1-\cos(s,a).$$
+      </div>
+      <p>$B=0$ when the update preserves direction. Larger values indicate a stronger directional change.</p>
+    </div>
+
+    <div class="metric-entry">
+      <p><span class="metric-name">Angular distance $A$.</span> Convert cosine similarity to a normalized angle.</p>
+      <div class="equation">
+        $$A=\frac{\arccos(\cos(s,a))}{\pi}.$$
+      </div>
+      <p>The constant $\pi$ is the circle constant. $A$ lies between 0 and 1.</p>
+    </div>
+
+    <div class="metric-entry">
+      <p><span class="metric-name">BF16 no-op fraction $F_{\mathrm{noop}}$.</span> Let $Q_{\mathrm{BF16}}(\cdot)$ round a real value to bfloat16. For feature index $j$, count a nonzero branch update when rounded addition leaves the stream unchanged.</p>
+      <div class="equation">
+        $$F_{\mathrm{noop}}=
+        \frac{1}{d}\sum_{j=1}^{d}
+        \mathbf{1}\!\left[
+        Q_{\mathrm{BF16}}(s_j+b_j)=Q_{\mathrm{BF16}}(s_j)
+        \ \land\ b_j\ne0
+        \right].$$
+      </div>
+      <p>A large value means residual updates are being lost to bfloat16 precision.</p>
+    </div>
+
+    <p class="caution"><strong>Aggregation:</strong> compute these metrics per valid token, then report their mean and upper quantiles. Flattening all tokens and features together hides token-level outliers.</p>
+
+    <h2 id="system-health">6. System health</h2>
+
+    <p>Let $\tau_r$ be the local step time on rank $r$, and let $\tau=\max_r\tau_r$ be the global wall time of the step.</p>
+
+    <div class="metric-entry">
+      <p><span class="metric-name">Token throughput $\operatorname{TPS}$.</span> Let $N_{\mathrm{tok}}$ be the global number of valid tokens processed in one step.</p>
+      <div class="equation">
+        $$\operatorname{TPS}=\frac{N_{\mathrm{tok}}}{\tau}.$$
+      </div>
+      <p>This is the end-to-end training rate. Include data loading, forward, backward, optimizer, and synchronization in $\tau$.</p>
+    </div>
+
+    <div class="metric-entry">
+      <p><span class="metric-name">Compute rate $\Phi$.</span> Let $F_{\mathrm{step}}$ be estimated floating-point operations per step and $D$ the number of accelerator devices.</p>
+      <div class="equation">
+        $$\Phi=\frac{F_{\mathrm{step}}}{D\tau}.$$
+      </div>
+      <p>$\Phi$ is estimated floating-point operations per second per device. Keep the FLOP estimator fixed across compared runs.</p>
+    </div>
+
+    <div class="metric-entry">
+      <p><span class="metric-name">Straggler score $S$.</span> Divide the global step time by the median local step time.</p>
+      <div class="equation">
+        $$S=\frac{\tau}{\operatorname{median}_r(\tau_r)+\varepsilon}.$$
+      </div>
+      <p>$S$ is close to 1 when ranks progress together. It rises when a slow rank sets the step time.</p>
+    </div>
+
+    <div class="metric-entry">
+      <p><span class="metric-name">Allocated memory.</span> Bytes currently held by live tensors.</p>
+      <p>Use the maximum across ranks to identify the device closest to an out-of-memory failure.</p>
+    </div>
+
+    <div class="metric-entry">
+      <p><span class="metric-name">Reserved memory.</span> Bytes held by the device allocator, including cached blocks not currently used by live tensors.</p>
+      <p>A widening reserved-minus-allocated gap indicates fragmentation or an oversized allocator cache.</p>
+    </div>
+
+    <div class="metric-entry">
+      <p><span class="metric-name">Peak memory.</span> Maximum allocated or reserved bytes observed during the measurement interval.</p>
+      <p>Reset peak counters only at documented boundaries; otherwise adjacent points describe different windows.</p>
+    </div>
+
+    <div class="metric-entry">
+      <p><span class="metric-name">Exposed collective wait $W_{\mathrm{comm}}$.</span> Let $\tau_{\mathrm{wait}}$ be collective time on the critical path that is not overlapped with useful computation.</p>
+      <div class="equation">
+        $$W_{\mathrm{comm}}=\frac{\tau_{\mathrm{wait}}}{\tau}.$$
+      </div>
+      <p>Report collective count and payload with $W_{\mathrm{comm}}$ to separate many small calls from a bandwidth-limited large call.</p>
+    </div>
+
+    <div class="metric-entry">
+      <p><span class="metric-name">Hardware telemetry.</span> Record device utilization, power, temperature, clock, process memory, CPU pressure, page faults, and network traffic.</p>
+      <p>These signals separate model regressions from host, thermal, allocator, and network failures.</p>
+    </div>
+
+    <p class="caution"><strong>Timing:</strong> place device events around the real asynchronous wait and read them at an existing synchronization boundary. Adding host synchronization changes the overlap being measured.</p>
+
+    <p class="caution"><strong>Node counters:</strong> sample each network interface once per node. Reading it from every local rank multiplies the reported traffic.</p>
+
+    <h2 id="evaluation">7. Evaluation</h2>
+
+    <p>Let $M$ be the number of valid held-out tokens, $\ell_k$ the negative log-likelihood of token $k$, and $k\in\{1,\ldots,M\}$ the token index.</p>
+
+    <div class="metric-entry">
+      <p><span class="metric-name">Mean negative log-likelihood.</span> Average held-out token losses.</p>
+      <div class="equation">
+        $$\operatorname{NLL}=\frac{1}{M}\sum_{k=1}^{M}\ell_k.$$
+      </div>
+      <p>Lower NLL indicates better held-out language-model fit.</p>
+    </div>
+
+    <div class="metric-entry">
+      <p><span class="metric-name">Perplexity.</span> Exponentiate NLL.</p>
+      <div class="equation">
+        $$\operatorname{PPL}=\exp(\operatorname{NLL}).$$
+      </div>
+      <p>The function $\exp$ is the natural exponential. Perplexity is comparable only when tokenization and loss normalization are fixed.</p>
+    </div>
+
+    <div class="metric-entry">
+      <p><span class="metric-name">Bits per byte.</span> Let $N_{\mathrm{byte}}$ be the number of source bytes covered by the held-out tokens.</p>
+      <div class="equation">
+        $$\operatorname{BPB}=\frac{\sum_{k=1}^{M}\ell_k}
+        {N_{\mathrm{byte}}\log 2}.$$
+      </div>
+      <p>BPB is less sensitive to tokenizer vocabulary and segmentation than token-level perplexity.</p>
+    </div>
+
+    <div class="metric-entry">
+      <p><span class="metric-name">Accuracy.</span> Let $Q$ be the number of questions, $\hat a_q$ the prediction for question $q$, and $a_q$ its reference answer.</p>
+      <div class="equation">
+        $$\operatorname{Accuracy}=
+        \frac{1}{Q}\sum_{q=1}^{Q}\mathbf{1}[\hat a_q=a_q].$$
+      </div>
+      <p>For multiple choice, select $\hat a_q$ using length-normalized option NLL. Keep prompt and answer normalization fixed.</p>
+    </div>
+
+    <div class="metric-entry">
+      <p><span class="metric-name">Pass at $k$.</span> For one problem, let $n$ be the number of generated samples, $c$ the number that pass, and $k\le n$ the evaluation sample count.</p>
+      <div class="equation">
+        $$\widehat{\operatorname{pass@}k}
+        =1-\frac{\binom{n-c}{k}}{\binom{n}{k}}.$$
+      </div>
+      <p>The binomial coefficient $\binom{a}{b}$ counts size-$b$ subsets of $a$ items. If $n-c&lt;k$, the estimate is 1. Pass@1 evaluates one attempt; larger $k$ measures coverage from repeated sampling.</p>
+    </div>
+
+    <div class="metric-entry">
+      <p><span class="metric-name">Media gain $\Delta_{\mathrm{media}}$.</span> Let $Q_{\mathrm{with}}$ and $Q_{\mathrm{without}}$ be the same higher-is-better quality score with and without media.</p>
+      <div class="equation">
+        $$\Delta_{\mathrm{media}}=
+        Q_{\mathrm{with}}-Q_{\mathrm{without}}.$$
+      </div>
+      <p>A positive value measures useful information contributed by the media input.</p>
+    </div>
+
+    <div class="metric-entry">
+      <p><span class="metric-name">Intersection over union.</span> Let $\mathcal{P}$ be a predicted region and $\mathcal{G}$ its reference region. Let $|\mathcal{A}|$ denote the area of region $\mathcal{A}$; $\cap$ and $\cup$ denote intersection and union.</p>
+      <div class="equation">
+        $$\operatorname{IoU}=
+        \frac{|\mathcal{P}\cap\mathcal{G}|}
+        {|\mathcal{P}\cup\mathcal{G}|}.$$
+      </div>
+      <p>IoU is 0 for no overlap and 1 for identical regions.</p>
+    </div>
+
+    <p class="caution"><strong>Comparability:</strong> version the dataset, tokenizer, prompt, decoding parameters, post-processing, and judge. A metric change is not interpretable if its evaluation definition also changed.</p>
+
+    <h2 id="implementation">8. Keep probes inexpensive</h2>
+
+    <ol>
+      <li><strong>Register once.</strong> Choose tensor locations while building the model.</li>
+      <li><strong>Gate early.</strong> On an unsampled step, skip the tensor scan itself.</li>
+      <li><strong>Scan once.</strong> Compute several local statistics in one memory pass.</li>
+      <li><strong>Reduce in batches.</strong> Group values by distributed reduction type.</li>
+      <li><strong>Move only summaries.</strong> Keep full tensors on the device.</li>
+      <li><strong>Write asynchronously.</strong> Do not place storage latency on the training path.</li>
+    </ol>
+
+    <p>Let $K$ be the regular sampling interval in steps. Retain every $K$-th sample, every anomaly step, the warm-up and final steps, and a window around each anomaly. Small runs can use $K=1$. Long runs often use $K$ between 100 and 200 for expensive views. Cheap anomaly detectors should still run every step.</p>
+
+    <p>A detector cannot recover expensive measurements from before an event. If that context matters, keep a short in-memory ring buffer or replay the affected batch under denser probes.</p>
+
+    <h3>Common mistakes</h3>
+
+    <ul>
+      <li><strong>Wrong reduction group:</strong> data, tensor, pipeline, context, and expert parallel groups have different semantics.</li>
+      <li><strong>Unclear maximum:</strong> say whether a maximum is over tensor elements, tokens, examples, or distributed ranks.</li>
+      <li><strong>Ambiguous timing:</strong> state whether gradients are scaled, accumulated, clipped, or already updated.</li>
+      <li><strong>Duplicate recomputation:</strong> activation checkpointing may execute a forward probe again.</li>
+      <li><strong>Empty shards:</strong> absence of data is not a measured zero.</li>
+      <li><strong>Padding:</strong> exclude it from token and routing statistics when appropriate.</li>
+      <li><strong>Over-smoothing:</strong> keep a faint raw curve behind a smoothed curve so short spikes remain visible.</li>
+      <li><strong>High-cardinality labels:</strong> arbitrary parameter names and sample identifiers overwhelm online metric stores.</li>
+      <li><strong>Sensitive artifacts:</strong> keep raw samples and token-level traces opt-in, access-controlled, and short-lived.</li>
+    </ul>
+
+    <h2 id="dashboard">9. A small dashboard</h2>
+
+    <ol class="dashboard-list">
+      <li><strong>Run health.</strong> Mean and worst-rank loss, $G_2$, spike events, throughput, peak memory, and job state.</li>
+      <li><strong>Data health.</strong> Loss and token share by stable source or modality.</li>
+      <li><strong>Mixture-of-Experts health.</strong> Imbalance ratio $I$, excess load $V$, and normalized routing entropy $H_{\mathrm{norm}}$.</li>
+      <li><strong>Numerics.</strong> RMS, absolute maximum, zero fraction, and clipping state.</li>
+      <li><strong>Layer detail.</strong> Activation scale, gradient contribution, optimizer updates, and residual metrics.</li>
+      <li><strong>Model quality.</strong> Held-out negative log-likelihood and milestone evaluations against cumulative tokens or compute.</li>
+    </ol>
+
+    <p>The first dashboard contains alerting signals. Higher-cost views are reserved for diagnosis.</p>
+
+    <p class="prose-footer"><em>The listed cadences are initial settings. Benchmark probe overhead on the target model, parallel configuration, and hardware before increasing frequency.</em></p>
+    </main>
+
+    <footer>
+      <span>Chunyuan Deng &mdash; Rice University</span>
+    </footer>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: "$$", right: "$$", display: true},
+        {left: "$", right: "$", display: false},
+        {left: "\\(", right: "\\)", display: false},
+        {left: "\\[", right: "\\]", display: true}
+      ],
+      throwOnError: false
+    });
+
+    const links = Array.from(document.querySelectorAll(".toc a"));
+    const sections = links
+      .map(link => document.querySelector(link.getAttribute("href")))
+      .filter(Boolean);
+    let scheduled = false;
+
+    function updateToc() {
+      const marker = window.scrollY + 120;
+      let current = sections[0] ? sections[0].id : "";
+
+      for (const section of sections) {
+        if (section.offsetTop <= marker) current = section.id;
+      }
+
+      for (const link of links) {
+        const active = link.getAttribute("href") === "#" + current;
+        link.classList.toggle("active", active);
+        if (active) link.setAttribute("aria-current", "location");
+        else link.removeAttribute("aria-current");
+      }
+      scheduled = false;
+    }
+
+    document.addEventListener("scroll", function() {
+      if (!scheduled) {
+        window.requestAnimationFrame(updateToc);
+        scheduled = true;
+      }
+    }, {passive: true});
+
+    for (const link of document.querySelectorAll(".mobile-toc a")) {
+      link.addEventListener("click", function() {
+        link.closest("details").removeAttribute("open");
+      });
+    }
+    updateToc();
+  });
+</script>
+</body>
+</html>

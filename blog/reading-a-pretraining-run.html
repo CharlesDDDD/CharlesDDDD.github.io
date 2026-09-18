@@ -164,9 +164,9 @@
       padding: 1px 6px;
       white-space: nowrap;
     }
-    .p-0 { background: #b3341f; color: #fff; }
-    .p-1 { background: #dfe6f4; color: var(--navy); }
-    .p-2 { background: #ececec; color: #6e6e6e; }
+    .p-0 { background: #8c2f22; color: #fff; }
+    .p-1 { background: #e1e7f2; color: var(--navy); }
+    .p-2 { background: #ebebe8; color: #6b6b66; }
     td .p, .prio-table .p { margin-left: 0; }
 
     /* ---------- first screen ---------- */
@@ -223,18 +223,24 @@
     .index-table td:last-child { white-space: nowrap; }
     .index-table td:nth-child(3) { color: var(--text-secondary); }
 
+    .index-table td:first-child a,
+    tr.band td a { color: inherit; text-decoration: none; }
+    .index-table td:first-child a:hover,
+    tr.band td a:hover { text-decoration: underline; }
+
     .prio-table td:first-child { white-space: nowrap; width: 1%; }
-    .screen-table td:first-child { color: var(--text); font-weight: 600; white-space: nowrap; width: 1%; }
+    .mistake-table td:first-child { color: var(--text); font-weight: 600; width: 30%; }
 
     /* ---------- metric entries ---------- */
 
     .metric-entry {
-      border-left: 2px solid #c5d6f5;
+      border-left: 2px solid #c3c9d4;
       margin: 18px 0 22px;
       padding: 2px 0 2px 16px;
     }
     .metric-entry p:last-child { margin-bottom: 0; }
-    .metric-name { color: var(--accent); font-weight: 600; }
+    .metric-entry:target { border-left-color: var(--navy); }
+    .metric-name { color: var(--navy); font-weight: 600; }
 
     .caution {
       background: #fff8e8;
@@ -329,7 +335,8 @@
       <a href="#evaluation"><span class="n">10</span>Evaluation</a>
 
       <div class="toc-part">V · Practice</div>
-      <a href="#implementation"><span class="n">11</span>Keeping probes cheap</a>
+      <a href="#mistakes"><span class="n">11</span>Common mistakes</a>
+      <a href="#implementation"><span class="n">12</span>Keeping probes cheap</a>
     </nav>
   </aside>
 
@@ -354,7 +361,8 @@
         <a href="#residual-paths">8. Residual paths</a>
         <a href="#modality">9. Modality paths</a>
         <a href="#evaluation">10. Evaluation</a>
-        <a href="#implementation">11. Keeping probes cheap</a>
+        <a href="#mistakes">11. Common mistakes</a>
+        <a href="#implementation">12. Keeping probes cheap</a>
       </nav>
     </details>
 
@@ -440,30 +448,6 @@
       </div>
     </div>
 
-    <p>Three screens sit behind it, opened when the first one moves.</p>
-
-    <div class="table-wrap screen-table">
-      <table>
-        <thead>
-          <tr><th>Screen</th><th>Contents</th></tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Data</td>
-            <td>Loss and token share by source and modality; document length; packing statistics</td>
-          </tr>
-          <tr>
-            <td>Numerics</td>
-            <td>Tensor scales and maxima; update ratios; residual and gate statistics; per-layer gradient contribution</td>
-          </tr>
-          <tr>
-            <td>Quality</td>
-            <td>Held-out loss and milestone evaluations against cumulative tokens or compute, never against steps</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
     <p><strong>Escalation order.</strong> Job state &rarr; loss &rarr; gradient norm and spikes &rarr; step time &rarr; memory &rarr; expert balance. Open the layer-level views only after that ordering fails to explain the symptom.</p>
 
     <h2 id="metric-index">2. Metric index</h2>
@@ -481,251 +465,251 @@
           </tr>
         </thead>
         <tbody>
-          <tr class="band"><td colspan="4">Loss</td></tr>
+          <tr class="band"><td colspan="4"><a href="#loss">Loss</a></td></tr>
           <tr>
-            <td>Global mean $L$</td>
+            <td><a href="#m-loss-global">Global mean $L$</a></td>
             <td>Convergence; the number every comparison rests on</td>
             <td>Every step</td>
             <td><span class="p p-0">P0</span></td>
           </tr>
           <tr>
-            <td>Worst-rank mean $L_{\max}$</td>
+            <td><a href="#m-loss-worst">Worst-rank mean $L_{\max}$</a></td>
             <td>A bad worker or data shard hidden inside $L$</td>
             <td>Every step</td>
             <td><span class="p p-0">P0</span></td>
           </tr>
           <tr>
-            <td>Loss by source and modality</td>
+            <td><a href="#m-loss-source">Loss by source and modality</a></td>
             <td>A domain or modality regressing under a flat global curve</td>
             <td>Every 1&ndash;10 steps</td>
             <td><span class="p p-0">P0</span></td>
           </tr>
 
-          <tr class="band"><td colspan="4">Gradients and stability</td></tr>
+          <tr class="band"><td colspan="4"><a href="#gradients">Gradients and stability</a></td></tr>
           <tr>
-            <td>Global norm $G_2$</td>
+            <td><a href="#m-gnorm">Global norm $G_2$</a></td>
             <td>Numerical stability; moves before the loss</td>
             <td>Every step</td>
             <td><span class="p p-0">P0</span></td>
           </tr>
           <tr>
-            <td>Clip rate</td>
+            <td><a href="#m-clip">Clip rate</a></td>
             <td>A clip threshold that no longer matches the run</td>
             <td>Every step</td>
             <td><span class="p p-0">P0</span></td>
           </tr>
           <tr>
-            <td>Co-spike count</td>
+            <td><a href="#m-cospike">Co-spike count</a></td>
             <td>Loss and gradient spiking together: real instability</td>
             <td>Every step</td>
             <td><span class="p p-0">P0</span></td>
           </tr>
           <tr>
-            <td>Robust spike score $z_t$</td>
+            <td><a href="#m-zscore">Robust spike score $z_t$</a></td>
             <td>Spikes, without assuming a Gaussian</td>
             <td>Every step</td>
             <td><span class="p p-1">P1</span></td>
           </tr>
           <tr>
-            <td>Mean and max $|g|$</td>
+            <td><a href="#m-gmean">Mean and max $|g|$</a></td>
             <td>Typical scale versus one exploding element</td>
             <td>Every step</td>
             <td><span class="p p-1">P1</span></td>
           </tr>
           <tr>
-            <td>Zero fraction $Z_g$</td>
+            <td><a href="#m-gzero">Zero fraction $Z_g$</a></td>
             <td>Dead paths, underflow, parameters getting no gradient</td>
             <td>Every step</td>
             <td><span class="p p-1">P1</span></td>
           </tr>
           <tr>
-            <td>Skip and replay counters</td>
+            <td><a href="#m-replay">Skip and replay counters</a></td>
             <td>Steps dropped by the spike guard; nondeterministic replays</td>
             <td>Every step</td>
             <td><span class="p p-1">P1</span></td>
           </tr>
 
-          <tr class="band"><td colspan="4">System</td></tr>
+          <tr class="band"><td colspan="4"><a href="#system-health">System</a></td></tr>
           <tr>
-            <td>Step time, throughput</td>
+            <td><a href="#m-tps">Step time, throughput</a></td>
             <td>Stalls, replays, slow shards</td>
             <td>Every step</td>
             <td><span class="p p-0">P0</span></td>
           </tr>
           <tr>
-            <td>Peak memory, max over ranks</td>
+            <td><a href="#m-peakmem">Peak memory, max over ranks</a></td>
             <td>Headroom before the first out-of-memory failure</td>
             <td>Every step</td>
             <td><span class="p p-0">P0</span></td>
           </tr>
           <tr>
-            <td>Compute rate $\Phi$</td>
+            <td><a href="#m-flops">Compute rate $\Phi$</a></td>
             <td>Hardware efficiency against a fixed FLOP estimator</td>
             <td>Every step</td>
             <td><span class="p p-0">P0</span></td>
           </tr>
           <tr>
-            <td>Straggler score $S$</td>
+            <td><a href="#m-straggler">Straggler score $S$</a></td>
             <td>One rank setting the pace for the job</td>
             <td>Every step</td>
             <td><span class="p p-1">P1</span></td>
           </tr>
           <tr>
-            <td>Exposed collective wait</td>
+            <td><a href="#m-comm">Exposed collective wait</a></td>
             <td>Communication that computation is not hiding</td>
             <td>Every 10 steps</td>
             <td><span class="p p-1">P1</span></td>
           </tr>
           <tr>
-            <td>Device and host telemetry</td>
+            <td><a href="#m-telemetry">Device and host telemetry</a></td>
             <td>Thermal, allocator, and network causes</td>
             <td>Every step</td>
             <td><span class="p p-1">P1</span></td>
           </tr>
 
-          <tr class="band"><td colspan="4">Tensors and optimizer</td></tr>
+          <tr class="band"><td colspan="4"><a href="#tensor-probes">Tensors and optimizer</a></td></tr>
           <tr>
-            <td>Absolute maximum</td>
+            <td><a href="#m-absmax">Absolute maximum</a></td>
             <td>Overflow, non-finite values, silent corruption</td>
             <td>Every 100 steps</td>
             <td><span class="p p-0">P0</span></td>
           </tr>
           <tr>
-            <td>RMS and absolute mean</td>
+            <td><a href="#m-rms">RMS and absolute mean</a></td>
             <td>Scale drift in activations, gradients, updates</td>
             <td>Every 100 steps</td>
             <td><span class="p p-1">P1</span></td>
           </tr>
           <tr>
-            <td>Zero fraction</td>
+            <td><a href="#m-zero">Zero fraction</a></td>
             <td>Sparsity, underflow, inactive paths</td>
             <td>Every 100 steps</td>
             <td><span class="p p-1">P1</span></td>
           </tr>
           <tr>
-            <td>Update ratio $\rho$</td>
+            <td><a href="#m-rho">Update ratio $\rho$</a></td>
             <td>Updates too small to matter, or large enough to damage</td>
             <td>Every 100 steps</td>
             <td><span class="p p-1">P1</span></td>
           </tr>
           <tr>
-            <td>Excess kurtosis</td>
+            <td><a href="#m-kurtosis">Excess kurtosis</a></td>
             <td>Heavy tails; low-precision risk</td>
             <td>Every 100 steps</td>
             <td><span class="p p-2">P2</span></td>
           </tr>
           <tr>
-            <td>Optimizer chain, per parameter</td>
+            <td><a href="#m-optchain">Optimizer chain, per parameter</a></td>
             <td>Which stage introduced a scale or direction change</td>
             <td>On demand</td>
             <td><span class="p p-2">P2</span></td>
           </tr>
 
-          <tr class="band"><td colspan="4">Experts</td></tr>
+          <tr class="band"><td colspan="4"><a href="#moe-balance">Experts</a></td></tr>
           <tr>
-            <td>Imbalance $I$, excess load $V$</td>
+            <td><a href="#m-imbalance">Imbalance $I$, excess load $V$</a></td>
             <td>Routing collapse and wasted expert compute</td>
             <td>Every step</td>
             <td><span class="p p-0">P0</span></td>
           </tr>
           <tr>
-            <td>Shard imbalance</td>
+            <td><a href="#m-shard">Shard imbalance</a></td>
             <td>A hot expert-parallel group throttling the step</td>
             <td>Every step</td>
             <td><span class="p p-0">P0</span></td>
           </tr>
           <tr>
-            <td>Normalized entropy $H_{\mathrm{norm}}$</td>
+            <td><a href="#m-entropy">Normalized entropy $H_{\mathrm{norm}}$</a></td>
             <td>Routing sharpening onto a few experts</td>
             <td>Every 100 steps</td>
             <td><span class="p p-1">P1</span></td>
           </tr>
           <tr>
-            <td>Per-expert load, router scores</td>
+            <td><a href="#m-expert-detail">Per-expert load, router scores</a></td>
             <td>Which expert, and by how much</td>
             <td>On demand</td>
             <td><span class="p p-2">P2</span></td>
           </tr>
 
-          <tr class="band"><td colspan="4">Residual paths</td></tr>
+          <tr class="band"><td colspan="4"><a href="#residual-paths">Residual paths</a></td></tr>
           <tr>
-            <td>Relative branch scale $R_b$</td>
+            <td><a href="#m-rb">Relative branch scale $R_b$</a></td>
             <td>A branch too weak to matter, or one that dominates</td>
             <td>Every 100 steps</td>
             <td><span class="p p-0">P0</span></td>
           </tr>
           <tr>
-            <td>Block importance $B$, angle $A$</td>
+            <td><a href="#m-bi">Block importance $B$, angle $A$</a></td>
             <td>Layers that stopped changing the stream</td>
             <td>Every 100 steps</td>
             <td><span class="p p-1">P1</span></td>
           </tr>
           <tr>
-            <td>Bfloat16 no-op fraction</td>
+            <td><a href="#m-noop">Bfloat16 no-op fraction</a></td>
             <td>Residual updates lost to rounding</td>
             <td>Every 100 steps</td>
             <td><span class="p p-1">P1</span></td>
           </tr>
           <tr>
-            <td>Gate saturation fraction</td>
+            <td><a href="#m-gate">Gate saturation fraction</a></td>
             <td>Gated branches closing permanently</td>
             <td>Every 100 steps</td>
             <td><span class="p p-1">P1</span></td>
           </tr>
 
-          <tr class="band"><td colspan="4">Modality</td></tr>
+          <tr class="band"><td colspan="4"><a href="#modality">Modality</a></td></tr>
           <tr>
-            <td>Token share $\pi^{(\mu)}$</td>
+            <td><a href="#m-share">Token share $\pi^{(\mu)}$</a></td>
             <td>Data-mix and packing changes</td>
             <td>Every 1&ndash;10 steps</td>
             <td><span class="p p-0">P0</span></td>
           </tr>
           <tr>
-            <td>Media scale ratio $\gamma$</td>
+            <td><a href="#m-gamma">Media scale ratio $\gamma$</a></td>
             <td>Media embeddings the backbone ignores, or that swamp it</td>
             <td>Every 100 steps</td>
             <td><span class="p p-0">P0</span></td>
           </tr>
           <tr>
-            <td>Encoder gradient share $S_{\mathrm{enc}}$</td>
+            <td><a href="#m-encshare">Encoder gradient share $S_{\mathrm{enc}}$</a></td>
             <td>An encoder that stopped learning</td>
             <td>Every 100 steps</td>
             <td><span class="p p-1">P1</span></td>
           </tr>
 
-          <tr class="band"><td colspan="4">Evaluation</td></tr>
+          <tr class="band"><td colspan="4"><a href="#evaluation">Evaluation</a></td></tr>
           <tr>
-            <td>Held-out NLL, bits per byte</td>
+            <td><a href="#m-nll">Held-out NLL, bits per byte</a></td>
             <td>Generalization and the scaling trend</td>
             <td>Every 0.5&ndash;2%</td>
             <td><span class="p p-0">P0</span></td>
           </tr>
           <tr>
-            <td>Choice accuracy</td>
+            <td><a href="#m-acc">Choice accuracy</a></td>
             <td>Capability, on a frozen harness</td>
             <td>Key checkpoints</td>
             <td><span class="p p-0">P0</span></td>
           </tr>
           <tr>
-            <td>Greedy generation</td>
+            <td><a href="#m-greedy">Greedy generation</a></td>
             <td>Capability that only free generation exposes</td>
             <td>Key checkpoints</td>
             <td><span class="p p-0">P0</span></td>
           </tr>
           <tr>
-            <td>Media gain</td>
+            <td><a href="#m-mediagain">Media gain</a></td>
             <td>Whether media inputs carry information at all</td>
             <td>Key checkpoints</td>
             <td><span class="p p-0">P0</span></td>
           </tr>
           <tr>
-            <td>Sampled generation, IoU</td>
+            <td><a href="#m-passk">Sampled generation, IoU</a></td>
             <td>Coverage under sampling; grounding quality</td>
             <td>Final checkpoints</td>
             <td><span class="p p-1">P1</span></td>
           </tr>
           <tr>
-            <td>Averaged-weight evaluation</td>
+            <td><a href="#m-ema">Averaged-weight evaluation</a></td>
             <td>Mid-run noise removed from the comparison</td>
             <td>Every evaluation</td>
             <td><span class="p p-1">P1</span></td>
@@ -744,7 +728,7 @@
 
     <p>Let $R$ be the number of GPU ranks — one training process each. Rank $r$ contains $T_r$ token positions. For token $t$ on rank $r$, $\ell_{r,t}$ is its negative log-likelihood and $m_{r,t}$ is 1 for a valid target and 0 otherwise.</p>
 
-    <div class="metric-entry">
+    <div class="metric-entry" id="m-loss-global">
       <p><span class="metric-name">Global mean loss $L$.</span><span class="p p-0">P0</span> Sum valid-token loss and valid-token count over all ranks, then divide.</p>
       <div class="equation">
         $$L = \frac{\sum_{r=1}^{R}\sum_{t=1}^{T_r} m_{r,t}\ell_{r,t}}
@@ -753,7 +737,7 @@
       <p>Use $L$ for convergence and scaling comparisons.</p>
     </div>
 
-    <div class="metric-entry">
+    <div class="metric-entry" id="m-loss-local">
       <p><span class="metric-name">Local mean loss $L_r$.</span><span class="p p-1">P1</span> The valid-token mean on rank $r$.</p>
       <div class="equation">
         $$L_r = \frac{\sum_{t=1}^{T_r}m_{r,t}\ell_{r,t}}
@@ -762,7 +746,7 @@
       <p>Omit a rank with no valid target; do not record it as zero.</p>
     </div>
 
-    <div class="metric-entry">
+    <div class="metric-entry" id="m-loss-worst">
       <p><span class="metric-name">Worst-rank loss $L_{\max}$.</span><span class="p p-0">P0</span> The maximum local mean over ranks.</p>
       <div class="equation">
         $$L_{\max}=\max_{1\le r\le R}L_r.$$
@@ -770,7 +754,7 @@
       <p>This is a maximum over GPU ranks, not over tokens or examples. It catches a bad worker or an unusual shard that $L$ averages away.</p>
     </div>
 
-    <div class="metric-entry">
+    <div class="metric-entry" id="m-loss-source">
       <p><span class="metric-name">Loss by source and modality.</span><span class="p p-0">P0</span> Let $\mu$ index a stable data source or modality, and $m^{(\mu)}_{r,t}$ be 1 when token $t$ on rank $r$ is a valid target belonging to $\mu$. Report the group loss with its token share.</p>
       <div class="equation">
         $$L^{(\mu)}=\frac{\sum_{r,t} m^{(\mu)}_{r,t}\ell_{r,t}}
@@ -788,7 +772,7 @@
 
     <p>Let $g=(g_1,\ldots,g_P)$ contain all $P$ gradient elements. Measure after gradient accumulation and loss-scale removal, but before global clipping.</p>
 
-    <div class="metric-entry">
+    <div class="metric-entry" id="m-gnorm">
       <p><span class="metric-name">Global gradient norm $G_2$.</span><span class="p p-0">P0</span> The Euclidean norm over all gradient elements.</p>
       <div class="equation">
         $$G_2=\sqrt{\sum_{j=1}^{P}g_j^2}.$$
@@ -796,7 +780,7 @@
       <p>The primary stability signal, and usually the first thing to move in a failing run.</p>
     </div>
 
-    <div class="metric-entry">
+    <div class="metric-entry" id="m-clip">
       <p><span class="metric-name">Clip rate.</span><span class="p p-0">P0</span> With clip threshold $c$ over a window of $W$ recent steps:</p>
       <div class="equation">
         $$\operatorname{Clip}=\frac{1}{W}\sum_{t}\mathbf{1}[G_{2,t}>c].$$
@@ -804,7 +788,7 @@
       <p>A low steady rate is normal. A sustained rise means clipping has become an unplanned learning-rate schedule.</p>
     </div>
 
-    <div class="metric-entry">
+    <div class="metric-entry" id="m-gmean">
       <p><span class="metric-name">Mean absolute gradient $G_{\mathrm{mean}}$.</span><span class="p p-1">P1</span> The average absolute gradient element.</p>
       <div class="equation">
         $$G_{\mathrm{mean}}=\frac{1}{P}\sum_{j=1}^{P}|g_j|.$$
@@ -812,7 +796,7 @@
       <p>Tracks typical element scale, and is less sensitive to one outlier than $G_{\max}$.</p>
     </div>
 
-    <div class="metric-entry">
+    <div class="metric-entry" id="m-gmax">
       <p><span class="metric-name">Maximum absolute gradient $G_{\max}$.</span><span class="p p-1">P1</span> The largest absolute gradient element.</p>
       <div class="equation">
         $$G_{\max}=\max_{1\le j\le P}|g_j|.$$
@@ -820,7 +804,7 @@
       <p>Detects localized explosion that $G_{\mathrm{mean}}$ dilutes away.</p>
     </div>
 
-    <div class="metric-entry">
+    <div class="metric-entry" id="m-gzero">
       <p><span class="metric-name">Gradient zero fraction $Z_g$.</span><span class="p p-1">P1</span> Exact zeros divided by the element count.</p>
       <div class="equation">
         $$Z_g=\frac{1}{P}\sum_{j=1}^{P}\mathbf{1}[g_j=0].$$
@@ -834,7 +818,7 @@
 
     <p>For a positive scalar $x_t$ at step $t$, define $u_t=\log(x_t+\varepsilon)$ with numerical floor $\varepsilon>0$ and natural $\log$. Let $W_t$ contain earlier $u$-values.</p>
 
-    <div class="metric-entry">
+    <div class="metric-entry" id="m-median">
       <p><span class="metric-name">Rolling median $q_t$ and deviation $D_t$.</span><span class="p p-1">P1</span> A local baseline and a spread estimate that a spike cannot inflate.</p>
       <div class="equation">
         $$q_t=\operatorname{median}(W_t),
@@ -843,7 +827,7 @@
       </div>
     </div>
 
-    <div class="metric-entry">
+    <div class="metric-entry" id="m-zscore">
       <p><span class="metric-name">Robust spike score $z_t$.</span><span class="p p-1">P1</span> Normalize the current deviation by $D_t$.</p>
       <div class="equation">
         $$z_t=0.6745\frac{|u_t-q_t|}{D_t+\varepsilon}.$$
@@ -851,7 +835,7 @@
       <p>The factor 0.6745 calibrates the score for normally distributed log-values. Apply the detector separately to $L$ and $G_2$.</p>
     </div>
 
-    <div class="metric-entry">
+    <div class="metric-entry" id="m-cospike">
       <p><span class="metric-name">Co-spike indicator $C_t$.</span><span class="p p-0">P0</span> Mark a step only when loss and gradient norm both spike.</p>
       <div class="equation">
         $$C_t=\mathbf{1}[\text{loss spike at step }t]\,
@@ -860,7 +844,7 @@
       <p>This is the one worth paging on. Track cumulative count and cumulative magnitude, not just the instantaneous flag.</p>
     </div>
 
-    <div class="metric-entry">
+    <div class="metric-entry" id="m-replay">
       <p><span class="metric-name">Skip and replay counters.</span><span class="p p-1">P1</span> Count skipped updates, replayed steps, and replays that did not reproduce the original loss.</p>
       <p>The last one is the valuable counter: a replay that returns a different loss on identical inputs points at hardware, not data.</p>
     </div>
@@ -871,7 +855,7 @@
 
     <p>Let $\tau_r$ be the local step time on rank $r$, and $\tau=\max_r\tau_r$ the global wall time of the step.</p>
 
-    <div class="metric-entry">
+    <div class="metric-entry" id="m-tps">
       <p><span class="metric-name">Token throughput $\operatorname{TPS}$.</span><span class="p p-0">P0</span> With $N_{\mathrm{tok}}$ the global valid tokens in one step:</p>
       <div class="equation">
         $$\operatorname{TPS}=\frac{N_{\mathrm{tok}}}{\tau}.$$
@@ -879,7 +863,7 @@
       <p>Include data loading, forward, backward, optimizer, and synchronization in $\tau$.</p>
     </div>
 
-    <div class="metric-entry">
+    <div class="metric-entry" id="m-flops">
       <p><span class="metric-name">Compute rate $\Phi$.</span><span class="p p-0">P0</span> With $F_{\mathrm{step}}$ estimated operations per step and $D$ devices:</p>
       <div class="equation">
         $$\Phi=\frac{F_{\mathrm{step}}}{D\tau}.$$
@@ -887,7 +871,7 @@
       <p>Keep the FLOP estimator fixed across compared runs; changing it changes the metric without changing the hardware.</p>
     </div>
 
-    <div class="metric-entry">
+    <div class="metric-entry" id="m-straggler">
       <p><span class="metric-name">Straggler score $S$.</span><span class="p p-1">P1</span> Global step time over median local step time.</p>
       <div class="equation">
         $$S=\frac{\tau}{\operatorname{median}_r(\tau_r)+\varepsilon}.$$
@@ -895,17 +879,17 @@
       <p>$S\approx1$ when ranks progress together. It rises when one slow rank sets the pace.</p>
     </div>
 
-    <div class="metric-entry">
+    <div class="metric-entry" id="m-peakmem">
       <p><span class="metric-name">Peak memory.</span><span class="p p-0">P0</span> Maximum allocated or reserved bytes in the interval, reduced with a maximum over ranks.</p>
       <p>The max over ranks identifies the device closest to failure. Reset peak counters only at documented boundaries, or adjacent points describe different windows.</p>
     </div>
 
-    <div class="metric-entry">
+    <div class="metric-entry" id="m-mem">
       <p><span class="metric-name">Allocated and reserved memory.</span><span class="p p-1">P1</span> Allocated bytes are held by live tensors; reserved bytes are held by the allocator, including cached blocks.</p>
       <p>A widening reserved-minus-allocated gap means fragmentation or an oversized cache, not a larger model.</p>
     </div>
 
-    <div class="metric-entry">
+    <div class="metric-entry" id="m-comm">
       <p><span class="metric-name">Exposed collective wait $W_{\mathrm{comm}}$.</span><span class="p p-1">P1</span> With $\tau_{\mathrm{wait}}$ the critical-path collective time not overlapped with computation:</p>
       <div class="equation">
         $$W_{\mathrm{comm}}=\frac{\tau_{\mathrm{wait}}}{\tau}.$$
@@ -913,7 +897,7 @@
       <p>Report collective count and payload alongside it, to separate many small calls from one bandwidth-limited large call.</p>
     </div>
 
-    <div class="metric-entry">
+    <div class="metric-entry" id="m-telemetry">
       <p><span class="metric-name">Device and host telemetry.</span><span class="p p-1">P1</span> Utilization, power, temperature, clock, process memory, CPU pressure, page faults, network traffic.</p>
       <p>These separate model regressions from host, thermal, allocator, and network failures — which is most of what a throughput drop turns out to be.</p>
     </div>
@@ -928,7 +912,7 @@
 
     <p>Let $x=(x_1,\ldots,x_N)$ be a flattened tensor with $N$ elements. One pass over memory can produce all of the statistics below at once.</p>
 
-    <div class="metric-entry">
+    <div class="metric-entry" id="m-absmax">
       <p><span class="metric-name">Absolute maximum.</span><span class="p p-0">P0</span> The largest absolute element.</p>
       <div class="equation">
         $$\operatorname{AbsMax}(x)=\max_{1\le j\le N}|x_j|.$$
@@ -936,7 +920,7 @@
       <p>The fastest indicator of an outlier, overflow, or local explosion. At the model output it is P0 in its own right: it moves before the loss.</p>
     </div>
 
-    <div class="metric-entry">
+    <div class="metric-entry" id="m-rms">
       <p><span class="metric-name">Root mean square.</span><span class="p p-1">P1</span> The square root of the mean squared element value.</p>
       <div class="equation">
         $$\operatorname{RMS}(x)=\sqrt{\frac{1}{N}\sum_{j=1}^{N}x_j^2}.$$
@@ -944,7 +928,7 @@
       <p>RMS measures energy scale and stays comparable across tensor sizes. Store the square mean $M_2(x)=\frac1N\sum_j x_j^2$ instead: ranks reduce the squared sum and element count separately, and RMS follows.</p>
     </div>
 
-    <div class="metric-entry">
+    <div class="metric-entry" id="m-absmean">
       <p><span class="metric-name">Absolute mean.</span><span class="p p-1">P1</span> The average absolute element value.</p>
       <div class="equation">
         $$\operatorname{AbsMean}(x)=\frac{1}{N}\sum_{j=1}^{N}|x_j|.$$
@@ -952,7 +936,7 @@
       <p>Typical scale without sign cancellation. It ignores a few large elements, so its gap from RMS is itself informative.</p>
     </div>
 
-    <div class="metric-entry">
+    <div class="metric-entry" id="m-zero">
       <p><span class="metric-name">Zero fraction $Z_x$.</span><span class="p p-1">P1</span> Exact zeros divided by $N$.</p>
       <div class="equation">
         $$Z_x=\frac{1}{N}\sum_{j=1}^{N}\mathbf{1}[x_j=0].$$
@@ -960,7 +944,7 @@
       <p>Measures sparsity, underflow, and inactive paths.</p>
     </div>
 
-    <div class="metric-entry">
+    <div class="metric-entry" id="m-kurtosis">
       <p><span class="metric-name">Excess kurtosis $\kappa$.</span><span class="p p-2">P2</span> With empirical mean $\mu$, normalize the fourth central moment by the squared variance.</p>
       <div class="equation">
         $$\kappa=
@@ -978,7 +962,7 @@
 
     <h3>Relative update size</h3>
 
-    <div class="metric-entry">
+    <div class="metric-entry" id="m-rho">
       <p><span class="metric-name">Relative update size $\rho$.</span><span class="p p-1">P1</span> For parameter tensor $w$ and applied update $\Delta w$:</p>
       <div class="equation">
         $$\rho=\frac{\operatorname{RMS}(\Delta w)}
@@ -987,7 +971,7 @@
       <p>A persistent fall toward zero means ineffective updates; a sudden rise means an update large relative to the parameter scale. The ratio is comparable across layers and runs; the raw update norm is not.</p>
     </div>
 
-    <div class="metric-entry">
+    <div class="metric-entry" id="m-optchain">
       <p><span class="metric-name">Optimizer chain.</span><span class="p p-2">P2</span> Record the raw gradient, normalized gradient, preconditioned direction, and applied update as separate tensors.</p>
       <p>This locates the stage that introduces a scale or direction change. Too many series for a standing dashboard; turn it on for an investigation.</p>
     </div>
@@ -998,7 +982,7 @@
 
     <p>Let $E$ be the number of experts and $c_i$ the valid tokens sent to expert $i$, with mean load $\bar c=\frac1E\sum_i c_i$.</p>
 
-    <div class="metric-entry">
+    <div class="metric-entry" id="m-imbalance">
       <p><span class="metric-name">Imbalance ratio $I$ and excess load $V$.</span><span class="p p-0">P0</span> Compare the busiest expert with the mean.</p>
       <div class="equation">
         $$I=\frac{\max_{1\le i\le E}c_i}{\bar c},
@@ -1008,12 +992,12 @@
       <p>Perfect balance gives $I=1$ and $V=0$; $V=0.25$ means the busiest expert takes 25% more tokens than the mean. $V$ reads better on a dashboard, because it is zero when nothing is wrong.</p>
     </div>
 
-    <div class="metric-entry">
+    <div class="metric-entry" id="m-shard">
       <p><span class="metric-name">Shard imbalance.</span><span class="p p-0">P0</span> The same ratio applied to expert-parallel shard loads.</p>
       <p>Expert-level balance does not imply balanced communication groups, and it is the shard load that sets the step time.</p>
     </div>
 
-    <div class="metric-entry">
+    <div class="metric-entry" id="m-entropy">
       <p><span class="metric-name">Routing entropy $H$ and $H_{\mathrm{norm}}$.</span><span class="p p-1">P1</span> With normalized loads $p_i=c_i/\sum_j c_j$:</p>
       <div class="equation">
         $$H=-\sum_{i=1}^{E}p_i\log p_i,
@@ -1023,7 +1007,7 @@
       <p>$H_{\mathrm{norm}}=0$ is complete concentration, 1 is uniform routing. A sharp drop means the router is collapsing onto a few experts, usually before $I$ makes it obvious.</p>
     </div>
 
-    <div class="metric-entry">
+    <div class="metric-entry" id="m-expert-detail">
       <p><span class="metric-name">Per-expert load and router scores.</span><span class="p p-2">P2</span> Per-expert token fractions, routing bias terms, top-$k$ margin distributions.</p>
       <p>These answer <em>which</em> expert once the aggregate has already said that something is wrong.</p>
     </div>
@@ -1034,7 +1018,7 @@
 
     <p>Let $s\in\mathbb{R}^{d}$ be one token's residual-stream vector, $b\in\mathbb{R}^{d}$ the branch output added to it, and $a=s+b$ the updated stream.</p>
 
-    <div class="metric-entry">
+    <div class="metric-entry" id="m-rb">
       <p><span class="metric-name">Relative branch scale $R_b$.</span><span class="p p-0">P0</span> Branch norm $N_b=\lVert b\rVert_2$ over stream norm $N_s=\lVert s\rVert_2$.</p>
       <div class="equation">
         $$R_b=\frac{N_b}{N_s+\varepsilon}.$$
@@ -1049,7 +1033,7 @@
       \frac{u^\top v}{\lVert u\rVert_2\lVert v\rVert_2+\varepsilon}.$$
     </div>
 
-    <div class="metric-entry">
+    <div class="metric-entry" id="m-bi">
       <p><span class="metric-name">Block importance $B$ and angular distance $A$.</span><span class="p p-1">P1</span> The directional change from $s$ to $a$, raw and normalized.</p>
       <div class="equation">
         $$B=1-\cos(s,a),
@@ -1059,7 +1043,7 @@
       <p>$B=0$ when the update preserves direction, and $A$ lies in $[0,1]$. A block whose $B$ decays toward zero has stopped contributing, whatever its branch norm says.</p>
     </div>
 
-    <div class="metric-entry">
+    <div class="metric-entry" id="m-noop">
       <p><span class="metric-name">BF16 no-op fraction $F_{\mathrm{noop}}$.</span><span class="p p-1">P1</span> With $Q_{\mathrm{BF16}}(\cdot)$ rounding to bfloat16, count nonzero branch updates that rounded addition throws away.</p>
       <div class="equation">
         $$F_{\mathrm{noop}}=
@@ -1072,7 +1056,7 @@
       <p>A large value means residual updates are being swallowed by precision. It grows as the stream norm grows, so watch it with $N_s$.</p>
     </div>
 
-    <div class="metric-entry">
+    <div class="metric-entry" id="m-gate">
       <p><span class="metric-name">Gate saturation fraction.</span><span class="p p-1">P1</span> For a branch scaled by a learned gate, let $\beta_j=\sigma(g_j/T)$ with logistic $\sigma$, gate $g_j$, temperature $T$. Report channels below a threshold $\theta$.</p>
       <div class="equation">
         $$F_{\mathrm{gate}}(\theta)=\frac{1}{d}\sum_{j=1}^{d}\mathbf{1}[\beta_j<\theta].$$
@@ -1086,12 +1070,12 @@
 
     <p>A multimodal run adds one failure mode: a modality degrading, or never contributing, while the aggregate curves look healthy. Three probes cover most of it; the fourth check — whether media inputs carry information at all — is an evaluation, in Section 10.</p>
 
-    <div class="metric-entry">
+    <div class="metric-entry" id="m-share">
       <p><span class="metric-name">Token share $\pi^{(\mu)}$.</span><span class="p p-0">P0</span> The fraction of valid targets belonging to modality $\mu$, defined in Section 3 alongside $L^{(\mu)}$.</p>
       <p>Plot it next to the per-modality loss. A data-mix change, a packing bug, or a decoder that dropped a shard shows up here first, and explains loss movements that otherwise look like model regressions.</p>
     </div>
 
-    <div class="metric-entry">
+    <div class="metric-entry" id="m-gamma">
       <p><span class="metric-name">Media scale ratio $\gamma$.</span><span class="p p-0">P0</span> Let $e^{(\mathrm{media})}$ be the embeddings an encoder and its projector hand to the backbone, and $e^{(\mathrm{text})}$ the text embeddings entering at the same point.</p>
       <div class="equation">
         $$\gamma=\frac{\operatorname{RMS}(e^{(\mathrm{media})})}
@@ -1100,7 +1084,7 @@
       <p>Near 1, the two streams enter at the same scale. Persistently small, and the backbone can ignore media tokens at no cost to the loss — so it will. Large, and media tokens dominate the early layers. Both are projector problems more often than encoder problems.</p>
     </div>
 
-    <div class="metric-entry">
+    <div class="metric-entry" id="m-encshare">
       <p><span class="metric-name">Encoder gradient share $S_{\mathrm{enc}}$.</span><span class="p p-1">P1</span> Squared gradient norm of the encoder parameters over the squared global norm.</p>
       <div class="equation">
         $$S_{\mathrm{enc}}=
@@ -1118,7 +1102,7 @@
 
     <p>Let $M$ be the number of valid held-out tokens and $\ell_k$ the negative log-likelihood of token $k$.</p>
 
-    <div class="metric-entry">
+    <div class="metric-entry" id="m-nll">
       <p><span class="metric-name">Negative log-likelihood and perplexity.</span><span class="p p-0">P0</span> Average held-out token losses, and exponentiate.</p>
       <div class="equation">
         $$\operatorname{NLL}=\frac{1}{M}\sum_{k=1}^{M}\ell_k,
@@ -1128,7 +1112,7 @@
       <p>Perplexity adds no information over NLL, and is comparable only when tokenization and loss normalization are fixed.</p>
     </div>
 
-    <div class="metric-entry">
+    <div class="metric-entry" id="m-bpb">
       <p><span class="metric-name">Bits per byte.</span><span class="p p-0">P0</span> With $N_{\mathrm{byte}}$ the source bytes covered by the held-out tokens:</p>
       <div class="equation">
         $$\operatorname{BPB}=\frac{\sum_{k=1}^{M}\ell_k}
@@ -1137,7 +1121,7 @@
       <p>The right default for comparing runs: insensitive to tokenizer vocabulary and segmentation, which token-level perplexity is not.</p>
     </div>
 
-    <div class="metric-entry">
+    <div class="metric-entry" id="m-acc">
       <p><span class="metric-name">Choice accuracy.</span><span class="p p-0">P0</span> Over $Q$ questions with prediction $\hat a_q$ and reference $a_q$:</p>
       <div class="equation">
         $$\operatorname{Accuracy}=
@@ -1146,12 +1130,12 @@
       <p>For multiple choice, select $\hat a_q$ by length-normalized option NLL. Freeze prompt construction and answer normalization for the life of the run.</p>
     </div>
 
-    <div class="metric-entry">
+    <div class="metric-entry" id="m-greedy">
       <p><span class="metric-name">Greedy generation.</span><span class="p p-0">P0</span> Decode at temperature 0 and score after task-specific post-processing: exact match, pass@1, or a symbolic checker.</p>
       <p>The cheapest evaluation that exposes failures likelihood scoring cannot see. Worth running on every key checkpoint, not only at the end.</p>
     </div>
 
-    <div class="metric-entry">
+    <div class="metric-entry" id="m-mediagain">
       <p><span class="metric-name">Media gain $\Delta_{\mathrm{media}}$.</span><span class="p p-0">P0</span> The same higher-is-better score computed with and without the media input.</p>
       <div class="equation">
         $$\Delta_{\mathrm{media}}=
@@ -1160,7 +1144,7 @@
       <p>The only metric that proves a multimodal model uses its media input rather than answering from text priors. A capable model with $\Delta_{\mathrm{media}}\approx0$ is a unimodal model with extra cost.</p>
     </div>
 
-    <div class="metric-entry">
+    <div class="metric-entry" id="m-passk">
       <p><span class="metric-name">Pass at $k$.</span><span class="p p-1">P1</span> For one problem with $n$ samples, $c$ of them passing, and $k\le n$:</p>
       <div class="equation">
         $$\widehat{\operatorname{pass@}k}
@@ -1169,7 +1153,7 @@
       <p>If $n-c&lt;k$, the estimate is 1. Pass@1 evaluates one attempt; larger $k$ measures coverage under repeated sampling.</p>
     </div>
 
-    <div class="metric-entry">
+    <div class="metric-entry" id="m-iou">
       <p><span class="metric-name">Intersection over union.</span><span class="p p-1">P1</span> For predicted region $\mathcal{P}$ and reference $\mathcal{G}$:</p>
       <div class="equation">
         $$\operatorname{IoU}=
@@ -1179,7 +1163,7 @@
       <p>0 for no overlap, 1 for identical regions. Promote to P0 for a run whose target capabilities are grounding-heavy.</p>
     </div>
 
-    <div class="metric-entry">
+    <div class="metric-entry" id="m-ema">
       <p><span class="metric-name">Averaged-weight evaluation.</span><span class="p p-1">P1</span> Evaluate a running average of the weights alongside the raw ones.</p>
       <p>Mid-run comparisons on raw weights are noisy enough to reverse a ranking between two recipes. Decide once which weight stream is the reference for decisions.</p>
     </div>
@@ -1190,7 +1174,61 @@
 
     <div class="part">Part V &middot; Practice</div>
 
-    <h2 id="implementation">11. Keeping probes cheap</h2>
+    <h2 id="mistakes">11. Common mistakes</h2>
+
+    <p>Every one of these produces a plausible-looking curve, which is what makes them expensive.</p>
+
+    <div class="table-wrap mistake-table">
+      <table>
+        <thead>
+          <tr><th>Mistake</th><th>What goes wrong</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Everything is P0</td>
+            <td>If every panel can page you, none of them does</td>
+          </tr>
+          <tr>
+            <td>Wrong reduction group</td>
+            <td>Data, tensor, pipeline, context, and expert-parallel groups have different semantics</td>
+          </tr>
+          <tr>
+            <td>Unclear maximum</td>
+            <td>A maximum over tensor elements, tokens, examples, or GPU ranks gives four different metrics under one name</td>
+          </tr>
+          <tr>
+            <td>Ambiguous timing</td>
+            <td>Gradients scaled, accumulated, clipped, or already applied are four different quantities</td>
+          </tr>
+          <tr>
+            <td>Duplicate recomputation</td>
+            <td>Activation checkpointing may run a forward probe a second time, double-counting it</td>
+          </tr>
+          <tr>
+            <td>Empty shards</td>
+            <td>Absence of data recorded as a measured zero drags every average toward zero</td>
+          </tr>
+          <tr>
+            <td>Padding counted as tokens</td>
+            <td>Distorts loss, routing, and modality statistics in proportion to how much you pad</td>
+          </tr>
+          <tr>
+            <td>Over-smoothing</td>
+            <td>A smoothed curve with no raw curve behind it hides exactly the short spikes you are watching for</td>
+          </tr>
+          <tr>
+            <td>High-cardinality labels</td>
+            <td>Arbitrary parameter names and sample identifiers overwhelm online metric stores</td>
+          </tr>
+          <tr>
+            <td>Sensitive artifacts</td>
+            <td>Raw samples and token-level traces must be opt-in, access-controlled, and short-lived</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 id="implementation">12. Keeping probes cheap</h2>
 
     <ol>
       <li><strong>Register once.</strong> Choose tensor locations while building the model.</li>
@@ -1204,21 +1242,6 @@
     <p>Let $K$ be the sampling interval in steps. Retain every $K$-th sample, every anomaly step, the warm-up and final steps, and 50&ndash;100 steps on each side of an anomaly. Small runs can use $K=1$; long runs use $K$ between 100 and 200 for expensive views, while cheap detectors keep running every step.</p>
 
     <p>A detector cannot recover expensive measurements from before the event that triggered it. If that context matters, keep a short in-memory ring buffer, or replay the affected batch under denser probes.</p>
-
-    <h3>Common mistakes</h3>
-
-    <ul>
-      <li><strong>Everything is P0:</strong> if every panel can page you, none of them does.</li>
-      <li><strong>Wrong reduction group:</strong> data, tensor, pipeline, context, and expert-parallel groups have different semantics.</li>
-      <li><strong>Unclear maximum:</strong> say whether a maximum is over tensor elements, tokens, examples, or GPU ranks.</li>
-      <li><strong>Ambiguous timing:</strong> state whether gradients are scaled, accumulated, clipped, or already applied.</li>
-      <li><strong>Duplicate recomputation:</strong> activation checkpointing may run a forward probe a second time.</li>
-      <li><strong>Empty shards:</strong> absence of data is not a measured zero.</li>
-      <li><strong>Padding:</strong> exclude it from token, routing, and modality statistics.</li>
-      <li><strong>Over-smoothing:</strong> keep a faint raw curve behind the smoothed one, so short spikes stay visible.</li>
-      <li><strong>High-cardinality labels:</strong> arbitrary parameter names and sample identifiers overwhelm online metric stores.</li>
-      <li><strong>Sensitive artifacts:</strong> keep raw samples and token-level traces opt-in, access-controlled, and short-lived.</li>
-    </ul>
 
     <p class="prose-footer"><em>Cadences here are initial settings, and priorities are defaults for a general run. Benchmark probe overhead on the target model, parallel configuration, and hardware before increasing any frequency.</em></p>
     </main>

@@ -1,0 +1,1386 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="How to tell whether a large pretraining run is healthy: start with loss, gradients, speed, memory, expert balance, and evaluation.">
+  <meta name="author" content="Chunyuan Deng">
+  <title>Reading a Pretraining Run — Chunyuan Deng</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #ffffff;
+      --text: #1c1c1e;
+      --text-secondary: #555;
+      --text-light: #888;
+      --accent: #2b5ecc;
+      --accent-light: #eef2fb;
+      --navy: #1b3a6f;
+      --border: #e2e2e2;
+      --surface: #f6f7f9;
+    }
+
+    html { scroll-behavior: smooth; scroll-padding-top: 24px; }
+
+    body {
+      font-family: 'Inter', -apple-system, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .container { max-width: 1160px; margin: 0 auto; padding: 0 28px; }
+
+    .article-layout {
+      display: grid;
+      grid-template-columns: 190px minmax(0, 860px);
+      gap: 40px;
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 0 28px;
+    }
+    .article-column { min-width: 0; }
+
+    /* ---------- contents ---------- */
+
+    .toc-column { padding-top: 56px; }
+    .toc {
+      max-height: calc(100vh - 48px);
+      overflow-y: auto;
+      position: sticky;
+      top: 24px;
+    }
+    .toc-title {
+      color: var(--text-light);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      margin: 0 0 10px 11px;
+      text-transform: uppercase;
+    }
+    .toc-part {
+      border-top: 1px solid var(--border);
+      color: var(--navy);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      margin: 14px 0 5px;
+      padding: 8px 0 0 11px;
+      text-transform: uppercase;
+    }
+    .toc-part:first-of-type { border-top: none; margin-top: 0; padding-top: 0; }
+    .toc a {
+      border-left: 2px solid var(--border);
+      color: var(--text-light);
+      display: block;
+      font-size: 12px;
+      line-height: 1.35;
+      padding: 5px 10px;
+      text-decoration: none;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .toc a .n { display: inline-block; width: 16px; color: #aaa; }
+    .toc a:hover { border-left-color: #9db5e6; color: var(--text); text-decoration: none; }
+    .toc a.active { border-left-color: var(--accent); color: var(--accent); font-weight: 600; }
+    .toc a.active .n { color: var(--accent); }
+
+    .mobile-toc {
+      display: none;
+      margin: 24px 0 0;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--surface);
+    }
+    .mobile-toc summary { cursor: pointer; font-size: 12px; font-weight: 600; padding: 10px 14px; }
+    .mobile-toc nav { border-top: 1px solid var(--border); padding: 8px 14px 10px; }
+    .mobile-toc a { color: var(--text-secondary); display: block; font-size: 12px; padding: 4px 0; text-decoration: none; }
+
+    /* ---------- chrome ---------- */
+
+    header { border-bottom: 1px solid var(--border); padding: 16px 0; }
+    header a { font-size: 12px; color: var(--text-secondary); text-decoration: none; }
+    header a:hover { color: var(--accent); }
+
+    .hero { padding: 52px 0 36px; }
+    .hero h1 {
+      font-family: 'Source Serif 4', Georgia, 'Songti SC', 'Noto Serif CJK SC', serif;
+      font-size: 2.2rem;
+      font-weight: 600;
+      letter-spacing: -0.025em;
+      line-height: 1.2;
+      margin-bottom: 14px;
+    }
+    .hero .meta { color: var(--text-light); font-size: 12px; }
+
+    .divider { border: none; border-top: 1px solid var(--border); }
+
+    .prose { padding: 36px 0; color: var(--text); font-size: 14px; line-height: 1.8; }
+    .prose p { margin-bottom: 1.1em; }
+    .prose strong { font-weight: 600; }
+
+    .part {
+      border-top: 2px solid var(--navy);
+      color: var(--navy);
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      margin: 46px 0 0;
+      padding-top: 9px;
+      text-transform: uppercase;
+    }
+
+    h2 {
+      font-family: 'Source Serif 4', Georgia, 'Songti SC', 'Noto Serif CJK SC', serif;
+      font-size: 1.38rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      margin: 36px 0 14px;
+    }
+    .part + h2 { margin-top: 16px; }
+    h3 { font-size: 0.92rem; font-weight: 600; margin: 26px 0 10px; }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ---------- priority badges ---------- */
+
+    .p {
+      border-radius: 3px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      margin-left: 6px;
+      padding: 1px 6px;
+      white-space: nowrap;
+    }
+    .p-0 { background: #8c2f22; color: #fff; }
+    .p-1 { background: #e1e7f2; color: var(--navy); }
+    .p-2 { background: #ebebe8; color: #6b6b66; }
+    td .p, .prio-table .p { margin-left: 0; }
+
+    /* ---------- first screen ---------- */
+
+    .signal-grid {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(3, 1fr);
+      margin: 20px 0 24px;
+    }
+    .signal {
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--navy);
+      border-radius: 4px;
+      padding: 11px 13px 12px;
+    }
+    .signal .area {
+      color: var(--text-light);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .signal .name { font-size: 13.5px; font-weight: 600; line-height: 1.3; margin: 4px 0 5px; }
+    .signal p { color: var(--text-secondary); font-size: 12.5px; line-height: 1.5; margin: 0; }
+
+    /* ---------- tables ---------- */
+
+    .table-wrap {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      margin: 20px 0 24px;
+      overflow-x: auto;
+    }
+    table { border-collapse: collapse; font-size: 13px; width: 100%; }
+    th {
+      background: var(--navy);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 8px 10px;
+      text-align: left;
+      white-space: nowrap;
+    }
+    td { border-bottom: 1px solid var(--border); padding: 8px 10px; vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--surface); }
+    tr.band td { background: #ebeaf7; color: #2c2a5a; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; padding: 6px 10px; text-transform: uppercase; }
+    tr.band:hover td { background: #ebeaf7; }
+
+    .index-table table { min-width: 720px; }
+    .index-table td:first-child { color: var(--text); font-weight: 600; white-space: nowrap; }
+    .index-table td:nth-child(3),
+    .index-table td:last-child { white-space: nowrap; }
+    .index-table td:nth-child(3) { color: var(--text-secondary); }
+
+    .index-table td:first-child a,
+    tr.band td a { color: inherit; text-decoration: none; }
+    .index-table td:first-child a:hover,
+    tr.band td a:hover { text-decoration: underline; }
+
+    .prio-table td:first-child { white-space: nowrap; width: 1%; }
+    .mistake-table td:first-child { color: var(--text); font-weight: 600; width: 30%; }
+
+    /* ---------- metric entries ---------- */
+
+    .metric-entry {
+      border-left: 2px solid #c3c9d4;
+      margin: 18px 0 22px;
+      padding: 2px 0 2px 16px;
+    }
+    .metric-entry p:last-child { margin-bottom: 0; }
+    .metric-entry:target { border-left-color: var(--navy); }
+    .metric-name { color: var(--navy); font-weight: 600; }
+
+    .caution {
+      background: #fff8e8;
+      border-left: 3px solid #c28a2c;
+      border-radius: 0 4px 4px 0;
+      color: #654b20;
+      margin: 18px 0;
+      padding: 12px 16px;
+    }
+    .caution strong { color: #533b17; }
+
+    .equation { margin: 18px 0; overflow-x: auto; padding: 4px 0; text-align: center; }
+
+    ul, ol { margin: 10px 0 14px 24px; }
+    li { color: var(--text-secondary); margin-bottom: 6px; }
+    li strong { color: var(--text); }
+
+    code {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+      font-size: 12.5px;
+      padding: 2px 5px;
+    }
+
+    .prose-footer {
+      border-top: 1px solid var(--border);
+      color: var(--text-light);
+      font-size: 13px;
+      margin-top: 38px;
+      padding-top: 22px;
+    }
+
+    .cite-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      margin: 30px 0 0;
+      padding: 14px 18px;
+    }
+    .cite-label {
+      color: var(--text-light);
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+    .cite-box pre {
+      color: var(--text-secondary);
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      line-height: 1.65;
+      margin: 0;
+      overflow-x: auto;
+      white-space: pre;
+    }
+
+    /* ---------- language toggle ---------- */
+
+    html[data-lang="en"] .lang-zh,
+    html[data-lang="zh"] .lang-en { display: none; }
+
+    html[data-lang="zh"] .prose { line-height: 1.95; }
+    html[data-lang="zh"] li { line-height: 1.9; }
+    html[data-lang="zh"] .hero h1,
+    html[data-lang="zh"] h2 { letter-spacing: 0; }
+    html[data-lang="zh"] .hero .subtitle { font-style: normal; }
+
+    .header-bar { align-items: center; display: flex; justify-content: space-between; }
+    .lang-toggle {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 11.5px;
+      line-height: 1.6;
+      padding: 2px 10px;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .lang-toggle:hover { border-color: var(--accent); color: var(--accent); }
+
+    footer {
+      border-top: 1px solid var(--border);
+      color: var(--text-light);
+      font-size: 12px;
+      padding: 24px 0;
+      text-align: center;
+    }
+
+    @media (max-width: 1099px) {
+      .article-layout { display: block; max-width: 860px; }
+      .toc-column { display: none; }
+      .mobile-toc { display: block; }
+    }
+
+    @media (max-width: 760px) {
+      .signal-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 700px) {
+      .hero h1 { font-size: 1.75rem; }
+      .container { padding: 0 20px; }
+      .article-layout { padding: 0 20px; }
+      .signal-grid { grid-template-columns: 1fr; }
+      th, td { font-size: 12px; padding: 6px 8px; }
+      tr.band td { font-size: 9.5px; letter-spacing: 0.04em; padding: 4px 8px; }
+      .katex-display { font-size: 0.92em; }
+    }
+  </style>
+  <script>
+    (function () {
+      try {
+        var l = localStorage.getItem('blog-lang');
+        if (l === 'zh' || l === 'en') {
+          document.documentElement.setAttribute('data-lang', l);
+          document.documentElement.setAttribute('lang', l === 'zh' ? 'zh-Hans' : 'en');
+        }
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body>
+
+<header>
+  <div class="container header-bar">
+    <a href="../index.html"><span class="lang-en">&larr; Back to Home</span><span class="lang-zh">&larr; 返回首页</span></a>
+    <button class="lang-toggle" id="langToggle" type="button" aria-label="Switch language">
+      <span class="lang-en">中文</span><span class="lang-zh">English</span>
+    </button>
+  </div>
+</header>
+
+<div class="article-layout">
+  <aside class="toc-column">
+    <nav class="toc" aria-label="Table of contents">
+      <div class="toc-title"><span class="lang-en">Contents</span><span class="lang-zh">目录</span></div>
+
+      <div class="toc-part"><span class="lang-en">I · Where to look</span><span class="lang-zh">一 · 看哪里</span></div>
+      <a href="#first-screen"><span class="n">1</span><span class="lang-en">First screen</span><span class="lang-zh">第一屏</span></a>
+      <a href="#metric-index"><span class="n">2</span><span class="lang-en">All metrics</span><span class="lang-zh">指标总表</span></a>
+
+      <div class="toc-part"><span class="lang-en">II · Frequent checks</span><span class="lang-zh">二 · 高频检查</span></div>
+      <a href="#loss"><span class="n">3</span><span class="lang-en">Loss</span><span class="lang-zh">损失</span></a>
+      <a href="#gradients"><span class="n">4</span><span class="lang-en">Gradients and spikes</span><span class="lang-zh">梯度与尖峰</span></a>
+      <a href="#system-health"><span class="n">5</span><span class="lang-en">System health</span><span class="lang-zh">系统健康</span></a>
+
+      <div class="toc-part"><span class="lang-en">III · Deeper checks</span><span class="lang-zh">三 · 深入检查</span></div>
+      <a href="#tensor-probes"><span class="n">6</span><span class="lang-en">Tensor checks</span><span class="lang-zh">张量探针</span></a>
+      <a href="#moe-balance"><span class="n">7</span><span class="lang-en">Expert balance</span><span class="lang-zh">专家负载均衡</span></a>
+      <a href="#residual-paths"><span class="n">8</span><span class="lang-en">Residual paths</span><span class="lang-zh">残差路径</span></a>
+      <a href="#modality"><span class="n">9</span><span class="lang-en">Modality paths</span><span class="lang-zh">模态路径</span></a>
+
+      <div class="toc-part"><span class="lang-en">IV · Milestone evaluation</span><span class="lang-zh">四 · 里程碑评测</span></div>
+      <a href="#evaluation"><span class="n">10</span><span class="lang-en">Evaluation</span><span class="lang-zh">评测</span></a>
+
+      <div class="toc-part"><span class="lang-en">V · Practice</span><span class="lang-zh">五 · 实践</span></div>
+      <a href="#mistakes"><span class="n">11</span><span class="lang-en">Common mistakes</span><span class="lang-zh">常见错误</span></a>
+      <a href="#implementation"><span class="n">12</span><span class="lang-en">Keeping monitoring cheap</span><span class="lang-zh">控制探针开销</span></a>
+    </nav>
+  </aside>
+
+  <div class="article-column">
+    <div class="hero">
+      <h1><span class="lang-en">Reading a Pretraining Run</span><span class="lang-zh">读懂一次预训练</span></h1>
+      <p class="meta">Chunyuan Deng &middot; <span class="lang-en">September 2026</span><span class="lang-zh">2026 年 9 月</span></p>
+    </div>
+
+    <hr class="divider">
+
+    <details class="mobile-toc">
+      <summary><span class="lang-en">Contents</span><span class="lang-zh">目录</span></summary>
+      <nav aria-label="Table of contents">
+        <a href="#first-screen">1. <span class="lang-en">First screen</span><span class="lang-zh">第一屏</span></a>
+        <a href="#metric-index">2. <span class="lang-en">All metrics</span><span class="lang-zh">指标总表</span></a>
+        <a href="#loss">3. <span class="lang-en">Loss</span><span class="lang-zh">损失</span></a>
+        <a href="#gradients">4. <span class="lang-en">Gradients and spikes</span><span class="lang-zh">梯度与尖峰</span></a>
+        <a href="#system-health">5. <span class="lang-en">System health</span><span class="lang-zh">系统健康</span></a>
+        <a href="#tensor-probes">6. <span class="lang-en">Tensor checks</span><span class="lang-zh">张量探针</span></a>
+        <a href="#moe-balance">7. <span class="lang-en">Expert balance</span><span class="lang-zh">专家负载均衡</span></a>
+        <a href="#residual-paths">8. <span class="lang-en">Residual paths</span><span class="lang-zh">残差路径</span></a>
+        <a href="#modality">9. <span class="lang-en">Modality paths</span><span class="lang-zh">模态路径</span></a>
+        <a href="#evaluation">10. <span class="lang-en">Evaluation</span><span class="lang-zh">评测</span></a>
+        <a href="#mistakes">11. <span class="lang-en">Common mistakes</span><span class="lang-zh">常见错误</span></a>
+        <a href="#implementation">12. <span class="lang-en">Keeping monitoring cheap</span><span class="lang-zh">控制探针开销</span></a>
+      </nav>
+    </details>
+
+    <main class="prose">
+    <p><span class="lang-en">This post gives a broad view of the metrics worth tracking during pretraining. Every lab has its own dashboard, so this list is necessarily opinionated. It can also help when testing a new architecture or optimizer: instead of looking only at loss, we can see how the change affects the model and the training system as a whole.</span><span class="lang-zh"><em>探针</em>（probe）是挂在训练上的一次测量。一次大规模训练会产生很多探针，难的从来不是多采几个，而是选出少数真正有用的信号。所以这里的每个指标除了定义、聚合方式和建议采样频率，还带一个优先级。</span></p>
+
+    <div class="table-wrap prio-table">
+      <table>
+        <thead>
+          <tr><th><span class="lang-en">Level</span><span class="lang-zh">级别</span></th><th><span class="lang-en">Meaning</span><span class="lang-zh">含义</span></th><th><span class="lang-en">How often</span><span class="lang-zh">典型频率</span></th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="p p-0">P0</span></td>
+            <td><span class="lang-en"><strong>Primary.</strong> Keep this list short and visible. Turn a metric into an alert only after its threshold and response have been calibrated for the run.</span><span class="lang-zh"><strong>主要信号。</strong>列表要短并保持可见；只有在阈值和响应动作针对当前训练校准后，才把某项指标接成报警。</span></td>
+            <td><span class="lang-en">Every step when cheap</span><span class="lang-zh">开销低时每步</span></td>
+          </tr>
+          <tr>
+            <td><span class="p p-1">P1</span></td>
+            <td><span class="lang-en"><strong>Debug.</strong> Open these when a P0 metric looks wrong. Most are per-layer or per-tensor, so no one needs to watch them all day.</span><span class="lang-zh"><strong>诊断。</strong>P0 动了才打开。通常是按层、按张量的视图，没人需要一直盯着。</span></td>
+            <td><span class="lang-en">Every 100 steps</span><span class="lang-zh">每 100 步</span></td>
+          </tr>
+          <tr>
+            <td><span class="p p-2">P2</span></td>
+            <td><span class="lang-en"><strong>Details.</strong> Turn these on for one investigation, such as a closer look at one parameter, expert, or data source.</span><span class="lang-zh"><strong>取证。</strong>按参数、按 expert、按数据域的细节，只为某一次具体排查而开。</span></td>
+            <td><span class="lang-en">On demand</span><span class="lang-zh">按需</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="part"><span class="lang-en">Part I &middot; Where to look</span><span class="lang-zh">第一部分 &middot; 看哪里</span></div>
+
+    <h2 id="first-screen">1. <span class="lang-en">First screen</span><span class="lang-zh">第一屏</span></h2>
+
+    <p><span class="lang-en">If you make only one dashboard, these signals are a useful starting point. Choose each cadence from its cost and the failure mode it is meant to catch.</span><span class="lang-zh">如果只做一个看板页，下面这些信号可以作为起点；每项频率应根据测量开销和它要捕捉的故障类型来定。</span></p>
+
+    <div class="signal-grid">
+      <div class="signal">
+        <div class="area"><span class="lang-en">Loss</span><span class="lang-zh">损失</span></div>
+        <div class="name"><span class="lang-en">Global and worst-rank mean</span><span class="lang-zh">全局均值与最差 rank 均值</span></div>
+        <p><span class="lang-en">Is training improving, and is one worker or shard much worse than the rest?</span><span class="lang-zh">收敛情况，以及是不是某个 worker 或数据分片在单独扛雷。</span></p>
+      </div>
+      <div class="signal">
+        <div class="area"><span class="lang-en">Loss</span><span class="lang-zh">损失</span></div>
+        <div class="name"><span class="lang-en">By source and modality</span><span class="lang-zh">按数据源与模态</span></div>
+        <p><span class="lang-en">Is one data source or modality getting worse while the overall loss stays flat?</span><span class="lang-zh">全局曲线看着平稳时，某个数据域或模态已经在退化。</span></p>
+      </div>
+      <div class="signal">
+        <div class="area"><span class="lang-en">Gradients</span><span class="lang-zh">梯度</span></div>
+        <div class="name"><span class="lang-en">Global norm and clip rate</span><span class="lang-zh">全局范数与裁剪率</span></div>
+        <p><span class="lang-en">Often warns you before the loss does.</span><span class="lang-zh">最早的数值告警，通常比 loss 先动。</span></p>
+      </div>
+      <div class="signal">
+        <div class="area"><span class="lang-en">Stability</span><span class="lang-zh">稳定性</span></div>
+        <div class="name"><span class="lang-en">Loss-gradient spike</span><span class="lang-zh">loss-梯度共同尖峰</span></div>
+        <p><span class="lang-en">Did loss and gradient norm jump on the same step?</span><span class="lang-zh">loss 和梯度在同一步一起尖刺。</span></p>
+      </div>
+      <div class="signal">
+        <div class="area"><span class="lang-en">System</span><span class="lang-zh">系统</span></div>
+        <div class="name"><span class="lang-en">Step time and throughput</span><span class="lang-zh">单步耗时与吞吐</span></div>
+        <p><span class="lang-en">Shows stalls, slow workers, and communication slowdowns.</span><span class="lang-zh">卡顿、慢节点和通信退化。</span></p>
+      </div>
+      <div class="signal">
+        <div class="area"><span class="lang-en">System</span><span class="lang-zh">系统</span></div>
+        <div class="name"><span class="lang-en">Peak memory, max over ranks</span><span class="lang-zh">显存峰值，跨 rank 取最大</span></div>
+        <p><span class="lang-en">Shows how close the fullest GPU is to running out of memory.</span><span class="lang-zh">距离第一张卡 OOM 还剩多少余量。</span></p>
+      </div>
+      <div class="signal">
+        <div class="area"><span class="lang-en">Experts</span><span class="lang-zh">专家</span></div>
+        <div class="name"><span class="lang-en">Expert load MaxVio</span><span class="lang-zh">专家负载 MaxVio</span></div>
+        <p><span class="lang-en">Catches a router sending too many tokens to a few experts.</span><span class="lang-zh">路由塌缩，以及它带来的算力不均。</span></p>
+      </div>
+      <div class="signal">
+        <div class="area"><span class="lang-en">Numerics</span><span class="lang-zh">数值</span></div>
+        <div class="name"><span class="lang-en">Absolute max at the output</span><span class="lang-zh">输出端绝对值最大</span></div>
+        <p><span class="lang-en">Catches overflow or bad values before they affect the loss.</span><span class="lang-zh">溢出和数值损坏，在它们传到 loss 之前。</span></p>
+      </div>
+      <div class="signal">
+        <div class="area"><span class="lang-en">Quality</span><span class="lang-zh">质量</span></div>
+        <div class="name"><span class="lang-en">Held-out loss per byte</span><span class="lang-zh">留出集每字节损失</span></div>
+        <p><span class="lang-en">Shows whether more training is still helping. Run it every 0.5&ndash;2% of training.</span><span class="lang-zh">算力是否还在换来质量。每 0.5&ndash;2% 进度跑一次。</span></p>
+      </div>
+    </div>
+
+    <p><span class="lang-en"><strong>A general triage pattern:</strong> begin with inexpensive run-level signals, then move to per-layer charts only when the global view does not explain the problem.</span><span class="lang-zh"><strong>通用排查方式。</strong>先看开销低的全局信号；只有全局视图解释不了问题时，再下钻到按层图表。</span></p>
+
+    <h2 id="metric-index">2. <span class="lang-en">All metrics</span><span class="lang-zh">指标总表</span></h2>
+
+    <p><span class="lang-en">Here is a reference list. The later sections define each metric and explain how to combine values from different workers.</span><span class="lang-zh">下面是一份参考监控面；定义与聚合规则见后面各节。</span></p>
+
+    <div class="table-wrap index-table">
+      <table>
+        <thead>
+          <tr>
+            <th><span class="lang-en">Metric</span><span class="lang-zh">指标</span></th>
+            <th><span class="lang-en">What it catches</span><span class="lang-zh">能发现什么</span></th>
+            <th><span class="lang-en">How often</span><span class="lang-zh">频率</span></th>
+            <th><span class="lang-en">Priority</span><span class="lang-zh">优先级</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="band"><td colspan="4"><a href="#loss"><span class="lang-en">Loss</span><span class="lang-zh">损失</span></a></td></tr>
+          <tr>
+            <td><a href="#m-loss-global"><span class="lang-en">Global mean $L$</span><span class="lang-zh">全局平均损失 $L$</span></a></td>
+            <td><span class="lang-en">Whether training is improving; the main number for comparing runs</span><span class="lang-zh">收敛；所有对比都建立在这个数上</span></td>
+            <td><span class="lang-en">Every step</span><span class="lang-zh">每步</span></td>
+            <td><span class="p p-0">P0</span></td>
+          </tr>
+          <tr>
+            <td><a href="#m-loss-worst"><span class="lang-en">Worst-rank mean $L_{\max}$</span><span class="lang-zh">最差 rank 均值 $L_{\max}$</span></a></td>
+            <td><span class="lang-en">A bad worker or data shard hidden inside $L$</span><span class="lang-zh">被 $L$ 平均掉的坏 worker 或坏数据分片</span></td>
+            <td><span class="lang-en">Every step</span><span class="lang-zh">每步</span></td>
+            <td><span class="p p-0">P0</span></td>
+          </tr>
+          <tr>
+            <td><a href="#m-loss-source"><span class="lang-en">Loss by source and modality</span><span class="lang-zh">按数据源与模态的损失</span></a></td>
+            <td><span class="lang-en">A domain or modality regressing under a flat global curve</span><span class="lang-zh">全局曲线平稳时，正在退化的数据域或模态</span></td>
+            <td><span class="lang-en">Every 1&ndash;10 steps</span><span class="lang-zh">每 1&ndash;10 步</span></td>
+            <td><span class="p p-0">P0</span></td>
+          </tr>
+
+          <tr class="band"><td colspan="4"><a href="#gradients"><span class="lang-en">Gradients and stability</span><span class="lang-zh">梯度与稳定性</span></a></td></tr>
+          <tr>
+            <td><a href="#m-gnorm"><span class="lang-en">Global norm $G$</span><span class="lang-zh">全局梯度范数 $G$</span></a></td>
+            <td><span class="lang-en">Numerical stability; moves before the loss</span><span class="lang-zh">数值稳定性；通常比 loss 先动</span></td>
+            <td><span class="lang-en">Every step</span><span class="lang-zh">每步</span></td>
+            <td><span class="p p-0">P0</span></td>
+          </tr>
+          <tr>
+            <td><a href="#m-clip"><span class="lang-en">Clip rate</span><span class="lang-zh">裁剪率</span></a></td>
+            <td><span class="lang-en">A clip threshold that no longer matches the run</span><span class="lang-zh">裁剪阈值已经跟不上这次训练</span></td>
+            <td><span class="lang-en">Every step</span><span class="lang-zh">每步</span></td>
+            <td><span class="p p-0">P0</span></td>
+          </tr>
+          <tr>
+            <td><a href="#m-joint-spike"><span class="lang-en">Loss-gradient spike</span><span class="lang-zh">loss-梯度共同尖峰</span></a></td>
+            <td><span class="lang-en">Loss and gradient norm jumping at the same time</span><span class="lang-zh">loss 与梯度同时尖刺：更强的异常信号</span></td>
+            <td><span class="lang-en">Every step</span><span class="lang-zh">每步</span></td>
+            <td><span class="p p-0">P0</span></td>
+          </tr>
+          <tr>
+            <td><a href="#m-zscore"><span class="lang-en">Robust spike score $z_t$</span><span class="lang-zh">稳健尖峰分数 $z_t$</span></a></td>
+            <td><span class="lang-en">Spikes, without assuming a Gaussian</span><span class="lang-zh">不假设高斯分布也能抓到尖峰</span></td>
+            <td><span class="lang-en">Every step</span><span class="lang-zh">每步</span></td>
+            <td><span class="p p-1">P1</span></td>
+          </tr>
+          <tr>
+            <td><a href="#m-gmean"><span class="lang-en">Mean and max $|g|$</span><span class="lang-zh">$|g|$ 的均值与最大值</span></a></td>
+            <td><span class="lang-en">Typical scale versus one exploding element</span><span class="lang-zh">典型量级，对比单个元素的爆炸</span></td>
+            <td><span class="lang-en">Every step</span><span class="lang-zh">每步</span></td>
+            <td><span class="p p-1">P1</span></td>
+          </tr>
+          <tr>
+            <td><a href="#m-gzero"><span class="lang-en">Zero fraction $Z_g$</span><span class="lang-zh">零元素比例 $Z_g$</span></a></td>
+            <td><span class="lang-en">Dead paths, underflow, parameters getting no gradient</span><span class="lang-zh">死路径、下溢、拿不到梯度的参数</span></td>
+            <td><span class="lang-en">Every step</span><span class="lang-zh">每步</span></td>
+            <td><span class="p p-1">P1</span></td>
+          </tr>
+          <tr class="band"><td colspan="4"><a href="#system-health"><span class="lang-en">System</span><span class="lang-zh">系统</span></a></td></tr>
+          <tr>
+            <td><a href="#m-tps"><span class="lang-en">Step time, throughput</span><span class="lang-zh">单步耗时、吞吐</span></a></td>
+            <td><span class="lang-en">Stalls, slow shards, and throughput regressions</span><span class="lang-zh">卡顿、慢分片和吞吐退化</span></td>
+            <td><span class="lang-en">Every step</span><span class="lang-zh">每步</span></td>
+            <td><span class="p p-0">P0</span></td>
+          </tr>
+          <tr>
+            <td><a href="#m-peakmem"><span class="lang-en">Peak memory, max over ranks</span><span class="lang-zh">显存峰值，跨 rank 取最大</span></a></td>
+            <td><span class="lang-en">Headroom before the first out-of-memory failure</span><span class="lang-zh">距离第一张卡 OOM 还剩多少余量</span></td>
+            <td><span class="lang-en">Every step</span><span class="lang-zh">每步</span></td>
+            <td><span class="p p-0">P0</span></td>
+          </tr>
+          <tr>
+            <td><a href="#m-flops"><span class="lang-en">Compute rate</span><span class="lang-zh">算力速率</span></a></td>
+            <td><span class="lang-en">Hardware efficiency against a fixed FLOP estimator</span><span class="lang-zh">固定 FLOP 估计口径下的硬件效率</span></td>
+            <td><span class="lang-en">Every step</span><span class="lang-zh">每步</span></td>
+            <td><span class="p p-0">P0</span></td>
+          </tr>
+          <tr>
+            <td><a href="#m-straggler"><span class="lang-en">Straggler score $S$</span><span class="lang-zh">慢节点分数 $S$</span></a></td>
+            <td><span class="lang-en">One rank setting the pace for the job</span><span class="lang-zh">整个任务被某一个 rank 拖住</span></td>
+            <td><span class="lang-en">Every step</span><span class="lang-zh">每步</span></td>
+            <td><span class="p p-1">P1</span></td>
+          </tr>
+          <tr>
+            <td><a href="#m-comm"><span class="lang-en">Communication wait</span><span class="lang-zh">暴露的集合通信等待</span></a></td>
+            <td><span class="lang-en">Time spent waiting for communication</span><span class="lang-zh">没有被计算掩盖掉的通信</span></td>
+            <td><span class="lang-en">Every 10 steps</span><span class="lang-zh">每 10 步</span></td>
+            <td><span class="p p-1">P1</span></td>
+          </tr>
+          <tr>
+            <td><a href="#m-telemetry"><span class="lang-en">Device and host stats</span><span class="lang-zh">设备与主机遥测</span></a></td>
+            <td><span class="lang-en">Thermal, allocator, and network causes</span><span class="lang-zh">温度、显存分配器、网络层面的原因</span></td>
+            <td><span class="lang-en">Every step</span><span class="lang-zh">每步</span></td>
+            <td><span class="p p-1">P1</span></td>
+          </tr>
+
+          <tr class="band"><td colspan="4"><a href="#tensor-probes"><span class="lang-en">Tensors and optimizer</span><span class="lang-zh">张量与优化器</span></a></td></tr>
+          <tr>
+            <td><a href="#m-absmax"><span class="lang-en">Absolute maximum</span><span class="lang-zh">绝对值最大</span></a></td>
+            <td><span class="lang-en">Overflow, non-finite values, and local outliers</span><span class="lang-zh">溢出、非有限值和局部离群点</span></td>
+            <td><span class="lang-en">Frequently at model boundaries; periodically elsewhere</span><span class="lang-zh">模型边界高频；其他位置周期性采样</span></td>
+            <td><span class="p p-0">P0</span></td>
+          </tr>
+          <tr>
+            <td><a href="#m-rms"><span class="lang-en">RMS and absolute mean</span><span class="lang-zh">RMS 与绝对值均值</span></a></td>
+            <td><span class="lang-en">Scale drift in activations, gradients, updates</span><span class="lang-zh">激活、梯度、更新量的尺度漂移</span></td>
+            <td><span class="lang-en">Every 100 steps</span><span class="lang-zh">每 100 步</span></td>
+            <td><span class="p p-1">P1</span></td>
+          </tr>
+          <tr>
+            <td><a href="#m-zero"><span class="lang-en">Zero fraction</span><span class="lang-zh">零元素比例</span></a></td>
+            <td><span class="lang-en">Sparsity, underflow, inactive paths</span><span class="lang-zh">稀疏、下溢、失活路径</span></td>
+            <td><span class="lang-en">Every 100 steps</span><span class="lang-zh">每 100 步</span></td>
+            <td><span class="p p-1">P1</span></td>
+          </tr>
+          <tr>
+            <td><a href="#m-rho"><span class="lang-en">Update ratio $\rho$</span><span class="lang-zh">更新比例 $\rho$</span></a></td>
+            <td><span class="lang-en">Updates too small to matter, or large enough to damage</span><span class="lang-zh">更新小到没用，或大到有害</span></td>
+            <td><span class="lang-en">Every 100 steps</span><span class="lang-zh">每 100 步</span></td>
+            <td><span class="p p-1">P1</span></td>
+          </tr>
+          <tr>
+            <td><a href="#m-kurtosis"><span class="lang-en">Excess kurtosis</span><span class="lang-zh">超额峰度</span></a></td>
+            <td><span class="lang-en">Heavy tails; low-precision risk</span><span class="lang-zh">重尾；低精度风险</span></td>
+            <td><span class="lang-en">Every 100 steps</span><span class="lang-zh">每 100 步</span></td>
+            <td><span class="p p-2">P2</span></td>
+          </tr>
+          <tr>
+            <td><a href="#m-optchain"><span class="lang-en">Optimizer chain, per parameter</span><span class="lang-zh">按参数的优化器链路</span></a></td>
+            <td><span class="lang-en">Which stage introduced a scale or direction change</span><span class="lang-zh">是哪一级改变了尺度或方向</span></td>
+            <td><span class="lang-en">On demand</span><span class="lang-zh">按需</span></td>
+            <td><span class="p p-2">P2</span></td>
+          </tr>
+
+          <tr class="band"><td colspan="4"><a href="#moe-balance"><span class="lang-en">Experts</span><span class="lang-zh">专家</span></a></td></tr>
+          <tr>
+            <td><a href="#m-imbalance"><span class="lang-en">MaxVio, imbalance ratio $I$</span><span class="lang-zh">MaxVio 与不均衡比 $I$</span></a></td>
+            <td><span class="lang-en">Routing collapse and wasted expert compute</span><span class="lang-zh">路由塌缩，以及被浪费的 expert 算力</span></td>
+            <td><span class="lang-en">Every step</span><span class="lang-zh">每步</span></td>
+            <td><span class="p p-0">P0</span></td>
+          </tr>
+          <tr>
+            <td><a href="#m-shard"><span class="lang-en">Shard imbalance</span><span class="lang-zh">分片不均衡</span></a></td>
+            <td><span class="lang-en">One expert-parallel group slowing down the step</span><span class="lang-zh">某个 EP 组过热，拖慢整步</span></td>
+            <td><span class="lang-en">Every step</span><span class="lang-zh">每步</span></td>
+            <td><span class="p p-0">P0</span></td>
+          </tr>
+          <tr>
+            <td><a href="#m-entropy"><span class="lang-en">Expert-load entropy $H_{\mathrm{norm}}$</span><span class="lang-zh">专家负载熵 $H_{\mathrm{norm}}$</span></a></td>
+            <td><span class="lang-en">Observed token load concentrating on fewer experts</span><span class="lang-zh">观测到的 token 负载向少数 expert 集中</span></td>
+            <td><span class="lang-en">Every 100 steps</span><span class="lang-zh">每 100 步</span></td>
+            <td><span class="p p-1">P1</span></td>
+          </tr>
+          <tr>
+            <td><a href="#m-expert-detail"><span class="lang-en">Per-expert detail (optional)</span><span class="lang-zh">单 expert 细节（可选）</span></a></td>
+            <td><span class="lang-en">Which expert, and by how much</span><span class="lang-zh">具体是哪个 expert，偏了多少</span></td>
+            <td><span class="lang-en">On demand</span><span class="lang-zh">按需</span></td>
+            <td><span class="p p-2">P2</span></td>
+          </tr>
+
+          <tr class="band"><td colspan="4"><a href="#residual-paths"><span class="lang-en">Residual paths</span><span class="lang-zh">残差路径</span></a></td></tr>
+          <tr>
+            <td><a href="#m-rb"><span class="lang-en">Relative branch scale $R_b$</span><span class="lang-zh">分支相对尺度 $R_b$</span></a></td>
+            <td><span class="lang-en">A branch too weak to matter, or one that dominates</span><span class="lang-zh">分支弱到无关紧要，或强到压过主干</span></td>
+            <td><span class="lang-en">Periodically</span><span class="lang-zh">周期性</span></td>
+            <td><span class="p p-1">P1</span></td>
+          </tr>
+          <tr>
+            <td><a href="#m-bi"><span class="lang-en">Block importance $B$, angle $A$</span><span class="lang-zh">块重要性 $B$ 与夹角 $A$</span></a></td>
+            <td><span class="lang-en">Layers that stopped changing the stream</span><span class="lang-zh">已经不再改变残差流的层</span></td>
+            <td><span class="lang-en">Every 100 steps</span><span class="lang-zh">每 100 步</span></td>
+            <td><span class="p p-1">P1</span></td>
+          </tr>
+          <tr>
+            <td><a href="#m-precision-loss"><span class="lang-en">Reduced-precision addition check (optional)</span><span class="lang-zh">低精度加法检查（可选）</span></a></td>
+            <td><span class="lang-en">Small residual updates lost to rounding</span><span class="lang-zh">被舍入吞掉的小幅残差更新</span></td>
+            <td><span class="lang-en">On demand</span><span class="lang-zh">按需</span></td>
+            <td><span class="p p-2">P2</span></td>
+          </tr>
+          <tr>
+            <td><a href="#m-gate"><span class="lang-en">Learned-gate distribution (optional)</span><span class="lang-zh">可学习门控分布（可选）</span></a></td>
+            <td><span class="lang-en">Saturation or collapse in architectures that use learned gates</span><span class="lang-zh">在使用可学习门控的架构中发现饱和或塌缩</span></td>
+            <td><span class="lang-en">On demand</span><span class="lang-zh">按需</span></td>
+            <td><span class="p p-2">P2</span></td>
+          </tr>
+
+          <tr class="band"><td colspan="4"><a href="#modality"><span class="lang-en">Modality</span><span class="lang-zh">模态</span></a></td></tr>
+          <tr>
+            <td><a href="#m-share"><span class="lang-en">Token share $\pi^{(\mu)}$</span><span class="lang-zh">模态 token 占比 $\pi^{(\mu)}$</span></a></td>
+            <td><span class="lang-en">Data-mix and packing changes</span><span class="lang-zh">数据配比与打包方式的变化</span></td>
+            <td><span class="lang-en">Every 1&ndash;10 steps</span><span class="lang-zh">每 1&ndash;10 步</span></td>
+            <td><span class="p p-0">P0</span></td>
+          </tr>
+          <tr>
+            <td><a href="#m-gamma"><span class="lang-en">Media scale ratio $\gamma$ (optional)</span><span class="lang-zh">media 特征尺度比 $\gamma$（可选）</span></a></td>
+            <td><span class="lang-en">Unexpected shifts in projected-media scale</span><span class="lang-zh">投影后 media 特征尺度的异常变化</span></td>
+            <td><span class="lang-en">On demand</span><span class="lang-zh">按需</span></td>
+            <td><span class="p p-1">P1</span></td>
+          </tr>
+          <tr>
+            <td><a href="#m-encshare"><span class="lang-en">Encoder gradient share $S_{\mathrm{enc}}$ (optional)</span><span class="lang-zh">编码器梯度占比 $S_{\mathrm{enc}}$（可选）</span></a></td>
+            <td><span class="lang-en">Unexpected changes in encoder gradient flow</span><span class="lang-zh">编码器梯度流的异常变化</span></td>
+            <td><span class="lang-en">On demand</span><span class="lang-zh">按需</span></td>
+            <td><span class="p p-2">P2</span></td>
+          </tr>
+
+          <tr class="band"><td colspan="4"><a href="#evaluation"><span class="lang-en">Evaluation</span><span class="lang-zh">评测</span></a></td></tr>
+          <tr>
+            <td><a href="#m-nll"><span class="lang-en">Held-out NLL, bits per byte</span><span class="lang-zh">留出集 NLL 与 bits per byte</span></a></td>
+            <td><span class="lang-en">Generalization and the scaling trend</span><span class="lang-zh">泛化能力与 scaling 趋势</span></td>
+            <td><span class="lang-en">Every 0.5&ndash;2%</span><span class="lang-zh">每 0.5&ndash;2% 进度</span></td>
+            <td><span class="p p-0">P0</span></td>
+          </tr>
+          <tr>
+            <td><a href="#m-acc"><span class="lang-en">Choice accuracy</span><span class="lang-zh">选择题准确率</span></a></td>
+            <td><span class="lang-en">Task performance with a fixed evaluation setup</span><span class="lang-zh">固定评测框架下的能力</span></td>
+            <td><span class="lang-en">Key checkpoints</span><span class="lang-zh">关键 checkpoint</span></td>
+            <td><span class="p p-0">P0</span></td>
+          </tr>
+          <tr>
+            <td><a href="#m-greedy"><span class="lang-en">Greedy generation</span><span class="lang-zh">贪心生成</span></a></td>
+            <td><span class="lang-en">Problems that only show up when the model writes an answer</span><span class="lang-zh">只有自由生成才暴露出来的能力</span></td>
+            <td><span class="lang-en">Key checkpoints</span><span class="lang-zh">关键 checkpoint</span></td>
+            <td><span class="p p-0">P0</span></td>
+          </tr>
+          <tr>
+            <td><a href="#m-mediagain"><span class="lang-en">Media gain</span><span class="lang-zh">media 增益</span></a></td>
+            <td><span class="lang-en">Whether media inputs carry information at all</span><span class="lang-zh">media 输入到底有没有带来信息</span></td>
+            <td><span class="lang-en">Key checkpoints</span><span class="lang-zh">关键 checkpoint</span></td>
+            <td><span class="p p-0">P0</span></td>
+          </tr>
+          <tr>
+            <td><a href="#m-passk"><span class="lang-en">Sampled generation, IoU</span><span class="lang-zh">采样生成与 IoU</span></a></td>
+            <td><span class="lang-en">Coverage under sampling; grounding quality</span><span class="lang-zh">采样下的覆盖率；grounding 质量</span></td>
+            <td><span class="lang-en">Final checkpoints</span><span class="lang-zh">最终 checkpoint</span></td>
+            <td><span class="p p-1">P1</span></td>
+          </tr>
+          <tr>
+            <td><a href="#m-ema"><span class="lang-en">Averaged-weight evaluation (optional)</span><span class="lang-zh">权重平均评测（可选）</span></a></td>
+            <td><span class="lang-en">A less noisy way to compare checkpoints</span><span class="lang-zh">去掉训练中途的噪声再做对比</span></td>
+            <td><span class="lang-en">Selected evaluations</span><span class="lang-zh">选定的评测点</span></td>
+            <td><span class="p p-2">P2</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p><span class="lang-en"><strong>How often to record them.</strong> As an illustrative starting point, compute cheap alerts every step, scan tensors periodically, and evaluate at selected progress milestones. If you see a problem, temporarily collect denser diagnostics around the event.</span><span class="lang-zh"><strong>频率原则。</strong>作为参考起点，便宜的报警指标可以每步计算，张量扫描周期性执行，评测放在选定的进度节点；出现异常时，再临时加密诊断采样。</span></p>
+
+    <p><span class="lang-en"><strong>Comparing runs.</strong> If batch sizes differ, compare by tokens seen or estimated FLOPs, not by step.</span><span class="lang-zh"><strong>对比横轴。</strong>batch size 一旦变过，两次训练就要按累计 token 数或估计的浮点运算量来比，绝不能按 step 比。</span></p>
+
+    <div class="part"><span class="lang-en">Part II &middot; Frequent checks</span><span class="lang-zh">第二部分 &middot; 高频检查</span></div>
+
+    <h2 id="loss">3. <span class="lang-en">Loss</span><span class="lang-zh">损失</span></h2>
+
+    <p><span class="lang-en">Suppose the job has $R$ GPU ranks, with one training process on each rank. Rank $r$ has $T_r$ token positions. For token $t$, $\ell_{r,t}$ is the loss and $m_{r,t}$ is 1 when that token is a valid target, or 0 when it should be ignored.</span><span class="lang-zh">设 $R$ 为 GPU rank 数，每个 rank 是一个训练进程。rank $r$ 上有 $T_r$ 个 token 位置。对 rank $r$ 上的 token $t$，$\ell_{r,t}$ 是它的负对数似然，$m_{r,t}$ 在它是有效目标时取 1，否则取 0。</span></p>
+
+    <div class="metric-entry" id="m-loss-global">
+      <p><span class="metric-name"><span class="lang-en">Global mean loss $L$.</span><span class="lang-zh">全局平均损失 $L$。</span></span><span class="p p-0">P0</span> <span class="lang-en">Add up the loss for every valid token on every rank, then divide by the number of valid tokens.</span><span class="lang-zh">先在所有 rank 上分别求有效 token 的 loss 之和与 token 计数，再相除。</span></p>
+      <div class="equation">
+        $$L = \frac{\sum_{r=1}^{R}\sum_{t=1}^{T_r} m_{r,t}\ell_{r,t}}
+        {\sum_{r=1}^{R}\sum_{t=1}^{T_r} m_{r,t}}.$$
+      </div>
+      <p><span class="lang-en">Use $L$ to track whether training is improving and to compare runs at different scales.</span><span class="lang-zh">收敛判断和 scaling 对比都用 $L$。</span></p>
+    </div>
+
+    <div class="metric-entry" id="m-loss-local">
+      <p><span class="metric-name"><span class="lang-en">Local mean loss $L_r$.</span><span class="lang-zh">单 rank 平均损失 $L_r$。</span></span><span class="p p-1">P1</span> <span class="lang-en">Average the valid-token loss on one rank.</span><span class="lang-zh">rank $r$ 上有效 token 的平均。</span></p>
+      <div class="equation">
+        $$L_r = \frac{\sum_{t=1}^{T_r}m_{r,t}\ell_{r,t}}
+        {\sum_{t=1}^{T_r}m_{r,t}}.$$
+      </div>
+      <p><span class="lang-en">If a rank has no valid targets, skip it. Do not record a zero.</span><span class="lang-zh">没有有效目标的 rank 直接跳过，不要记成 0。</span></p>
+    </div>
+
+    <div class="metric-entry" id="m-loss-worst">
+      <p><span class="metric-name"><span class="lang-en">Worst-rank loss $L_{\max}$.</span><span class="lang-zh">最差 rank 损失 $L_{\max}$。</span></span><span class="p p-0">P0</span> <span class="lang-en">Take the largest local mean across all ranks.</span><span class="lang-zh">在所有 rank 的局部均值里取最大。</span></p>
+      <div class="equation">
+        $$L_{\max}=\max_{1\le r\le R}L_r.$$
+      </div>
+      <p><span class="lang-en">This maximum is across GPU ranks, not tokens or examples. It can expose a bad worker or an unusual data shard hidden by the global average.</span><span class="lang-zh">这是对 GPU rank 取最大，不是对 token 或样本取最大。它能抓到被 $L$ 平均掉的坏 worker 或异常数据分片。</span></p>
+    </div>
+
+    <div class="metric-entry" id="m-loss-source">
+      <p><span class="metric-name"><span class="lang-en">Loss by source and modality.</span><span class="lang-zh">按数据源与模态的损失。</span></span><span class="p p-0">P0</span> <span class="lang-en">Use $\mu$ for a fixed data source or modality. Set $m^{(\mu)}_{r,t}$ to 1 when a valid token belongs to that group. Report the group's loss and its share of all tokens together.</span><span class="lang-zh">设 $\mu$ 表示一个稳定的数据源或模态，当 rank $r$ 上的 token $t$ 是属于 $\mu$ 的有效目标时 $m^{(\mu)}_{r,t}$ 取 1。报这一组的 loss 时要同时报它的 token 占比。</span></p>
+      <div class="equation">
+        $$L^{(\mu)}=\frac{\sum_{r,t} m^{(\mu)}_{r,t}\ell_{r,t}}
+        {\sum_{r,t} m^{(\mu)}_{r,t}},
+        \qquad
+        \pi^{(\mu)}=\frac{\sum_{r,t} m^{(\mu)}_{r,t}}
+        {\sum_{r,t} m_{r,t}}.$$
+      </div>
+      <p><span class="lang-en">A group with only a small share of the tokens can get worse for thousands of steps without noticeably changing $L$. Compare each group with its own past, not with other groups. Different sources can have very different baseline losses.</span><span class="lang-zh">只占几个百分点 token 的一组，可以连续退化几千步而完全不影响 $L$。每一组只跟自己的历史比：不同数据源的 token 熵不同，绝对数值之间没有可比性。</span></p>
+    </div>
+
+    <p class="caution"><span class="lang-en"><strong>Combining ranks:</strong> if ranks have different numbers of valid tokens, do not average their $L_r$ values. Add the loss sums and token counts separately, then divide.</span><span class="lang-zh"><strong>聚合：</strong>各 rank 有效 token 数不同的时候，不要直接平均 $L_r$。要把 loss 之和与 token 计数分别 reduce，再相除。</span></p>
+
+    <h2 id="gradients">4. <span class="lang-en">Gradients and spikes</span><span class="lang-zh">梯度与尖峰</span></h2>
+
+    <p><span class="lang-en">Let $g=(g_1,\ldots,g_P)$ contain all $P$ gradient values. Measure them after gradient accumulation and loss unscaling, but before global clipping.</span><span class="lang-zh">设 $g=(g_1,\ldots,g_P)$ 包含全部 $P$ 个梯度元素。测量点在梯度累积完成、去掉 loss scale 之后，但在全局裁剪之前。</span></p>
+
+    <div class="metric-entry" id="m-gnorm">
+      <p><span class="metric-name"><span class="lang-en">Global gradient norm $G$.</span><span class="lang-zh">全局梯度范数 $G$。</span></span><span class="p p-0">P0</span> <span class="lang-en">The Euclidean norm over all gradient elements.</span><span class="lang-zh">所有梯度元素上的欧氏范数。</span></p>
+      <div class="equation">
+        $$G=\sqrt{\sum_{j=1}^{P}g_j^2}.$$
+      </div>
+      <p><span class="lang-en">This is the main stability signal. It often changes before the loss when a run starts to fail.</span><span class="lang-zh">最主要的稳定性信号，一次要崩的训练里通常是它先动。</span></p>
+    </div>
+
+    <div class="metric-entry" id="m-clip">
+      <p><span class="metric-name"><span class="lang-en">Clip rate.</span><span class="lang-zh">裁剪率。</span></span><span class="p p-0">P0</span> <span class="lang-en">Count how often the gradient norm is above the clip threshold $G_{\mathrm{clip}}$ during the last $W$ steps. Here and below, $\mathbf{1}[\mathcal{C}]$ is 1 when $\mathcal{C}$ is true and 0 otherwise.</span><span class="lang-zh">取裁剪阈值 $G_{\mathrm{clip}}$，在最近 $W$ 步的窗口上。这里以及下文中，$\mathbf{1}[\mathcal{C}]$ 在条件 $\mathcal{C}$ 成立时为 1，否则为 0。</span></p>
+      <div class="equation">
+        $$\text{clip rate}_t=\frac{1}{W}
+        \sum_{i=t-W+1}^{t}\mathbf{1}[G_i>G_{\mathrm{clip}}].$$
+      </div>
+      <p><span class="lang-en">A low, steady rate is normal. If it keeps rising, clipping is reducing the effective learning rate too often.</span><span class="lang-zh">维持在一个低值是正常的。持续上升则说明裁剪已经变成了一条你没有设计过的学习率调度。</span></p>
+    </div>
+
+    <div class="metric-entry" id="m-gmean">
+      <p><span class="metric-name"><span class="lang-en">Mean absolute gradient $G_{\mathrm{mean}}$.</span><span class="lang-zh">梯度绝对值均值 $G_{\mathrm{mean}}$。</span></span><span class="p p-1">P1</span> <span class="lang-en">The average absolute gradient element.</span><span class="lang-zh">所有梯度元素绝对值的平均。</span></p>
+      <div class="equation">
+        $$G_{\mathrm{mean}}=\frac{1}{P}\sum_{j=1}^{P}|g_j|.$$
+      </div>
+      <p><span class="lang-en">This shows the usual gradient size and is not easily skewed by one extreme value.</span><span class="lang-zh">反映典型的元素量级，比 $G_{\max}$ 更不容易被单个离群值带偏。</span></p>
+    </div>
+
+    <div class="metric-entry" id="m-gmax">
+      <p><span class="metric-name"><span class="lang-en">Maximum absolute gradient $G_{\max}$.</span><span class="lang-zh">梯度绝对值最大 $G_{\max}$。</span></span><span class="p p-1">P1</span> <span class="lang-en">The largest absolute gradient element.</span><span class="lang-zh">绝对值最大的那个梯度元素。</span></p>
+      <div class="equation">
+        $$G_{\max}=\max_{1\le j\le P}|g_j|.$$
+      </div>
+      <p><span class="lang-en">This catches one exploding value that can disappear in the mean.</span><span class="lang-zh">能抓到被 $G_{\mathrm{mean}}$ 稀释掉的局部爆炸。</span></p>
+    </div>
+
+    <div class="metric-entry" id="m-gzero">
+      <p><span class="metric-name"><span class="lang-en">Gradient zero fraction $Z_g$.</span><span class="lang-zh">梯度零元素比例 $Z_g$。</span></span><span class="p p-1">P1</span> <span class="lang-en">Exact zeros divided by the element count.</span><span class="lang-zh">严格等于 0 的元素数除以元素总数。</span></p>
+      <div class="equation">
+        $$Z_g=\frac{1}{P}\sum_{j=1}^{P}\mathbf{1}[g_j=0].$$
+      </div>
+      <p><span class="lang-en">If the zero fraction rises, some paths may be inactive, values may be underflowing, or some parameters may not be getting gradients. Report embeddings and expert parameters separately because they are sparse by design.</span><span class="lang-zh">它上升意味着稀疏路径、下溢，或者有参数完全拿不到梯度。embedding 和 expert 参数要单独报：这两处本来就该稀疏，但它的变化仍然有意义。</span></p>
+    </div>
+
+    <p class="caution"><span class="lang-en"><strong>Record when you measure.</strong> Say whether a gradient is scaled, accumulated, or clipped. Values taken at different points in the optimizer cannot be compared.</span><span class="lang-zh"><strong>测量时点：</strong>每个梯度指标都要记清楚它是否带 scale、是累积后还是单个 microbatch、在裁剪前还是裁剪后。优化器里不同位置量出来的范数之间没有可比性。</span></p>
+
+    <h3><span class="lang-en">Spike detection</span><span class="lang-zh">尖峰检测</span></h3>
+
+    <p><span class="lang-en">The relationship between loss spikes, gradient growth, and residual-path scale has also been studied in public work on stable language-model pretraining <a href="#ref-spike-no-more">[1]</a>.</span><span class="lang-zh">关于 loss spike、梯度增长与 residual-path 尺度之间的关系，已有公开的大模型稳定训练研究 <a href="#ref-spike-no-more">[1]</a>。</span></p>
+
+    <p><span class="lang-en">To find spikes in a positive metric $x_t$, first take $u_t=\log(x_t+\varepsilon)$. Here and in later formulas, $\varepsilon>0$ is a small number that prevents division by zero or $\log(0)$. Let $W_t$ be a window of earlier $u$ values.</span><span class="lang-zh">对第 $t$ 步的正标量 $x_t$，定义 $u_t=\log(x_t+\varepsilon)$。这里以及后面的公式中，$\varepsilon>0$ 是一个很小的数，用来避免除以 0 或计算 $\log(0)$。$W_t$ 是此前若干个 $u$ 值组成的窗口。</span></p>
+
+    <div class="metric-entry" id="m-median">
+      <p><span class="metric-name"><span class="lang-en">Rolling median $q_t$ and median absolute deviation $\operatorname{MAD}_t$.</span><span class="lang-zh">滑动中位数 $q_t$ 与中位绝对偏差 $\operatorname{MAD}_t$。</span></span><span class="p p-1">P1</span> <span class="lang-en">The median gives a recent baseline. $\operatorname{MAD}_t$ measures the usual variation without being pulled up by one spike.</span><span class="lang-zh">中位数给出近期基线，$\operatorname{MAD}_t$ 衡量通常的波动，而且不会被单个尖峰拉高。</span></p>
+      <div class="equation">
+        $$q_t=\operatorname{median}(W_t),
+        \qquad
+        \operatorname{MAD}_t=\operatorname{median}_{u\in W_t}|u-q_t|.$$
+      </div>
+    </div>
+
+    <div class="metric-entry" id="m-zscore">
+      <p><span class="metric-name"><span class="lang-en">Robust spike score $z_t$.</span><span class="lang-zh">稳健尖峰分数 $z_t$。</span></span><span class="p p-1">P1</span> <span class="lang-en">Compare the current value with that recent baseline:</span><span class="lang-zh">用 $\operatorname{MAD}_t$ 对当前偏差做归一化。</span></p>
+      <div class="equation">
+        $$z_t=0.6745\frac{|u_t-q_t|}{\operatorname{MAD}_t+\varepsilon}.$$
+      </div>
+      <p><span class="lang-en">The factor 0.6745 makes this behave like a standard z-score when the log values are normally distributed. Run it separately for loss and gradient norm.</span><span class="lang-zh">系数 0.6745 是按对数值服从正态分布来校准的。对 $L$ 和 $G$ 要各跑一套检测器。</span></p>
+    </div>
+
+    <div class="metric-entry" id="m-joint-spike">
+      <p><span class="metric-name"><span class="lang-en">Loss-gradient spike $C_t$.</span><span class="lang-zh">loss-梯度共同尖峰 $C_t$。</span></span><span class="p p-0">P0</span> <span class="lang-en">Set $C_t$ to 1 only when loss and gradient norm both spike.</span><span class="lang-zh">只有 loss 和梯度范数同时尖刺时，$C_t$ 才取 1。</span></p>
+      <div class="equation">
+        $$C_t=\mathbf{1}[\text{loss spike at step }t]\,
+        \mathbf{1}[\text{gradient-norm spike at step }t].$$
+      </div>
+      <p><span class="lang-en">Use this for spike alerts. Also record how often it happens and how large the spikes are.</span><span class="lang-zh">用这个指标做尖峰报警。同时记录发生次数和尖峰大小。</span></p>
+    </div>
+
+    <p class="caution"><span class="lang-en"><strong>Choose thresholds from healthy runs.</strong> Do not tune the window length or the $z_t$ cutoff around one failure.</span><span class="lang-zh"><strong>阈值：</strong>窗口长度和 $z_t$ 阈值要在稳定的训练上校准，不要拿一次故障去调。</span></p>
+
+    <h2 id="system-health">5. <span class="lang-en">System health</span><span class="lang-zh">系统健康</span></h2>
+
+    <p><span class="lang-en">Let $\tau_r$ be the step time on rank $r$. The whole step finishes when the slowest rank finishes, so its wall time is $\tau=\max_r\tau_r$.</span><span class="lang-zh">设 $\tau_r$ 为 rank $r$ 上的本地单步耗时，$\tau=\max_r\tau_r$ 为这一步的全局墙钟时间。</span></p>
+
+    <div class="metric-entry" id="m-tps">
+      <p><span class="metric-name"><span class="lang-en">Token throughput $\operatorname{TPS}$.</span><span class="lang-zh">token 吞吐 $\operatorname{TPS}$。</span></span><span class="p p-0">P0</span> <span class="lang-en">Divide the number of valid tokens in a step, $N_{\mathrm{tok}}$, by the step time:</span><span class="lang-zh">记 $N_{\mathrm{tok}}$ 为一步内全局的有效 token 数：</span></p>
+      <div class="equation">
+        $$\operatorname{TPS}=\frac{N_{\mathrm{tok}}}{\tau}.$$
+      </div>
+      <p><span class="lang-en">Include data loading, forward, backward, optimizer, and synchronization in $\tau$.</span><span class="lang-zh">$\tau$ 要把数据加载、前向、反向、优化器和同步全算进去。</span></p>
+    </div>
+
+    <div class="metric-entry" id="m-flops">
+      <p><span class="metric-name"><span class="lang-en">Compute rate.</span><span class="lang-zh">算力速率。</span></span><span class="p p-0">P0</span> <span class="lang-en">If one step takes an estimated $F_{\mathrm{step}}$ operations across $D$ devices:</span><span class="lang-zh">记 $F_{\mathrm{step}}$ 为每步估计的运算量，$D$ 为设备数：</span></p>
+      <div class="equation">
+        $$\text{compute rate}=\frac{F_{\mathrm{step}}}{D\tau}.$$
+      </div>
+      <p><span class="lang-en">This is the estimated FLOPs per second on each device. Use the same FLOP estimate for every run you compare. Otherwise the number can change even when the hardware does not.</span><span class="lang-zh">这是每台设备每秒估计完成的 FLOP 数。参与对比的训练要用同一套 FLOP 估计口径；换了口径，硬件没变指标也会变。</span></p>
+    </div>
+
+    <div class="metric-entry" id="m-straggler">
+      <p><span class="metric-name"><span class="lang-en">Straggler score $S$.</span><span class="lang-zh">慢节点分数 $S$。</span></span><span class="p p-1">P1</span> <span class="lang-en">Divide the slowest rank's step time by the median rank's step time.</span><span class="lang-zh">全局单步耗时除以本地单步耗时的中位数。</span></p>
+      <div class="equation">
+        $$S=\frac{\tau}{\operatorname{median}_r(\tau_r)+\varepsilon}.$$
+      </div>
+      <p><span class="lang-en">$S\approx1$ means the ranks are moving together. A larger value means one slow rank is holding up the job.</span><span class="lang-zh">各 rank 步调一致时 $S\approx1$。一旦被某个慢 rank 卡住节奏，它就会上升。</span></p>
+    </div>
+
+    <div class="metric-entry" id="m-peakmem">
+      <p><span class="metric-name"><span class="lang-en">Peak memory.</span><span class="lang-zh">显存峰值。</span></span><span class="p p-0">P0</span> <span class="lang-en">For each interval, record the largest allocated or reserved byte count across all ranks.</span><span class="lang-zh">统计区间内 allocated 或 reserved 的最大字节数，再跨 rank 取最大。</span></p>
+      <p><span class="lang-en">This shows which device is closest to running out of memory. Reset peak counters at fixed, documented points so neighboring samples cover the same length of time.</span><span class="lang-zh">跨 rank 取最大，才能定位到最接近挂掉的那张卡。峰值计数器只能在明确约定的边界上清零，否则相邻两个点描述的根本是不同的窗口。</span></p>
+    </div>
+
+    <div class="metric-entry" id="m-mem">
+      <p><span class="metric-name"><span class="lang-en">Allocated and reserved memory.</span><span class="lang-zh">已分配与已预留显存。</span></span><span class="p p-1">P1</span> <span class="lang-en">Live tensors use allocated memory. The allocator holds reserved memory, including cached blocks.</span><span class="lang-zh">allocated 是活跃张量占用的字节；reserved 是分配器持有的字节，含缓存块。</span></p>
+      <p><span class="lang-en">If the gap between reserved and allocated memory keeps growing, look for fragmentation or an oversized cache.</span><span class="lang-zh">reserved 减 allocated 的差越拉越大，说明是碎片化或缓存过大，而不是模型变大了。</span></p>
+    </div>
+
+    <div class="metric-entry" id="m-comm">
+      <p><span class="metric-name"><span class="lang-en">Communication wait $W_{\mathrm{comm}}$.</span><span class="lang-zh">暴露的集合通信等待 $W_{\mathrm{comm}}$。</span></span><span class="p p-1">P1</span> <span class="lang-en">Let $\tau_{\mathrm{wait}}$ be the time spent waiting for collective communication that does not overlap with compute:</span><span class="lang-zh">记 $\tau_{\mathrm{wait}}$ 为关键路径上没有和计算重叠的集合通信时间：</span></p>
+      <div class="equation">
+        $$W_{\mathrm{comm}}=\frac{\tau_{\mathrm{wait}}}{\tau}.$$
+      </div>
+      <p><span class="lang-en">Also record the number of calls and the bytes sent. That tells you whether the time comes from many small calls or one large, bandwidth-limited call.</span><span class="lang-zh">同时报集合通信的次数和数据量，才能区分「很多次小调用」和「一次被带宽卡住的大调用」。</span></p>
+    </div>
+
+    <div class="metric-entry" id="m-telemetry">
+      <p><span class="metric-name"><span class="lang-en">Device and host stats.</span><span class="lang-zh">设备与主机遥测。</span></span><span class="p p-1">P1</span> <span class="lang-en">Utilization, power, temperature, clock speed, process memory, CPU load, page faults, and network traffic.</span><span class="lang-zh">利用率、功耗、温度、频率、进程内存、CPU 压力、缺页、网络流量。</span></p>
+      <p><span class="lang-en">Use these numbers as evidence when separating model-side slowdowns from host, cooling, memory, or network problems.</span><span class="lang-zh">这些信号可以作为证据，帮助区分模型侧变慢与主机、散热、内存或网络问题。</span></p>
+    </div>
+
+    <p class="caution"><span class="lang-en"><strong>Measure without changing the work.</strong> Put device events around the real asynchronous wait and read them at an existing synchronization point. Adding a new host sync changes the overlap you are trying to measure.</span><span class="lang-zh"><strong>计时：</strong>device event 要卡在真正的异步等待两侧，并且在已有的同步点上读取。额外加一次主机同步，会直接改变你想测的那个重叠关系。</span></p>
+
+    <p class="caution"><span class="lang-en"><strong>Count network traffic once per node.</strong> If every local rank reads the same network interface, the reported traffic will be multiplied.</span><span class="lang-zh"><strong>节点级计数器：</strong>每个网卡每节点只采一次。每个本地 rank 都读一遍，报出来的流量会翻好几倍。</span></p>
+
+    <div class="part"><span class="lang-en">Part III &middot; Periodic and on-demand checks</span><span class="lang-zh">第三部分 &middot; 周期性与按需检查</span></div>
+
+    <h2 id="tensor-probes">6. <span class="lang-en">Tensor checks</span><span class="lang-zh">张量探针</span></h2>
+
+    <p><span class="lang-en">For a tensor $x=(x_1,\ldots,x_N)$ with $N$ values, you can calculate all of the checks below in one pass through memory.</span><span class="lang-zh">设 $x=(x_1,\ldots,x_N)$ 是一个展平后含 $N$ 个元素的张量。下面这些统计量可以在一次内存遍历里一起算出来。</span></p>
+
+    <div class="metric-entry" id="m-absmax">
+      <p><span class="metric-name"><span class="lang-en">Absolute maximum.</span><span class="lang-zh">绝对值最大。</span></span><span class="p p-0">P0</span> <span class="lang-en">The largest absolute element.</span><span class="lang-zh">绝对值最大的那个元素。</span></p>
+      <div class="equation">
+        $$\operatorname{AbsMax}(x)=\max_{1\le j\le N}|x_j|.$$
+      </div>
+      <p><span class="lang-en">This can reveal an outlier, overflow, or local explosion. At the model output it can be useful as a primary signal because some numerical problems appear there before they affect aggregate loss.</span><span class="lang-zh">它可以发现离群值、溢出或局部爆炸。放在模型输出端时，它可以作为主要信号之一，因为部分数值问题会先在这里出现，再影响聚合 loss。</span></p>
+    </div>
+
+    <div class="metric-entry" id="m-rms">
+      <p><span class="metric-name"><span class="lang-en">Root mean square.</span><span class="lang-zh">均方根 RMS。</span></span><span class="p p-1">P1</span> <span class="lang-en">Square each value, take the mean, then take the square root.</span><span class="lang-zh">元素平方均值再开方。</span></p>
+      <div class="equation">
+        $$\operatorname{RMS}(x)=\sqrt{\frac{1}{N}\sum_{j=1}^{N}x_j^2}.$$
+      </div>
+      <p><span class="lang-en">RMS shows the overall scale and can be compared across tensors of different sizes. To combine ranks correctly, add their squared sums and element counts first, then compute the RMS.</span><span class="lang-zh">RMS 衡量能量尺度，而且在不同大小的张量之间可比。落盘时存平方均值 $M_2(x)=\frac1N\sum_j x_j^2$ 更好：各 rank 分别 reduce 平方和与元素数，RMS 由它推出来即可。</span></p>
+    </div>
+
+    <div class="metric-entry" id="m-absmean">
+      <p><span class="metric-name"><span class="lang-en">Absolute mean.</span><span class="lang-zh">绝对值均值。</span></span><span class="p p-1">P1</span> <span class="lang-en">Take the absolute value of each element, then average them.</span><span class="lang-zh">所有元素绝对值的平均。</span></p>
+      <div class="equation">
+        $$\operatorname{AbsMean}(x)=\frac{1}{N}\sum_{j=1}^{N}|x_j|.$$
+      </div>
+      <p><span class="lang-en">This shows the usual size without positive and negative values canceling out. A large gap between the absolute mean and RMS suggests a few unusually large values.</span><span class="lang-zh">不受正负抵消影响的典型量级。它对少数大元素不敏感，所以它和 RMS 之间的差本身就是信息。</span></p>
+    </div>
+
+    <div class="metric-entry" id="m-zero">
+      <p><span class="metric-name"><span class="lang-en">Zero fraction $Z_x$.</span><span class="lang-zh">零元素比例 $Z_x$。</span></span><span class="p p-1">P1</span> <span class="lang-en">Exact zeros divided by $N$.</span><span class="lang-zh">严格为 0 的元素数除以 $N$。</span></p>
+      <div class="equation">
+        $$Z_x=\frac{1}{N}\sum_{j=1}^{N}\mathbf{1}[x_j=0].$$
+      </div>
+      <p><span class="lang-en">A rising zero fraction can mean more sparsity, underflow, or an inactive path.</span><span class="lang-zh">衡量稀疏程度、下溢和失活路径。</span></p>
+    </div>
+
+    <div class="metric-entry" id="m-kurtosis">
+      <p><span class="metric-name"><span class="lang-en">Excess kurtosis $\kappa$.</span><span class="lang-zh">超额峰度 $\kappa$。</span></span><span class="p p-2">P2</span> <span class="lang-en">This measures how heavy the tails are. Here $\bar{x}$ is the tensor's mean.</span><span class="lang-zh">$\bar{x}$ 是张量的均值。用方差的平方去归一化四阶中心矩。</span></p>
+      <div class="equation">
+        $$\kappa=
+        \frac{\frac{1}{N}\sum_{j=1}^{N}(x_j-\bar{x})^4}
+        {\left(\frac{1}{N}\sum_{j=1}^{N}(x_j-\bar{x})^2\right)^2}-3.$$
+      </div>
+      <p><span class="lang-en">A large positive value means a few values sit far out in the tails, which can be risky at low precision. It is undefined if every value is the same. This is usually useful for weights, but rarely for activations.</span><span class="lang-zh">$\kappa$ 明显为正说明分布重尾，是低精度下的风险。方差为 0 时该量无定义。值得在权重上跟踪，激活上一般不必。</span></p>
+    </div>
+
+    <p><span class="lang-en"><strong>Where to measure.</strong> Useful points include embeddings, logits, query/key/value tensors, normalized queries and keys, attention outputs, feed-forward activations, residual streams, expert inputs and outputs, parameter gradients, and applied updates. Give activations and gradients different names so you can compare the forward and backward paths.</span><span class="lang-zh"><strong>观测点。</strong>embedding、logits、query/key/value、归一化后的 query 与 key、attention 输出、前馈激活、残差流、expert 的输入与输出、参数梯度、实际施加的更新。前向激活和反向梯度要用不同的名字——成对出现，这套扫描才有诊断力。</span></p>
+
+    <p><span class="lang-en"><strong>Finding an explosion.</strong> Start at the model output and compare the absolute maximum at selected block boundaries, then inspect attention or feed-forward internals near the first clear jump.</span><span class="lang-zh"><strong>怎么定位爆炸。</strong>从模型输出开始，比较若干选定 block 边界上的绝对值最大值，再检查第一个明显跳点附近的 attention 或前馈模块。</span></p>
+
+    <p class="caution"><span class="lang-en"><strong>Combining ranks:</strong> add sums and element counts before computing a mean. For a maximum, take the largest value across ranks. Do not average local maxima or ratios with different denominators.</span><span class="lang-zh"><strong>分布式归约：</strong>先聚合求和项与元素计数再算均值，最大值要用 max 归约。绝不要去平均各 rank 的局部最大值，也不要平均分母不同的比值。</span></p>
+
+    <h3><span class="lang-en">Relative update size</span><span class="lang-zh">相对更新幅度</span></h3>
+
+    <div class="metric-entry" id="m-rho">
+      <p><span class="metric-name"><span class="lang-en">Relative update size $\rho$.</span><span class="lang-zh">相对更新幅度 $\rho$。</span></span><span class="p p-1">P1</span> <span class="lang-en">For parameter tensor $w$ and applied update $\Delta w$:</span><span class="lang-zh">对参数张量 $w$ 和实际施加的更新 $\Delta w$：</span></p>
+      <div class="equation">
+        $$\rho=\frac{\operatorname{RMS}(\Delta w)}
+        {\operatorname{RMS}(w)+\varepsilon}.$$
+      </div>
+      <p><span class="lang-en">If $\rho$ keeps falling toward zero, the updates may be too small to matter. A sudden rise means the update is large for that parameter. Unlike the raw update norm, this ratio can be compared across layers and runs.</span><span class="lang-zh">持续趋近于 0 说明更新已经不起作用；突然抬高说明更新相对参数尺度过大。这个比值在不同层、不同训练之间可比，而更新的绝对范数不可比。</span></p>
+    </div>
+
+    <div class="metric-entry" id="m-optchain">
+      <p><span class="metric-name"><span class="lang-en">Optimizer chain.</span><span class="lang-zh">优化器链路。</span></span><span class="p p-2">P2</span> <span class="lang-en">Record the raw gradient, normalized gradient, preconditioned direction, and final update separately.</span><span class="lang-zh">把原始梯度、归一化后的梯度、预条件后的方向、最终施加的更新当成四个独立张量分别记录。</span></p>
+      <p><span class="lang-en">If the scale or direction changes, these values tell you where it happened. They are too noisy for the main dashboard, so turn them on only while debugging.</span><span class="lang-zh">用来定位是哪一级引入了尺度或方向的变化。曲线太多，不适合常驻看板，排查时再打开。</span></p>
+    </div>
+
+    <p class="caution"><span class="lang-en"><strong>Name the exact point.</strong> Say whether each optimizer value comes before or after normalization, preconditioning, weight decay, learning-rate scaling, and clipping.</span><span class="lang-zh"><strong>命名：</strong>优化器里的张量要写清楚它在归一化、预条件、weight decay、学习率缩放和裁剪之前还是之后。</span></p>
+
+    <h2 id="moe-balance">7. <span class="lang-en">Expert balance</span><span class="lang-zh">专家负载均衡</span></h2>
+
+    <p><span class="lang-en">Suppose there are $E$ experts. Let $c_i$ be the number of valid tokens sent to expert $i$, and let $\bar c=\frac1E\sum_i c_i$ be the average load. Expert-load monitoring and balancing are publicly described in systems such as DeepSeek-V3 <a href="#ref-deepseek-v3">[2]</a>.</span><span class="lang-zh">设 $E$ 为 expert 数，$c_i$ 为路由到 expert $i$ 的有效 token 数，平均负载 $\bar c=\frac1E\sum_i c_i$。DeepSeek-V3 等公开系统已经介绍了 expert load 的监控与均衡 <a href="#ref-deepseek-v3">[2]</a>。</span></p>
+
+    <div class="metric-entry" id="m-imbalance">
+      <p><span class="metric-name"><span class="lang-en">Imbalance ratio $I$ and maximum violation (MaxVio).</span><span class="lang-zh">不均衡比 $I$ 与最大违反度（MaxVio）。</span></span><span class="p p-0">P0</span> <span class="lang-en">Compare the busiest expert with the average expert.</span><span class="lang-zh">把最忙的 expert 和平均值做比较。</span></p>
+      <div class="equation">
+        $$I=\frac{\max_{1\le i\le E}c_i}{\bar c},
+        \qquad
+        \operatorname{MaxVio}=\frac{\max_{1\le i\le E}c_i-\bar c}{\bar c}=I-1.$$
+      </div>
+      <p><span class="lang-en">With perfect balance, $I=1$ and $\operatorname{MaxVio}=0$. For example, $\operatorname{MaxVio}=0.25$ means the busiest expert gets 25% more tokens than average. The zero-centered form can be convenient for visualization.</span><span class="lang-zh">完全均衡时 $I=1$、$\operatorname{MaxVio}=0$；例如 $\operatorname{MaxVio}=0.25$ 表示最忙的 expert 比平均多拿 25% 的 token。以 0 为均衡点的形式通常更便于可视化。</span></p>
+    </div>
+
+    <div class="metric-entry" id="m-shard">
+      <p><span class="metric-name"><span class="lang-en">Shard imbalance.</span><span class="lang-zh">分片不均衡。</span></span><span class="p p-0">P0</span> <span class="lang-en">The same ratio applied to expert-parallel shard loads.</span><span class="lang-zh">把同一个比值用在 expert 并行的分片负载上。</span></p>
+      <p><span class="lang-en">Balanced experts do not always mean balanced communication groups. A busy shard can still slow down the whole step.</span><span class="lang-zh">单个 expert 均衡了，不等于通信组也均衡；真正决定单步耗时的是分片负载。</span></p>
+    </div>
+
+    <div class="metric-entry" id="m-entropy">
+      <p><span class="metric-name"><span class="lang-en">Expert-load entropy $H$ and $H_{\mathrm{norm}}$.</span><span class="lang-zh">专家负载熵 $H$ 与 $H_{\mathrm{norm}}$。</span></span><span class="p p-1">P1</span> <span class="lang-en">With normalized loads $p_i=c_i/\sum_j c_j$:</span><span class="lang-zh">取归一化负载 $p_i=c_i/\sum_j c_j$：</span></p>
+      <div class="equation">
+        $$H=-\sum_{i=1}^{E}p_i\log p_i,
+        \qquad
+        H_{\mathrm{norm}}=\frac{H}{\log E}.$$
+      </div>
+      <p><span class="lang-en">$H_{\mathrm{norm}}=0$ means all observed load is concentrated; 1 means the observed loads are even. This is entropy of token counts, not entropy of router logits or probabilities.</span><span class="lang-zh">$H_{\mathrm{norm}}=0$ 表示观测到的负载完全集中，1 表示负载均匀。这里计算的是 token 计数的熵，不是 router logits 或概率的熵。</span></p>
+    </div>
+
+    <div class="metric-entry" id="m-expert-detail">
+      <p><span class="metric-name"><span class="lang-en">Per-expert detail (optional).</span><span class="lang-zh">单 expert 细节（可选）。</span></span><span class="p p-2">P2</span> <span class="lang-en">When an aggregate balance metric moves, inspect a small set of per-expert load summaries and diagnostics appropriate to the routing algorithm.</span><span class="lang-zh">当聚合均衡指标发生变化时，可以按需查看少量单 expert 负载摘要，以及与所用路由算法相匹配的诊断量。</span></p>
+      <p><span class="lang-en">The useful details depend on the router design, so avoid treating one fixed set of scores as universal.</span><span class="lang-zh">有用的细节取决于 router 设计，不应把某一组固定分数当成通用标准。</span></p>
+    </div>
+
+    <p class="caution"><span class="lang-en"><strong>Ignore padding and invalid tokens.</strong> If no valid token reaches a layer, skip its ratio. An empty shard is missing data, not a measured zero.</span><span class="lang-zh"><strong>掩码：</strong>要排除 padding 和无效 token；这一层一个有效 token 都没收到时，比值就整个跳过不记。空分片不是一个测出来的 0。</span></p>
+
+    <h2 id="residual-paths">8. <span class="lang-en">Residual paths</span><span class="lang-zh">残差路径</span></h2>
+
+    <p><span class="lang-en">For one token, let $s\in\mathbb{R}^{d}$ be the residual stream before a block, where $d$ is its width. The block adds branch output $b\in\mathbb{R}^{d}$, giving $a=s+b$.</span><span class="lang-zh">对一个 token，设 $s\in\mathbb{R}^{d}$ 为进入 block 前的残差流，其中 $d$ 是它的宽度。block 加上分支输出 $b\in\mathbb{R}^{d}$，得到 $a=s+b$。</span></p>
+
+    <div class="metric-entry" id="m-rb">
+      <p><span class="metric-name"><span class="lang-en">Relative branch scale $R_b$.</span><span class="lang-zh">分支相对尺度 $R_b$。</span></span><span class="p p-1">P1</span> <span class="lang-en">Compare the size of the branch, $N_b=\lVert b\rVert_2$, with the size of the stream, $N_s=\lVert s\rVert_2$.</span><span class="lang-zh">分支范数 $N_b=\lVert b\rVert_2$ 除以残差流范数 $N_s=\lVert s\rVert_2$。</span></p>
+      <div class="equation">
+        $$R_b=\frac{N_b}{N_s+\varepsilon}.$$
+      </div>
+      <p><span class="lang-en">A small value can indicate a weak branch; a large value can indicate a branch that dominates the stream. Plotting it by layer provides one view of how strongly blocks modify the model state. Also plot $N_s$ and $N_b$, because the ratio alone cannot tell whether the branch shrank or the stream grew.</span><span class="lang-zh">较小的值可能表示分支偏弱，较大的值可能表示分支主导了残差流。沿深度绘制这个比值，可以从一个角度观察各 block 改变模型状态的程度。$N_s$ 和 $N_b$ 也应分别展示，因为只看比值无法判断是分支缩小还是残差流增大。</span></p>
+    </div>
+
+    <p><span class="lang-en">For vectors $u$ and $v$, cosine similarity is</span><span class="lang-zh">对向量 $u$ 与 $v$，余弦相似度定义为</span></p>
+
+    <div class="equation">
+      $$\cos(u,v)=
+      \frac{u^\top v}{\lVert u\rVert_2\lVert v\rVert_2+\varepsilon}.$$
+    </div>
+
+    <div class="metric-entry" id="m-bi">
+      <p><span class="metric-name"><span class="lang-en">Block importance $B$ and angular distance $A$.</span><span class="lang-zh">块重要性 $B$ 与角距离 $A$。</span></span><span class="p p-1">P1</span> <span class="lang-en">These measure how much the block changes the stream's direction.</span><span class="lang-zh">从 $s$ 到 $a$ 的方向变化，分别给原始值和归一化值。</span></p>
+      <div class="equation">
+        $$B=1-\cos(s,a),
+        \qquad
+        A=\frac{\arccos(\cos(s,a))}{\pi}.$$
+      </div>
+      <p><span class="lang-en">$B=0$ means the direction did not change, and $A$ is always between 0 and 1. If a block's $B$ trends toward zero, it is doing little even when its branch norm looks large.</span><span class="lang-zh">更新不改变方向时 $B=0$，$A$ 落在 $[0,1]$ 内。$B$ 衰减到 0 的 block 已经不再有贡献了，不管它的分支范数看起来多大。</span></p>
+    </div>
+
+    <div class="metric-entry" id="m-precision-loss">
+      <p><span class="metric-name"><span class="lang-en">Reduced-precision addition check (optional).</span><span class="lang-zh">低精度加法检查（可选）。</span></span><span class="p p-2">P2</span> <span class="lang-en">On a small diagnostic sample, compare a residual addition in higher precision with the result at the training precision and count updates that disappear after rounding.</span><span class="lang-zh">可以在少量诊断样本上，对比更高精度与训练精度下的残差加法，统计舍入后消失的更新。</span></p>
+      <p><span class="lang-en">Use this only when investigating precision loss; the exact comparison should match the numeric formats and accumulation path of the implementation.</span><span class="lang-zh">这个检查只适合排查精度损失；具体比较方式应与实现采用的数值格式和累加路径一致。</span></p>
+    </div>
+
+    <div class="metric-entry" id="m-gate">
+      <p><span class="metric-name"><span class="lang-en">Learned-gate distribution (optional).</span><span class="lang-zh">可学习门控分布（可选）。</span></span><span class="p p-2">P2</span> <span class="lang-en">For architectures with learned residual or branch gates, inspect broad distribution summaries or quantiles when branch contribution looks abnormal.</span><span class="lang-zh">对于带可学习 residual 或 branch gate 的架构，可以在分支贡献异常时按需查看门控值的分布摘要或分位数。</span></p>
+      <p><span class="lang-en">The useful statistic and interpretation depend on the gate parameterization. There is no architecture-independent target range or threshold.</span><span class="lang-zh">合适的统计量和解释方式取决于门控的参数化，不存在跨架构通用的目标区间或阈值。</span></p>
+    </div>
+
+    <p class="caution"><span class="lang-en"><strong>Keep tokens separate.</strong> Compute these values for each valid token, then report the mean and high percentiles. If you flatten tokens and features together, unusual tokens can disappear in the average.</span><span class="lang-zh"><strong>聚合：</strong>这些量要逐个有效 token 算，再报均值和高分位。把所有 token 和特征拍平在一起，恰好会把你要找的 token 级离群点藏掉。</span></p>
+
+    <h2 id="modality">9. <span class="lang-en">Modality paths</span><span class="lang-zh">模态路径</span></h2>
+
+    <p><span class="lang-en">In a multimodal run, aggregate curves can look healthy while one modality gets worse. The checks below are optional examples for encoder-projector architectures, not universal metrics or target values. LLaVA is one public example of connecting a visual encoder to a language model through a learned projection <a href="#ref-llava">[3]</a>.</span><span class="lang-zh">多模态训练中，聚合曲线可能看起来正常，而某个模态正在退化。下面是面向 encoder-projector 架构的可选示例，不是所有多模态模型都应采用的指标或目标值。LLaVA 是通过可学习投影连接视觉编码器与语言模型的公开例子之一 <a href="#ref-llava">[3]</a>。</span></p>
+
+    <div class="metric-entry" id="m-share">
+      <p><span class="metric-name"><span class="lang-en">Token share $\pi^{(\mu)}$.</span><span class="lang-zh">模态 token 占比 $\pi^{(\mu)}$。</span></span><span class="p p-0">P0</span> <span class="lang-en">The fraction of valid targets belonging to modality $\mu$, defined in Section 3 alongside $L^{(\mu)}$.</span><span class="lang-zh">属于模态 $\mu$ 的有效目标占比，定义见第 3 节，与 $L^{(\mu)}$ 一起给出。</span></p>
+      <p><span class="lang-en">Plot this beside the loss for each modality. A change can reveal a new data mix or an input-pipeline problem, either of which can move the loss without a change in the model itself.</span><span class="lang-zh">把它和按模态的 loss 画在一起。数据配比变化或输入流水线问题都可能先反映在这里，并解释一些看似由模型退化造成的 loss 波动。</span></p>
+    </div>
+
+    <div class="metric-entry" id="m-gamma">
+      <p><span class="metric-name"><span class="lang-en">Optional example: media scale ratio $\gamma$.</span><span class="lang-zh">可选示例：media 特征尺度比 $\gamma$。</span></span><span class="p p-1">P1</span> <span class="lang-en">For an encoder-projector model, let $e^{(\mathrm{media})}$ be the projected media embeddings entering the language model, and $e^{(\mathrm{text})}$ the text embeddings entering at a comparable point.</span><span class="lang-zh">对 encoder-projector 模型，记 $e^{(\mathrm{media})}$ 为进入语言模型的投影后 media embedding，$e^{(\mathrm{text})}$ 为在可比位置进入模型的文本 embedding。</span></p>
+      <div class="equation">
+        $$\gamma=\frac{\operatorname{RMS}(e^{(\mathrm{media})})}
+        {\operatorname{RMS}(e^{(\mathrm{text})})+\varepsilon}.$$
+      </div>
+      <p><span class="lang-en">Interpret this ratio against the same model's baseline and normalization scheme. A large change can motivate checking the connector and surrounding layers, but there is no universal ideal value.</span><span class="lang-zh">应结合该模型自身的历史基线和归一化方式解释这个比值。明显变化可以提示检查连接层及其相邻模块，但不存在通用的理想数值。</span></p>
+    </div>
+
+    <div class="metric-entry" id="m-encshare">
+      <p><span class="metric-name"><span class="lang-en">Optional example: encoder gradient share $S_{\mathrm{enc}}$.</span><span class="lang-zh">可选示例：编码器梯度占比 $S_{\mathrm{enc}}$。</span></span><span class="p p-2">P2</span> <span class="lang-en">For a trainable encoder, divide its squared gradient norm by the squared global norm.</span><span class="lang-zh">对参与训练的编码器，用其梯度范数平方除以全局梯度范数平方。</span></p>
+      <div class="equation">
+        $$S_{\mathrm{enc}}=
+        \frac{\lVert g_{\mathrm{enc}}\rVert_2^{2}}
+        {\lVert g\rVert_2^{2}}.$$
+      </div>
+      <p><span class="lang-en">Use changes relative to comparable runs as a debugging clue, not as a universal health threshold. Break it down by layer only when the aggregate signal motivates a closer look.</span><span class="lang-zh">把它相对可比训练的变化当作诊断线索，而不是通用健康阈值；只有聚合信号值得继续追查时，再按层展开。</span></p>
+    </div>
+
+    <p class="caution"><span class="lang-en"><strong>Media length varies.</strong> Samples can contain different numbers of media tokens, so weight these metrics by token count instead of averaging samples. If a worker gets no media, it has no measurement; do not record a zero.</span><span class="lang-zh"><strong>media 长度可变：</strong>不同样本可能包含不同数量的 media token，因此应按 token 数加权，而不是直接对样本求平均。某个 worker 没收到 media 时表示「没有测量值」，不是 0。</span></p>
+
+    <div class="part"><span class="lang-en">Part IV &middot; Milestone evaluation</span><span class="lang-zh">第四部分 &middot; 里程碑评测</span></div>
+
+    <h2 id="evaluation">10. <span class="lang-en">Evaluation</span><span class="lang-zh">评测</span></h2>
+
+    <p><span class="lang-en">On the held-out set, let $M$ be the number of valid tokens and $\ell_k$ the loss for token $k$.</span><span class="lang-zh">设 $M$ 为留出集中有效 token 的数量，$\ell_k$ 为第 $k$ 个 token 的负对数似然。</span></p>
+
+    <div class="metric-entry" id="m-nll">
+      <p><span class="metric-name"><span class="lang-en">Negative log-likelihood and perplexity.</span><span class="lang-zh">负对数似然与困惑度。</span></span><span class="p p-0">P0</span> <span class="lang-en">Average the held-out token losses. Perplexity is the exponential of that average.</span><span class="lang-zh">对留出集 token 的 loss 取平均，再取指数。</span></p>
+      <div class="equation">
+        $$\operatorname{NLL}=\frac{1}{M}\sum_{k=1}^{M}\ell_k,
+        \qquad
+        \operatorname{PPL}=\exp(\operatorname{NLL}).$$
+      </div>
+      <p><span class="lang-en">Perplexity is just another way to show NLL. Compare it only when the tokenizer and loss normalization stay the same.</span><span class="lang-zh">困惑度相对 NLL 没有增加任何信息，而且只有在分词方式和 loss 归一化都固定时才可比。</span></p>
+    </div>
+
+    <div class="metric-entry" id="m-bpb">
+      <p><span class="metric-name"><span class="lang-en">Bits per byte.</span><span class="lang-zh">每字节比特数 BPB。</span></span><span class="p p-0">P0</span> <span class="lang-en">Let $N_{\mathrm{byte}}$ be the number of source bytes covered by those tokens:</span><span class="lang-zh">记 $N_{\mathrm{byte}}$ 为这些留出 token 所覆盖的原始字节数：</span></p>
+      <div class="equation">
+        $$\operatorname{BPB}=\frac{\sum_{k=1}^{M}\ell_k}
+        {N_{\mathrm{byte}}\log 2}.$$
+      </div>
+      <p><span class="lang-en">If tokenizers differ, bits per byte is safer than token-level perplexity because it does not depend on vocabulary size or token boundaries.</span><span class="lang-zh">跨训练对比时的默认选择：它对分词器的词表和切分方式不敏感，而 token 级困惑度做不到这一点。</span></p>
+    </div>
+
+    <div class="metric-entry" id="m-acc">
+      <p><span class="metric-name"><span class="lang-en">Choice accuracy.</span><span class="lang-zh">选择题准确率。</span></span><span class="p p-0">P0</span> <span class="lang-en">For $Q$ questions, compare each prediction $\hat a_q$ with the correct answer $a_q$:</span><span class="lang-zh">共 $Q$ 道题，预测为 $\hat a_q$，参考答案为 $a_q$：</span></p>
+      <div class="equation">
+        $$\operatorname{Accuracy}=
+        \frac{1}{Q}\sum_{q=1}^{Q}\mathbf{1}[\hat a_q=a_q].$$
+      </div>
+      <p><span class="lang-en">For multiple choice, score each option with length-normalized NLL. Do not change the prompt format or answer cleanup during the run.</span><span class="lang-zh">多选题用长度归一化后的选项 NLL 来选 $\hat a_q$。prompt 的拼法和答案归一化方式，在整个训练周期内都不要再改。</span></p>
+    </div>
+
+    <div class="metric-entry" id="m-greedy">
+      <p><span class="metric-name"><span class="lang-en">Greedy generation.</span><span class="lang-zh">贪心生成。</span></span><span class="p p-0">P0</span> <span class="lang-en">Generate at temperature 0, clean up the answer for the task, then score it with exact match, pass@1, or a symbolic checker.</span><span class="lang-zh">temperature 取 0 解码，按任务做完后处理再打分：exact match、pass@1，或者符号判定器。</span></p>
+      <p><span class="lang-en">This can catch problems that likelihood scores miss. When its cost fits the evaluation budget, run it at more than just the final checkpoint.</span><span class="lang-zh">它可以发现似然打分没有暴露的问题；如果评测预算允许，可以不只在最终 checkpoint 上运行。</span></p>
+    </div>
+
+    <div class="metric-entry" id="m-mediagain">
+      <p><span class="metric-name"><span class="lang-en">Media gain $\Delta_{\mathrm{media}}$.</span><span class="lang-zh">media 增益 $\Delta_{\mathrm{media}}$。</span></span><span class="p p-0">P0</span> <span class="lang-en">Compute the same score once with the media input and once without it.</span><span class="lang-zh">同一个「越高越好」的指标，分别在有 media 输入和去掉 media 输入的条件下各算一次。</span></p>
+      <div class="equation">
+        $$\Delta_{\mathrm{media}}=
+        \operatorname{score}_{\mathrm{with\ media}}-
+        \operatorname{score}_{\mathrm{without\ media}}.$$
+      </div>
+      <p><span class="lang-en">This ablation helps test whether media changes the measured behavior. If $\Delta_{\mathrm{media}}\approx0$, the evaluation found no measurable benefit from media under that setup; it does not prove that the model never uses media.</span><span class="lang-zh">这个消融有助于判断 media 是否改变了被测行为。如果 $\Delta_{\mathrm{media}}\approx0$，只能说明在当前评测设置下没有测到 media 带来的收益，不能据此证明模型从不使用 media。</span></p>
+    </div>
+
+    <div class="metric-entry" id="m-passk">
+      <p><span class="metric-name"><span class="lang-en">Pass at $k$.</span><span class="lang-zh">pass@$k$。</span></span><span class="p p-1">P1</span> <span class="lang-en">For one problem, sample $n$ answers. If $c$ pass and $k\le n$:</span><span class="lang-zh">对某道题采样 $n$ 次，其中 $c$ 次通过，取 $k\le n$：</span></p>
+      <div class="equation">
+        $$\widehat{\operatorname{pass@}k}
+        =1-\frac{\binom{n-c}{k}}{\binom{n}{k}}.$$
+      </div>
+      <p><span class="lang-en">If $n-c&lt;k$, the estimate is 1. Pass@1 measures one attempt. Larger values of $k$ ask whether repeated sampling can find a correct answer. This estimator is described in the Codex evaluation paper <a href="#ref-codex">[6]</a>.</span><span class="lang-zh">当 $n-c&lt;k$ 时估计值为 1。pass@1 衡量一次作答的水平，$k$ 更大时衡量的是重复采样下的覆盖率。这个估计量见 Codex 的公开评测论文 <a href="#ref-codex">[6]</a>。</span></p>
+    </div>
+
+    <div class="metric-entry" id="m-iou">
+      <p><span class="metric-name"><span class="lang-en">Intersection over union.</span><span class="lang-zh">交并比 IoU。</span></span><span class="p p-1">P1</span> <span class="lang-en">For predicted region $\mathcal{P}$ and reference $\mathcal{G}$:</span><span class="lang-zh">对预测区域 $\mathcal{P}$ 与参考区域 $\mathcal{G}$：</span></p>
+      <div class="equation">
+        $$\operatorname{IoU}=
+        \frac{|\mathcal{P}\cap\mathcal{G}|}
+        {|\mathcal{P}\cup\mathcal{G}|}.$$
+      </div>
+      <p><span class="lang-en">A score of 0 means no overlap; 1 means the regions match exactly. Make this P0 when grounding is a main goal of the run.</span><span class="lang-zh">完全不重叠为 0，完全重合为 1。如果这次训练的目标能力以 grounding 为主，就把它提到 P0。</span></p>
+    </div>
+
+    <div class="metric-entry" id="m-ema">
+      <p><span class="metric-name"><span class="lang-en">Optional example: averaged-weight evaluation.</span><span class="lang-zh">可选示例：权重平均评测。</span></span><span class="p p-2">P2</span> <span class="lang-en">If the training method maintains an averaged copy of the weights, evaluate it at selected milestones alongside the raw checkpoint. Weight averaging is a general public technique; see the EMA overview in <a href="#ref-ema">[4]</a>.</span><span class="lang-zh">如果训练方法维护了一份平均权重，可以在选定里程碑同时评测它与原始 checkpoint。权重平均是公开的通用技术；EMA 的公开综述见 <a href="#ref-ema">[4]</a>。</span></p>
+      <p><span class="lang-en">Choose the comparison stream in advance and keep it fixed. Averaged weights are not guaranteed to outperform raw weights for every optimizer, schedule, or task.</span><span class="lang-zh">应预先确定用于比较的权重版本并保持一致；平均权重并不保证在所有优化器、调度或任务上优于原始权重。</span></p>
+    </div>
+
+    <p class="caution"><span class="lang-en"><strong>Keep the evaluation fixed.</strong> Version the dataset, tokenizer, prompt, decoding settings, answer cleanup, and judge. If the definition changes, you cannot tell whether the model changed.</span><span class="lang-zh"><strong>可比性：</strong>数据集、分词器、prompt、解码参数、后处理和判分器都要有版本号。定义跟着一起变了的指标，涨跌都没法解释。</span></p>
+
+    <p class="caution"><span class="lang-en"><strong>Optional reporting practice.</strong> Predictions outside the range used to fit a scaling curve are extrapolations. Label them explicitly and report uncertainty rather than presenting one number as a measurement; this is a general regression caution <a href="#ref-extrapolation">[5]</a>.</span><span class="lang-zh"><strong>可选报告方式。</strong>超出 scaling 曲线拟合区间的预测属于外推，应明确标注并报告不确定性，而不要把单个预测值写成实测结果；这是通用的回归分析注意事项 <a href="#ref-extrapolation">[5]</a>。</span></p>
+
+    <div class="part"><span class="lang-en">Part V &middot; Practice</span><span class="lang-zh">第五部分 &middot; 实践</span></div>
+
+    <h2 id="mistakes">11. <span class="lang-en">Common mistakes</span><span class="lang-zh">常见错误</span></h2>
+
+    <p><span class="lang-en">These mistakes are easy to miss because the charts can still look reasonable.</span><span class="lang-zh">下面每一条都会画出一条看起来挺合理的曲线——这正是它们代价高的原因。</span></p>
+
+    <div class="table-wrap mistake-table">
+      <table>
+        <thead>
+          <tr><th><span class="lang-en">Mistake</span><span class="lang-zh">错误</span></th><th><span class="lang-en">What goes wrong</span><span class="lang-zh">会出什么问题</span></th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="lang-en">Everything is P0</span><span class="lang-zh">什么都是 P0</span></td>
+            <td><span class="lang-en">Too many alerts become noise, so people stop trusting them</span><span class="lang-zh">如果每块面板都能把你叫醒，那就等于没有一块能</span></td>
+          </tr>
+          <tr>
+            <td><span class="lang-en">Wrong reduction group</span><span class="lang-zh">归约组用错</span></td>
+            <td><span class="lang-en">Each parallel group combines a different set of values</span><span class="lang-zh">data、tensor、pipeline、context、expert 并行组的语义各不相同</span></td>
+          </tr>
+          <tr>
+            <td><span class="lang-en">Unclear maximum</span><span class="lang-zh">没说清最大值是对谁取的</span></td>
+            <td><span class="lang-en">Say whether the maximum is over tensor values, tokens, examples, or GPU ranks</span><span class="lang-zh">对张量元素、token、样本、GPU rank 取最大，是同一个名字下的四个不同指标</span></td>
+          </tr>
+          <tr>
+            <td><span class="lang-en">Ambiguous timing</span><span class="lang-zh">测量时点含糊</span></td>
+            <td><span class="lang-en">Scaled, accumulated, clipped, and applied gradients are different values</span><span class="lang-zh">带 scale 的、累积后的、裁剪后的、已施加的梯度，是四个不同的量</span></td>
+          </tr>
+          <tr>
+            <td><span class="lang-en">Duplicate recomputation</span><span class="lang-zh">重复计算</span></td>
+            <td><span class="lang-en">Activation checkpointing may run a forward check twice and count it twice</span><span class="lang-zh">激活重算会让前向探针跑第二遍，导致重复计数</span></td>
+          </tr>
+          <tr>
+            <td><span class="lang-en">Empty shards</span><span class="lang-zh">空分片</span></td>
+            <td><span class="lang-en">Recording missing data as zero pulls every average down</span><span class="lang-zh">把「没有数据」记成测量值 0，会把所有平均值往下拽</span></td>
+          </tr>
+          <tr>
+            <td><span class="lang-en">Padding counted as tokens</span><span class="lang-zh">把 padding 当成 token</span></td>
+            <td><span class="lang-en">Padding changes the reported loss, routing, and modality statistics</span><span class="lang-zh">padding 越多，loss、路由和模态统计失真越严重</span></td>
+          </tr>
+          <tr>
+            <td><span class="lang-en">Over-smoothing</span><span class="lang-zh">过度平滑</span></td>
+            <td><span class="lang-en">A smoothed curve can hide short spikes; keep the raw curve too</span><span class="lang-zh">平滑曲线背后不留原始曲线，藏掉的恰好是你要找的短尖峰</span></td>
+          </tr>
+          <tr>
+            <td><span class="lang-en">Too many label values</span><span class="lang-zh">高基数标签</span></td>
+            <td><span class="lang-en">Raw parameter names and sample IDs can overwhelm the metric store</span><span class="lang-zh">任意的参数名和样本 ID 会把在线指标存储撑爆</span></td>
+          </tr>
+          <tr>
+            <td><span class="lang-en">Sensitive artifacts</span><span class="lang-zh">敏感产物</span></td>
+            <td><span class="lang-en">Keep raw samples and token traces off by default, restrict access, and delete them soon</span><span class="lang-zh">原始样本和 token 级 trace 必须默认关闭、有权限控制、短期保留</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 id="implementation">12. <span class="lang-en">Keeping monitoring cheap</span><span class="lang-zh">控制探针开销</span></h2>
+
+    <ol>
+      <li><span class="lang-en">Choose the tensor locations while building the model, and register each hook once.</span><span class="lang-zh"><strong>只注册一次。</strong>在搭模型的时候就把观测点定好。</span></li>
+      <li><span class="lang-en">If a step is not being sampled, skip the scan itself, not just the write.</span><span class="lang-zh"><strong>尽早判断。</strong>不采样的那些步，要跳过扫描本身，而不只是跳过写盘。</span></li>
+      <li><span class="lang-en">Compute all local statistics for a tensor in one pass through memory.</span><span class="lang-zh"><strong>只扫一遍。</strong>一个张量的所有局部统计量，在一次内存遍历里全部算完。</span></li>
+      <li><span class="lang-en">Group values by reduction type and send one collective for each group.</span><span class="lang-zh"><strong>批量归约。</strong>按归约类型分组，每组只发一次集合通信。</span></li>
+      <li><span class="lang-en">Move summaries only. Keep full tensors on the device.</span><span class="lang-zh"><strong>只搬摘要。</strong>完整张量留在设备上。</span></li>
+      <li><span class="lang-en">Write results in the background so storage does not slow down training.</span><span class="lang-zh"><strong>异步落盘。</strong>绝不要把存储延迟放到训练主路径上。</span></li>
+    </ol>
+
+    <p><span class="lang-en">Let $K$ be the number of steps between samples. Keep regular samples, warm-up and final samples, unusual events, and a bounded context window around each event. Choose both $K$ and the window size from measured overhead and the available storage budget; cheap alerts can remain frequent while expensive checks stay sparse.</span><span class="lang-zh">设 $K$ 为采样间隔。可以保留常规样本、warm-up 与收尾样本、异常事件，以及每个事件附近一个有界的上下文窗口。$K$ 和窗口大小都应根据实测开销与存储预算决定；便宜的报警可以保持高频，昂贵检查则保持稀疏。</span></p>
+
+    <p><span class="lang-en">An alert cannot recover detailed measurements from before it fired. If that context matters, retain a bounded buffer of low-cost summaries and temporarily increase diagnostic sampling after an event.</span><span class="lang-zh">检测器无法补回触发前没有采集的昂贵测量。如果这段上下文重要，可以保留一个有界的低成本摘要缓冲，并在事件发生后临时提高诊断采样密度。</span></p>
+
+    <h3><span class="lang-en">Public references</span><span class="lang-zh">公开参考资料</span></h3>
+    <ol>
+      <li id="ref-spike-no-more"><a href="https://arxiv.org/abs/2312.16903">Takase et al., “Spike No More: Stabilizing the Pre-training of Large Language Models”</a> — <span class="lang-en">loss spikes, gradient growth, and residual-path stability.</span><span class="lang-zh">loss spike、梯度增长与 residual-path 稳定性。</span></li>
+      <li id="ref-deepseek-v3"><a href="https://arxiv.org/abs/2412.19437">DeepSeek-AI, “DeepSeek-V3 Technical Report”</a> — <span class="lang-en">public discussion of MoE expert-load monitoring and balancing.</span><span class="lang-zh">公开介绍 MoE expert load 的监控与均衡。</span></li>
+      <li id="ref-llava"><a href="https://arxiv.org/abs/2304.08485">Liu et al., “Visual Instruction Tuning”</a> — <span class="lang-en">a public encoder-projector multimodal architecture.</span><span class="lang-zh">公开的 encoder-projector 多模态架构示例。</span></li>
+      <li id="ref-ema"><a href="https://arxiv.org/abs/2411.18704">Morales-Brotons et al., “Exponential Moving Average of Weights in Deep Learning: Dynamics and Benefits”</a> — <span class="lang-en">a public treatment of weight EMA.</span><span class="lang-zh">关于权重 EMA 的公开研究。</span></li>
+      <li id="ref-extrapolation"><a href="https://online.stat.psu.edu/stat200/lesson/12/12.5">Penn State STAT 200, “Cautions”</a> — <span class="lang-en">a public introduction to the risks of regression extrapolation.</span><span class="lang-zh">关于回归外推风险的公开介绍。</span></li>
+      <li id="ref-codex"><a href="https://arxiv.org/abs/2107.03374">Chen et al., “Evaluating Large Language Models Trained on Code”</a> — <span class="lang-en">the unbiased pass@$k$ estimator.</span><span class="lang-zh">无偏 pass@$k$ 估计量。</span></li>
+    </ol>
+
+    <p class="prose-footer"><span class="lang-en"><em>These timings and priorities are illustrative starting points. Measure the cost on your model, parallel setup, and hardware before recording anything more often.</em></span><span class="lang-zh"><em>这里的采样频率和优先级都只是参考起点。在提高任何一个频率之前，先在目标模型、并行配置和硬件上实测探针开销。</em></span></p>
+    <div class="cite-box">
+      <div class="cite-label"><span class="lang-en">Cite this post</span><span class="lang-zh">引用本文</span></div>
+      <pre>@misc{deng2026pretraining,
+  author       = {Chunyuan Deng},
+  title        = {Reading a Pretraining Run},
+  year         = {2026},
+  url          = {https://charlesdddd.github.io/blog/reading-a-pretraining-run.html}
+}</pre>
+    </div>
+    </main>
+
+    <footer>
+      <span><span class="lang-en">Chunyuan Deng &mdash; Rice University</span><span class="lang-zh">Chunyuan Deng &mdash; 莱斯大学</span></span>
+    </footer>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: "$$", right: "$$", display: true},
+        {left: "$", right: "$", display: false},
+        {left: "\\(", right: "\\)", display: false},
+        {left: "\\[", right: "\\]", display: true}
+      ],
+      throwOnError: false
+    });
+
+    const links = Array.from(document.querySelectorAll(".toc a"));
+    const sections = links
+      .map(link => document.querySelector(link.getAttribute("href")))
+      .filter(Boolean);
+    let scheduled = false;
+
+    function updateToc() {
+      const marker = window.scrollY + 120;
+      let current = sections[0] ? sections[0].id : "";
+
+      for (const section of sections) {
+        if (section.offsetTop <= marker) current = section.id;
+      }
+
+      for (const link of links) {
+        const active = link.getAttribute("href") === "#" + current;
+        link.classList.toggle("active", active);
+        if (active) link.setAttribute("aria-current", "location");
+        else link.removeAttribute("aria-current");
+      }
+      scheduled = false;
+    }
+
+    document.addEventListener("scroll", function() {
+      if (!scheduled) {
+        window.requestAnimationFrame(updateToc);
+        scheduled = true;
+      }
+    }, {passive: true});
+
+    for (const link of document.querySelectorAll(".mobile-toc a")) {
+      link.addEventListener("click", function() {
+        link.closest("details").removeAttribute("open");
+      });
+    }
+    window.updateTocActive = updateToc;
+    updateToc();
+  });
+</script>
+<script>
+  (function () {
+    var btn = document.getElementById('langToggle');
+    if (!btn) return;
+    btn.addEventListener('click', function () {
+      var next = document.documentElement.getAttribute('data-lang') === 'zh' ? 'en' : 'zh';
+      document.documentElement.setAttribute('data-lang', next);
+      document.documentElement.setAttribute('lang', next === 'zh' ? 'zh-Hans' : 'en');
+      try { localStorage.setItem('blog-lang', next); } catch (e) {}
+      if (typeof window.updateTocActive === 'function') window.updateTocActive();
+    });
+  })();
+</script>
+</body>
+</html>

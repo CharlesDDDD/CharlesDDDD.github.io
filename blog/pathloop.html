@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -31,7 +31,7 @@
     }
 
     body {
-      font-family: 'Inter', sans-serif;
+      font-family: 'Inter', -apple-system, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
       background: var(--bg);
       color: var(--text);
       font-size: 14px;
@@ -46,7 +46,7 @@
 
     .hero { padding: 52px 0 36px; }
     .hero h1 {
-      font-family: 'Source Serif 4', Georgia, serif;
+      font-family: 'Source Serif 4', Georgia, 'Songti SC', 'Noto Serif CJK SC', serif;
       font-size: 2.2rem;
       font-weight: 600;
       letter-spacing: -0.025em;
@@ -68,7 +68,7 @@
     a:hover { text-decoration: underline; }
 
     h2 {
-      font-family: 'Source Serif 4', Georgia, serif;
+      font-family: 'Source Serif 4', Georgia, 'Songti SC', 'Noto Serif CJK SC', serif;
       font-size: 1.35rem;
       font-weight: 600;
       color: var(--text);
@@ -76,7 +76,7 @@
       letter-spacing: -0.01em;
     }
     h3 {
-      font-family: 'Source Serif 4', Georgia, serif;
+      font-family: 'Source Serif 4', Georgia, 'Songti SC', 'Noto Serif CJK SC', serif;
       font-size: 1.05rem;
       font-weight: 600;
       color: var(--text);
@@ -119,7 +119,7 @@
       padding: 7px 10px;
       text-align: left;
       font-weight: 600;
-      font-family: 'Inter', sans-serif;
+      font-family: 'Inter', -apple-system, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
       font-size: 12px;
       white-space: nowrap;
     }
@@ -212,6 +212,32 @@
       white-space: pre;
     }
 
+    /* ---------- language toggle ---------- */
+
+    html[data-lang="en"] .lang-zh,
+    html[data-lang="zh"] .lang-en { display: none; }
+
+    html[data-lang="zh"] .prose { line-height: 1.95; }
+    html[data-lang="zh"] li { line-height: 1.9; }
+    html[data-lang="zh"] .hero h1,
+    html[data-lang="zh"] h2 { letter-spacing: 0; }
+    html[data-lang="zh"] .hero .subtitle { font-style: normal; }
+
+    .header-bar { align-items: center; display: flex; justify-content: space-between; }
+    .lang-toggle {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 11.5px;
+      line-height: 1.6;
+      padding: 2px 10px;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .lang-toggle:hover { border-color: var(--accent); color: var(--accent); }
+
     footer {
       border-top: 1px solid var(--border);
       padding: 24px 0;
@@ -226,20 +252,34 @@
       th, td { padding: 6px 8px; font-size: 12px; }
     }
   </style>
+  <script>
+    (function () {
+      try {
+        var l = localStorage.getItem('blog-lang');
+        if (l === 'zh' || l === 'en') {
+          document.documentElement.setAttribute('data-lang', l);
+          document.documentElement.setAttribute('lang', l === 'zh' ? 'zh-Hans' : 'en');
+        }
+      } catch (e) {}
+    })();
+  </script>
 </head>
 <body>
 
 <header>
-  <div class="container">
-    <a href="../index.html">&larr; Back to Home</a>
+  <div class="container header-bar">
+    <a href="../index.html"><span class="lang-en">&larr; Back to Home</span><span class="lang-zh">&larr; 返回首页</span></a>
+    <button class="lang-toggle" id="langToggle" type="button" aria-label="Switch language">
+      <span class="lang-en">中文</span><span class="lang-zh">English</span>
+    </button>
   </div>
 </header>
 
 <div class="container">
   <div class="hero">
-    <h1>Pathloop: Making a Looped MoE Take Different Paths</h1>
-    <p class="subtitle">A looped mixture-of-experts runs the same layers three times. Does it do anything different on each pass?</p>
-    <p class="meta">Chunyuan Deng &middot; August&ndash;September 2026 &middot; project log</p>
+    <h1><span class="lang-en">Pathloop: Making a Looped MoE Take Different Paths</span><span class="lang-zh">Pathloop：让循环 MoE 走出不同的路径</span></h1>
+    <p class="subtitle"><span class="lang-en">A looped mixture-of-experts runs the same layers three times. Does it do anything different on each pass?</span><span class="lang-zh">一个循环版的 MoE 会把同样的层跑三遍。每一遍到底有没有做不一样的事？</span></p>
+    <p class="meta"><span class="lang-en">Chunyuan Deng &middot; August&ndash;September 2026 &middot; project log</span><span class="lang-zh">Chunyuan Deng &middot; 2026 年 8&ndash;9 月 &middot; 项目日志</span></p>
   </div>
 
   <hr class="divider">
@@ -248,205 +288,205 @@
 
     <div class="tldr">
       <strong>TL;DR</strong><br><br>
-      We fine-tune a 30B mixture-of-experts model with its middle layers looped three times, which turns 48 layers into 96 executed ones. Looping helps, but not where you would guess: on the coding data we train on it adds nothing, and on the nine benchmarks we never train on it does not raise the peak either &mdash; it holds the peak. Plain fine-tuning gains five points out-of-domain and then gives all of them back; the looped runs keep most of theirs. Reading the probes then showed why the loop is weaker than it should be &mdash; <strong>the second and third passes are near-copies of each other</strong>. <strong>Pathloop</strong> was our attempt to force the passes apart by making the router sample a little during training and then letting the passes compete.<br><br>
-      <strong>Pathloop has now run, and the result is a negative one worth writing down.</strong> It buys about a point of coding pass@1 over plain fine-tuning &mdash; small, but reproducible and outside a bootstrap CI. It does not beat plain looped SFT by anything we can resolve. More importantly, the reward signal the whole method rests on was being measured with a broken instrument: the logit lens we scored each pass with recovered <strong>0.8 of the 11.7 nats</strong> the hidden state actually carries, so it was reading noise at 7% of scale, and its apparent ordering of the passes was an artifact of depth, not quality. Replacing the lens with a full readout through the remaining layers fixed the instrument and delivered the real answer: <strong>the three passes are equally good, to within 3%.</strong> There was never anything to select between. A direct token-level probe says why &mdash; pass 2 changes 0.4 of a token's 8 experts relative to pass 1, against 2.6 for pass 1 relative to pass 0. And on the full 14-benchmark suite the arms sort not by pathloop tier but by where the gate was initialised: <strong>all four arms whose gate starts at zero peak at the earliest checkpoint and decline, and all three whose gate starts above zero are at their worst there and climb.</strong> The binding constraint is the gate, not the router, and that is what we are testing next.
+      <span class="lang-en">We fine-tune a 30B mixture-of-experts model with its middle layers looped three times, which turns 48 layers into 96 executed ones. Looping helps, but not where you would guess: on the coding data we train on it adds nothing, and on the nine benchmarks we never train on it does not raise the peak either &mdash; it holds the peak. Plain fine-tuning gains five points out-of-domain and then gives all of them back; the looped runs keep most of theirs. Reading the probes then showed why the loop is weaker than it should be &mdash; <strong>the second and third passes are near-copies of each other</strong>. <strong>Pathloop</strong> was our attempt to force the passes apart by making the router sample a little during training and then letting the passes compete.</span><span class="lang-zh">我们把一个 30B 的 MoE 模型的中间层循环三次再做微调，48 层因此变成执行 96 层。循环确实有用，但用处不在你以为的地方：在我们训练所用的代码数据上它没有任何增益，在九个从未训练过的 benchmark 上它也没有把峰值抬高&mdash;&mdash;它做的是<em>守住</em>峰值。普通微调在域外先涨五个点，然后又全部吐回去；循环版则保住了大部分。之后读探针数据才明白循环为什么比预想的弱&mdash;&mdash;<strong>第二遍和第三遍几乎是彼此的复制品</strong>。<strong>Pathloop</strong> 就是我们试图把这几遍掰开的办法：训练时让 router 做一点采样，再让各遍互相竞争。</span><br><br>
+      <span class="lang-en"><strong>Pathloop has now run, and the result is a negative one worth writing down.</strong> It buys about a point of coding pass@1 over plain fine-tuning &mdash; small, but reproducible and outside a bootstrap CI. It does not beat plain looped SFT by anything we can resolve. More importantly, the reward signal the whole method rests on was being measured with a broken instrument: the logit lens we scored each pass with recovered <strong>0.8 of the 11.7 nats</strong> the hidden state actually carries, so it was reading noise at 7% of scale, and its apparent ordering of the passes was an artifact of depth, not quality. Replacing the lens with a full readout through the remaining layers fixed the instrument and delivered the real answer: <strong>the three passes are equally good, to within 3%.</strong> There was never anything to select between. A direct token-level probe says why &mdash; pass 2 changes 0.4 of a token's 8 experts relative to pass 1, against 2.6 for pass 1 relative to pass 0. And on the full 14-benchmark suite the arms sort not by pathloop tier but by where the gate was initialised: <strong>all four arms whose gate starts at zero peak at the earliest checkpoint and decline, and all three whose gate starts above zero are at their worst there and climb.</strong> The binding constraint is the gate, not the router, and that is what we are testing next.</span><span class="lang-zh"><strong>Pathloop 现在跑完了，结果是一个值得写下来的负结果。</strong>相对普通微调，它买来约一个点的代码 pass@1&mdash;&mdash;很小，但可复现，且 bootstrap 置信区间不含零。相对普通的循环 SFT，它的优势小到我们分辨不出来。更重要的是，整个方法赖以成立的奖励信号，是用一件坏掉的仪器量出来的：我们给每一遍打分用的 logit lens，只从隐状态里取出了 <strong>11.7 nats 中的 0.8 nats</strong>，也就是在 7% 的量程上读噪声；它给出的那个「各遍排序」，反映的是深度，不是质量。把 lens 换成「继续跑完剩余层再读出」之后，仪器修好了，真正的答案也出来了：<strong>三遍一样好，差距在 3% 以内。</strong>从一开始就没有什么可挑的。一个直接的 token 级探针解释了原因&mdash;&mdash;相对第 1 遍，第 2 遍只改变了一个 token 8 个 expert 中的 0.4 个，而第 1 遍相对第 0 遍改变了 2.6 个。而在完整的 14 个 benchmark 上，各组的排序不是按 pathloop 的 tier 分的，而是按门控的初始值：<strong>四个门控从 0 开始的组，都在最早的 checkpoint 达到峰值然后下滑；三个门控从非零开始的组，都在那里最差然后往上爬。</strong>真正的约束是门控，不是 router，这也是我们接下来要测的。</span>
     </div>
 
-    <h2>What does fine-tuning actually train in a mixture-of-experts model?</h2>
+    <h2><span class="lang-en">What does fine-tuning actually train in a mixture-of-experts model?</span><span class="lang-zh">微调在 MoE 模型里到底训练了什么？</span></h2>
 
-    <p>Start with a single MoE layer. A token arrives with hidden state $h_t \in \mathbb{R}^d$, and a small linear router scores every one of the $E$ experts:</p>
+    <p><span class="lang-en">Start with a single MoE layer. A token arrives with hidden state $h_t \in \mathbb{R}^d$, and a small linear router scores every one of the $E$ experts:</span><span class="lang-zh">先看单个 MoE 层。一个 token 带着隐状态 $h_t \in \mathbb{R}^d$ 进来，一个小的线性 router 给全部 $E$ 个 expert 打分：</span></p>
 
     <div class="eqn">$$s_t \;=\; \mathrm{softmax}\big(W_r\, h_t\big) \;\in\; \mathbb{R}^{E}.$$</div>
 
-    <p>In the model we use, $E = 128$. Evaluating all of them would defeat the purpose, so the layer keeps only the best $k = 8$,</p>
+    <p><span class="lang-en">In the model we use, $E = 128$. Evaluating all of them would defeat the purpose, so the layer keeps only the best $k = 8$,</span><span class="lang-zh">我们用的模型里 $E = 128$。把它们全算一遍就失去了意义，所以这一层只保留得分最高的 $k = 8$ 个，</span></p>
 
     <div class="eqn">$$\mathcal{S}_t \;=\; \operatorname*{arg\,top-}_{k}\; s_t,$$</div>
 
-    <p>renormalises the scores over the survivors, and mixes their outputs:</p>
+    <p><span class="lang-en">renormalises the scores over the survivors, and mixes their outputs:</span><span class="lang-zh">在留下来的这些 expert 上重新归一化分数，再混合它们的输出：</span></p>
 
     <div class="eqn">$$\mathrm{MoE}(h_t) \;=\; \sum_{e \in \mathcal{S}_t} \frac{s_{t,e}}{\sum_{e' \in \mathcal{S}_t} s_{t,e'}}\; f_e(h_t), \qquad f_e(h) = W^e_{\text{down}}\big(\sigma(W^e_{\text{gate}}h) \odot W^e_{\text{up}}h\big).$$</div>
 
-    <p>We will call $\mathcal{S}_t$ the token's <strong>path</strong>: the eight-expert route it takes through this layer. Stack 48 such layers and a token's full journey through the model is a sequence of 48 such choices.</p>
+    <p><span class="lang-en">We will call $\mathcal{S}_t$ the token's <strong>path</strong>: the eight-expert route it takes through this layer. Stack 48 such layers and a token's full journey through the model is a sequence of 48 such choices.</span><span class="lang-zh">我们把 $\mathcal{S}_t$ 叫做这个 token 的<strong>路径</strong>：它穿过这一层时走的那条八专家路线。叠 48 层，一个 token 在模型里的完整旅程就是 48 次这样的选择。</span></p>
 
-    <p>Now the part that matters for fine-tuning. The other $E-k = 120$ experts are never evaluated, so they appear nowhere in the computation graph, so nothing flows back to them:</p>
+    <p><span class="lang-en">Now the part that matters for fine-tuning. The other $E-k = 120$ experts are never evaluated, so they appear nowhere in the computation graph, so nothing flows back to them:</span><span class="lang-zh">接下来是对微调最关键的一点。另外 $E-k = 120$ 个 expert 从未被计算，因此不出现在计算图里，也就没有任何梯度回流到它们身上：</span></p>
 
     <div class="eqn">$$\frac{\partial \mathcal{L}}{\partial \theta_e} \;=\; 0 \qquad \text{for every } e \notin \mathcal{S}_t.$$</div>
 
-    <p>Fine-tuning therefore trains the experts that the <em>pretrained</em> router already liked. In principle the router could learn to like different ones &mdash; $W_r$ does receive gradient. In practice it barely moves: over a full epoch we measure the routing entropy shifting by 2% and top-1 confidence by 4% (see <a href="#probes">the probes</a>). Whatever paths pretraining laid down, fine-tuning walks along them.</p>
+    <p><span class="lang-en">Fine-tuning therefore trains the experts that the <em>pretrained</em> router already liked. In principle the router could learn to like different ones &mdash; $W_r$ does receive gradient. In practice it barely moves: over a full epoch we measure the routing entropy shifting by 2% and top-1 confidence by 4% (see <a href="#probes">the probes</a>). Whatever paths pretraining laid down, fine-tuning walks along them.</span><span class="lang-zh">所以微调训练的，是<em>预训练</em>阶段 router 本来就偏爱的那些 expert。原则上 router 可以学着换一批&mdash;&mdash;$W_r$ 确实拿得到梯度。但实际上它几乎不动：跑完整整一个 epoch，我们测到路由熵变化 2%，top-1 置信度变化 4%（见<a href="#probes">探针那节</a>）。预训练铺下什么路，微调就沿着什么路走。</span></p>
 
-    <p>So here is the question this project starts from. <strong>Can we give a token more than one path through the same weights?</strong></p>
+    <p><span class="lang-en">So here is the question this project starts from. <strong>Can we give a token more than one path through the same weights?</strong></span><span class="lang-zh">于是这个项目的出发点就是一个问题：<strong>能不能让一个 token 在同一套权重里走出不止一条路？</strong></span></p>
 
-    <h2>Looping the middle layers</h2>
+    <h2><span class="lang-en">Looping the middle layers</span><span class="lang-zh">把中间层循环起来</span></h2>
 
-    <p>The simplest way to get a second path is to run the same layers a second time. Write one transformer layer as</p>
+    <p><span class="lang-en">The simplest way to get a second path is to run the same layers a second time. Write one transformer layer as</span><span class="lang-zh">拿到第二条路径最简单的办法，就是把同样的层再跑一遍。把一层 transformer 写成</span></p>
 
     <div class="eqn">$$T_\ell(h) \;=\; z + \mathrm{MoE}_\ell\big(\mathrm{Norm}(z)\big), \qquad z \;=\; h + \mathrm{Attn}_\ell\big(\mathrm{Norm}(h)\big),$$</div>
 
-    <p>and pick a window of consecutive layers to repeat &mdash; for us layers $[a,b) = [12,36)$, so $W = 24$ layers wide, sitting in the middle of the 48. Call the composition of that window $F = T_{b-1} \circ \cdots \circ T_a$.</p>
+    <p><span class="lang-en">and pick a window of consecutive layers to repeat &mdash; for us layers $[a,b) = [12,36)$, so $W = 24$ layers wide, sitting in the middle of the 48. Call the composition of that window $F = T_{b-1} \circ \cdots \circ T_a$.</span><span class="lang-zh">再挑一段连续的层作为重复窗口&mdash;&mdash;我们取 $[a,b) = [12,36)$，也就是 $W = 24$ 层宽，位于 48 层的中间。把这个窗口的复合记作 $F = T_{b-1} \circ \cdots \circ T_a$。</span></p>
 
-    <p>A token first runs the layers below the window, once:</p>
+    <p><span class="lang-en">A token first runs the layers below the window, once:</span><span class="lang-zh">token 先把窗口下方的层跑一遍：</span></p>
 
     <div class="eqn">$$h_{-1} \;=\; \big(T_{a-1} \circ \cdots \circ T_0\big)\big(\mathrm{Embed}(x)\big).$$</div>
 
-    <p>Then the window runs $K = 3$ times. Each pass $\tau$ produces a candidate state</p>
+    <p><span class="lang-en">Then the window runs $K = 3$ times. Each pass $\tau$ produces a candidate state</span><span class="lang-zh">然后窗口跑 $K = 3$ 遍。每一遍 $\tau$ 产生一个候选状态</span></p>
 
     <div class="eqn">$$u_\tau \;=\; F\big(h_{\tau-1}\big), \qquad \tau = 0, 1, \dots, K-1,$$</div>
 
-    <p>and the obvious question is how to combine the passes. Simply chaining them ($h_\tau = u_\tau$) makes the model three times deeper on day one, which is a large and untested change to a pretrained network. Instead each pass after the first gets a learned gate $g_\tau \in \mathbb{R}^d$ that decides, per channel, how much of the new candidate to accept:</p>
+    <p><span class="lang-en">and the obvious question is how to combine the passes. Simply chaining them ($h_\tau = u_\tau$) makes the model three times deeper on day one, which is a large and untested change to a pretrained network. Instead each pass after the first gets a learned gate $g_\tau \in \mathbb{R}^d$ that decides, per channel, how much of the new candidate to accept:</span><span class="lang-zh">接下来的问题自然是如何把各遍合并。直接串起来（$h_\tau = u_\tau$）等于第一天就把模型变深三倍，对一个预训练网络来说是一次很大且未经验证的改动。所以从第二遍起，每一遍都配一个可学习的门控 $g_\tau \in \mathbb{R}^d$，逐通道决定接受多少新候选：</span></p>
 
     <div class="eqn">$$h_0 \;=\; u_0, \qquad h_\tau \;=\; h_{\tau-1} \;+\; g_\tau \odot \big(u_\tau - h_{\tau-1}\big) \quad (\tau \geq 1).$$</div>
 
-    <p>Finally the layers above the window run once on the last state:</p>
+    <p><span class="lang-en">Finally the layers above the window run once on the last state:</span><span class="lang-zh">最后，窗口上方的层在最终状态上跑一遍：</span></p>
 
     <div class="eqn">$$\text{logits} \;=\; W_U\, \mathrm{Norm}\Big(\big(T_{L-1} \circ \cdots \circ T_b\big)\big(h_{K-1}\big)\Big).$$</div>
 
-    <p>The token has now been through $a + KW + (L-b) = 12 + 72 + 12 = 96$ executed layers using 48 layers' worth of weights. The only new parameters anywhere are the $2d$ gate values.</p>
+    <p><span class="lang-en">The token has now been through $a + KW + (L-b) = 12 + 72 + 12 = 96$ executed layers using 48 layers' worth of weights. The only new parameters anywhere are the $2d$ gate values.</span><span class="lang-zh">至此这个 token 一共经过了 $a + KW + (L-b) = 12 + 72 + 12 = 96$ 层的执行，而用的只是 48 层的权重。整套改动里新增的参数只有 $2d$ 个门控值。</span></p>
 
-    <h3>Why do the gates start at zero?</h3>
+    <h3><span class="lang-en">Why do the gates start at zero?</span><span class="lang-zh">门控为什么要从 0 开始？</span></h3>
 
-    <p>Set $g_\tau = 0$ and the update above gives $h_\tau = h_{\tau-1}$ for every $\tau \geq 1$, so $h_{K-1} = u_0 = F(h_{-1})$ and the looped model reproduces the base model bit for bit. Fine-tuning then starts from a known-good point and opens the loop only as far as the loss rewards. That is a real advantage: there is no initialisation shock, and no risk that a promising idea is buried under the damage of turning a 48-layer model into a 96-layer one overnight.</p>
+    <p><span class="lang-en">Set $g_\tau = 0$ and the update above gives $h_\tau = h_{\tau-1}$ for every $\tau \geq 1$, so $h_{K-1} = u_0 = F(h_{-1})$ and the looped model reproduces the base model bit for bit. Fine-tuning then starts from a known-good point and opens the loop only as far as the loss rewards. That is a real advantage: there is no initialisation shock, and no risk that a promising idea is buried under the damage of turning a 48-layer model into a 96-layer one overnight.</span><span class="lang-zh">令 $g_\tau = 0$，上面的更新式对所有 $\tau \geq 1$ 都给出 $h_\tau = h_{\tau-1}$，于是 $h_{K-1} = u_0 = F(h_{-1})$，循环模型逐比特地复现基座模型。微调因此是从一个已知良好的点出发，损失奖励多少，就把循环打开多少。这是实实在在的好处：没有初始化冲击，也不会出现「一个有前途的想法，被一夜之间把 48 层模型变成 96 层的破坏所掩盖」的情况。</span></p>
 
-    <p>It also has a cost, and the cost turns out to dominate everything else in this post. Because $W_r$ is shared across passes, pass $\tau$ can route differently from pass $\tau-1$ only if the router's input moved enough to reorder its top eight. From the update rule, that movement is</p>
+    <p><span class="lang-en">It also has a cost, and the cost turns out to dominate everything else in this post. Because $W_r$ is shared across passes, pass $\tau$ can route differently from pass $\tau-1$ only if the router's input moved enough to reorder its top eight. From the update rule, that movement is</span><span class="lang-zh">它也有代价，而且这个代价最后主导了本文的其他一切。由于 $W_r$ 在各遍之间共享，第 $\tau$ 遍要想路由得和第 $\tau-1$ 遍不同，router 的输入就必须移动到足以改变 top-8 的排序。按更新式，这个移动量是</span></p>
 
     <div class="eqn">$$h_\tau - h_{\tau-1} \;=\; g_\tau \odot \big(u_\tau - h_{\tau-1}\big),$$</div>
 
-    <p>which is proportional to the gate. So small gates give small movement, small movement gives the same routing:</p>
+    <p><span class="lang-en">which is proportional to the gate. So small gates give small movement, small movement gives the same routing:</span><span class="lang-zh">它正比于门控。所以门控小 &rarr; 移动小，移动小 &rarr; 路由不变：</span></p>
 
     <div class="eqn">$$\|g_\tau\| \to 0 \quad\Longrightarrow\quad h_\tau \to h_{\tau-1} \quad\Longrightarrow\quad \mathcal{S}^{\tau}_t = \mathcal{S}^{\tau-1}_t.$$</div>
 
-    <p>The safe initialisation and the goal are in tension: the gates start where the passes are guaranteed identical, and they have to travel a long way before the passes are meaningfully different. We measure how far they actually travel below &mdash; the answer is $\|g_\tau\|_{\text{rms}} \approx 0.02$ after a full epoch, and the passes are indeed near-copies.</p>
+    <p><span class="lang-en">The safe initialisation and the goal are in tension: the gates start where the passes are guaranteed identical, and they have to travel a long way before the passes are meaningfully different. We measure how far they actually travel below &mdash; the answer is $\|g_\tau\|_{\text{rms}} \approx 0.02$ after a full epoch, and the passes are indeed near-copies.</span><span class="lang-zh">安全的初始化和我们的目标是冲突的：门控起步的位置恰好保证各遍完全相同，而要让各遍出现有意义的差别，它得走很远。下面会测它实际走了多远&mdash;&mdash;答案是跑完一个 epoch 后 $\|g_\tau\|_{\text{rms}} \approx 0.02$，各遍确实是近似的复制品。</span></p>
 
-    <h2>Pathloop: forcing the passes apart</h2>
+    <h2><span class="lang-en">Pathloop: forcing the passes apart</span><span class="lang-zh">Pathloop：把各遍强行掰开</span></h2>
 
-    <p>The probes below say this tension resolves the wrong way: <a href="#key">passes 1 and 2 are near-copies of each other</a>, and a <a href="#overlap">direct token-level measurement</a> puts the difference at four tenths of one expert out of eight. Pathloop attacks that from the router's side rather than the gate's. If the passes will not become different on their own, make them different by construction: during training, let each pass sample part of its own path. Inference is untouched &mdash; the served model is plain top-$k$ routing.</p>
+    <p><span class="lang-en">The probes below say this tension resolves the wrong way: <a href="#key">passes 1 and 2 are near-copies of each other</a>, and a <a href="#overlap">direct token-level measurement</a> puts the difference at four tenths of one expert out of eight. Pathloop attacks that from the router's side rather than the gate's. If the passes will not become different on their own, make them different by construction: during training, let each pass sample part of its own path. Inference is untouched &mdash; the served model is plain top-$k$ routing.</span><span class="lang-zh">下面的探针说明，这个张力是朝错误的一侧收敛的：<a href="#key">第 1 遍和第 2 遍几乎是彼此的复制</a>，而<a href="#overlap">直接的 token 级测量</a>把差别定在八个 expert 里的 0.4 个。Pathloop 选择从 router 这一侧、而不是门控那一侧下手。既然各遍自己分不开，那就在构造上让它们不同：训练时，让每一遍自己采样出一部分路径。推理不受影响&mdash;&mdash;上线的模型仍是普通的 top-$k$ 路由。</span></p>
 
-    <h3>What if the router sampled part of the path?</h3>
+    <h3><span class="lang-en">What if the router sampled part of the path?</span><span class="lang-zh">如果让 router 采样一部分路径呢？</span></h3>
 
-    <p>Split the budget $k = p + q$. The first $p$ experts are the model's own top choices, kept as-is:</p>
+    <p><span class="lang-en">Split the budget $k = p + q$. The first $p$ experts are the model's own top choices, kept as-is:</span><span class="lang-zh">把预算拆成 $k = p + q$。前 $p$ 个 expert 是模型自己的最优选择，原样保留：</span></p>
 
     <div class="eqn">$$\mathcal{P}_t \;=\; \operatorname*{arg\,top-}_{p}\big\{\, s_{t,e} \;:\; e \in \mathcal{S}_t \,\big\}.$$</div>
 
-    <p>The remaining $q$ slots are for exploration. If every pass sampled from the same pool of non-selected experts they would frequently draw the same ones, which is exactly the collision we are trying to avoid. So we first partition the experts by a random assignment $\beta$, redrawn every step, which hands each pass a disjoint candidate pool:</p>
+    <p><span class="lang-en">The remaining $q$ slots are for exploration. If every pass sampled from the same pool of non-selected experts they would frequently draw the same ones, which is exactly the collision we are trying to avoid. So we first partition the experts by a random assignment $\beta$, redrawn every step, which hands each pass a disjoint candidate pool:</span><span class="lang-zh">剩下的 $q$ 个名额留给探索。如果每一遍都从同一批未被选中的 expert 里采样，它们会经常抽到同样的几个，而这正是我们想避免的碰撞。所以先用一个每步重新抽取的随机分配 $\beta$ 把 expert 划分开，让每一遍拿到互不相交的候选池：</span></p>
 
     <div class="eqn">$$\beta : \{1,\dots,E\} \to \{0,\dots,K\!-\!1\}, \qquad \mathcal{T}^\tau_t \;=\; \big\{\, e \notin \mathcal{S}_t \;:\; \beta(e) = \tau \,\big\}.$$</div>
 
-    <p>Within its own pool, pass $\tau$ draws $q$ experts without replacement, with probability proportional to the router's own scores. The standard trick for this is Gumbel top-$q$:</p>
+    <p><span class="lang-en">Within its own pool, pass $\tau$ draws $q$ experts without replacement, with probability proportional to the router's own scores. The standard trick for this is Gumbel top-$q$:</span><span class="lang-zh">在自己的池子里，第 $\tau$ 遍按 router 自身分数成正比的概率、不放回地抽 $q$ 个 expert。标准做法是 Gumbel top-$q$：</span></p>
 
     <div class="eqn">$$\mathcal{Q}^\tau_t \;=\; \operatorname*{arg\,top-}_{q}\Big\{\, \log s_{t,e} - \log(-\log u_e) \;:\; e \in \mathcal{T}^\tau_t \,\Big\}, \qquad u_e \sim \mathcal{U}(0,1).$$</div>
 
-    <p>The path this pass actually takes is the union, renormalised over its own members:</p>
+    <p><span class="lang-en">The path this pass actually takes is the union, renormalised over its own members:</span><span class="lang-zh">这一遍实际走的路径就是两者的并集，并在自己的成员上重新归一化：</span></p>
 
     <div class="eqn">$$\tilde{\mathcal{S}}^\tau_t \;=\; \mathcal{P}_t \cup \mathcal{Q}^\tau_t, \qquad \big|\tilde{\mathcal{S}}^\tau_t\big| = p + q = k.$$</div>
 
-    <p>Two things are worth noticing. The cost is unchanged &mdash; still exactly $k$ experts evaluated per token, so this is not a compute-for-quality trade. And the $q$ sampled experts now sit in the computation graph, so they receive gradient, which the zero-gradient property above otherwise forbids. With $q = 0$ the whole construction collapses back to ordinary top-$k$, which is what makes it safe to schedule.</p>
+    <p><span class="lang-en">Two things are worth noticing. The cost is unchanged &mdash; still exactly $k$ experts evaluated per token, so this is not a compute-for-quality trade. And the $q$ sampled experts now sit in the computation graph, so they receive gradient, which the zero-gradient property above otherwise forbids. With $q = 0$ the whole construction collapses back to ordinary top-$k$, which is what makes it safe to schedule.</span><span class="lang-zh">有两点值得注意。开销没有变&mdash;&mdash;每个 token 仍然只算 $k$ 个 expert，所以这不是「用算力换质量」的交易。另外，被采样的 $q$ 个 expert 现在进入了计算图，因此能拿到梯度，而前面那条零梯度性质本来是禁止这件事的。当 $q = 0$ 时，整套构造退化回普通 top-$k$，这正是它可以安全地用调度控制的原因。</span></p>
 
-    <h3>Which pass was better?</h3>
+    <h3><span class="lang-en">Which pass was better?</span><span class="lang-zh">哪一遍更好？</span></h3>
 
-    <p>Sampling only helps if we can tell a good draw from a bad one. Because every pass produces a full-width hidden state, we can read each one through the model's own output head and score it on the true next token:</p>
+    <p><span class="lang-en">Sampling only helps if we can tell a good draw from a bad one. Because every pass produces a full-width hidden state, we can read each one through the model's own output head and score it on the true next token:</span><span class="lang-zh">只有能分辨出好抽样和坏抽样，采样才有意义。由于每一遍都产生一个全宽的隐状态，我们可以让它过一遍模型自己的输出头，再用真实的下一个 token 给它打分：</span></p>
 
     <div class="eqn">$$R_\tau(t) \;=\; \log P\big(y_t \;\big|\; W_U\,\mathrm{Norm}(h_\tau)_t\big).$$</div>
 
-    <p>This is a logit lens: a cheap measure of how much of the answer pass $\tau$ has already assembled. It is not calibrated in absolute terms &mdash; mid-depth states read poorly through a head trained on final-depth states &mdash; but we only ever use differences.</p>
+    <p><span class="lang-en">This is a logit lens: a cheap measure of how much of the answer pass $\tau$ has already assembled. It is not calibrated in absolute terms &mdash; mid-depth states read poorly through a head trained on final-depth states &mdash; but we only ever use differences.</span><span class="lang-zh">这就是一个 logit lens：一种便宜的度量，衡量第 $\tau$ 遍已经把答案组装到了什么程度。它在绝对意义上没有校准&mdash;&mdash;中间深度的状态，用一个按最终深度训练的输出头去读效果很差&mdash;&mdash;但我们只用它们之间的差。</span></p>
 
-    <div class="status"><strong>This paragraph is wrong, and it is the central mistake of the project.</strong> The argument that miscalibration is harmless because only differences are used does not survive contact with the numbers: the lens recovers 0.79 of the 11.71 nats the state actually carries, and it ranks the passes by how far they have drifted from the head's expectations rather than by quality. <a href="#results">The measurement section</a> works through it and gives the fix. The construction below is stated as we built it.</div>
+    <div class="status"><span class="lang-en"><strong>This paragraph is wrong, and it is the central mistake of the project.</strong> The argument that miscalibration is harmless because only differences are used does not survive contact with the numbers: the lens recovers 0.79 of the 11.71 nats the state actually carries, and it ranks the passes by how far they have drifted from the head's expectations rather than by quality. <a href="#results">The measurement section</a> works through it and gives the fix. The construction below is stated as we built it.</span><span class="lang-zh"><strong>上面这段是错的，而且它是整个项目最核心的错误。</strong>「因为只用差值，所以校准不准没关系」这个论证，一碰到具体数字就站不住了：这个 lens 只从状态实际携带的 11.71 nats 中取出了 0.79 nats，而且它给各遍排序的依据，是它们偏离输出头预期的程度，而不是质量。<a href="#results">测量那一节</a>会把它讲清楚并给出修正。下面的构造，仍按我们当初搭建的样子陈述。</span></div>
 
-    <p>Which is the second point. The $K$ passes saw the same token in the same context, so comparing a pass against its own siblings cancels token difficulty exactly, with no baseline model and no value network:</p>
+    <p><span class="lang-en">Which is the second point. The $K$ passes saw the same token in the same context, so comparing a pass against its own siblings cancels token difficulty exactly, with no baseline model and no value network:</span><span class="lang-zh">这就带出第二点。$K$ 遍看到的是同一个上下文里的同一个 token，所以拿一遍跟它自己的兄弟比较，可以精确抵消 token 的难度，既不需要 baseline 模型，也不需要 value 网络：</span></p>
 
     <div class="eqn">$$A_\tau(t) \;=\; R_\tau(t) \;-\; \frac{1}{K-1}\sum_{\tau' \neq \tau} R_{\tau'}(t), \qquad \sum_\tau A_\tau(t) = 0.$$</div>
 
-    <h3>The two training terms</h3>
+    <h3><span class="lang-en">The two training terms</span><span class="lang-zh">两个训练项</span></h3>
 
-    <p>Given an advantage per pass, the sampled experts are reinforced by an ordinary policy gradient, where $\pi_\tau$ is the router's probability of having drawn that particular set as an ordered draw without replacement:</p>
+    <p><span class="lang-en">Given an advantage per pass, the sampled experts are reinforced by an ordinary policy gradient, where $\pi_\tau$ is the router's probability of having drawn that particular set as an ordered draw without replacement:</span><span class="lang-zh">有了每一遍的优势值，被采样的 expert 就可以用普通的策略梯度来强化，其中 $\pi_\tau$ 是 router 以不放回有序抽样方式抽到这一组的概率：</span></p>
 
     <div class="eqn">$$\mathcal{L}_{\text{path}} \;=\; -\sum_{\tau} \mathbb{E}_t\Big[\, A_\tau(t)\; \log \pi_\tau\big(\mathcal{Q}^\tau_t \mid h_{\tau-1}\big) \Big].$$</div>
 
-    <p>A second term pushes the passes to improve monotonically, weighting later passes more &mdash; on an assumption about the passes that <a href="#results">later turned out to be false</a>:</p>
+    <p><span class="lang-en">A second term pushes the passes to improve monotonically, weighting later passes more &mdash; on an assumption about the passes that <a href="#results">later turned out to be false</a>:</span><span class="lang-zh">第二项推动各遍单调改进，给靠后的遍更大权重&mdash;&mdash;它所依赖的那个关于各遍的假设，<a href="#results">后来被证明是错的</a>：</span></p>
 
     <div class="eqn">$$\mathcal{L}_{\text{ladder}} \;=\; -\sum_{\tau} \frac{\lambda\,(\tau+1)}{K}\; \mathbb{E}_t\big[\, R_\tau(t) \,\big].$$</div>
 
-    <p>Why score each pass against the label rather than, say, rewarding the passes for agreeing with each other? Because the cheapest way to make passes agree is to send $g_\tau \to 0$ &mdash; the degenerate solution the gates are already sitting next to. Scoring against the label makes the shortcut worthless.</p>
+    <p><span class="lang-en">Why score each pass against the label rather than, say, rewarding the passes for agreeing with each other? Because the cheapest way to make passes agree is to send $g_\tau \to 0$ &mdash; the degenerate solution the gates are already sitting next to. Scoring against the label makes the shortcut worthless.</span><span class="lang-zh">为什么要拿标签给每一遍打分，而不是奖励各遍彼此一致？因为让各遍一致最省事的办法就是把 $g_\tau$ 推向 0&mdash;&mdash;而门控本来就紧挨着这个退化解。用标签打分，这条捷径就一文不值了。</span></p>
 
-    <p>Both terms are multiplied by the exploration schedule and vanish wherever $q = 0$, so <strong>$q = 0$ is exactly plain looped SFT</strong>, bit for bit. We run this in two stages. <strong>Tier 1</strong> samples and logs $R_\tau$ and $A_\tau$ without training on them: it asks whether the comparison carries any signal at all before anything is built on top of it. <strong>Tier 2</strong> switches on the two losses. In both, $q$ follows a schedule that returns to $0$ before training ends, so the final model is trained under the same policy it is served with.</p>
+    <p><span class="lang-en">Both terms are multiplied by the exploration schedule and vanish wherever $q = 0$, so <strong>$q = 0$ is exactly plain looped SFT</strong>, bit for bit. We run this in two stages. <strong>Tier 1</strong> samples and logs $R_\tau$ and $A_\tau$ without training on them: it asks whether the comparison carries any signal at all before anything is built on top of it. <strong>Tier 2</strong> switches on the two losses. In both, $q$ follows a schedule that returns to $0$ before training ends, so the final model is trained under the same policy it is served with.</span><span class="lang-zh">两项都乘上探索调度系数，在 $q = 0$ 处消失，所以 <strong>$q = 0$ 就是逐比特等价的普通循环 SFT</strong>。我们分两级来跑。<strong>Tier 1</strong> 只采样并记录 $R_\tau$ 和 $A_\tau$，不拿它们训练：先问清楚这个比较到底有没有信号，再往上搭东西。<strong>Tier 2</strong> 打开这两个损失。两级里 $q$ 都按调度在训练结束前回到 $0$，这样最终模型训练时的策略与上线时一致。</span></p>
 
-    <h2>The setup</h2>
+    <h2><span class="lang-en">The setup</span><span class="lang-zh">实验设置</span></h2>
 
-    <p>Base model is <strong>Qwen3-30B-A3B-Base</strong> &mdash; 30B parameters with 3B active per token, 48 layers, 128 experts per layer, top-8 routing. The loop covers layers 12&ndash;35, repeated three times.</p>
+    <p><span class="lang-en">Base model is <strong>Qwen3-30B-A3B-Base</strong> &mdash; 30B parameters with 3B active per token, 48 layers, 128 experts per layer, top-8 routing. The loop covers layers 12&ndash;35, repeated three times.</span><span class="lang-zh">基座模型是 <strong>Qwen3-30B-A3B-Base</strong>&mdash;&mdash;30B 参数、每 token 激活 3B，48 层，每层 128 个 expert，top-8 路由。循环窗口覆盖第 12&ndash;35 层，重复三次。</span></p>
 
-    <p>We fine-tune on <strong>Ling-Coder</strong>, a 400k-example coding instruction set, for one epoch (415 steps). A math dataset (OT3) is the alternative we have also used; everything reported here is Ling-Coder.</p>
+    <p><span class="lang-en">We fine-tune on <strong>Ling-Coder</strong>, a 400k-example coding instruction set, for one epoch (415 steps). A math dataset (OT3) is the alternative we have also used; everything reported here is Ling-Coder.</span><span class="lang-zh">我们在 <strong>Ling-Coder</strong>（一个 40 万条的代码指令集）上微调一个 epoch（415 步）。另一个备选是数学数据集 OT3；本文报告的全部结果都来自 Ling-Coder。</span></p>
 
-    <p>We evaluate on 14 benchmarks with greedy decoding. Because we fine-tune on coding data, the benchmarks split into two groups, and keeping them apart turns out to matter more than any single number:</p>
+    <p><span class="lang-en">We evaluate on 14 benchmarks with greedy decoding. Because we fine-tune on coding data, the benchmarks split into two groups, and keeping them apart turns out to matter more than any single number:</span><span class="lang-zh">我们用贪心解码在 14 个 benchmark 上评测。由于微调用的是代码数据，这些 benchmark 自然分成两组，而把它们分开看，比任何单个数字都更重要：</span></p>
 
     <ul>
-      <li><strong>In-domain (5)</strong> &mdash; HumanEval, HumanEval+, MBPP, MBPP+, LiveCodeBench. Coding, the same skill we train.</li>
-      <li><strong>Out-of-domain (9)</strong> &mdash; GSM8K, MATH500, MATH500-flex, AMC23, AIME24, AIME25, MMLU-Pro, GPQA-Diamond, IFEval. Math, knowledge and instruction-following, none of which appear in the training data.</li>
+      <li><span class="lang-en"><strong>In-domain (5)</strong> &mdash; HumanEval, HumanEval+, MBPP, MBPP+, LiveCodeBench. Coding, the same skill we train.</span><span class="lang-zh"><strong>域内（5 个）</strong>&mdash;&mdash;HumanEval、HumanEval+、MBPP、MBPP+、LiveCodeBench。都是代码，也正是我们训练的能力。</span></li>
+      <li><span class="lang-en"><strong>Out-of-domain (9)</strong> &mdash; GSM8K, MATH500, MATH500-flex, AMC23, AIME24, AIME25, MMLU-Pro, GPQA-Diamond, IFEval. Math, knowledge and instruction-following, none of which appear in the training data.</span><span class="lang-zh"><strong>域外（9 个）</strong>&mdash;&mdash;GSM8K、MATH500、MATH500-flex、AMC23、AIME24、AIME25、MMLU-Pro、GPQA-Diamond、IFEval。数学、知识和指令跟随，训练数据里一个都没有。</span></li>
     </ul>
 
-    <h2 id="looping">Does looping help?</h2>
+    <h2 id="looping"><span class="lang-en">Does looping help?</span><span class="lang-zh">循环有用吗？</span></h2>
 
-    <p>Seven fine-tuned arms against the untouched base model, all on one locked evaluation suite with greedy decoding. "Looped SFT" is the gated loop described above; the two looped-SFT arms differ only in how fast the gates are allowed to learn (100&times; the base rate in the second). The four pathloop arms are labelled by tier &mdash; t1 samples and logs the reward without training on it, t2 trains on it &mdash; and by the value the gate was initialised to, which turns out to matter more than the tier does.</p>
+    <p><span class="lang-en">Seven fine-tuned arms against the untouched base model, all on one locked evaluation suite with greedy decoding. "Looped SFT" is the gated loop described above; the two looped-SFT arms differ only in how fast the gates are allowed to learn (100&times; the base rate in the second). The four pathloop arms are labelled by tier &mdash; t1 samples and logs the reward without training on it, t2 trains on it &mdash; and by the value the gate was initialised to, which turns out to matter more than the tier does.</span><span class="lang-zh">七个微调分支对上未改动的基座模型，全部在同一套锁定的评测集上用贪心解码跑出。「Looped SFT」就是上文那个带门控的循环；两个 looped-SFT 分支的唯一差别是门控允许多快地学（第二个用 100&times; 基础学习率）。四个 pathloop 分支按 tier 标注&mdash;&mdash;t1 只采样并记录奖励而不用它训练，t2 用它训练&mdash;&mdash;再按门控的初始值标注，而后者的影响其实比 tier 更大。</span></p>
 
     <div class="table-wrap">
       <table>
         <tr>
-          <th>Category</th><th>Benchmark</th><th></th>
-          <th class="num">Base</th><th class="num">Plain SFT</th><th class="num">Looped SFT</th><th class="num">Looped SFT<br><span style="font-weight:400;font-size:10.5px">fast gates</span></th><th class="num">Pathloop t1<br><span style="font-weight:400;font-size:10.5px">gate 0</span></th><th class="num">Pathloop t1<br><span style="font-weight:400;font-size:10.5px">gate 0.2</span></th><th class="num">Pathloop t1<br><span style="font-weight:400;font-size:10.5px">gate 0.3</span></th><th class="num">Pathloop t2<br><span style="font-weight:400;font-size:10.5px">gate 0.3</span></th>
+          <th><span class="lang-en">Category</span><span class="lang-zh">类别</span></th><th><span class="lang-en">Benchmark</span><span class="lang-zh">评测集</span></th><th></th>
+          <th class="num"><span class="lang-en">Base</span><span class="lang-zh">基座</span></th><th class="num">Plain SFT</th><th class="num">Looped SFT</th><th class="num">Looped SFT<br><span style="font-weight:400;font-size:10.5px">fast gates</span></th><th class="num">Pathloop t1<br><span style="font-weight:400;font-size:10.5px">gate 0</span></th><th class="num">Pathloop t1<br><span style="font-weight:400;font-size:10.5px">gate 0.2</span></th><th class="num">Pathloop t1<br><span style="font-weight:400;font-size:10.5px">gate 0.3</span></th><th class="num">Pathloop t2<br><span style="font-weight:400;font-size:10.5px">gate 0.3</span></th>
         </tr>
-        <tr><td rowspan="5" style="font-weight:600;color:#1b3a6f;vertical-align:middle">coding</td><td>HumanEval</td><td><span class="tag tag-in">in</span></td><td class="num">72.0</td><td class="num">90.2 <span style="font-size:10px;color:#aaa">149</span></td><td class="num">90.2 <span style="font-size:10px;color:#aaa">299</span></td><td class="num">91.5 <span style="font-size:10px;color:#aaa">299</span></td><td class="num">91.5 <span style="font-size:10px;color:#aaa">299</span></td><td class="num">89.0 <span style="font-size:10px;color:#aaa">415</span></td><td class="num">90.2 <span style="font-size:10px;color:#aaa">299</span></td><td class="num best">92.1 <span style="font-size:10px;color:#aaa">299</span></td></tr>
+        <tr><td rowspan="5" style="font-weight:600;color:#1b3a6f;vertical-align:middle"><span class="lang-en">coding</span><span class="lang-zh">代码</span></td><td>HumanEval</td><td><span class="tag tag-in">in</span></td><td class="num">72.0</td><td class="num">90.2 <span style="font-size:10px;color:#aaa">149</span></td><td class="num">90.2 <span style="font-size:10px;color:#aaa">299</span></td><td class="num">91.5 <span style="font-size:10px;color:#aaa">299</span></td><td class="num">91.5 <span style="font-size:10px;color:#aaa">299</span></td><td class="num">89.0 <span style="font-size:10px;color:#aaa">415</span></td><td class="num">90.2 <span style="font-size:10px;color:#aaa">299</span></td><td class="num best">92.1 <span style="font-size:10px;color:#aaa">299</span></td></tr>
         <tr><td>HumanEval+</td><td><span class="tag tag-in">in</span></td><td class="num">66.5</td><td class="num">84.1 <span style="font-size:10px;color:#aaa">149</span></td><td class="num">86.0 <span style="font-size:10px;color:#aaa">299</span></td><td class="num best">87.2 <span style="font-size:10px;color:#aaa">299</span></td><td class="num">86.6 <span style="font-size:10px;color:#aaa">299</span></td><td class="num">84.8 <span style="font-size:10px;color:#aaa">415</span></td><td class="num">85.4 <span style="font-size:10px;color:#aaa">149</span></td><td class="num">86.6 <span style="font-size:10px;color:#aaa">299</span></td></tr>
         <tr><td>MBPP</td><td><span class="tag tag-in">in</span></td><td class="num">68.5</td><td class="num">74.5 <span style="font-size:10px;color:#aaa">299</span></td><td class="num">73.0 <span style="font-size:10px;color:#aaa">299</span></td><td class="num best">75.5 <span style="font-size:10px;color:#aaa">299</span></td><td class="num">74.5 <span style="font-size:10px;color:#aaa">299</span></td><td class="num">75.0 <span style="font-size:10px;color:#aaa">149</span></td><td class="num">74.5 <span style="font-size:10px;color:#aaa">299</span></td><td class="num">75.0 <span style="font-size:10px;color:#aaa">299</span></td></tr>
         <tr><td>MBPP+</td><td><span class="tag tag-in">in</span></td><td class="num best">76.0</td><td class="num">74.4 <span style="font-size:10px;color:#aaa">415</span></td><td class="num">73.6 <span style="font-size:10px;color:#aaa">299</span></td><td class="num">74.0 <span style="font-size:10px;color:#aaa">299</span></td><td class="num">74.0 <span style="font-size:10px;color:#aaa">149</span></td><td class="num">73.6 <span style="font-size:10px;color:#aaa">415</span></td><td class="num">75.6 <span style="font-size:10px;color:#aaa">299</span></td><td class="num">73.2 <span style="font-size:10px;color:#aaa">299</span></td></tr>
         <tr><td>LiveCodeBench</td><td><span class="tag tag-in">in</span></td><td class="num">14.9</td><td class="num">31.4 <span style="font-size:10px;color:#aaa">149</span></td><td class="num best">32.6 <span style="font-size:10px;color:#aaa">299</span></td><td class="num">29.7 <span style="font-size:10px;color:#aaa">299</span></td><td class="num">31.4 <span style="font-size:10px;color:#aaa">149</span></td><td class="num">31.4 <span style="font-size:10px;color:#aaa">149</span></td><td class="num">32.0 <span style="font-size:10px;color:#aaa">149</span></td><td class="num best">32.6 <span style="font-size:10px;color:#aaa">149</span></td></tr>
-        <tr><td rowspan="6" style="font-weight:600;color:#1b3a6f;vertical-align:middle">math</td><td>GSM8K</td><td><span class="tag tag-ood">ood</span></td><td class="num">52.8</td><td class="num best">72.4 <span style="font-size:10px;color:#aaa">149</span></td><td class="num">69.2 <span style="font-size:10px;color:#aaa">415</span></td><td class="num">65.2 <span style="font-size:10px;color:#aaa">415</span></td><td class="num">62.0 <span style="font-size:10px;color:#aaa">149</span></td><td class="num">57.2 <span style="font-size:10px;color:#aaa">299</span></td><td class="num">62.0 <span style="font-size:10px;color:#aaa">299</span></td><td class="num">60.4 <span style="font-size:10px;color:#aaa">415</span></td></tr>
+        <tr><td rowspan="6" style="font-weight:600;color:#1b3a6f;vertical-align:middle"><span class="lang-en">math</span><span class="lang-zh">数学</span></td><td>GSM8K</td><td><span class="tag tag-ood">ood</span></td><td class="num">52.8</td><td class="num best">72.4 <span style="font-size:10px;color:#aaa">149</span></td><td class="num">69.2 <span style="font-size:10px;color:#aaa">415</span></td><td class="num">65.2 <span style="font-size:10px;color:#aaa">415</span></td><td class="num">62.0 <span style="font-size:10px;color:#aaa">149</span></td><td class="num">57.2 <span style="font-size:10px;color:#aaa">299</span></td><td class="num">62.0 <span style="font-size:10px;color:#aaa">299</span></td><td class="num">60.4 <span style="font-size:10px;color:#aaa">415</span></td></tr>
         <tr><td>MATH500</td><td><span class="tag tag-ood">ood</span></td><td class="num">60.8</td><td class="num">57.6 <span style="font-size:10px;color:#aaa">149</span></td><td class="num">59.6 <span style="font-size:10px;color:#aaa">149</span></td><td class="num best">66.0 <span style="font-size:10px;color:#aaa">149</span></td><td class="num">62.4 <span style="font-size:10px;color:#aaa">149</span></td><td class="num">53.6 <span style="font-size:10px;color:#aaa">299</span></td><td class="num">58.4 <span style="font-size:10px;color:#aaa">299</span></td><td class="num">52.8 <span style="font-size:10px;color:#aaa">299</span></td></tr>
         <tr><td>MATH500-flex</td><td><span class="tag tag-ood">ood</span></td><td class="num">60.8</td><td class="num">58.0 <span style="font-size:10px;color:#aaa">149</span></td><td class="num">62.4 <span style="font-size:10px;color:#aaa">149</span></td><td class="num best">67.2 <span style="font-size:10px;color:#aaa">149</span></td><td class="num">62.8 <span style="font-size:10px;color:#aaa">149</span></td><td class="num">55.6 <span style="font-size:10px;color:#aaa">299</span></td><td class="num">60.0 <span style="font-size:10px;color:#aaa">415</span></td><td class="num">55.2 <span style="font-size:10px;color:#aaa">299</span></td></tr>
         <tr><td>AMC23</td><td><span class="tag tag-ood">ood</span></td><td class="num">27.9</td><td class="num">32.5 <span style="font-size:10px;color:#aaa">149</span></td><td class="num">30.8 <span style="font-size:10px;color:#aaa">149</span></td><td class="num">39.6 <span style="font-size:10px;color:#aaa">415</span></td><td class="num best">42.9 <span style="font-size:10px;color:#aaa">415</span></td><td class="num">35.8 <span style="font-size:10px;color:#aaa">299</span></td><td class="num">41.7 <span style="font-size:10px;color:#aaa">299</span></td><td class="num">40.0 <span style="font-size:10px;color:#aaa">299</span></td></tr>
         <tr><td>AIME24</td><td><span class="tag tag-ood">ood</span></td><td class="num">4.4</td><td class="num">10.0 <span style="font-size:10px;color:#aaa">415</span></td><td class="num">10.0 <span style="font-size:10px;color:#aaa">299</span></td><td class="num">11.7 <span style="font-size:10px;color:#aaa">149</span></td><td class="num best">12.2 <span style="font-size:10px;color:#aaa">149</span></td><td class="num best">12.2 <span style="font-size:10px;color:#aaa">149</span></td><td class="num">10.6 <span style="font-size:10px;color:#aaa">415</span></td><td class="num">11.7 <span style="font-size:10px;color:#aaa">415</span></td></tr>
         <tr><td>AIME25</td><td><span class="tag tag-ood">ood</span></td><td class="num">2.8</td><td class="num">5.0 <span style="font-size:10px;color:#aaa">415</span></td><td class="num">7.2 <span style="font-size:10px;color:#aaa">415</span></td><td class="num">6.7 <span style="font-size:10px;color:#aaa">149</span></td><td class="num">7.8 <span style="font-size:10px;color:#aaa">149</span></td><td class="num">8.3 <span style="font-size:10px;color:#aaa">299</span></td><td class="num">7.2 <span style="font-size:10px;color:#aaa">299</span></td><td class="num best">8.9 <span style="font-size:10px;color:#aaa">299</span></td></tr>
-        <tr><td rowspan="2" style="font-weight:600;color:#1b3a6f;vertical-align:middle">knowledge</td><td>MMLU-Pro</td><td><span class="tag tag-ood">ood</span></td><td class="num">52.4</td><td class="num">51.6 <span style="font-size:10px;color:#aaa">149</span></td><td class="num best">52.8 <span style="font-size:10px;color:#aaa">415</span></td><td class="num">51.2 <span style="font-size:10px;color:#aaa">149</span></td><td class="num">50.8 <span style="font-size:10px;color:#aaa">149</span></td><td class="num">51.6 <span style="font-size:10px;color:#aaa">299</span></td><td class="num">51.2 <span style="font-size:10px;color:#aaa">149</span></td><td class="num">52.0 <span style="font-size:10px;color:#aaa">415</span></td></tr>
+        <tr><td rowspan="2" style="font-weight:600;color:#1b3a6f;vertical-align:middle"><span class="lang-en">knowledge</span><span class="lang-zh">知识</span></td><td>MMLU-Pro</td><td><span class="tag tag-ood">ood</span></td><td class="num">52.4</td><td class="num">51.6 <span style="font-size:10px;color:#aaa">149</span></td><td class="num best">52.8 <span style="font-size:10px;color:#aaa">415</span></td><td class="num">51.2 <span style="font-size:10px;color:#aaa">149</span></td><td class="num">50.8 <span style="font-size:10px;color:#aaa">149</span></td><td class="num">51.6 <span style="font-size:10px;color:#aaa">299</span></td><td class="num">51.2 <span style="font-size:10px;color:#aaa">149</span></td><td class="num">52.0 <span style="font-size:10px;color:#aaa">415</span></td></tr>
         <tr><td>GPQA-Diamond</td><td><span class="tag tag-ood">ood</span></td><td class="num">38.9</td><td class="num">43.9 <span style="font-size:10px;color:#aaa">299</span></td><td class="num">43.4 <span style="font-size:10px;color:#aaa">415</span></td><td class="num">43.9 <span style="font-size:10px;color:#aaa">299</span></td><td class="num">42.9 <span style="font-size:10px;color:#aaa">299</span></td><td class="num best">44.4 <span style="font-size:10px;color:#aaa">299</span></td><td class="num">41.9 <span style="font-size:10px;color:#aaa">299</span></td><td class="num">41.4 <span style="font-size:10px;color:#aaa">415</span></td></tr>
-        <tr><td rowspan="1" style="font-weight:600;color:#1b3a6f;vertical-align:middle">instruction following</td><td>IFEval</td><td><span class="tag tag-ood">ood</span></td><td class="num">35.2</td><td class="num">53.6 <span style="font-size:10px;color:#aaa">299</span></td><td class="num">53.6 <span style="font-size:10px;color:#aaa">415</span></td><td class="num">56.0 <span style="font-size:10px;color:#aaa">299</span></td><td class="num">53.6 <span style="font-size:10px;color:#aaa">299</span></td><td class="num">54.4 <span style="font-size:10px;color:#aaa">299</span></td><td class="num best">56.4 <span style="font-size:10px;color:#aaa">299</span></td><td class="num">56.0 <span style="font-size:10px;color:#aaa">415</span></td></tr>
-        <tr class="sep"><td colspan="2">Mean of best, all 14</td><td></td><td class="num">45.27</td><td class="num">52.81</td><td class="num">53.18</td><td class="num best">54.67</td><td class="num">53.96</td><td class="num">51.93</td><td class="num">53.36</td><td class="num">52.70</td></tr>
-        <tr class=""><td colspan="2">Mean of best, in-domain</td><td><span class="tag tag-in">in</span></td><td class="num">59.55</td><td class="num">70.94</td><td class="num">71.08</td><td class="num">71.57</td><td class="num">71.60</td><td class="num">70.76</td><td class="num">71.54</td><td class="num best">71.89</td></tr>
-        <tr class=""><td colspan="2">Mean of best, out-of-domain</td><td><span class="tag tag-ood">ood</span></td><td class="num">37.34</td><td class="num">42.74</td><td class="num">43.23</td><td class="num best">45.27</td><td class="num">44.16</td><td class="num">41.47</td><td class="num">43.26</td><td class="num">42.04</td></tr>
+        <tr><td rowspan="1" style="font-weight:600;color:#1b3a6f;vertical-align:middle"><span class="lang-en">instruction following</span><span class="lang-zh">指令跟随</span></td><td>IFEval</td><td><span class="tag tag-ood">ood</span></td><td class="num">35.2</td><td class="num">53.6 <span style="font-size:10px;color:#aaa">299</span></td><td class="num">53.6 <span style="font-size:10px;color:#aaa">415</span></td><td class="num">56.0 <span style="font-size:10px;color:#aaa">299</span></td><td class="num">53.6 <span style="font-size:10px;color:#aaa">299</span></td><td class="num">54.4 <span style="font-size:10px;color:#aaa">299</span></td><td class="num best">56.4 <span style="font-size:10px;color:#aaa">299</span></td><td class="num">56.0 <span style="font-size:10px;color:#aaa">415</span></td></tr>
+        <tr class="sep"><td colspan="2"><span class="lang-en">Mean of best, all 14</span><span class="lang-zh">最佳值均值，全部 14 个</span></td><td></td><td class="num">45.27</td><td class="num">52.81</td><td class="num">53.18</td><td class="num best">54.67</td><td class="num">53.96</td><td class="num">51.93</td><td class="num">53.36</td><td class="num">52.70</td></tr>
+        <tr class=""><td colspan="2"><span class="lang-en">Mean of best, in-domain</span><span class="lang-zh">最佳值均值，域内</span></td><td><span class="tag tag-in">in</span></td><td class="num">59.55</td><td class="num">70.94</td><td class="num">71.08</td><td class="num">71.57</td><td class="num">71.60</td><td class="num">70.76</td><td class="num">71.54</td><td class="num best">71.89</td></tr>
+        <tr class=""><td colspan="2"><span class="lang-en">Mean of best, out-of-domain</span><span class="lang-zh">最佳值均值，域外</span></td><td><span class="tag tag-ood">ood</span></td><td class="num">37.34</td><td class="num">42.74</td><td class="num">43.23</td><td class="num best">45.27</td><td class="num">44.16</td><td class="num">41.47</td><td class="num">43.26</td><td class="num">42.04</td></tr>
       </table>
     </div>
 
-    <p style="font-size:12.5px;color:#555;margin-top:-6px">Each fine-tuned number is that arm's <em>best</em> across the three checkpoints we saved (149, 299, 415); the small grey figure is which one. Every arm here was evaluated with the same locked suite and with SGLang's deterministic-inference flag on &mdash; <a href="#results">without it a looped model scores about 22 points low</a>, and the flag state was verified in the log of all 22 evaluation runs behind this table. Taking a per-benchmark maximum is optimistic &mdash; it picks the checkpoint after seeing the score &mdash; but it is optimistic for every arm equally, and it avoids crediting a method merely for degrading more slowly.</p>
+    <p style="font-size:12.5px;color:#555;margin-top:-6px"><span class="lang-en">Each fine-tuned number is that arm's <em>best</em> across the three checkpoints we saved (149, 299, 415); the small grey figure is which one. Every arm here was evaluated with the same locked suite and with SGLang's deterministic-inference flag on &mdash; <a href="#results">without it a looped model scores about 22 points low</a>, and the flag state was verified in the log of all 22 evaluation runs behind this table. Taking a per-benchmark maximum is optimistic &mdash; it picks the checkpoint after seeing the score &mdash; but it is optimistic for every arm equally, and it avoids crediting a method merely for degrading more slowly.</span><span class="lang-zh">每个微调分支的数字，都是它在三个 checkpoint（149、299、415）中的<em>最好</em>成绩；旁边的小灰字标的是取自哪一个。所有分支都用同一套锁定评测集、并打开了 SGLang 的确定性推理 flag&mdash;&mdash;<a href="#results">不打开的话，循环模型会低出约 22 个点</a>，这张表背后 22 次评测的 flag 状态我们都逐条核对过日志。逐 benchmark 取最大值是偏乐观的&mdash;&mdash;它是看完分数再挑 checkpoint&mdash;&mdash;但对每个分支都同样乐观，而且避免了「仅仅因为退化得更慢就给某个方法记功」。</span></p>
 
     <div class="insight-box">
-      <h3>Splitting the benchmarks changes the conclusion</h3>
-      <p><strong>In-domain, nothing separates anything.</strong> Fine-tuning lifts coding from 59.6 to about 71, and all seven fine-tuned arms then land in a band 1.1 points wide (70.8 to 71.9). Neither the loop nor pathloop contributes measurable coding ability; a <a href="#results">much better-powered comparison at $n=16$</a> puts the same five arms inside 0.94 points.</p>
-      <p><strong>Out-of-domain the arms do separate</strong>, but not along the axis the project was organised around. The best arm is looped SFT with fast gates at 45.3, and the second best is pathloop tier 1 at 44.2 &mdash; the arm that samples experts and logs the reward but never trains on it. The arm that actually trains on the reward, tier 2, scores 42.0, <em>below</em> plain fine-tuning's 42.7. <strong>Across the four pathloop arms the spread is 41.5 to 44.2, which is wider than the entire effect the method was built to produce.</strong></p>
-      <p>What does order the arms is the gate. Holding the tier fixed at 1 and varying only the initial gate gives 44.2 at $g=0$, 41.5 at $g=0.2$ and 43.3 at $g=0.3$ &mdash; non-monotone, and larger than any tier effect. Figure 1 shows the mechanism.</p>
-      <p>One caution that applies to the whole table: comparing final checkpoints would tell a flattering story, where plain fine-tuning scores 37.5 against 40&ndash;42 for everything else. That gap is almost entirely plain fine-tuning having fallen back to the base model by step 415, not the other arms having learned more.</p>
+      <h3><span class="lang-en">Splitting the benchmarks changes the conclusion</span><span class="lang-zh">把 benchmark 分开看，结论就变了</span></h3>
+      <p><span class="lang-en"><strong>In-domain, nothing separates anything.</strong> Fine-tuning lifts coding from 59.6 to about 71, and all seven fine-tuned arms then land in a band 1.1 points wide (70.8 to 71.9). Neither the loop nor pathloop contributes measurable coding ability; a <a href="#results">much better-powered comparison at $n=16$</a> puts the same five arms inside 0.94 points.</span><span class="lang-zh"><strong>域内，什么都分不出来。</strong>微调把代码从 59.6 抬到约 71，之后七个微调分支全部落在一条 1.1 个点宽的带子里（70.8 到 71.9）。循环和 pathloop 都没有带来可测量的代码能力；一个<a href="#results">统计功效高得多的 $n=16$ 对比</a>把同样这五个分支压在 0.94 个点之内。</span></p>
+      <p><span class="lang-en"><strong>Out-of-domain the arms do separate</strong>, but not along the axis the project was organised around. The best arm is looped SFT with fast gates at 45.3, and the second best is pathloop tier 1 at 44.2 &mdash; the arm that samples experts and logs the reward but never trains on it. The arm that actually trains on the reward, tier 2, scores 42.0, <em>below</em> plain fine-tuning's 42.7. <strong>Across the four pathloop arms the spread is 41.5 to 44.2, which is wider than the entire effect the method was built to produce.</strong></span><span class="lang-zh"><strong>域外各分支确实分开了</strong>，但分开的方向不是这个项目围绕的那条轴。最好的是快门控的循环 SFT，45.3；第二是 pathloop tier 1，44.2&mdash;&mdash;也就是那个只采样 expert、只记录奖励、从不拿它训练的分支。真正用奖励训练的 tier 2 得 42.0，<em>低于</em>普通微调的 42.7。<strong>四个 pathloop 分支之间的跨度是 41.5 到 44.2，比这个方法本想产生的全部效应还宽。</strong></span></p>
+      <p><span class="lang-en">What does order the arms is the gate. Holding the tier fixed at 1 and varying only the initial gate gives 44.2 at $g=0$, 41.5 at $g=0.2$ and 43.3 at $g=0.3$ &mdash; non-monotone, and larger than any tier effect. Figure 1 shows the mechanism.</span><span class="lang-zh">真正决定排序的是门控。把 tier 固定为 1、只改门控初值：$g=0$ 时 44.2，$g=0.2$ 时 41.5，$g=0.3$ 时 43.3&mdash;&mdash;非单调，而且比任何 tier 效应都大。图 1 展示了其中的机制。</span></p>
+      <p><span class="lang-en">One caution that applies to the whole table: comparing final checkpoints would tell a flattering story, where plain fine-tuning scores 37.5 against 40&ndash;42 for everything else. That gap is almost entirely plain fine-tuning having fallen back to the base model by step 415, not the other arms having learned more.</span><span class="lang-zh">有一条提醒适用于整张表：如果只比最终 checkpoint，故事会好看得多&mdash;&mdash;普通微调 37.5，其余全部 40&ndash;42。但这个差距几乎全部来自普通微调到第 415 步已经跌回基座模型，而不是别的分支学到了更多。</span></p>
     </div>
 
-    <h3>How do the coding numbers compare to published models?</h3>
+    <h3><span class="lang-en">How do the coding numbers compare to published models?</span><span class="lang-zh">这些代码分数和已发表的模型比如何？</span></h3>
 
-    <p>For context, here are our five coding benchmarks against open-source coding models, diffusion language models, and Ouro &mdash; the one other looped latent-reasoning model with published code numbers. Our rows are the same best-of-checkpoint values as the table above.</p>
+    <p><span class="lang-en">For context, here are our five coding benchmarks against open-source coding models, diffusion language models, and Ouro &mdash; the one other looped latent-reasoning model with published code numbers. Our rows are the same best-of-checkpoint values as the table above.</span><span class="lang-zh">作为参照，下面把我们的五个代码 benchmark 与开源代码模型、扩散语言模型，以及 Ouro&mdash;&mdash;另一个公开了代码成绩的循环隐式推理模型&mdash;&mdash;放在一起。我们这几行沿用上表中的最佳 checkpoint 值。</span></p>
 
     <div class="table-wrap">
       <table>
         <tr>
-          <th>Model / Method</th><th>Base model</th>
+          <th><span class="lang-en">Model / Method</span><span class="lang-zh">模型 / 方法</span></th><th><span class="lang-en">Base model</span><span class="lang-zh">基座模型</span></th>
           <th class="num">MBPP</th><th class="num">MBPP+</th><th class="num">HumanEval</th>
-          <th class="num">HumanEval+</th><th class="num">LCB v6</th><th class="num">Avg.</th>
+          <th class="num">HumanEval+</th><th class="num">LCB v6</th><th class="num"><span class="lang-en">Avg.</span><span class="lang-zh">平均</span></th>
         </tr>
-        <tr class="band"><td colspan="8">Published models <span style="font-weight:400">(numbers as reported by their authors)</span></td></tr>
-        <tr class="sub"><td colspan="8">Autoregressive coding models</td></tr>
+        <tr class="band"><td colspan="8"><span class="lang-en">Published models <span style="font-weight:400">(numbers as reported by their authors)</span></span><span class="lang-zh">公开模型 <span style="font-weight:400">（数字取自各自论文的报告）</span></span></td></tr>
+        <tr class="sub"><td colspan="8"><span class="lang-en">Autoregressive coding models</span><span class="lang-zh">自回归代码模型</span></td></tr>
         <tr><td>Qwen2.5-Coder</td><td>Qwen2.5-7B</td><td class="num">75.9</td><td class="num">62.9</td><td class="num">66.5</td><td class="num">60.4</td><td class="num">26.8</td><td class="num">59.9</td></tr>
         <tr><td>OpenCoder</td><td>from scratch (8B)</td><td class="num">79.9</td><td class="num u">70.4</td><td class="num">66.5</td><td class="num">63.4</td><td class="num">29.6</td><td class="num">62.0</td></tr>
         <tr><td>OlympicCoder</td><td>Qwen2.5-7B</td><td class="num">80.0</td><td class="num">66.4</td><td class="num u">82.1</td><td class="num u">76.9</td><td class="num">37.3</td><td class="num u">68.5</td></tr>
         <tr><td>Seed-Coder</td><td>from scratch</td><td class="num u">82.0</td><td class="num">69.0</td><td class="num">77.4</td><td class="num">68.3</td><td class="num">28.4</td><td class="num">65.0</td></tr>
-        <tr class="sub"><td colspan="8">Diffusion language models</td></tr>
+        <tr class="sub"><td colspan="8"><span class="lang-en">Diffusion language models</span><span class="lang-zh">扩散语言模型</span></td></tr>
         <tr><td>Dream</td><td>Qwen2.5-7B</td><td class="num">68.7</td><td class="num">57.4</td><td class="num">56.7</td><td class="num">50.0</td><td class="num">18.6</td><td class="num">&ndash;</td></tr>
         <tr><td>LLaDA</td><td>from scratch (8B)</td><td class="num">50.1</td><td class="num">42.1</td><td class="num">35.4</td><td class="num">30.5</td><td class="num">12.4</td><td class="num">&ndash;</td></tr>
         <tr><td>DiffuCoder</td><td>Qwen2.5-Coder-7B</td><td class="num">75.1</td><td class="num">61.9</td><td class="num">72.0</td><td class="num">65.2</td><td class="num">24.5</td><td class="num">59.7</td></tr>
         <tr><td>Dream-Coder</td><td>Qwen2.5-Coder-7B</td><td class="num">75.9</td><td class="num">61.6</td><td class="num">66.5</td><td class="num">60.4</td><td class="num">21.4</td><td class="num">57.2</td></tr>
         <tr><td>d1</td><td>LLaDA + RL</td><td class="num">39.0</td><td class="num">&ndash;</td><td class="num">45.5</td><td class="num">&ndash;</td><td class="num">&ndash;</td><td class="num">&ndash;</td></tr>
-        <tr class="sub"><td colspan="8">Looped latent-reasoning models</td></tr>
+        <tr class="sub"><td colspan="8"><span class="lang-en">Looped latent-reasoning models</span><span class="lang-zh">循环隐式推理模型</span></td></tr>
         <tr><td>Ouro</td><td>from scratch (2.6B)</td><td class="num">80.4</td><td class="num">66.6</td><td class="num">78.2</td><td class="num">70.7</td><td class="num u">38.7</td><td class="num">66.9</td></tr>
-        <tr class="band"><td colspan="8">This work <span style="font-weight:400">(our eval harness, greedy decoding, best of checkpoints 149 / 299 / 415)</span></td></tr>
+        <tr class="band"><td colspan="8"><span class="lang-en">This work <span style="font-weight:400">(our eval harness, greedy decoding, best of checkpoints 149 / 299 / 415)</span></span><span class="lang-zh">本工作 <span style="font-weight:400">（我们的评测框架，贪心解码，取 checkpoint 149 / 299 / 415 中的最好值）</span></span></td></tr>
         <tr><td>Base</td><td>Qwen3-30B-A3B-Base</td><td class="num">68.5</td><td class="num">76.0</td><td class="num">72.0</td><td class="num">66.5</td><td class="num">14.9</td><td class="num">59.6</td></tr>
         <tr><td>Plain SFT</td><td>Qwen3-30B-A3B-Base</td><td class="num">74.5<span class="dg">+6.0</span></td><td class="num">74.4<span class="dr">&minus;1.6</span></td><td class="num">90.2<span class="dg">+18.3</span></td><td class="num">84.1<span class="dg">+17.7</span></td><td class="num">31.4<span class="dg">+16.6</span></td><td class="num">70.9<span class="dg">+11.4</span></td></tr>
         <tr><td>Looped SFT</td><td>Qwen3-30B-A3B-Base</td><td class="num">73.0<span class="dg">+4.5</span></td><td class="num">73.6<span class="dr">&minus;2.4</span></td><td class="num">90.2<span class="dg">+18.3</span></td><td class="num">86.0<span class="dg">+19.5</span></td><td class="num best">32.6<span class="dg">+17.7</span></td><td class="num">71.1<span class="dg">+11.5</span></td></tr>
@@ -458,18 +498,18 @@
       </table>
     </div>
 
-    <p style="font-size:12.5px;color:#555;margin-top:-6px">Subscripts are the change from our base model. <span class="u">Underlined</span> is the best published number in that column; <span class="best">bold</span> is the best of our seven fine-tuned arms. The two blocks are <strong>not</strong> a head-to-head: the published numbers come from each paper's own harness and ours from a shared few-shot greedy setup, and the gap is large enough to see &mdash; a Qwen3-8B base is reported at 78.2 on HumanEval where our larger Qwen3-30B-A3B base measures 72.0. Read the top block as a scale for what these benchmarks look like, and the bottom block as the comparison that is actually controlled.</p>
+    <p style="font-size:12.5px;color:#555;margin-top:-6px"><span class="lang-en">Subscripts are the change from our base model. <span class="u">Underlined</span> is the best published number in that column; <span class="best">bold</span> is the best of our seven fine-tuned arms. The two blocks are <strong>not</strong> a head-to-head: the published numbers come from each paper's own harness and ours from a shared few-shot greedy setup, and the gap is large enough to see &mdash; a Qwen3-8B base is reported at 78.2 on HumanEval where our larger Qwen3-30B-A3B base measures 72.0. Read the top block as a scale for what these benchmarks look like, and the bottom block as the comparison that is actually controlled.</span><span class="lang-zh">下标是相对我们基座模型的变化。<span class="u">下划线</span>是该列中已发表结果的最好值；<span class="best">加粗</span>是我们七个微调分支中的最好值。两个区块<strong>不是</strong>正面对比：上面的数字来自各篇论文自己的评测框架，我们的来自统一的 few-shot 贪心设置，而这个差距大到肉眼可见&mdash;&mdash;Qwen3-8B 基座在 HumanEval 上被报告为 78.2，而我们更大的 Qwen3-30B-A3B 基座只测得 72.0。把上半部分当作这些 benchmark 的量级参照，把下半部分当作真正受控的对比。</span></p>
 
 
-    <h3>It is retention, not a higher peak</h3>
+    <h3><span class="lang-en">It is retention, not a higher peak</span><span class="lang-zh">这是保持，而不是更高的峰值</span></h3>
 
-    <p>Evaluating at three checkpoints shows what is actually happening, and it is two different things depending on the arm. Every arm whose gate starts at zero peaks at step 149 &mdash; the earliest checkpoint we saved &mdash; and declines from there; plain fine-tuning declines all the way back to the base model, while the looped arms decline more slowly and stop above it. Every arm whose gate starts above zero does the opposite: it is at its <em>worst</em> at step 149 and climbs.</p>
+    <p><span class="lang-en">Evaluating at three checkpoints shows what is actually happening, and it is two different things depending on the arm. Every arm whose gate starts at zero peaks at step 149 &mdash; the earliest checkpoint we saved &mdash; and declines from there; plain fine-tuning declines all the way back to the base model, while the looped arms decline more slowly and stop above it. Every arm whose gate starts above zero does the opposite: it is at its <em>worst</em> at step 149 and climbs.</span><span class="lang-zh">在三个 checkpoint 上评测，才看清楚真正发生了什么，而且不同分支发生的是两件不同的事。所有门控从 0 开始的分支，都在第 149 步&mdash;&mdash;我们保存的最早 checkpoint&mdash;&mdash;达到峰值，之后下滑；普通微调一路滑回基座模型，循环分支滑得更慢，并停在基座之上。所有门控从非零开始的分支则相反：它们在第 149 步<em>最差</em>，然后往上爬。</span></p>
 
-    <p>Read three ways, out-of-domain:</p>
+    <p><span class="lang-en">Read three ways, out-of-domain:</span><span class="lang-zh">域外结果，用三种方式读：</span></p>
 
     <div class="table-wrap">
       <table>
-        <tr><th>Out-of-domain mean (9 benchmarks)</th><th class="num">Base</th><th class="num">Plain SFT</th><th class="num">Looped SFT</th><th class="num">Looped SFT fast gates</th><th class="num">Pathloop t1 gate 0</th><th class="num">Pathloop t1 gate 0.2</th><th class="num">Pathloop t1 gate 0.3</th><th class="num">Pathloop t2 gate 0.3</th></tr>
+        <tr><th>Out-of-domain mean (9 benchmarks)</th><th class="num"><span class="lang-en">Base</span><span class="lang-zh">基座</span></th><th class="num">Plain SFT</th><th class="num">Looped SFT</th><th class="num">Looped SFT fast gates</th><th class="num">Pathloop t1 gate 0</th><th class="num">Pathloop t1 gate 0.2</th><th class="num">Pathloop t1 gate 0.3</th><th class="num">Pathloop t2 gate 0.3</th></tr>
         <tr><td>Single checkpoint, step 149</td><td class="num">37.34</td><td class="num">41.24</td><td class="num">41.39</td><td class="num best">43.95</td><td class="num">43.23</td><td class="num">36.84</td><td class="num">36.58</td><td class="num">33.65</td></tr>
         <tr><td>Single checkpoint, step 299</td><td class="num">37.34</td><td class="num">39.04</td><td class="num">40.27</td><td class="num">41.71</td><td class="num">40.70</td><td class="num">41.41</td><td class="num best">42.82</td><td class="num">40.10</td></tr>
         <tr><td>Single checkpoint, step 415</td><td class="num">37.34</td><td class="num">37.49</td><td class="num">40.29</td><td class="num">40.95</td><td class="num">40.63</td><td class="num">39.31</td><td class="num best">41.73</td><td class="num">40.46</td></tr>
@@ -477,9 +517,9 @@
       </table>
     </div>
 
-    <p>Reading down the first column, the loop does not lift the peak: with standard gates it lands within 0.2 of plain fine-tuning however you measure. What it does is hold the peak &mdash; plain fine-tuning gives back all five points it gained by step 415, the looped arms give back one to three. Only raising the gate learning rate moves the peak itself, by about 2.7 points.</p>
+    <p><span class="lang-en">Reading down the first column, the loop does not lift the peak: with standard gates it lands within 0.2 of plain fine-tuning however you measure. What it does is hold the peak &mdash; plain fine-tuning gives back all five points it gained by step 415, the looped arms give back one to three. Only raising the gate learning rate moves the peak itself, by about 2.7 points.</span><span class="lang-zh">顺着第一列看，循环并没有抬高峰值：用标准门控时，不管怎么衡量，它都落在普通微调的 0.2 以内。它做的是守住峰值&mdash;&mdash;普通微调到第 415 步把涨的五个点全吐了回去，循环分支只吐回一到三个点。只有把门控学习率调高，峰值本身才会动，大约 2.7 个点。</span></p>
 
-    <p>The pathloop columns have to be read differently, because their best single checkpoint is not the same one. At step 149 the three arms with a non-zero initial gate sit at 36.8, 36.6 and 33.7 &mdash; at or below the untouched base model &mdash; and by step 299 they are at 41.4, 42.8 and 40.1. The last-row summary, which takes each benchmark's best checkpoint independently, quietly papers over that: it hands the zero-gate arms a peak they reached in 149 steps and the non-zero-gate arms a recovery they needed 299 for. <strong>Those are not the same quantity, and a single best-of column should not be read as though they were.</strong></p>
+    <p><span class="lang-en">The pathloop columns have to be read differently, because their best single checkpoint is not the same one. At step 149 the three arms with a non-zero initial gate sit at 36.8, 36.6 and 33.7 &mdash; at or below the untouched base model &mdash; and by step 299 they are at 41.4, 42.8 and 40.1. The last-row summary, which takes each benchmark's best checkpoint independently, quietly papers over that: it hands the zero-gate arms a peak they reached in 149 steps and the non-zero-gate arms a recovery they needed 299 for. <strong>Those are not the same quantity, and a single best-of column should not be read as though they were.</strong></span><span class="lang-zh">pathloop 那几列要换一种方式读，因为它们的最佳 checkpoint 不是同一个。在第 149 步，三个门控初值非零的分支分别是 36.8、36.6、33.7&mdash;&mdash;等于或低于未改动的基座模型&mdash;&mdash;到第 299 步则变成 41.4、42.8、40.1。最后一行那个「逐 benchmark 独立取最佳 checkpoint」的汇总，悄悄把这件事抹平了：它给零门控分支的是 149 步就到手的峰值，给非零门控分支的却是花了 299 步才恢复出来的水平。<strong>这两者不是同一个量，一列 best-of 不该被当成同一个量来读。</strong></span></p>
 
     <figure class="fig">
       <svg viewBox="0 0 600 372" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif">
@@ -541,13 +581,13 @@
         <text x="346" y="344" font-size="10.5" fill="#333">pathloop t2, gate 0.3</text>
         <text x="320" y="360" font-size="10" fill="#777">solid: gate starts at 0 &#183; dashed: gate starts above 0</text>
       </svg>
-      <figcaption><strong>Figure 1:</strong> Out-of-domain average across the nine benchmarks we never train on, now with the four pathloop arms. The lines split into two families, and the thing that separates them is not pathloop &mdash; it is where the gate was initialised. <strong>Every arm whose gate starts at zero (solid) peaks at step 149 and declines. Every arm whose gate starts above zero (dashed) is at its worst at step 149 and climbs.</strong> That holds for all seven arms with no exceptions, including plain fine-tuning, which has no gate at all and behaves like the zero-gate family. A non-zero gate is a real perturbation to the pretrained network: it costs three to eight points out-of-domain up front and is then partly recovered. Plain fine-tuning (red) is the only arm that returns essentially to the base model.</figcaption>
+      <figcaption><span class="lang-en"><strong>Figure 1:</strong> Out-of-domain average across the nine benchmarks we never train on, now with the four pathloop arms. The lines split into two families, and the thing that separates them is not pathloop &mdash; it is where the gate was initialised. <strong>Every arm whose gate starts at zero (solid) peaks at step 149 and declines. Every arm whose gate starts above zero (dashed) is at its worst at step 149 and climbs.</strong> That holds for all seven arms with no exceptions, including plain fine-tuning, which has no gate at all and behaves like the zero-gate family. A non-zero gate is a real perturbation to the pretrained network: it costs three to eight points out-of-domain up front and is then partly recovered. Plain fine-tuning (red) is the only arm that returns essentially to the base model.</span><span class="lang-zh"><strong>图 1：</strong>九个从未训练过的 benchmark 上的域外均值，现在加上了四个 pathloop 分支。曲线分成两族，而区分它们的不是 pathloop&mdash;&mdash;是门控的初始值。<strong>所有门控从 0 开始的分支（实线）都在第 149 步见顶然后下滑；所有门控从非零开始的分支（虚线）都在第 149 步最差然后上爬。</strong>七个分支无一例外，包括根本没有门控、行为上属于零门控家族的普通微调。非零门控对预训练网络是一次真实的扰动：它一上来在域外要付出三到八个点，之后再部分恢复。普通微调（红色）是唯一基本回到基座模型的分支。</span></figcaption>
     </figure>
 
 
-    <h3>Every benchmark, checkpoint by checkpoint</h3>
+    <h3><span class="lang-en">Every benchmark, checkpoint by checkpoint</span><span class="lang-zh">逐 benchmark、逐 checkpoint 全展开</span></h3>
 
-    <p>The means above hide a lot. Below is every benchmark on its own axis, all three arms plotted across the three checkpoints, with the base model as a dashed reference. The panels with a green tint are the five coding benchmarks we actually train on.</p>
+    <p><span class="lang-en">The means above hide a lot. Below is every benchmark on its own axis, all three arms plotted across the three checkpoints, with the base model as a dashed reference. The panels with a green tint are the five coding benchmarks we actually train on.</span><span class="lang-zh">上面的均值掩盖了很多细节。下面把每个 benchmark 单独放在自己的坐标轴上，三个分支在三个 checkpoint 上的轨迹都画出来，基座模型用虚线作参照。带绿色底纹的面板，是我们真正训练的那五个代码 benchmark。</span></p>
 
     <figure class="fig">
 <svg viewBox="0 0 600 458" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif">
@@ -849,16 +889,16 @@
 <text x="464" y="393" font-size="9" fill="#777">x-axis: checkpoint 149 / 299 / 415</text>
 <text x="464" y="406" font-size="9" fill="#777">y-axis scaled per panel</text>
 </svg>
-      <figcaption><strong>Figure 2:</strong> All 14 benchmarks across training. Each panel is scaled to its own range, so compare shapes rather than heights. Two patterns run through the grid. On the tinted coding panels every arm jumps well above the dashed base line at the first checkpoint and then stays flat &mdash; that gain arrives early and belongs to fine-tuning, not to the loop. On the untinted panels the arms separate: plain fine-tuning (red) peaks and then falls back toward the base line, most starkly on GSM8K, MATH500 and MMLU-Pro, while the looped arms (blue, green) decline more slowly or hold. AMC23 and AIME25 are the only benchmarks anywhere that are still climbing at step 415.</figcaption>
+      <figcaption><span class="lang-en"><strong>Figure 2:</strong> All 14 benchmarks across training. Each panel is scaled to its own range, so compare shapes rather than heights. Two patterns run through the grid. On the tinted coding panels every arm jumps well above the dashed base line at the first checkpoint and then stays flat &mdash; that gain arrives early and belongs to fine-tuning, not to the loop. On the untinted panels the arms separate: plain fine-tuning (red) peaks and then falls back toward the base line, most starkly on GSM8K, MATH500 and MMLU-Pro, while the looped arms (blue, green) decline more slowly or hold. AMC23 and AIME25 are the only benchmarks anywhere that are still climbing at step 415.</span><span class="lang-zh"><strong>图 2：</strong>训练过程中的全部 14 个 benchmark。每个面板按自己的量程缩放，所以要比形状而不是高度。网格里有两个贯穿的规律。在带底纹的代码面板上，所有分支在第一个 checkpoint 就跳到远高于虚线基座的位置，然后保持水平&mdash;&mdash;这份增益来得很早，属于微调，不属于循环。在无底纹的面板上，分支开始分化：普通微调（红色）见顶后回落向基线，在 GSM8K、MATH500 和 MMLU-Pro 上最明显，而循环分支（蓝、绿）下滑更慢甚至持平。AMC23 和 AIME25 是所有 benchmark 里唯二到第 415 步还在上升的。</span></figcaption>
     </figure>
 
-    <h2 id="probes">What the probes say</h2>
+    <h2 id="probes"><span class="lang-en">What the probes say</span><span class="lang-zh">探针说了什么</span></h2>
 
-    <p>We log internal statistics every 25 steps. Two of them reframed the project.</p>
+    <p><span class="lang-en">We log internal statistics every 25 steps. Two of them reframed the project.</span><span class="lang-zh">我们每 25 步记录一次内部统计量。其中两个重塑了整个项目。</span></p>
 
-    <h3>How far do the gates actually open?</h3>
+    <h3><span class="lang-en">How far do the gates actually open?</span><span class="lang-zh">门控到底打开了多少？</span></h3>
 
-    <p style="font-size:12.5px;color:#777">Updated: we have since started a run from the other side, at =0.3$, to find out whether 0.06 is where fine-tuning wants the gate or just as far as it can crawl. <a href="#gate">That result is below.</a></p>
+    <p style="font-size:12.5px;color:#777"><span class="lang-en">Updated: we have since started a run from the other side, at $g=0.3$, to find out whether 0.06 is where fine-tuning wants the gate or just as far as it can crawl. <a href="#gate">That result is below.</a></span><span class="lang-zh">更新：我们后来从另一侧起跑了一次，初值取 $g=0.3$，想知道 0.06 究竟是微调<em>想要</em>的门控值，还是它一个 epoch 里只能爬到这么远。<a href="#gate">结果在下面。</a></span></p>
 
     <figure class="fig">
       <svg viewBox="0 0 600 290" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif">
@@ -889,34 +929,34 @@
         <text x="548" y="42" font-size="10.5" fill="#1b7a4b" text-anchor="end">fast gates &rarr; 0.059</text>
         <text x="548" y="164" font-size="10.5" fill="#2b5ecc" text-anchor="end">standard &rarr; 0.021</text>
       </svg>
-      <figcaption><strong>Figure 3:</strong> How far the loop gates open during training, with pathloop's exploration window shaded. The gates start at exactly zero, so the extra passes begin as no-ops. Raising the gate learning rate 100&times; makes them open roughly 2.7&times; wider (0.059 vs 0.021) and much sooner. The shaded region is where our first pathloop run explores: exploration before the gates open would perturb passes that are still doing nothing.</figcaption>
+      <figcaption><span class="lang-en"><strong>Figure 3:</strong> How far the loop gates open during training, with pathloop's exploration window shaded. The gates start at exactly zero, so the extra passes begin as no-ops. Raising the gate learning rate 100&times; makes them open roughly 2.7&times; wider (0.059 vs 0.021) and much sooner. The shaded region is where our first pathloop run explores: exploration before the gates open would perturb passes that are still doing nothing.</span><span class="lang-zh"><strong>图 3：</strong>训练过程中循环门控打开的幅度，阴影部分是 pathloop 的探索窗口。门控从严格的 0 出发，所以额外那几遍一开始是空操作。把门控学习率提高 100&times;，它们会打开约 2.7&times;（0.059 对 0.021），而且早得多。阴影区是我们第一次 pathloop 运行进行探索的区间：在门控打开之前就探索，扰动的是还什么都没做的几遍。</span></figcaption>
     </figure>
 
-    <h3>Does the router move at all during fine-tuning?</h3>
+    <h3><span class="lang-en">Does the router move at all during fine-tuning?</span><span class="lang-zh">微调过程中 router 到底动没动？</span></h3>
 
-    <p>This is the assumption pathloop is built on, and the probes confirm it. Over a full epoch, the routing distribution is almost unchanged:</p>
+    <p><span class="lang-en">This is the assumption pathloop is built on, and the probes confirm it. Over a full epoch, the routing distribution is almost unchanged:</span><span class="lang-zh">这是 pathloop 立足的假设，探针证实了它。跑完整整一个 epoch，路由分布几乎没有变化：</span></p>
 
     <div class="table-wrap">
       <table>
-        <tr><th>Router statistic</th><th class="num">Step 0</th><th class="num">Step 400</th><th class="num">Change</th><th>What it measures</th></tr>
+        <tr><th>Router statistic</th><th class="num"><span class="lang-en">Step 0</span><span class="lang-zh">第 0 步</span></th><th class="num"><span class="lang-en">Step 400</span><span class="lang-zh">第 400 步</span></th><th class="num"><span class="lang-en">Change</span><span class="lang-zh">变化</span></th><th>What it measures</th></tr>
         <tr><td>Routing entropy</td><td class="num">0.8905</td><td class="num">0.9094</td><td class="num">+2.1%</td><td>how spread out the expert choice is</td></tr>
         <tr><td>Top-1 probability</td><td class="num">0.0587</td><td class="num">0.0563</td><td class="num">&minus;4.1%</td><td>confidence in the single best expert</td></tr>
         <tr><td>Load imbalance (cv)</td><td class="num">1.012</td><td class="num">1.130</td><td class="num">+11.7%</td><td>how unevenly tokens spread over experts</td></tr>
       </table>
     </div>
 
-    <p>A full epoch of fine-tuning moves the router by a couple of percent. Routing established in pretraining survives fine-tuning essentially intact &mdash; which is exactly why an intervention that forces the router to try alternatives might be worth something.</p>
+    <p><span class="lang-en">A full epoch of fine-tuning moves the router by a couple of percent. Routing established in pretraining survives fine-tuning essentially intact &mdash; which is exactly why an intervention that forces the router to try alternatives might be worth something.</span><span class="lang-zh">一个 epoch 的微调只让 router 动了百分之几。预训练时确立的路由，基本原封不动地熬过了微调&mdash;&mdash;这恰恰说明，一种强迫 router 去尝试别的选项的干预，可能是有价值的。</span></p>
 
-    <h3 id="key">Do the three passes take three different paths?</h3>
+    <h3 id="key"><span class="lang-en">Do the three passes take three different paths?</span><span class="lang-zh">三遍走的是三条不同的路吗？</span></h3>
 
-    <p>This is the measurement that matters most, and the one that reframed the project. The probes are keyed by <em>executed</em> position, not by parameter layer, so all 96 executed layers are recorded separately. Parameter layer $L$ appears at executed positions $L$, $L+24$ and $L+48$ &mdash; once per loop pass. Comparing those three tells us directly what each pass does with the same weights.</p>
+    <p><span class="lang-en">This is the measurement that matters most, and the one that reframed the project. The probes are keyed by <em>executed</em> position, not by parameter layer, so all 96 executed layers are recorded separately. Parameter layer $L$ appears at executed positions $L$, $L+24$ and $L+48$ &mdash; once per loop pass. Comparing those three tells us directly what each pass does with the same weights.</span><span class="lang-zh">这是最重要的一次测量，也是重塑了整个项目的那一次。探针是按<em>执行</em>位置而不是按参数层编号的，所以 96 个执行层各自单独记录。参数层 $L$ 会出现在执行位置 $L$、$L+24$ 和 $L+48$ 上&mdash;&mdash;每遍循环一次。把这三处放在一起比较，就能直接看出每一遍用同一套权重做了什么。</span></p>
 
     <div class="table-wrap">
       <table>
         <tr>
           <th>Measured at each pass</th>
-          <th class="num">Pass 0</th><th class="num">Pass 1</th><th class="num">Pass 2</th>
-          <th class="num">Pass 1 &rarr; 2</th><th class="num">Pass 0 &rarr; 1</th>
+          <th class="num"><span class="lang-en">Pass 0</span><span class="lang-zh">第 0 遍</span></th><th class="num"><span class="lang-en">Pass 1</span><span class="lang-zh">第 1 遍</span></th><th class="num"><span class="lang-en">Pass 2</span><span class="lang-zh">第 2 遍</span></th>
+          <th class="num"><span class="lang-en">Pass 1 &rarr; 2</span><span class="lang-zh">第 1 &rarr; 2 遍</span></th><th class="num"><span class="lang-en">Pass 0 &rarr; 1</span><span class="lang-zh">第 0 &rarr; 1 遍</span></th>
         </tr>
         <tr><td>Routing entropy</td><td class="num">0.9113</td><td class="num">0.9136</td><td class="num">0.9136</td><td class="num">0.0000</td><td class="num">0.0023</td></tr>
         <tr><td>Top-1 probability</td><td class="num">0.0586</td><td class="num">0.0529</td><td class="num">0.0529</td><td class="num">0.0000</td><td class="num">0.0057</td></tr>
@@ -946,25 +986,25 @@
         <text x="465" y="219" font-size="12" fill="#333" text-anchor="middle">pass 2</text>
         <text x="397" y="240" font-size="11" fill="#777" text-anchor="middle">passes 1 and 2 are near-identical to each other</text>
       </svg>
-      <figcaption><strong>Figure 4:</strong> How much each loop pass actually changes the hidden state, averaged over the 24 looped layers at step 400. Pass 0 does about <strong>five times</strong> as much work as passes 1 and 2, which are indistinguishable from each other to four decimal places on every statistic we record. The loop is not producing three paths; it is producing one substantive pass and two near-repeats.</figcaption>
+      <figcaption><span class="lang-en"><strong>Figure 4:</strong> How much each loop pass actually changes the hidden state, averaged over the 24 looped layers at step 400. Pass 0 does about <strong>five times</strong> as much work as passes 1 and 2, which are indistinguishable from each other to four decimal places on every statistic we record. The loop is not producing three paths; it is producing one substantive pass and two near-repeats.</span><span class="lang-zh"><strong>图 4：</strong>第 400 步时，每一遍循环实际改变隐状态的幅度，在 24 个循环层上取平均。第 0 遍干的活大约是第 1、2 遍的<strong>五倍</strong>，而后两者在我们记录的每一项统计量上，小数点后四位都分辨不出差别。这个循环产出的不是三条路径，而是一遍实质性的计算加两遍近乎重复。</span></figcaption>
     </figure>
 
     <div class="insight-box">
-      <h3>Why does this happen, and why does it matter?</h3>
-      <p>Pass 0 is ungated and always applied in full, so it does real work. Passes 1 and 2 are multiplied by a gate that reaches only about 0.02&ndash;0.06, so they nudge the state rather than transform it. A nudged state produces nearly the same router scores, so it selects nearly the same experts &mdash; and the two nudges land in nearly the same place as each other.</p>
-      <p>This is a problem for pathloop specifically. Its whole mechanism is to compare passes against each other and reward the better one. If the passes are copies, every comparison is between identical things, the advantage $A_\tau$ is zero, and there is nothing to learn from. We confirmed this directly: in short test runs the spread of reward across passes sat at roughly $10^{-7}$, i.e. exactly zero.</p>
-      <p>It is also a caveat on the claim of "96 effective layers". By this measurement the model behaves closer to 48 real layers plus two cheap refinement passes.</p>
+      <h3><span class="lang-en">Why does this happen, and why does it matter?</span><span class="lang-zh">为什么会这样，它为什么重要？</span></h3>
+      <p><span class="lang-en">Pass 0 is ungated and always applied in full, so it does real work. Passes 1 and 2 are multiplied by a gate that reaches only about 0.02&ndash;0.06, so they nudge the state rather than transform it. A nudged state produces nearly the same router scores, so it selects nearly the same experts &mdash; and the two nudges land in nearly the same place as each other.</span><span class="lang-zh">第 0 遍没有门控、永远全量生效，所以它干的是真活。第 1、2 遍要乘上一个只到 0.02&ndash;0.06 的门控，因此它们只是轻推状态，而不是改造状态。被轻推过的状态给出的 router 分数几乎不变，于是选中的 expert 也几乎不变&mdash;&mdash;而两次轻推最后落在几乎同一个地方。</span></p>
+      <p><span class="lang-en">This is a problem for pathloop specifically. Its whole mechanism is to compare passes against each other and reward the better one. If the passes are copies, every comparison is between identical things, the advantage $A_\tau$ is zero, and there is nothing to learn from. We confirmed this directly: in short test runs the spread of reward across passes sat at roughly $10^{-7}$, i.e. exactly zero.</span><span class="lang-zh">这对 pathloop 来说是致命的。它的整套机制就是把各遍互相比较、奖励更好的那一遍。如果各遍是复制品，每次比较都是在比两个完全一样的东西，优势值 $A_\tau$ 为零，也就没有任何可学的东西。我们直接验证过：在短测试运行里，各遍之间奖励的离散度大约是 $10^{-7}$，也就是精确的零。</span></p>
+      <p><span class="lang-en">It is also a caveat on the claim of "96 effective layers". By this measurement the model behaves closer to 48 real layers plus two cheap refinement passes.</span><span class="lang-zh">这也是对「96 层有效深度」这个说法的一条保留意见。按这个测量，模型的行为更接近 48 层真实层，外加两遍廉价的微调式精修。</span></p>
     </div>
 
-    <p>One honest limit on the table above: these are distributional statistics &mdash; entropy, top-1 probability, load spread. Two genuinely different sets of 8 experts could in principle produce the same entropy. When this was first written we had just added a metric that compares the selected expert sets directly, token by token, and it had landed too late for the run in progress. It has since run for a full epoch, and it settles the question.</p>
+    <p><span class="lang-en">One honest limit on the table above: these are distributional statistics &mdash; entropy, top-1 probability, load spread. Two genuinely different sets of 8 experts could in principle produce the same entropy. When this was first written we had just added a metric that compares the selected expert sets directly, token by token, and it had landed too late for the run in progress. It has since run for a full epoch, and it settles the question.</span><span class="lang-zh">上表有一个必须说清的局限：这些都是分布层面的统计量&mdash;&mdash;熵、top-1 概率、负载离散度。原则上，两组真正不同的 8 个 expert 完全可能给出相同的熵。最初写这段时，我们刚加上一个逐 token 直接比较所选 expert 集合的指标，但它对当时正在跑的那次训练来说来得太晚。现在它已经跑满一个 epoch，问题有了定论。</span></p>
 
-    <h3 id="overlap">The direct measurement: which experts actually carry over</h3>
+    <h3 id="overlap"><span class="lang-en">The direct measurement: which experts actually carry over</span><span class="lang-zh">直接测量：到底有哪些 expert 被沿用了</span></h3>
 
-    <p>For each looped layer and each token we intersect the set of 8 experts chosen on pass $\tau$ with the set chosen on pass $\tau-1$, and report the fraction that survives. It is recorded from the model's own top-$k$ selection <em>before</em> any pathloop substitution, so these are the numbers a plain looped SFT run produces; $1.0$ means an identical path, $0.0$ disjoint.</p>
+    <p><span class="lang-en">For each looped layer and each token we intersect the set of 8 experts chosen on pass $\tau$ with the set chosen on pass $\tau-1$, and report the fraction that survives. It is recorded from the model's own top-$k$ selection <em>before</em> any pathloop substitution, so these are the numbers a plain looped SFT run produces; $1.0$ means an identical path, $0.0$ disjoint.</span><span class="lang-zh">对每个循环层、每个 token，我们把第 $\tau$ 遍选中的 8 个 expert 与第 $\tau-1$ 遍选中的集合取交集，报告其中留存的比例。记录点在任何 pathloop 替换<em>之前</em>的模型自身 top-$k$ 选择上，所以这些就是一次普通循环 SFT 会产生的数字；$1.0$ 表示路径完全相同，$0.0$ 表示完全不相交。</span></p>
 
     <div class="table-wrap">
       <table>
-        <tr><th>Expert-set overlap (mean over 24 looped layers, all tokens)</th><th class="num">Step 0</th><th class="num">Step 400</th><th class="num">of 8 experts, how many change</th></tr>
+        <tr><th>Expert-set overlap (mean over 24 looped layers, all tokens)</th><th class="num"><span class="lang-en">Step 0</span><span class="lang-zh">第 0 步</span></th><th class="num"><span class="lang-en">Step 400</span><span class="lang-zh">第 400 步</span></th><th class="num"><span class="lang-en">of 8 experts, how many change</span><span class="lang-zh">8 个 expert 里有几个变了</span></th></tr>
         <tr><td>Pass 0 &rarr; pass 1</td><td class="num">0.664</td><td class="num">0.669</td><td class="num">2.6</td></tr>
         <tr><td>Pass 1 &rarr; pass 2</td><td class="num">0.938</td><td class="num best">0.947</td><td class="num">0.4</td></tr>
         <tr class="sep"><td>Pass 0 &rarr; pass 2 (cumulative)</td><td class="num">0.648</td><td class="num">0.651</td><td class="num">2.8</td></tr>
@@ -994,25 +1034,25 @@
 
         <text x="365" y="203" font-size="10.5" fill="#777" text-anchor="middle">the third pass adds 1.8 points of divergence on top of the second's 33.1</text>
       </svg>
-      <figcaption><strong>Figure 5:</strong> Expert-set overlap at step 400, read directly off the routing map rather than inferred from entropy. The first extra pass genuinely re-routes: a third of each token's experts change. The second extra pass barely moves &mdash; 5.3% of the set, four tenths of one expert. And the cumulative bar shows the cost of that: after two extra passes a token has diverged 34.9% from its original path, against 33.1% after one. <strong>The third pass contributes 1.8 points of the 34.9.</strong> This is the distributional result of Figure 4 confirmed at the level of individual expert choices, which is what it needed.</figcaption>
+      <figcaption><span class="lang-en"><strong>Figure 5:</strong> Expert-set overlap at step 400, read directly off the routing map rather than inferred from entropy. The first extra pass genuinely re-routes: a third of each token's experts change. The second extra pass barely moves &mdash; 5.3% of the set, four tenths of one expert. And the cumulative bar shows the cost of that: after two extra passes a token has diverged 34.9% from its original path, against 33.1% after one. <strong>The third pass contributes 1.8 points of the 34.9.</strong> This is the distributional result of Figure 4 confirmed at the level of individual expert choices, which is what it needed.</span><span class="lang-zh"><strong>图 5：</strong>第 400 步的 expert 集合重叠度，直接从路由图上读出，而不是由熵推断。第一次额外遍确实重新路由了：每个 token 有三分之一的 expert 换掉。第二次额外遍几乎没动&mdash;&mdash;只换了集合的 5.3%，也就是八个里的 0.4 个。累计柱状图显示了代价：两次额外遍之后，token 相对原始路径偏离了 34.9%，而一次之后是 33.1%。<strong>第三遍只贡献了 34.9 中的 1.8 个点。</strong>这就是图 4 的分布层面结论在单个 expert 选择层面上的确认，而这正是它所需要的。</span></figcaption>
     </figure>
 
-    <p>Two details make this stronger than we expected. It is <strong>flat across training</strong> &mdash; 0.664 at step 0 and 0.669 at step 400, so a full epoch of fine-tuning does not teach the passes to separate. And it is <strong>flat across pathloop's exploration</strong>: at the peak of the schedule, with $q=4$ of the 8 slots drawn by sampling, the overlap of the model's own preferred path reads 0.668. Forcing half the budget to be sampled does not change where the router wants to go.</p>
+    <p><span class="lang-en">Two details make this stronger than we expected. It is <strong>flat across training</strong> &mdash; 0.664 at step 0 and 0.669 at step 400, so a full epoch of fine-tuning does not teach the passes to separate. And it is <strong>flat across pathloop's exploration</strong>: at the peak of the schedule, with $q=4$ of the 8 slots drawn by sampling, the overlap of the model's own preferred path reads 0.668. Forcing half the budget to be sampled does not change where the router wants to go.</span><span class="lang-zh">有两个细节让这个结论比我们预期的更强。它<strong>在训练过程中是平的</strong>&mdash;&mdash;第 0 步 0.664，第 400 步 0.669，也就是说一个 epoch 的微调并没有教会各遍分开。它<strong>在 pathloop 的探索过程中也是平的</strong>：在调度的峰值处，8 个名额里有 $q=4$ 个来自采样，模型自身偏好路径的重叠度读数是 0.668。把一半预算强行交给采样，并不改变 router 想去的地方。</span></p>
 
-    <h2 id="results">Pathloop, measured</h2>
+    <h2 id="results"><span class="lang-en">Pathloop, measured</span><span class="lang-zh">Pathloop 的实测结果</span></h2>
 
-    <p>Pathloop has now trained to completion several times. This section reports what it did, and then the larger finding that came out of checking <em>how</em> we were measuring it.</p>
+    <p><span class="lang-en">Pathloop has now trained to completion several times. This section reports what it did, and then the larger finding that came out of checking <em>how</em> we were measuring it.</span><span class="lang-zh">Pathloop 现在已经完整训练过好几次。这一节先报告它做到了什么，再讲一个更大的发现&mdash;&mdash;它来自我们回头检查<em>用什么方式</em>在测量它。</span></p>
 
-    <h3>The coding scores</h3>
+    <h3><span class="lang-en">The coding scores</span><span class="lang-zh">代码分数</span></h3>
 
-    <p>All arms below are the same checkpoint &mdash; step 415, the end of one epoch &mdash; evaluated on the five coding benchmarks at $n=16$ samples per prompt, temperature 0.6, and scored as pass@1. This is a stricter comparison than the best-of-checkpoints table earlier in this post: same step, same suite, no per-benchmark maximum, and enough samples per prompt to put a confidence interval on the difference. The greedy 14-benchmark numbers for these same arms, including out-of-domain, are in <a href="#looping">that earlier table</a>; this one trades breadth for statistical power on the five benchmarks we train for.</p>
+    <p><span class="lang-en">All arms below are the same checkpoint &mdash; step 415, the end of one epoch &mdash; evaluated on the five coding benchmarks at $n=16$ samples per prompt, temperature 0.6, and scored as pass@1. This is a stricter comparison than the best-of-checkpoints table earlier in this post: same step, same suite, no per-benchmark maximum, and enough samples per prompt to put a confidence interval on the difference. The greedy 14-benchmark numbers for these same arms, including out-of-domain, are in <a href="#looping">that earlier table</a>; this one trades breadth for statistical power on the five benchmarks we train for.</span><span class="lang-zh">下面所有分支都取同一个 checkpoint&mdash;&mdash;第 415 步，一个 epoch 的终点&mdash;&mdash;在五个代码 benchmark 上每条 prompt 采样 $n=16$ 次、温度 0.6，按 pass@1 计分。这比本文前面那张「最佳 checkpoint」表更严格：同一步、同一套评测、不逐 benchmark 取最大值，而且每条 prompt 的样本数足以给差值配一个置信区间。这些分支在 14 个 benchmark 上的贪心成绩（含域外）在<a href="#looping">前面那张表</a>里；这一张用广度换取了在五个训练目标 benchmark 上的统计功效。</span></p>
 
     <div class="table-wrap">
       <table>
         <tr>
-          <th>Arm</th>
+          <th><span class="lang-en">Arm</span><span class="lang-zh">分支</span></th>
           <th class="num">HumanEval</th><th class="num">HE+</th><th class="num">MBPP</th>
-          <th class="num">MBPP+</th><th class="num">LCB v6</th><th class="num">Mean</th>
+          <th class="num">MBPP+</th><th class="num">LCB v6</th><th class="num"><span class="lang-en">Mean</span><span class="lang-zh">均值</span></th>
           <th class="num">vs plain SFT</th>
         </tr>
         <tr><td>Base model</td><td class="num">56.14</td><td class="num">52.00</td><td class="num">66.71</td><td class="num best">72.17</td><td class="num">12.69</td><td class="num">51.94</td><td class="num">&minus;16.54 <span class="dr">sig</span></td></tr>
@@ -1024,46 +1064,46 @@
       </table>
     </div>
 
-    <p style="font-size:12.5px;color:#555;margin-top:-6px">pass@1 over 14 of the 16 sample slots &mdash; see the serving note below for why two are dropped. The last column is a paired bootstrap over prompts, 2000 resamples; <span class="dg">sig</span> means the 95% CI excludes zero.</p>
+    <p style="font-size:12.5px;color:#555;margin-top:-6px"><span class="lang-en">pass@1 over 14 of the 16 sample slots &mdash; see the serving note below for why two are dropped. The last column is a paired bootstrap over prompts, 2000 resamples; <span class="dg">sig</span> means the 95% CI excludes zero.</span><span class="lang-zh">pass@1 取 16 个采样槽中的 14 个&mdash;&mdash;为什么丢掉两个见下面关于部署的说明。最后一列是在 prompt 上做的配对 bootstrap，重采样 2000 次；<span class="dg">sig</span> 表示 95% 置信区间不含零。</span></p>
 
     <div class="insight-box">
-      <h3>What the intervals actually license</h3>
-      <p><strong>Fine-tuning is the whole story, again.</strong> Plain SFT is +16.54 over the base model [+15.02, +18.04]. Everything after that is a rounding error by comparison: the five post-SFT arms span 0.94 points, top to bottom.</p>
-      <p><strong>Pathloop does beat plain fine-tuning, barely.</strong> Tier 2 is +1.06 [+0.40, +1.74] and its v2 rerun is +0.75 [+0.13, +1.38]. Both intervals clear zero. That is a real effect, and it is about one point.</p>
-      <p><strong>Out-of-domain it does not help at all.</strong> On the nine benchmarks we never train on, tier 2 scores 42.0 against plain fine-tuning's 42.7 and looped SFT's 43.2, and the four pathloop arms spread from 41.5 to 44.2 &mdash; a range wider than any effect on the table. The one-point coding gain does not generalise, and it is not obviously worth the four extra hyperparameters.</p>
-      <p><strong>It does not clearly beat the loop it is built on.</strong> Against plain looped SFT, tier 2 is +0.55 with a CI of [+0.00, +1.05] &mdash; the lower bound sits on zero &mdash; and the v2 rerun is +0.35 [&minus;0.25, +0.90], which does not clear it at all. Nor does tier 2 separate from tier 1, the arm that samples and logs but never trains on the reward: +0.41 [&minus;0.08, +0.91]. <strong>If the two pathloop losses were doing the work, tier 2 should beat tier 1. It does not.</strong></p>
+      <h3><span class="lang-en">What the intervals actually license</span><span class="lang-zh">这些置信区间到底支持什么结论</span></h3>
+      <p><span class="lang-en"><strong>Fine-tuning is the whole story, again.</strong> Plain SFT is +16.54 over the base model [+15.02, +18.04]. Everything after that is a rounding error by comparison: the five post-SFT arms span 0.94 points, top to bottom.</span><span class="lang-zh"><strong>又一次，微调就是全部故事。</strong>普通 SFT 相对基座是 +16.54 [+15.02, +18.04]。相比之下后面的一切都是舍入误差：SFT 之后的五个分支，从最高到最低只差 0.94 个点。</span></p>
+      <p><span class="lang-en"><strong>Pathloop does beat plain fine-tuning, barely.</strong> Tier 2 is +1.06 [+0.40, +1.74] and its v2 rerun is +0.75 [+0.13, +1.38]. Both intervals clear zero. That is a real effect, and it is about one point.</span><span class="lang-zh"><strong>Pathloop 确实赢了普通微调，但赢得很勉强。</strong>Tier 2 是 +1.06 [+0.40, +1.74]，它的 v2 重跑是 +0.75 [+0.13, +1.38]。两个区间都不含零。这是一个真实的效应，大约一个点。</span></p>
+      <p><span class="lang-en"><strong>Out-of-domain it does not help at all.</strong> On the nine benchmarks we never train on, tier 2 scores 42.0 against plain fine-tuning's 42.7 and looped SFT's 43.2, and the four pathloop arms spread from 41.5 to 44.2 &mdash; a range wider than any effect on the table. The one-point coding gain does not generalise, and it is not obviously worth the four extra hyperparameters.</span><span class="lang-zh"><strong>在域外它完全没有帮助。</strong>在九个从未训练过的 benchmark 上，tier 2 得 42.0，普通微调 42.7，循环 SFT 43.2；四个 pathloop 分支散布在 41.5 到 44.2 之间&mdash;&mdash;这个范围比表上任何效应都宽。那一个点的代码增益没有泛化出去，也看不出值得多付四个超参数。</span></p>
+      <p><span class="lang-en"><strong>It does not clearly beat the loop it is built on.</strong> Against plain looped SFT, tier 2 is +0.55 with a CI of [+0.00, +1.05] &mdash; the lower bound sits on zero &mdash; and the v2 rerun is +0.35 [&minus;0.25, +0.90], which does not clear it at all. Nor does tier 2 separate from tier 1, the arm that samples and logs but never trains on the reward: +0.41 [&minus;0.08, +0.91]. <strong>If the two pathloop losses were doing the work, tier 2 should beat tier 1. It does not.</strong></span><span class="lang-zh"><strong>它并没有明确赢过它所依附的那个循环。</strong>相对普通循环 SFT，tier 2 是 +0.55，置信区间 [+0.00, +1.05]&mdash;&mdash;下界正好压在零上&mdash;&mdash;v2 重跑是 +0.35 [&minus;0.25, +0.90]，完全没有越过零。tier 2 也没有和 tier 1（只采样、只记录、从不用奖励训练的那个分支）分开：+0.41 [&minus;0.08, +0.91]。<strong>如果那两个 pathloop 损失真在起作用，tier 2 就应该赢过 tier 1。它没有。</strong></span></p>
     </div>
 
-    <h3>An aside that cost us a week: a serving flag</h3>
+    <h3><span class="lang-en">An aside that cost us a week: a serving flag</span><span class="lang-zh">一个花掉我们一周的插曲：一个部署 flag</span></h3>
 
-    <p>Two of those numbers were originally recorded as catastrophic regressions. They were not; our serving configuration was wrong, and it was wrong in a way that only broke <em>looped</em> models.</p>
+    <p><span class="lang-en">Two of those numbers were originally recorded as catastrophic regressions. They were not; our serving configuration was wrong, and it was wrong in a way that only broke <em>looped</em> models.</span><span class="lang-zh">上面有两个数字，最初被记录成灾难性的退化。其实不是；是我们的部署配置错了，而且错的方式恰好只会搞坏<em>循环</em>模型。</span></p>
 
-    <p>SGLang has a <code>--enable-deterministic-inference</code> flag. We had dropped it while chasing an unrelated artifact. On HumanEval at greedy decoding &mdash; temperature 0, so sampling plays no part &mdash; with byte-identical configs otherwise:</p>
+    <p><span class="lang-en">SGLang has a <code>--enable-deterministic-inference</code> flag. We had dropped it while chasing an unrelated artifact. On HumanEval at greedy decoding &mdash; temperature 0, so sampling plays no part &mdash; with byte-identical configs otherwise:</span><span class="lang-zh">SGLang 有一个 <code>--enable-deterministic-inference</code> 开关。我们在排查另一个无关问题时把它去掉了。在 HumanEval 上用贪心解码&mdash;&mdash;温度 0，采样完全不参与&mdash;&mdash;其余配置逐字节相同：</span></p>
 
     <div class="table-wrap">
       <table>
-        <tr><th>HumanEval, step 415</th><th class="num">flag on</th><th class="num">flag off</th><th class="num">cost</th></tr>
+        <tr><th>HumanEval, step 415</th><th class="num"><span class="lang-en">flag on</span><span class="lang-zh">开启 flag</span></th><th class="num"><span class="lang-en">flag off</span><span class="lang-zh">关闭 flag</span></th><th class="num"><span class="lang-en">cost</span><span class="lang-zh">代价</span></th></tr>
         <tr><td>Looped SFT, greedy</td><td class="num">89.02</td><td class="num">59.15</td><td class="num"><span class="dr">&minus;29.9</span></td></tr>
         <tr><td>Looped SFT, $n{=}16$ @ 0.6</td><td class="num">85.98</td><td class="num">53.96</td><td class="num"><span class="dr">&minus;32.0</span></td></tr>
         <tr class="sep"><td>Plain SFT (unlooped), greedy</td><td class="num">&mdash;</td><td class="num">89.25</td><td class="num">no effect</td></tr>
       </table>
     </div>
 
-    <p>Across the full five-benchmark suite the same model reads <strong>46.45 with the flag off and 68.88 with it on</strong>. The control arm hid it perfectly: an unlooped model is unaffected, and scored a clean 89.25 either way. Our unlooped baseline reproduces to 0.12 points across two independent evaluation batches, which is exactly the kind of number that persuades you the harness is fine.</p>
+    <p><span class="lang-en">Across the full five-benchmark suite the same model reads <strong>46.45 with the flag off and 68.88 with it on</strong>. The control arm hid it perfectly: an unlooped model is unaffected, and scored a clean 89.25 either way. Our unlooped baseline reproduces to 0.12 points across two independent evaluation batches, which is exactly the kind of number that persuades you the harness is fine.</span><span class="lang-zh">在完整的五个 benchmark 上，同一个模型<strong>关掉 flag 读数 46.45，打开 flag 读数 68.88</strong>。对照组把它藏得严严实实：不带循环的模型完全不受影响，两种情况下都干净地拿到 89.25。我们的无循环基线在两批独立评测之间可复现到 0.12 个点&mdash;&mdash;正是这种数字会让你相信评测框架没问题。</span></p>
 
-    <p>The flag has a cost of its own &mdash; it makes two of the 16 sample slots tail-sample badly, with slot 7 running 23&ndash;26 points low and emitting two specific low-probability tokens in 19&ndash;57% of responses and nowhere else. But that damage is confined to identifiable slots and can be scored around; the damage from turning the flag off is uniform across slots and cannot. So: flag on, drop the two bad slots when scoring. Every number in the table above is the mean over the 14 clean ones.</p>
+    <p><span class="lang-en">The flag has a cost of its own &mdash; it makes two of the 16 sample slots tail-sample badly, with slot 7 running 23&ndash;26 points low and emitting two specific low-probability tokens in 19&ndash;57% of responses and nowhere else. But that damage is confined to identifiable slots and can be scored around; the damage from turning the flag off is uniform across slots and cannot. So: flag on, drop the two bad slots when scoring. Every number in the table above is the mean over the 14 clean ones.</span><span class="lang-zh">这个 flag 自己也有代价&mdash;&mdash;它会让 16 个采样槽里的两个在尾部采样得很糟，其中 7 号槽低 23&ndash;26 个点，并且在 19&ndash;57% 的回复里吐出两个特定的低概率 token，别处从不出现。但这种损害局限在可识别的槽位上，计分时可以绕开；关掉 flag 造成的损害则在所有槽位上均匀分布，绕不开。所以：开着 flag，计分时丢掉那两个坏槽。上表里的每个数字都是剩下 14 个干净槽的均值。</span></p>
 
-    <p>The general lesson is not about SGLang. It is that a control arm only controls for what it shares with the treatment. A non-looped baseline cannot detect a bug in the looped serving path, and we had built our confidence on exactly that.</p>
+    <p><span class="lang-en">The general lesson is not about SGLang. It is that a control arm only controls for what it shares with the treatment. A non-looped baseline cannot detect a bug in the looped serving path, and we had built our confidence on exactly that.</span><span class="lang-zh">这里的普遍教训与 SGLang 无关。教训是：对照组只能控制它与实验组共有的那部分。一个不带循环的基线，检测不出循环部署路径上的 bug&mdash;&mdash;而我们的信心恰恰建立在它上面。</span></p>
 
-    <h3>The reward signal was read through a broken instrument</h3>
+    <h3><span class="lang-en">The reward signal was read through a broken instrument</span><span class="lang-zh">奖励信号是用一件坏掉的仪器读出来的</span></h3>
 
-    <p>Pathloop scores each pass by pushing its hidden state through the model's own output head &mdash; the logit lens of the method section, $R_\tau = \log P(y_t \mid W_U \mathrm{Norm}(h_\tau))$. The state being read sits at layer 36 of 48. The head was trained on layer-48 states. We knew the readout would be poorly calibrated in absolute terms and argued that this was fine because only differences are used.</p>
+    <p><span class="lang-en">Pathloop scores each pass by pushing its hidden state through the model's own output head &mdash; the logit lens of the method section, $R_\tau = \log P(y_t \mid W_U \mathrm{Norm}(h_\tau))$. The state being read sits at layer 36 of 48. The head was trained on layer-48 states. We knew the readout would be poorly calibrated in absolute terms and argued that this was fine because only differences are used.</span><span class="lang-zh">Pathloop 给每一遍打分的方式，是把它的隐状态推过模型自己的输出头&mdash;&mdash;也就是方法一节里的 logit lens，$R_\tau = \log P(y_t \mid W_U \mathrm{Norm}(h_\tau))$。被读取的状态位于 48 层中的第 36 层，而输出头是在第 48 层的状态上训练的。我们知道这个读出在绝对意义上校准很差，但当时认为没关系，因为只用差值。</span></p>
 
-    <p>That argument is wrong, and there is a one-line test for it that we should have run on day one. A readout that carries no information about the next token scores $\ln V$ nats, where $V = 151{,}936$ is the vocabulary, so $\ln V = 11.93$. Here is what the lens actually reported, at step 400 of a completed run:</p>
+    <p><span class="lang-en">That argument is wrong, and there is a one-line test for it that we should have run on day one. A readout that carries no information about the next token scores $\ln V$ nats, where $V = 151{,}936$ is the vocabulary, so $\ln V = 11.93$. Here is what the lens actually reported, at step 400 of a completed run:</span><span class="lang-zh">这个论证是错的，而且有一个一行代码的检验，本该在第一天就跑。一个对下一个 token 毫无信息量的读出，得分应为 $\ln V$ nats，其中词表大小 $V = 151{,}936$，所以 $\ln V = 11.93$。下面是这个 lens 在一次完整运行的第 400 步上的实际读数：</span></p>
 
     <div class="table-wrap">
       <table>
-        <tr><th>Readout at step 400</th><th class="num">Pass 0</th><th class="num">Pass 1</th><th class="num">Pass 2</th><th class="num">Shuffled labels</th><th class="num">Nats below chance</th></tr>
+        <tr><th>Readout at step 400</th><th class="num"><span class="lang-en">Pass 0</span><span class="lang-zh">第 0 遍</span></th><th class="num"><span class="lang-en">Pass 1</span><span class="lang-zh">第 1 遍</span></th><th class="num"><span class="lang-en">Pass 2</span><span class="lang-zh">第 2 遍</span></th><th class="num"><span class="lang-en">Shuffled labels</span><span class="lang-zh">打乱标签</span></th><th class="num"><span class="lang-en">Nats below chance</span><span class="lang-zh">比随机差多少 nats</span></th></tr>
         <tr><td>Logit lens (layer-36 state &rarr; head)</td><td class="num">10.910</td><td class="num">11.018</td><td class="num">11.137</td><td class="num">16.86</td><td class="num">0.79</td></tr>
         <tr class="sep"><td>Coda (layer-36 state &rarr; layers 36&ndash;47 &rarr; head)</td><td class="num">0.2309</td><td class="num best">0.2240</td><td class="num">0.2253</td><td class="num">12.00</td><td class="num best">11.71</td></tr>
       </table>
@@ -1087,30 +1127,30 @@
         <text x="345" y="140" font-size="11.5" fill="#333" text-anchor="middle">next-token information recovered from the same hidden state</text>
         <text x="345" y="160" font-size="10.5" fill="#777" text-anchor="middle">both bars read the identical layer-36 state; only the readout differs</text>
       </svg>
-      <figcaption><strong>Figure 6:</strong> The same hidden state, two readouts. The logit lens recovers 0.79 of the 11.71 nats the state demonstrably contains &mdash; it was operating at 7% of scale, which is to say it was reading noise. Every reward, every advantage and every policy-gradient step pathloop ever took was computed from the red bar.</figcaption>
+      <figcaption><span class="lang-en"><strong>Figure 6:</strong> The same hidden state, two readouts. The logit lens recovers 0.79 of the 11.71 nats the state demonstrably contains &mdash; it was operating at 7% of scale, which is to say it was reading noise. Every reward, every advantage and every policy-gradient step pathloop ever took was computed from the red bar.</span><span class="lang-zh"><strong>图 6：</strong>同一个隐状态，两种读出方式。logit lens 只取回了状态确实含有的 11.71 nats 中的 0.79 nats&mdash;&mdash;它工作在 7% 的量程上，也就是说它在读噪声。pathloop 算过的每一个奖励、每一个优势值、每一步策略梯度，都来自那根红柱子。</span></figcaption>
     </figure>
 
-    <p>Three things go wrong at once, and each is worth stating separately.</p>
+    <p><span class="lang-en">Three things go wrong at once, and each is worth stating separately.</span><span class="lang-zh">有三件事同时出了问题，每一件都值得单独说。</span></p>
 
     <ul>
-      <li><strong>The lens was 93% blind.</strong> It recovered 0.79 nats of the 11.71 that a proper readout gets from the identical state. Differences taken between three numbers that are all sitting at chance are differences between noise.</li>
-      <li><strong>Its ordering was backwards.</strong> The lens ranks the passes 10.91 &lt; 11.02 &lt; 11.14 &mdash; pass 0 best, pass 2 worst, monotonically. That is not quality. It is the state drifting further from the layer-48 distribution the head was calibrated on with every pass, so the lens penalises exactly the thing the loop is supposed to be doing. Pathloop's advantage term was, to the extent it measured anything, rewarding passes for moving <em>less</em>.</li>
-      <li><strong>Our sanity check could not have caught it.</strong> We validated the lens by checking it beat a shuffled-label control by a healthy 5.95 nats. But the shuffled control scores 16.86 &mdash; nearly five nats <em>worse than chance</em>, because feeding a confident head deliberately wrong labels is much worse than feeding it no information. A margin over shuffled labels is a measure of the head's confidence, not of the state's content. <strong>The right reference was always $\ln V$, and it is free.</strong></li>
+      <li><span class="lang-en"><strong>The lens was 93% blind.</strong> It recovered 0.79 nats of the 11.71 that a proper readout gets from the identical state. Differences taken between three numbers that are all sitting at chance are differences between noise.</span><span class="lang-zh"><strong>这个 lens 有 93% 是瞎的。</strong>在同一个状态上，正规读出能拿到 11.71 nats，它只拿到 0.79 nats。三个都停在随机水平的数之间做差，做出来的是噪声之差。</span></li>
+      <li><span class="lang-en"><strong>Its ordering was backwards.</strong> The lens ranks the passes 10.91 &lt; 11.02 &lt; 11.14 &mdash; pass 0 best, pass 2 worst, monotonically. That is not quality. It is the state drifting further from the layer-48 distribution the head was calibrated on with every pass, so the lens penalises exactly the thing the loop is supposed to be doing. Pathloop's advantage term was, to the extent it measured anything, rewarding passes for moving <em>less</em>.</span><span class="lang-zh"><strong>它的排序是反的。</strong>lens 给出的排序是 10.91 &lt; 11.02 &lt; 11.14&mdash;&mdash;第 0 遍最好，第 2 遍最差，单调。这不是质量。这是状态每多走一遍，就离输出头所校准的第 48 层分布更远一点，于是 lens 惩罚的恰好是循环本来该做的事。就其真正测到了什么而言，pathloop 的优势项是在奖励那些<em>动得更少</em>的遍。</span></li>
+      <li><span class="lang-en"><strong>Our sanity check could not have caught it.</strong> We validated the lens by checking it beat a shuffled-label control by a healthy 5.95 nats. But the shuffled control scores 16.86 &mdash; nearly five nats <em>worse than chance</em>, because feeding a confident head deliberately wrong labels is much worse than feeding it no information. A margin over shuffled labels is a measure of the head's confidence, not of the state's content. <strong>The right reference was always $\ln V$, and it is free.</strong></span><span class="lang-zh"><strong>我们的合理性检查根本不可能抓住它。</strong>我们验证 lens 的方式，是确认它比「打乱标签」的对照高出 5.95 nats，看起来相当健康。但打乱标签的对照读数是 16.86&mdash;&mdash;比随机还差近五个 nats，因为给一个自信的输出头喂刻意错误的标签，比什么信息都不给要糟得多。相对打乱标签的领先幅度，衡量的是输出头的自信程度，不是状态的信息含量。<strong>正确的参照一直都是 $\ln V$，而且它不要钱。</strong></span></li>
     </ul>
 
-    <h3>With a working instrument, the passes are equally good</h3>
+    <h3><span class="lang-en">With a working instrument, the passes are equally good</span><span class="lang-zh">换上能用的仪器，各遍一样好</span></h3>
 
-    <p>The fix is not subtle: instead of reading the pass-$\tau$ state through the head directly, run it through the layers that would normally follow &mdash; the twelve above the loop window &mdash; and then through the head. We call it the coda. It is the honest question the lens was a cheap proxy for: <em>if we stopped looping now and finished the forward pass, how good would the answer be?</em></p>
+    <p><span class="lang-en">The fix is not subtle: instead of reading the pass-$\tau$ state through the head directly, run it through the layers that would normally follow &mdash; the twelve above the loop window &mdash; and then through the head. We call it the coda. It is the honest question the lens was a cheap proxy for: <em>if we stopped looping now and finished the forward pass, how good would the answer be?</em></span><span class="lang-zh">修法一点也不微妙：不要把第 $\tau$ 遍的状态直接送进输出头，而是先让它跑完本来在后面的那些层&mdash;&mdash;循环窗口上方的十二层&mdash;&mdash;再进输出头。我们把它叫做 coda。它才是 lens 那个廉价代理真正想问的诚实问题：<em>如果现在就停止循环、把前向跑完，答案会有多好？</em></span></p>
 
     <div class="eqn">$$R^{\mathrm{coda}}_\tau(t) \;=\; \log P\Big(y_t \;\Big|\; W_U\,\mathrm{Norm}\big((T_{L-1} \circ \cdots \circ T_b)(h_\tau)\big)_t\Big).$$</div>
 
-    <p>It costs $K-1$ extra partial forward passes, which is affordable because the readouts for all $K$ passes are concatenated into a single matrix multiply against the head, and because the states can be detached when only the metric is wanted. The result validates immediately. At step 0 the last pass's coda NLL reads 0.773 against a training loss of 0.653 &mdash; the same quantity on the same scale, as it should be, since the last pass's state is the one the model actually finishes on. The lens read 11.27 for that same state. (The two are not expected to be equal: the coda NLL is computed on a 2,048-token slice rather than the full batch, so it drifts from the batch loss by a factor of up to about two over training. It moves with it, which is the point.)</p>
+    <p><span class="lang-en">It costs $K-1$ extra partial forward passes, which is affordable because the readouts for all $K$ passes are concatenated into a single matrix multiply against the head, and because the states can be detached when only the metric is wanted. The result validates immediately. At step 0 the last pass's coda NLL reads 0.773 against a training loss of 0.653 &mdash; the same quantity on the same scale, as it should be, since the last pass's state is the one the model actually finishes on. The lens read 11.27 for that same state. (The two are not expected to be equal: the coda NLL is computed on a 2,048-token slice rather than the full batch, so it drifts from the batch loss by a factor of up to about two over training. It moves with it, which is the point.)</span><span class="lang-zh">代价是多出 $K-1$ 次部分前向，这是可以承受的：所有 $K$ 遍的读出会拼成一次矩阵乘再乘输出头，而且只要指标、不要梯度时状态可以 detach。结果立刻就能自我验证。第 0 步时，最后一遍的 coda NLL 读数是 0.773，而训练损失是 0.653&mdash;&mdash;同一个量、同一个量级，本该如此，因为最后一遍的状态正是模型真正收尾用的那个。同一个状态，lens 读出的是 11.27。（两者并不要求相等：coda NLL 是在 2,048 个 token 的切片上算的，而不是整个 batch，所以整个训练过程中它与 batch 损失最多相差约两倍。关键是它跟着一起动。）</span></p>
 
-    <p>And with an instrument that works, the answer to the question this whole project was built on is clear and negative:</p>
+    <p><span class="lang-en">And with an instrument that works, the answer to the question this whole project was built on is clear and negative:</span><span class="lang-zh">换上能用的仪器之后，整个项目赖以成立的那个问题，答案清楚而且是否定的：</span></p>
 
     <div class="table-wrap">
       <table>
-        <tr><th>Coda NLL by pass</th><th class="num">Step 0</th><th class="num">Step 150</th><th class="num">Step 400</th></tr>
+        <tr><th>Coda NLL by pass</th><th class="num"><span class="lang-en">Step 0</span><span class="lang-zh">第 0 步</span></th><th class="num"><span class="lang-en">Step 150</span><span class="lang-zh">第 150 步</span></th><th class="num"><span class="lang-en">Step 400</span><span class="lang-zh">第 400 步</span></th></tr>
         <tr><td>Pass 0</td><td class="num">0.7528</td><td class="num">0.2887</td><td class="num">0.2309</td></tr>
         <tr><td>Pass 1</td><td class="num">0.7593</td><td class="num best">0.2788</td><td class="num best">0.2240</td></tr>
         <tr><td>Pass 2 <span style="font-size:11px;color:#888">(the one that is served)</span></td><td class="num">0.7727</td><td class="num">0.2790</td><td class="num">0.2253</td></tr>
@@ -1118,15 +1158,15 @@
       </table>
     </div>
 
-    <p>The three passes are the same to within three percent, at every point in training. There is no better pass for a policy gradient to find. Whatever exploration pathloop performs, the comparison it feeds into is between three quantities that do not differ &mdash; the across-pass spread of the reward, normalised by its across-token spread, sits at <strong>0.006</strong> against a threshold of roughly 1 for the comparison to be usable. That is not a weak signal. It is two orders of magnitude short of one.</p>
+    <p><span class="lang-en">The three passes are the same to within three percent, at every point in training. There is no better pass for a policy gradient to find. Whatever exploration pathloop performs, the comparison it feeds into is between three quantities that do not differ &mdash; the across-pass spread of the reward, normalised by its across-token spread, sits at <strong>0.006</strong> against a threshold of roughly 1 for the comparison to be usable. That is not a weak signal. It is two orders of magnitude short of one.</span><span class="lang-zh">三遍在训练的每一个时点上都一样，差距在 3% 以内。没有哪一遍更好，策略梯度也就无从找起。不管 pathloop 做了多少探索，它喂进去的那个比较，比的是三个并无差别的量&mdash;&mdash;奖励在各遍之间的离散度，用它在各 token 之间的离散度归一化后是 <strong>0.006</strong>，而这个比较要可用，阈值大约是 1。这不是信号弱，这是差了两个数量级。</span></p>
 
-    <p>The table also quietly falsifies the second training term. $\mathcal{L}_{\text{ladder}}$ weights later passes more, on the assumption that the passes improve monotonically and the last one is the best. Pass 1 is in fact the best pass at every checkpoint after the first, and pass 2 &mdash; the one whose state is actually served &mdash; is very slightly worse. The premise the term encodes is not true, though the margin is small enough that it is fairer to call it "flat" than "decreasing".</p>
+    <p><span class="lang-en">The table also quietly falsifies the second training term. $\mathcal{L}_{\text{ladder}}$ weights later passes more, on the assumption that the passes improve monotonically and the last one is the best. Pass 1 is in fact the best pass at every checkpoint after the first, and pass 2 &mdash; the one whose state is actually served &mdash; is very slightly worse. The premise the term encodes is not true, though the margin is small enough that it is fairer to call it "flat" than "decreasing".</span><span class="lang-zh">这张表还顺手证伪了第二个训练项。$\mathcal{L}_{\text{ladder}}$ 给靠后的遍更大权重，前提是各遍单调改进、最后一遍最好。事实上，除第一个 checkpoint 外，每个 checkpoint 上最好的都是第 1 遍，而真正被部署的第 2 遍略差一点。这一项所编码的前提并不成立，不过差距小到说「持平」比说「下降」更公道。</span></p>
 
-    <h3 id="gate">The gate, from above and from below</h3>
+    <h3 id="gate"><span class="lang-en">The gate, from above and from below</span><span class="lang-zh">门控：从上面看和从下面看</span></h3>
 
-    <p>If the passes are near-copies, the reason is the gate: pass $\tau$ can only route differently if $g_\tau \odot (u_\tau - h_{\tau-1})$ is large enough to reorder the router's top eight. Figure 3 showed the gates climbing from zero to 0.021, or 0.059 with a 100&times; learning rate. That leaves an obvious question: is 0.06 where fine-tuning <em>wants</em> the gate, or just as far as it can crawl in one epoch from a standing start?</p>
+    <p><span class="lang-en">If the passes are near-copies, the reason is the gate: pass $\tau$ can only route differently if $g_\tau \odot (u_\tau - h_{\tau-1})$ is large enough to reorder the router's top eight. Figure 3 showed the gates climbing from zero to 0.021, or 0.059 with a 100&times; learning rate. That leaves an obvious question: is 0.06 where fine-tuning <em>wants</em> the gate, or just as far as it can crawl in one epoch from a standing start?</span><span class="lang-zh">如果各遍是近似复制品，原因就在门控：第 $\tau$ 遍要想路由不同，$g_\tau \odot (u_\tau - h_{\tau-1})$ 必须大到足以改变 router 的 top-8 排序。图 3 显示门控从 0 爬到 0.021，学习率提高 100&times; 时爬到 0.059。于是有一个明显的问题：0.06 是微调<em>想要</em>的门控值，还是它从静止起步、一个 epoch 里只能爬到这么远？</span></p>
 
-    <p>So we started a run at $g = 0.3$ and watched which way it moved. It moved down &mdash; and then stopped moving:</p>
+    <p><span class="lang-en">So we started a run at $g = 0.3$ and watched which way it moved. It moved down &mdash; and then stopped moving:</span><span class="lang-zh">所以我们从 $g = 0.3$ 起跑了一次，看它往哪边走。它往下走&mdash;&mdash;然后就不动了：</span></p>
 
     <div class="table-wrap">
       <table>
@@ -1136,51 +1176,51 @@
       </table>
     </div>
 
-    <p>The decay decelerates hard: 0.038 lost over the first 200 steps, 0.006 over the last 200. It is settling near 0.26, not collapsing to zero. Put beside the runs that start at zero and reach 0.021&ndash;0.059, the picture is not "fine-tuning wants the loop closed" &mdash; it is <strong>the loss is nearly flat in the gate over the whole range we have looked at</strong>. The gate ends up wherever it started, plus a slow drift. Which means the gate is not something the model will discover for us. It is a hyperparameter, and we have been leaving it at the one value &mdash; zero &mdash; that guarantees the passes are identical on the first step.</p>
+    <p><span class="lang-en">The decay decelerates hard: 0.038 lost over the first 200 steps, 0.006 over the last 200. It is settling near 0.26, not collapsing to zero. Put beside the runs that start at zero and reach 0.021&ndash;0.059, the picture is not "fine-tuning wants the loop closed" &mdash; it is <strong>the loss is nearly flat in the gate over the whole range we have looked at</strong>. The gate ends up wherever it started, plus a slow drift. Which means the gate is not something the model will discover for us. It is a hyperparameter, and we have been leaving it at the one value &mdash; zero &mdash; that guarantees the passes are identical on the first step.</span><span class="lang-zh">衰减减速得很厉害：前 200 步掉了 0.038，后 200 步只掉 0.006。它在 0.26 附近稳住了，并没有塌到零。把它和那些从 0 起跑、最终到 0.021&ndash;0.059 的运行放在一起看，图景不是「微调想把循环关上」&mdash;&mdash;而是<strong>在我们考察过的整个范围里，损失对门控几乎是平的</strong>。门控最后停在它起跑的地方，加上一点缓慢漂移。这意味着门控不是模型会替我们找出来的东西。它是一个超参数，而我们一直把它留在唯一那个&mdash;&mdash;零&mdash;&mdash;能保证第一步各遍完全相同的值上。</span></p>
 
-    <p>That reframes the loop's headline claim too. Gates at 0.26 are ten times the earlier runs, and the passes still overlap at 0.947. Whatever is stopping the passes from separating survives an order of magnitude of gate.</p>
+    <p><span class="lang-en">That reframes the loop's headline claim too. Gates at 0.26 are ten times the earlier runs, and the passes still overlap at 0.947. Whatever is stopping the passes from separating survives an order of magnitude of gate.</span><span class="lang-zh">这也重塑了循环那句招牌结论。门控在 0.26 时是早先运行的十倍，各遍的重叠度仍然是 0.947。不管是什么在阻止各遍分开，它扛得住一个数量级的门控变化。</span></p>
 
-    <h2>Where this stands</h2>
+    <h2><span class="lang-en">Where this stands</span><span class="lang-zh">目前的状态</span></h2>
 
     <div class="status">
-      <strong>Pathloop: done, and negative.</strong> It is worth about a point of coding pass@1 over plain fine-tuning, and nothing we can resolve over the looped SFT it is built on. Tier 2 does not beat tier 1, which is the cleanest statement that its two losses are not what produced the gain. <strong>Queued next:</strong> a full-strength loop ($g$ initialised at 1.0) with pathloop reduced to diagnostics, to test whether a loop that actually does work produces passes that differ. One further arm &mdash; the coda readout trained with a policy gradient but no ladder term &mdash; is in evaluation as this is written and is not in the table above.
+      <span class="lang-en"><strong>Pathloop: done, and negative.</strong> It is worth about a point of coding pass@1 over plain fine-tuning, and nothing we can resolve over the looped SFT it is built on. Tier 2 does not beat tier 1, which is the cleanest statement that its two losses are not what produced the gain. <strong>Queued next:</strong> a full-strength loop ($g$ initialised at 1.0) with pathloop reduced to diagnostics, to test whether a loop that actually does work produces passes that differ. One further arm &mdash; the coda readout trained with a policy gradient but no ladder term &mdash; is in evaluation as this is written and is not in the table above.</span><span class="lang-zh"><strong>Pathloop：做完了，是负结果。</strong>它相对普通微调值约一个点的代码 pass@1，相对它所依附的循环 SFT 则没有我们能分辨出的差别。tier 2 没有赢过 tier 1&mdash;&mdash;这是「那两个损失并不是增益来源」最干净的表述。<strong>下一步排队中：</strong>一个全强度的循环（$g$ 初始化为 1.0），把 pathloop 退化成纯诊断工具，用来检验一个真正在工作的循环会不会产出有差别的几遍。还有一个分支&mdash;&mdash;用策略梯度训练 coda 读出、但不带 ladder 项&mdash;&mdash;在本文写作时仍在评测中，未列入上表。</span>
     </div>
 
-    <p>Building pathloop surfaced five bugs, every one silent &mdash; nothing crashed, and each would have produced a clean-looking run that measured nothing:</p>
+    <p><span class="lang-en">Building pathloop surfaced five bugs, every one silent &mdash; nothing crashed, and each would have produced a clean-looking run that measured nothing:</span><span class="lang-zh">做 pathloop 的过程中暴露出五个 bug，每一个都是静默的&mdash;&mdash;没有任何崩溃，而每一个都会产出一次看起来很干净、实际上什么也没测到的运行：</span></p>
 
     <ul>
-      <li>The sampled experts were given roughly a third of their correct weight, because two different normalizations were being mixed.</li>
-      <li>The training step counter never advanced under our trainer, pinning exploration at zero for an entire run while the logs reported it as active.</li>
-      <li>The exploration schedule never wound back down, because the trainer does not expose a total step count.</li>
-      <li>Even with that fixed, an off-by-one meant exploration reached zero one step after training ended, so the model never trained under the policy it is served with.</li>
-      <li>The tier-2 auxiliary loss ignored the schedule, so tier 1 and tier 2 differed from step 0 by an amount that had nothing to do with the idea being tested.</li>
+      <li><span class="lang-en">The sampled experts were given roughly a third of their correct weight, because two different normalizations were being mixed.</span><span class="lang-zh">被采样的 expert 只拿到了大约三分之一的正确权重，因为两种不同的归一化被混用了。</span></li>
+      <li><span class="lang-en">The training step counter never advanced under our trainer, pinning exploration at zero for an entire run while the logs reported it as active.</span><span class="lang-zh">在我们的训练器下，训练步计数器从不前进，把整次运行的探索强度钉死在 0，而日志却显示它处于激活状态。</span></li>
+      <li><span class="lang-en">The exploration schedule never wound back down, because the trainer does not expose a total step count.</span><span class="lang-zh">探索调度从来没有回落，因为训练器不暴露总步数。</span></li>
+      <li><span class="lang-en">Even with that fixed, an off-by-one meant exploration reached zero one step after training ended, so the model never trained under the policy it is served with.</span><span class="lang-zh">即便修好之后，一个差一错误让探索在训练结束之后一步才归零，于是模型从未在它被部署时所用的策略下训练过。</span></li>
+      <li><span class="lang-en">The tier-2 auxiliary loss ignored the schedule, so tier 1 and tier 2 differed from step 0 by an amount that had nothing to do with the idea being tested.</span><span class="lang-zh">tier 2 的辅助损失忽略了调度，于是 tier 1 和 tier 2 从第 0 步起就存在一个与被测想法毫无关系的差异。</span></li>
     </ul>
 
-    <p>Two more have since joined them, and they are the expensive ones, because neither was a bug in the method &mdash; both were bugs in how we were <em>looking</em> at the method. The serving flag made a working model score 22 points low, and a control arm that could not possibly have caught it told us the harness was fine. The logit lens reduced an 11.7-nat signal to 0.79 nats and ranked the passes backwards, and the sanity check we ran on it &mdash; beat a shuffled control &mdash; was incapable of failing.</p>
+    <p><span class="lang-en">Two more have since joined them, and they are the expensive ones, because neither was a bug in the method &mdash; both were bugs in how we were <em>looking</em> at the method. The serving flag made a working model score 22 points low, and a control arm that could not possibly have caught it told us the harness was fine. The logit lens reduced an 11.7-nat signal to 0.79 nats and ranked the passes backwards, and the sanity check we ran on it &mdash; beat a shuffled control &mdash; was incapable of failing.</span><span class="lang-zh">后来又加入了两个，而且是代价最大的两个，因为它们都不是方法本身的 bug&mdash;&mdash;它们是我们<em>观察</em>方法的方式出了 bug。部署 flag 让一个正常的模型低了 22 个点，而一个根本不可能抓到它的对照组告诉我们评测框架没问题。logit lens 把 11.7 nats 的信号压成 0.79 nats 并且把各遍排反了，而我们对它做的合理性检查&mdash;&mdash;赢过打乱标签的对照&mdash;&mdash;是一个不可能失败的检查。</span></p>
 
     <div class="insight-box">
-      <h3>The generalisable part</h3>
-      <p><strong>Give every diagnostic an absolute reference before you trust a difference.</strong> Our lens had a relative check (beat shuffled labels) and passed it comfortably while operating at 7% of scale. The absolute reference &mdash; $\ln V$ for a next-token readout &mdash; costs one line and would have failed it at step 0 of the first run. Relative controls tell you a number is not <em>nothing</em>. They cannot tell you it is not noise.</p>
-      <p><strong>A control arm only controls for what it shares with the treatment.</strong> An unlooped baseline cannot detect a bug in the looped serving path. When the treatment adds a code path, the control has to exercise it.</p>
-      <p><strong>Measure the mechanism before optimising the objective.</strong> Every bug in the list above delayed pathloop. None of them mattered, because the expert-set overlap probe &mdash; four lines, no gradient, one boolean AND per layer &mdash; would have shown before any of the losses were written that pass 2 changes 0.4 of 8 experts relative to pass 1, and therefore that there was nothing for a comparison across passes to compare.</p>
+      <h3><span class="lang-en">The generalisable part</span><span class="lang-zh">可以推广的部分</span></h3>
+      <p><span class="lang-en"><strong>Give every diagnostic an absolute reference before you trust a difference.</strong> Our lens had a relative check (beat shuffled labels) and passed it comfortably while operating at 7% of scale. The absolute reference &mdash; $\ln V$ for a next-token readout &mdash; costs one line and would have failed it at step 0 of the first run. Relative controls tell you a number is not <em>nothing</em>. They cannot tell you it is not noise.</span><span class="lang-zh"><strong>在相信任何差值之前，先给每个诊断量一个绝对参照。</strong>我们的 lens 有一个相对检查（赢过打乱标签），它在只发挥 7% 量程的情况下轻松通过。而绝对参照&mdash;&mdash;下一 token 读出的 $\ln V$&mdash;&mdash;只要一行代码，在第一次运行的第 0 步就会让它不及格。相对对照只能告诉你这个数不是<em>什么都没有</em>，不能告诉你它不是噪声。</span></p>
+      <p><span class="lang-en"><strong>A control arm only controls for what it shares with the treatment.</strong> An unlooped baseline cannot detect a bug in the looped serving path. When the treatment adds a code path, the control has to exercise it.</span><span class="lang-zh"><strong>对照组只能控制它与实验组共有的那部分。</strong>一个不带循环的基线，检测不出循环部署路径上的 bug。当实验组新增了一条代码路径，对照组就必须也走一遍这条路径。</span></p>
+      <p><span class="lang-en"><strong>Measure the mechanism before optimising the objective.</strong> Every bug in the list above delayed pathloop. None of them mattered, because the expert-set overlap probe &mdash; four lines, no gradient, one boolean AND per layer &mdash; would have shown before any of the losses were written that pass 2 changes 0.4 of 8 experts relative to pass 1, and therefore that there was nothing for a comparison across passes to compare.</span><span class="lang-zh"><strong>先测机制，再优化目标。</strong>上面列出的每个 bug 都拖慢了 pathloop。但它们其实都不重要，因为那个 expert 集合重叠度探针&mdash;&mdash;四行代码、不需要梯度、每层一次布尔与&mdash;&mdash;在任何一个损失被写出来之前就能显示：相对第 1 遍，第 2 遍只改变 8 个 expert 里的 0.4 个，因此跨遍比较根本没有东西可比。</span></p>
     </div>
 
-    <h3>What we would do differently, and what is running now</h3>
+    <h3><span class="lang-en">What we would do differently, and what is running now</span><span class="lang-zh">如果重来会怎么做，以及现在在跑什么</span></h3>
 
-    <p>Pathloop attacked the router. The evidence says the router was never the binding constraint: it re-routes 33% of a token's experts on the first extra pass entirely on its own, without any help from sampling, and forcing half the expert budget to be drawn stochastically does not move where it wants to go. What it does not do is re-route again on the <em>second</em> extra pass, and that is a property of the state it is being handed, not of the router reading it.</p>
+    <p><span class="lang-en">Pathloop attacked the router. The evidence says the router was never the binding constraint: it re-routes 33% of a token's experts on the first extra pass entirely on its own, without any help from sampling, and forcing half the expert budget to be drawn stochastically does not move where it wants to go. What it does not do is re-route again on the <em>second</em> extra pass, and that is a property of the state it is being handed, not of the router reading it.</span><span class="lang-zh">Pathloop 攻击的是 router。而证据表明 router 从来就不是那个卡住的约束：在第一次额外遍上，它完全靠自己就重新路由了一个 token 33% 的 expert，不需要任何采样帮忙；把一半的 expert 预算强行交给随机采样，也不改变它想去的地方。它没做到的，是在<em>第二次</em>额外遍上再重新路由一次&mdash;&mdash;而这是它拿到的那个状态的性质，不是读这个状态的 router 的性质。</span></p>
 
-    <p>Which points at the gate. The earlier version of this post ended by guessing the same thing, and it is one of the few guesses here that survived contact with the data:</p>
+    <p><span class="lang-en">Which points at the gate. The earlier version of this post ended by guessing the same thing, and it is one of the few guesses here that survived contact with the data:</span><span class="lang-zh">线索指向门控。本文的早先版本在结尾处猜的也是这件事，而它是本文为数不多、经受住数据检验的猜测之一：</span></p>
 
-    <p style="border-left:3px solid var(--border);padding-left:14px;color:var(--text-secondary);font-style:italic">&ldquo;...then the passes are copies no matter what the router does, and the honest next step is not more pathloop but changing how the loop is built &mdash; starting the gates away from zero, so the passes are distinct from the beginning.&rdquo;</p>
+    <p style="border-left:3px solid var(--border);padding-left:14px;color:var(--text-secondary);font-style:italic"><span class="lang-en">&ldquo;...then the passes are copies no matter what the router does, and the honest next step is not more pathloop but changing how the loop is built &mdash; starting the gates away from zero, so the passes are distinct from the beginning.&rdquo;</span><span class="lang-zh">「……那么不论 router 怎么做，各遍都是复制品。诚实的下一步就不是再加 pathloop，而是改变循环的搭法&mdash;&mdash;让门控从非零处起步，使各遍从一开始就不同。」</span></p>
 
-    <p>That is the run in progress. It sets $g_\tau = 1$ at initialisation, which by the update rule $h_\tau = h_{\tau-1} + g_\tau \odot (u_\tau - h_{\tau-1})$ gives $h_\tau = u_\tau = F(h_{\tau-1})$ &mdash; the plain unweighted loop, three genuine applications of the window, no interpolation with the previous state. Everything else is held at the looped-SFT arm's settings, so the initialisation is the only variable against a known 68.88. Pathloop is present but inert: sampling off, no loss attached, the coda readout still logging $\mathrm{NLL}$ per pass. It is there as an instrument, which is what it should probably have been from the start.</p>
+    <p><span class="lang-en">That is the run in progress. It sets $g_\tau = 1$ at initialisation, which by the update rule $h_\tau = h_{\tau-1} + g_\tau \odot (u_\tau - h_{\tau-1})$ gives $h_\tau = u_\tau = F(h_{\tau-1})$ &mdash; the plain unweighted loop, three genuine applications of the window, no interpolation with the previous state. Everything else is held at the looped-SFT arm's settings, so the initialisation is the only variable against a known 68.88. Pathloop is present but inert: sampling off, no loss attached, the coda readout still logging $\mathrm{NLL}$ per pass. It is there as an instrument, which is what it should probably have been from the start.</span><span class="lang-zh">这就是正在跑的那次运行。它把 $g_\tau$ 初始化为 1，按更新式 $h_\tau = h_{\tau-1} + g_\tau \odot (u_\tau - h_{\tau-1})$ 得到 $h_\tau = u_\tau = F(h_{\tau-1})$&mdash;&mdash;也就是不加权的朴素循环，窗口被真真切切地施加三次，不与前一状态做插值。其余一切都保持循环 SFT 分支的设置，所以初始化是相对已知的 68.88 的唯一变量。Pathloop 在场但处于惰性状态：采样关闭、不挂损失，coda 读出仍逐遍记录 $\mathrm{NLL}$。它现在只是一件仪器&mdash;&mdash;这大概本来就该是它从一开始的角色。</span></p>
 
-    <p>This gives up the property that made the gated loop attractive &mdash; at $g=1$ the model no longer reproduces the base checkpoint on step 0, and the first steps are genuinely a 96-layer network that has never been trained as one. That is the trade the evidence now argues for. A loop initialised where the passes are provably identical, whose gate the loss then barely moves, is a loop that spends its whole life near the degenerate solution. Better to start where the passes are different and find out what it costs.</p>
+    <p><span class="lang-en">This gives up the property that made the gated loop attractive &mdash; at $g=1$ the model no longer reproduces the base checkpoint on step 0, and the first steps are genuinely a 96-layer network that has never been trained as one. That is the trade the evidence now argues for. A loop initialised where the passes are provably identical, whose gate the loss then barely moves, is a loop that spends its whole life near the degenerate solution. Better to start where the passes are different and find out what it costs.</span><span class="lang-zh">这放弃了带门控的循环原本最吸引人的性质&mdash;&mdash;$g=1$ 时，模型在第 0 步不再复现基座 checkpoint，最初几步确实是一个从未按 96 层训练过的 96 层网络。但证据现在支持做这笔交易。一个初始化在「各遍可证明相同」之处、而损失又几乎推不动其门控的循环，等于一辈子都待在退化解旁边。不如从各遍本就不同的地方起步，看看代价是多少。</span></p>
 
-    <p>The question that run answers is the one this whole post has been circling: <strong>are the passes near-copies because the gate is small, or because the window converges to a fixed point no matter how hard you apply it?</strong> If the overlap between passes 1 and 2 drops from 0.947 once the loop runs at full strength, the gate was the constraint and the gated formulation was the mistake. If it stays at 0.947 with $g=1$, then repeated application of the same 24 layers converges regardless, and no amount of routing intervention or gate tuning will produce three paths &mdash; the loop would need to be made non-identical by construction, with per-pass parameters, and the "48 layers' worth of weights" claim goes with it.</p>
+    <p><span class="lang-en">The question that run answers is the one this whole post has been circling: <strong>are the passes near-copies because the gate is small, or because the window converges to a fixed point no matter how hard you apply it?</strong> If the overlap between passes 1 and 2 drops from 0.947 once the loop runs at full strength, the gate was the constraint and the gated formulation was the mistake. If it stays at 0.947 with $g=1$, then repeated application of the same 24 layers converges regardless, and no amount of routing intervention or gate tuning will produce three paths &mdash; the loop would need to be made non-identical by construction, with per-pass parameters, and the "48 layers' worth of weights" claim goes with it.</span><span class="lang-zh">这次运行要回答的，正是全文一直在绕的那个问题：<strong>各遍之所以是近似复制品，是因为门控太小，还是因为不管你多用力施加，这个窗口都会收敛到一个不动点？</strong>如果在全强度循环下，第 1 遍与第 2 遍的重叠度从 0.947 掉下来，那约束就是门控，带门控的这套表述就是错的。如果 $g=1$ 时它仍停在 0.947，那么同样 24 层的反复施加无论如何都会收敛，任何路由干预或门控调参都产生不出三条路径&mdash;&mdash;这时循环就必须在构造上被做成非同一的，为每一遍配独立参数，而「只用 48 层权重」这个卖点也就随之没了。</span></p>
 
     <div class="cite-box">
-      <div class="cite-label">Cite this post</div>
+      <div class="cite-label"><span class="lang-en">Cite this post</span><span class="lang-zh">引用本文</span></div>
       <pre>@misc{deng2026pathloop,
   title        = {Pathloop: Making a Looped {MoE} Take Different Paths},
   author       = {Chunyuan Deng},
@@ -1193,7 +1233,7 @@
   </div>
 
   <footer>
-    <span>Chunyuan Deng &mdash; Rice University</span>
+    <span><span class="lang-en">Chunyuan Deng &mdash; Rice University</span><span class="lang-zh">Chunyuan Deng &mdash; 莱斯大学</span></span>
   </footer>
 </div>
 
@@ -1209,6 +1249,19 @@
       throwOnError: false
     });
   });
+</script>
+<script>
+  (function () {
+    var btn = document.getElementById('langToggle');
+    if (!btn) return;
+    btn.addEventListener('click', function () {
+      var next = document.documentElement.getAttribute('data-lang') === 'zh' ? 'en' : 'zh';
+      document.documentElement.setAttribute('data-lang', next);
+      document.documentElement.setAttribute('lang', next === 'zh' ? 'zh-Hans' : 'en');
+      try { localStorage.setItem('blog-lang', next); } catch (e) {}
+      if (typeof window.updateTocActive === 'function') window.updateTocActive();
+    });
+  })();
 </script>
 </body>
 </html>

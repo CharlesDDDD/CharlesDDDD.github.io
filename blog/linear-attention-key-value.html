@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -29,7 +29,7 @@
     }
 
     body {
-      font-family: 'Inter', sans-serif;
+      font-family: 'Inter', -apple-system, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
       background: var(--bg);
       color: var(--text);
       font-size: 14px;
@@ -46,7 +46,7 @@
     /* ── Hero ── */
     .hero { padding: 52px 0 36px; }
     .hero h1 {
-      font-family: 'Source Serif 4', Georgia, serif;
+      font-family: 'Source Serif 4', Georgia, 'Songti SC', 'Noto Serif CJK SC', serif;
       font-size: 2.2rem;
       font-weight: 600;
       letter-spacing: -0.025em;
@@ -69,7 +69,7 @@
     a:hover { text-decoration: underline; }
 
     h2 {
-      font-family: 'Source Serif 4', Georgia, serif;
+      font-family: 'Source Serif 4', Georgia, 'Songti SC', 'Noto Serif CJK SC', serif;
       font-size: 1.35rem;
       font-weight: 600;
       color: var(--text);
@@ -128,7 +128,7 @@
       padding: 7px 10px;
       text-align: left;
       font-weight: 600;
-      font-family: 'Inter', sans-serif;
+      font-family: 'Inter', -apple-system, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
       font-size: 12px;
     }
     td {
@@ -193,6 +193,32 @@
       white-space: pre;
     }
 
+    /* ---------- language toggle ---------- */
+
+    html[data-lang="en"] .lang-zh,
+    html[data-lang="zh"] .lang-en { display: none; }
+
+    html[data-lang="zh"] .prose { line-height: 1.95; }
+    html[data-lang="zh"] li { line-height: 1.9; }
+    html[data-lang="zh"] .hero h1,
+    html[data-lang="zh"] h2 { letter-spacing: 0; }
+    html[data-lang="zh"] .hero .subtitle { font-style: normal; }
+
+    .header-bar { align-items: center; display: flex; justify-content: space-between; }
+    .lang-toggle {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 11.5px;
+      line-height: 1.6;
+      padding: 2px 10px;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .lang-toggle:hover { border-color: var(--accent); color: var(--accent); }
+
     footer {
       border-top: 1px solid var(--border);
       padding: 24px 0;
@@ -207,20 +233,34 @@
       th, td { padding: 6px 8px; font-size: 12px; }
     }
   </style>
+  <script>
+    (function () {
+      try {
+        var l = localStorage.getItem('blog-lang');
+        if (l === 'zh' || l === 'en') {
+          document.documentElement.setAttribute('data-lang', l);
+          document.documentElement.setAttribute('lang', l === 'zh' ? 'zh-Hans' : 'en');
+        }
+      } catch (e) {}
+    })();
+  </script>
 </head>
 <body>
 
 <header>
-  <div class="container">
-    <a href="../index.html">&larr; Back to Home</a>
+  <div class="container header-bar">
+    <a href="../index.html"><span class="lang-en">&larr; Back to Home</span><span class="lang-zh">&larr; 返回首页</span></a>
+    <button class="lang-toggle" id="langToggle" type="button" aria-label="Switch language">
+      <span class="lang-en">中文</span><span class="lang-zh">English</span>
+    </button>
   </div>
 </header>
 
 <div class="container">
   <div class="hero">
-    <h1>Rethinking Key-Value Relationships in Linear Attention</h1>
-    <p class="subtitle">What happens when we test DeltaNet on diverse nonlinear relationships?</p>
-    <p class="meta">Chunyuan Deng &middot; February 2026</p>
+    <h1><span class="lang-en">Rethinking Key-Value Relationships in Linear Attention</span><span class="lang-zh">重新审视线性注意力中的 key-value 关系</span></h1>
+    <p class="subtitle"><span class="lang-en">What happens when we test DeltaNet on diverse nonlinear relationships?</span><span class="lang-zh">把 DeltaNet 放到各种非线性关系上测一遍，会发生什么？</span></p>
+    <p class="meta"><span class="lang-en">Chunyuan Deng &middot; February 2026</span><span class="lang-zh">Chunyuan Deng &middot; 2026 年 2 月</span></p>
   </div>
 
   <hr class="divider">
@@ -229,195 +269,195 @@
 
     <div class="tldr">
       <strong>TL;DR</strong><br><br>
-      We tested how DeltaNet handles diverse key-value relationships from identity to exponentials, scaling up to 32,000 tokens. Under standard normalized conditions, DeltaNet stays remarkably stable (MSE ~0.030) whether values come from $k^2$ or $e^k$. The surprise came when we removed normalization: polynomial relationships became easier, not harder, due to magnitude shrinkage crushing variance toward zero. Meanwhile vanilla linear attention completely breaks at long contexts (MSE 1306 at 32k tokens) while DeltaNet holds steady. Information theory explains the bounds: DeltaNet retains 99.6% of information for identity but only 1.2% for exponentials, revealing fundamental compression limits.
+      <span class="lang-en">We tested how DeltaNet handles diverse key-value relationships from identity to exponentials, scaling up to 32,000 tokens. Under standard normalized conditions, DeltaNet stays remarkably stable (MSE ~0.030) whether values come from $k^2$ or $e^k$. The surprise came when we removed normalization: polynomial relationships became easier, not harder, due to magnitude shrinkage crushing variance toward zero. Meanwhile vanilla linear attention completely breaks at long contexts (MSE 1306 at 32k tokens) while DeltaNet holds steady. Information theory explains the bounds: DeltaNet retains 99.6% of information for identity but only 1.2% for exponentials, revealing fundamental compression limits.</span><span class="lang-zh">我们测试了 DeltaNet 在各种 key-value 关系下的表现，从恒等映射一路到指数函数，序列长度最高到 32,000 token。在标准的归一化条件下，无论 value 来自 $k^2$ 还是 $e^k$，DeltaNet 都稳得出奇（MSE 约 0.030）。真正意外的是去掉归一化之后：多项式关系反而变得更容易，因为幅值收缩把方差压到了接近 0。与此同时，原始线性注意力在长上下文下彻底崩掉（32k token 时 MSE 达到 1306），而 DeltaNet 纹丝不动。信息论解释了这个上界：DeltaNet 在恒等关系下保留了 99.6% 的信息，在指数关系下只剩 1.2%，这揭示了压缩能力的根本限制。</span>
     </div>
 
-    <h2>I. Background: Linear Attention as Test-Time Regression</h2>
+    <h2><span class="lang-en">I. Background: Linear Attention as Test-Time Regression</span><span class="lang-zh">一、背景：把线性注意力看成测试时回归</span></h2>
 
-    <p>Linear attention mechanisms maintain a state matrix $S_t \in \mathbb{R}^{d \times d}$ that evolves recurrently. Three update rules represent the evolution of this paradigm:</p>
+    <p><span class="lang-en">Linear attention mechanisms maintain a state matrix $S_t \in \mathbb{R}^{d \times d}$ that evolves recurrently. Three update rules represent the evolution of this paradigm:</span><span class="lang-zh">线性注意力维护一个按递归方式演化的状态矩阵 $S_t \in \mathbb{R}^{d \times d}$。下面三条更新规则代表了这一范式的演进：</span></p>
 
     <div class="table-wrap">
       <table>
         <tr>
-          <th>Model</th>
-          <th>Update Rule</th>
-          <th>Complexity</th>
+          <th><span class="lang-en">Model</span><span class="lang-zh">模型</span></th>
+          <th><span class="lang-en">Update Rule</span><span class="lang-zh">更新规则</span></th>
+          <th><span class="lang-en">Complexity</span><span class="lang-zh">复杂度</span></th>
         </tr>
         <tr>
-          <td><strong>Linear Attention</strong></td>
+          <td><span class="lang-en"><strong>Linear Attention</strong></span><span class="lang-zh"><strong>线性注意力</strong></span></td>
           <td>$S_t = S_{t-1} + v_t k_t^T$</td>
-          <td>$O(d^2)$ per step</td>
+          <td><span class="lang-en">$O(d^2)$ per step</span><span class="lang-zh">每步 $O(d^2)$</span></td>
         </tr>
         <tr>
           <td><strong>DeltaNet</strong></td>
           <td>$S_t = S_{t-1}(I - k_t k_t^T) + v_t k_t^T$</td>
-          <td>$O(d^2)$ per step</td>
+          <td><span class="lang-en">$O(d^2)$ per step</span><span class="lang-zh">每步 $O(d^2)$</span></td>
         </tr>
         <tr>
           <td><strong>RLS</strong></td>
           <td>$S_t = V_t^T K_t (K_t^T K_t)^{-1}$</td>
-          <td>$O(td^2 + d^3)$</td>
+          <td><span class="lang-en">$O(td^2 + d^3)$</span><span class="lang-zh">$O(td^2 + d^3)$</span></td>
         </tr>
       </table>
     </div>
 
-    <p>Recent work frames these as <strong>online regression</strong>: each model tries to minimize $\sum_{i=1}^{t} \|v_i - S_t k_i\|^2$. DeltaNet's advantage comes from the projection term $(I - k_t k_t^T)$, which removes outdated information before updating.</p>
+    <p><span class="lang-en">Recent work frames these as <strong>online regression</strong>: each model tries to minimize $\sum_{i=1}^{t} \|v_i - S_t k_i\|^2$. DeltaNet's advantage comes from the projection term $(I - k_t k_t^T)$, which removes outdated information before updating.</span><span class="lang-zh">近期工作把它们统一看作<strong>在线回归</strong>：每个模型都在最小化 $\sum_{i=1}^{t} \|v_i - S_t k_i\|^2$。DeltaNet 的优势来自投影项 $(I - k_t k_t^T)$，它在更新前先把过时的信息清掉。</span></p>
 
-    <p><strong>Our question:</strong> How do these models perform when the key-value relationship varies? Can DeltaNet handle nonlinear relationships like $v = k^4$ or $v = \sin(10\pi k)$?</p>
+    <p><span class="lang-en"><strong>Our question:</strong> How do these models perform when the key-value relationship varies? Can DeltaNet handle nonlinear relationships like $v = k^4$ or $v = \sin(10\pi k)$?</span><span class="lang-zh"><strong>我们的问题是：</strong>当 key-value 之间的关系改变时，这些模型表现如何？DeltaNet 能不能处理 $v = k^4$ 或 $v = \sin(10\pi k)$ 这类非线性关系？</span></p>
 
-    <h2>II. Experimental Setup</h2>
+    <h2><span class="lang-en">II. Experimental Setup</span><span class="lang-zh">二、实验设置</span></h2>
 
-    <h3>Configuration</h3>
+    <h3><span class="lang-en">Configuration</span><span class="lang-zh">配置</span></h3>
 
-    <p>Most experiments used 1000-token sequences with 64-dimensional keys, queries, and values&mdash;matching standard transformer configurations. For scaling analysis, we tested up to 32,000 tokens. All models operated in single-head mode to isolate the core mechanism behavior.</p>
+    <p><span class="lang-en">Most experiments used 1000-token sequences with 64-dimensional keys, queries, and values&mdash;matching standard transformer configurations. For scaling analysis, we tested up to 32,000 tokens. All models operated in single-head mode to isolate the core mechanism behavior.</span><span class="lang-zh">多数实验用 1000 token 的序列，key、query、value 都是 64 维&mdash;&mdash;与标准 transformer 的配置一致。做 scaling 分析时最长测到 32,000 token。所有模型都跑单头模式，以便隔离出核心机制本身的行为。</span></p>
 
-    <h3>Test Scenarios</h3>
+    <h3><span class="lang-en">Test Scenarios</span><span class="lang-zh">测试场景</span></h3>
 
-    <p>We generated synthetic key-value pairs with controlled relationships:</p>
+    <p><span class="lang-en">We generated synthetic key-value pairs with controlled relationships:</span><span class="lang-zh">我们生成了关系可控的合成 key-value 对：</span></p>
     <ul>
-      <li><strong>Identity:</strong> $v = k$ (perfect linear)</li>
-      <li><strong>Quadratic:</strong> $v = k \odot k$ (element-wise square)</li>
-      <li><strong>Cubic:</strong> $v = k^3$ (higher-degree polynomial)</li>
-      <li><strong>Quartic:</strong> $v = k^4$ (very high degree)</li>
-      <li><strong>Exponential:</strong> $v = \exp(k)$ (unbounded growth)</li>
-      <li><strong>Low-frequency sine:</strong> $v = \sin(\pi k)$</li>
-      <li><strong>High-frequency sine:</strong> $v = \sin(10\pi k)$ (rapid oscillations)</li>
+      <li><span class="lang-en"><strong>Identity:</strong> $v = k$ (perfect linear)</span><span class="lang-zh"><strong>恒等：</strong>$v = k$（完全线性）</span></li>
+      <li><span class="lang-en"><strong>Quadratic:</strong> $v = k \odot k$ (element-wise square)</span><span class="lang-zh"><strong>二次：</strong>$v = k \odot k$（逐元素平方）</span></li>
+      <li><span class="lang-en"><strong>Cubic:</strong> $v = k^3$ (higher-degree polynomial)</span><span class="lang-zh"><strong>三次：</strong>$v = k^3$（更高次多项式）</span></li>
+      <li><span class="lang-en"><strong>Quartic:</strong> $v = k^4$ (very high degree)</span><span class="lang-zh"><strong>四次：</strong>$v = k^4$（次数很高）</span></li>
+      <li><span class="lang-en"><strong>Exponential:</strong> $v = \exp(k)$ (unbounded growth)</span><span class="lang-zh"><strong>指数：</strong>$v = \exp(k)$（无界增长）</span></li>
+      <li><span class="lang-en"><strong>Low-frequency sine:</strong> $v = \sin(\pi k)$</span><span class="lang-zh"><strong>低频正弦：</strong>$v = \sin(\pi k)$</span></li>
+      <li><span class="lang-en"><strong>High-frequency sine:</strong> $v = \sin(10\pi k)$ (rapid oscillations)</span><span class="lang-zh"><strong>高频正弦：</strong>$v = \sin(10\pi k)$（快速振荡）</span></li>
     </ul>
 
-    <h3>A Note on Normalization</h3>
+    <h3><span class="lang-en">A Note on Normalization</span><span class="lang-zh">关于归一化的一点说明</span></h3>
 
-    <p>Before diving into results, it's important to clarify when normalization happens in practice. In real transformer architectures: input embeddings are projected through learned weight matrices $W_q$, $W_k$, and $W_v$, then normalization is applied before the attention computation. This means normalization operates on $q = \text{norm}(xW_q)$ and similar for keys and values.</p>
+    <p><span class="lang-en">Before diving into results, it's important to clarify when normalization happens in practice. In real transformer architectures: input embeddings are projected through learned weight matrices $W_q$, $W_k$, and $W_v$, then normalization is applied before the attention computation. This means normalization operates on $q = \text{norm}(xW_q)$ and similar for keys and values.</span><span class="lang-zh">在看结果之前，先说清楚实际中归一化发生在什么位置。在真实的 transformer 架构里：输入 embedding 先经过学到的权重矩阵 $W_q$、$W_k$、$W_v$ 投影，然后在注意力计算之前做归一化。也就是说归一化作用在 $q = \text{norm}(xW_q)$ 上，key 和 value 同理。</span></p>
 
-    <p>This detail matters because the nonlinearity we're testing (like $v = k^2$) happens conceptually before projection, and normalization smooths the results afterward. We tested both scenarios: applying normalization after the nonlinearity (matching real architectures) and skipping it entirely to see the raw effect.</p>
+    <p><span class="lang-en">This detail matters because the nonlinearity we're testing (like $v = k^2$) happens conceptually before projection, and normalization smooths the results afterward. We tested both scenarios: applying normalization after the nonlinearity (matching real architectures) and skipping it entirely to see the raw effect.</span><span class="lang-zh">这个细节很重要，因为我们要测的非线性（比如 $v = k^2$）在概念上发生在投影之前，而归一化会在之后把结果抹平。两种情形我们都测了：在非线性之后做归一化（对应真实架构），以及完全不做归一化，看原始效果。</span></p>
 
-    <h2>III. The Normalization Effect: Stability vs. Information</h2>
+    <h2><span class="lang-en">III. The Normalization Effect: Stability vs. Information</span><span class="lang-zh">三、归一化效应：稳定性与信息量的取舍</span></h2>
 
-    <p>We first tested all relationships under standard normalized conditions. The results were strikingly uniform.</p>
+    <p><span class="lang-en">We first tested all relationships under standard normalized conditions. The results were strikingly uniform.</span><span class="lang-zh">我们先在标准归一化条件下测了所有关系。结果一致得惊人。</span></p>
 
     <figure class="fig">
       <img src="../assets/linear-attn/normalized_vs_unnormalized.png" alt="Normalized vs unnormalized comparison">
-      <figcaption><strong>Figure 1:</strong> Side-by-side comparison. LEFT: With standard normalization, DeltaNet maintains consistent ~0.030 MSE across all relationships. RIGHT: Without normalization (log scale), we see wild variation&mdash;polynomials become easier while exponential/sine become harder.</figcaption>
+      <figcaption><span class="lang-en"><strong>Figure 1:</strong> Side-by-side comparison. LEFT: With standard normalization, DeltaNet maintains consistent ~0.030 MSE across all relationships. RIGHT: Without normalization (log scale), we see wild variation&mdash;polynomials become easier while exponential/sine become harder.</span><span class="lang-zh"><strong>图 1：</strong>并排对比。左：在标准归一化下，DeltaNet 在所有关系上都维持约 0.030 的 MSE。右：不做归一化时（对数刻度）差异极大&mdash;&mdash;多项式变容易，指数和正弦变难。</span></figcaption>
     </figure>
 
-    <p>With normalization enabled, DeltaNet achieves MSE between 0.028 and 0.030 across every relationship we tested. No systematic degradation appears as mathematical nonlinearity increases. This was unexpected. Standard intuition suggests that $k^4$ or $e^k$ should challenge linear approximation more than simple identity, but the measurements show otherwise.</p>
+    <p><span class="lang-en">With normalization enabled, DeltaNet achieves MSE between 0.028 and 0.030 across every relationship we tested. No systematic degradation appears as mathematical nonlinearity increases. This was unexpected. Standard intuition suggests that $k^4$ or $e^k$ should challenge linear approximation more than simple identity, but the measurements show otherwise.</span><span class="lang-zh">开启归一化后，DeltaNet 在我们测的每一种关系上 MSE 都落在 0.028 到 0.030 之间。随着数学上的非线性增强，并没有出现系统性的退化。这出乎意料：按常规直觉，$k^4$ 或 $e^k$ 应该比简单的恒等关系更难被线性逼近，但测量结果并非如此。</span></p>
 
-    <p>The explanation lies in what normalization removes. By forcing all value vectors to unit length ($\|v\| = 1$), normalization strips away magnitude information and leaves only directional relationships. Whether values come from $k^2$ or $e^k$, after normalization they're all unit vectors positioned at various angles from the keys. The state matrix learns this angular mapping, which proves remarkably consistent across different generating functions.</p>
+    <p><span class="lang-en">The explanation lies in what normalization removes. By forcing all value vectors to unit length ($\|v\| = 1$), normalization strips away magnitude information and leaves only directional relationships. Whether values come from $k^2$ or $e^k$, after normalization they're all unit vectors positioned at various angles from the keys. The state matrix learns this angular mapping, which proves remarkably consistent across different generating functions.</span><span class="lang-zh">原因在于归一化拿走了什么。把所有 value 向量强行拉到单位长度（$\|v\| = 1$）之后，幅值信息被剥掉了，只剩下方向关系。不管 value 来自 $k^2$ 还是 $e^k$，归一化之后都是与 key 成某个夹角的单位向量。状态矩阵学的是这个角度映射，而它在不同生成函数之间出奇地一致。</span></p>
 
-    <p>This uniformity has practical benefits for training stability, but it also means we lose information about the original relationship structure. To understand what normalization hides, we needed to test without it.</p>
+    <p><span class="lang-en">This uniformity has practical benefits for training stability, but it also means we lose information about the original relationship structure. To understand what normalization hides, we needed to test without it.</span><span class="lang-zh">这种一致性对训练稳定性很有好处，但也意味着我们丢掉了原始关系结构的信息。要弄清归一化藏起了什么，就得把它去掉再测一遍。</span></p>
 
-    <h2>IV. Removing Normalization: The Polynomial Paradox</h2>
+    <h2><span class="lang-en">IV. Removing Normalization: The Polynomial Paradox</span><span class="lang-zh">四、去掉归一化：多项式悖论</span></h2>
 
-    <p>Without normalization, the landscape changes completely:</p>
+    <p><span class="lang-en">Without normalization, the landscape changes completely:</span><span class="lang-zh">不做归一化，整个图景完全变了：</span></p>
 
     <figure class="fig">
       <img src="../assets/linear-attn/normalization_effect.png" alt="Normalization effect on DeltaNet">
-      <figcaption><strong>Figure 2:</strong> Ratio of unnormalized MSE to normalized MSE for DeltaNet. Values > 1 (red bars) indicate normalization helps; values &lt; 1 (green) indicate raw relationship is easier. Polynomials paradoxically get easier without normalization.</figcaption>
+      <figcaption><span class="lang-en"><strong>Figure 2:</strong> Ratio of unnormalized MSE to normalized MSE for DeltaNet. Values > 1 (red bars) indicate normalization helps; values &lt; 1 (green) indicate raw relationship is easier. Polynomials paradoxically get easier without normalization.</span><span class="lang-zh"><strong>图 2：</strong>DeltaNet 未归一化 MSE 与归一化 MSE 之比。大于 1（红柱）说明归一化有帮助，小于 1（绿柱）说明原始关系本身更容易。多项式在不归一化时反而更简单。</span></figcaption>
     </figure>
 
     <div class="table-wrap">
       <table>
         <tr>
-          <th>Relationship</th>
-          <th>Normalized MSE</th>
-          <th>Unnormalized MSE</th>
-          <th>Ratio (unnorm/norm)</th>
+          <th><span class="lang-en">Relationship</span><span class="lang-zh">关系</span></th>
+          <th><span class="lang-en">Normalized MSE</span><span class="lang-zh">归一化 MSE</span></th>
+          <th><span class="lang-en">Unnormalized MSE</span><span class="lang-zh">未归一化 MSE</span></th>
+          <th><span class="lang-en">Ratio (unnorm/norm)</span><span class="lang-zh">比值（未归一 / 归一）</span></th>
         </tr>
         <tr>
-          <td>Identity</td>
+          <td><span class="lang-en">Identity</span><span class="lang-zh">恒等</span></td>
           <td>0.028</td>
           <td>0.026</td>
           <td>0.93&times;</td>
         </tr>
         <tr>
-          <td>Quadratic</td>
+          <td><span class="lang-en">Quadratic</span><span class="lang-zh">二次</span></td>
           <td>0.030</td>
           <td>0.001</td>
-          <td><strong>0.03&times; (easier!)</strong></td>
+          <td><span class="lang-en"><strong>0.03&times; (easier!)</strong></span><span class="lang-zh"><strong>0.03&times;（更容易！）</strong></span></td>
         </tr>
         <tr>
-          <td>Cubic</td>
+          <td><span class="lang-en">Cubic</span><span class="lang-zh">三次</span></td>
           <td>0.030</td>
           <td>0.0001</td>
-          <td><strong>0.003&times; (much easier!)</strong></td>
+          <td><span class="lang-en"><strong>0.003&times; (much easier!)</strong></span><span class="lang-zh"><strong>0.003&times;（容易得多！）</strong></span></td>
         </tr>
         <tr>
-          <td>Quartic</td>
+          <td><span class="lang-en">Quartic</span><span class="lang-zh">四次</span></td>
           <td>0.030</td>
           <td>0.00001</td>
-          <td><strong>0.0003&times; (extremely easy!)</strong></td>
+          <td><span class="lang-en"><strong>0.0003&times; (extremely easy!)</strong></span><span class="lang-zh"><strong>0.0003&times;（极其容易！）</strong></span></td>
         </tr>
         <tr>
-          <td>Exponential</td>
+          <td><span class="lang-en">Exponential</span><span class="lang-zh">指数</span></td>
           <td>0.030</td>
           <td>1.92</td>
-          <td><strong>64&times; (much harder!)</strong></td>
+          <td><span class="lang-en"><strong>64&times; (much harder!)</strong></span><span class="lang-zh"><strong>64&times;（难得多！）</strong></span></td>
         </tr>
         <tr>
-          <td>Sin (10&pi;)</td>
+          <td><span class="lang-en">Sin (10&pi;)</span><span class="lang-zh">正弦 (10&pi;)</span></td>
           <td>0.030</td>
           <td>0.96</td>
-          <td><strong>32&times; (harder)</strong></td>
+          <td><span class="lang-en"><strong>32&times; (harder)</strong></span><span class="lang-zh"><strong>32&times;（更难）</strong></span></td>
         </tr>
       </table>
     </div>
 
-    <h3>The Polynomial Mystery: Why Easier Without Normalization?</h3>
+    <h3><span class="lang-en">The Polynomial Mystery: Why Easier Without Normalization?</span><span class="lang-zh">多项式之谜：为什么不归一化反而更容易？</span></h3>
 
-    <p>The most surprising finding deserves deeper examination. Intuitively, we'd expect higher-degree polynomials to be harder for linear models. Yet our measurements show the opposite: quadratic achieves 30&times; lower error than normalized, cubic 100&times;, and quartic 3000&times;. What's happening?</p>
+    <p><span class="lang-en">The most surprising finding deserves deeper examination. Intuitively, we'd expect higher-degree polynomials to be harder for linear models. Yet our measurements show the opposite: quadratic achieves 30&times; lower error than normalized, cubic 100&times;, and quartic 3000&times;. What's happening?</span><span class="lang-zh">最意外的这个发现值得细看。按直觉，次数越高的多项式对线性模型应该越难。但测量结果恰恰相反：二次的误差比归一化时低 30&times;，三次低 100&times;，四次低 3000&times;。这是怎么回事？</span></p>
 
-    <p>The answer lies in magnitude shrinkage. When keys are normalized to unit vectors, most elements fall in the range $[-0.5, 0.5]$ due to high-dimensional geometry. Squaring these values doesn't amplify them&mdash;it crushes them toward zero. A key element $k_i = 0.5$ raised to successive powers produces $k^2 = 0.25$, $k^3 = 0.125$, $k^4 = 0.0625$.</p>
+    <p><span class="lang-en">The answer lies in magnitude shrinkage. When keys are normalized to unit vectors, most elements fall in the range $[-0.5, 0.5]$ due to high-dimensional geometry. Squaring these values doesn't amplify them&mdash;it crushes them toward zero. A key element $k_i = 0.5$ raised to successive powers produces $k^2 = 0.25$, $k^3 = 0.125$, $k^4 = 0.0625$.</span><span class="lang-zh">答案在于幅值收缩。key 被归一化成单位向量后，受高维几何的影响，大多数元素落在 $[-0.5, 0.5]$ 区间里。对这些数取平方不会放大它们&mdash;&mdash;而是把它们压向 0。一个 $k_i = 0.5$ 的元素，逐次取幂得到 $k^2 = 0.25$、$k^3 = 0.125$、$k^4 = 0.0625$。</span></p>
 
-    <p>We measured this effect across 1000 random normalized keys. Identity vectors have mean magnitude 1.0 and variance 0.0156. Quadratic drops to magnitude 0.21 with variance 0.00046. Cubic plummets to magnitude 0.056 and variance 0.000051. By quartic, we're at magnitude 0.017 with variance 0.000005&mdash;the vectors are nearly constant.</p>
+    <p><span class="lang-en">We measured this effect across 1000 random normalized keys. Identity vectors have mean magnitude 1.0 and variance 0.0156. Quadratic drops to magnitude 0.21 with variance 0.00046. Cubic plummets to magnitude 0.056 and variance 0.000051. By quartic, we're at magnitude 0.017 with variance 0.000005&mdash;the vectors are nearly constant.</span><span class="lang-zh">我们在 1000 个随机归一化 key 上测了这个效应。恒等向量的平均幅值为 1.0，方差 0.0156。二次降到幅值 0.21、方差 0.00046。三次直坠到幅值 0.056、方差 0.000051。到四次时，幅值只剩 0.017、方差 0.000005&mdash;&mdash;向量几乎成了常数。</span></p>
 
     <figure class="fig">
       <img src="../assets/linear-attn/polynomial_regression_fit.png" alt="Polynomial regression visualization">
-      <figcaption>Linear regression fits for different relationships. Dots show the true (nonlinear) relationship between keys and values. Red lines show DeltaNet's learned linear approximation. For identity, the linear fit matches perfectly. For quadratic and cubic, magnitude shrinkage compresses values near zero, so a simple straight line approximates them remarkably well.</figcaption>
+      <figcaption><span class="lang-en">Linear regression fits for different relationships. Dots show the true (nonlinear) relationship between keys and values. Red lines show DeltaNet's learned linear approximation. For identity, the linear fit matches perfectly. For quadratic and cubic, magnitude shrinkage compresses values near zero, so a simple straight line approximates them remarkably well.</span><span class="lang-zh">不同关系下的线性回归拟合。散点是 key 与 value 之间真实的（非线性）关系，红线是 DeltaNet 学到的线性近似。恒等关系下线性拟合完全吻合。二次和三次关系下，幅值收缩把 value 压到 0 附近，于是一条简单的直线就能拟合得相当好。</span></figcaption>
     </figure>
 
-    <p>For linear regression, this is a dream scenario. When the true relationship is $k^2$ or $k^3$, magnitude shrinkage compresses values so tightly near zero that a nearly-flat straight line captures most of the signal. The mathematical nonlinearity remains, but the signal variance that regression must capture becomes trivial.</p>
+    <p><span class="lang-en">For linear regression, this is a dream scenario. When the true relationship is $k^2$ or $k^3$, magnitude shrinkage compresses values so tightly near zero that a nearly-flat straight line captures most of the signal. The mathematical nonlinearity remains, but the signal variance that regression must capture becomes trivial.</span><span class="lang-zh">对线性回归来说，这是理想局面。真实关系是 $k^2$ 或 $k^3$ 时，幅值收缩把取值压得离 0 极近，一条几乎水平的直线就能抓住大部分信号。数学上的非线性仍然在，但回归需要拟合的信号方差已经小到可以忽略。</span></p>
 
-    <p>Contrast this with exponential and sine functions. Exponentials cause magnitude explosion: $e^k$ creates large dynamic range with MSE jumping to 1.92. High-frequency sine ($\sin(10\pi k)$) oscillates rapidly, producing MSE of 0.96. These functions maintain or amplify variance, giving linear regression real difficulty.</p>
+    <p><span class="lang-en">Contrast this with exponential and sine functions. Exponentials cause magnitude explosion: $e^k$ creates large dynamic range with MSE jumping to 1.92. High-frequency sine ($\sin(10\pi k)$) oscillates rapidly, producing MSE of 0.96. These functions maintain or amplify variance, giving linear regression real difficulty.</span><span class="lang-zh">指数和正弦则相反。指数会造成幅值爆炸：$e^k$ 带来很大的动态范围，MSE 跳到 1.92。高频正弦（$\sin(10\pi k)$）快速振荡，MSE 为 0.96。这两类函数会保持甚至放大方差，给线性回归带来真正的困难。</span></p>
 
-    <h2>V. Normalization as Architectural Choice</h2>
+    <h2><span class="lang-en">V. Normalization as Architectural Choice</span><span class="lang-zh">五、把归一化当成架构选择</span></h2>
 
-    <p>Stepping back, these experiments reveal normalization as a fundamental design decision rather than mere numerical convenience. The trade-off is clear: stability and consistency versus information preservation.</p>
+    <p><span class="lang-en">Stepping back, these experiments reveal normalization as a fundamental design decision rather than mere numerical convenience. The trade-off is clear: stability and consistency versus information preservation.</span><span class="lang-zh">退一步看，这些实验说明归一化是一个根本性的设计决策，而不只是数值上的便利。取舍很清楚：稳定性与一致性，换取的是信息的丢失。</span></p>
 
-    <p>With normalization, we get uniform behavior across diverse relationships. This consistency makes training stable and ensures predictable behavior across different data distributions. Without normalization, we confront the raw characteristics of each relationship. Exponentials blow up to MSE above 1.9; polynomials collapse toward zero through magnitude shrinkage.</p>
+    <p><span class="lang-en">With normalization, we get uniform behavior across diverse relationships. This consistency makes training stable and ensures predictable behavior across different data distributions. Without normalization, we confront the raw characteristics of each relationship. Exponentials blow up to MSE above 1.9; polynomials collapse toward zero through magnitude shrinkage.</span><span class="lang-zh">有归一化时，各种关系的行为高度一致。这种一致性让训练更稳，也让不同数据分布下的行为可预测。没有归一化时，我们直面每种关系的原始特性：指数关系 MSE 冲到 1.9 以上，多项式则因幅值收缩塌向 0。</span></p>
 
-    <p>Modern transformers universally adopt normalization precisely because the stability benefits outweigh the information loss for their use cases. Our measurements quantify both sides of this trade-off explicitly.</p>
+    <p><span class="lang-en">Modern transformers universally adopt normalization precisely because the stability benefits outweigh the information loss for their use cases. Our measurements quantify both sides of this trade-off explicitly.</span><span class="lang-zh">现代 transformer 普遍采用归一化，正是因为在它们的使用场景下，稳定性的收益压过了信息的损失。我们的测量把这笔账的两边都量化了出来。</span></p>
 
-    <h2>VI. Optimal Linear Approximation: DeltaNet vs RLS</h2>
+    <h2><span class="lang-en">VI. Optimal Linear Approximation: DeltaNet vs RLS</span><span class="lang-zh">六、最优线性近似：DeltaNet 对比 RLS</span></h2>
 
-    <p>Recursive Least Squares (RLS) represents the theoretical optimum for linear approximation&mdash;it explicitly maintains $(K^T K)^{-1}$ to compute the globally best linear fit at every step. This comes at $O(td^2 + d^3)$ computational cost compared to DeltaNet's $O(d^2)$. Does the extra computation pay off?</p>
+    <p><span class="lang-en">Recursive Least Squares (RLS) represents the theoretical optimum for linear approximation&mdash;it explicitly maintains $(K^T K)^{-1}$ to compute the globally best linear fit at every step. This comes at $O(td^2 + d^3)$ computational cost compared to DeltaNet's $O(d^2)$. Does the extra computation pay off?</span><span class="lang-zh">递归最小二乘（RLS）代表线性近似的理论最优&mdash;&mdash;它显式维护 $(K^T K)^{-1}$，在每一步都算出全局最优的线性拟合。代价是 $O(td^2 + d^3)$ 的计算量，而 DeltaNet 只要 $O(d^2)$。多出来的计算值得吗？</span></p>
 
     <div class="table-wrap">
       <table>
         <tr>
-          <th>Relationship</th>
-          <th>DeltaNet (normalized)</th>
-          <th>RLS (normalized)</th>
-          <th>Gap</th>
+          <th><span class="lang-en">Relationship</span><span class="lang-zh">关系</span></th>
+          <th><span class="lang-en">DeltaNet (normalized)</span><span class="lang-zh">DeltaNet（归一化）</span></th>
+          <th><span class="lang-en">RLS (normalized)</span><span class="lang-zh">RLS（归一化）</span></th>
+          <th><span class="lang-en">Gap</span><span class="lang-zh">差距</span></th>
         </tr>
         <tr>
-          <td>Identity</td>
+          <td><span class="lang-en">Identity</span><span class="lang-zh">恒等</span></td>
           <td>0.028</td>
           <td>0.028</td>
           <td>1.00&times;</td>
         </tr>
         <tr>
-          <td>Quadratic</td>
+          <td><span class="lang-en">Quadratic</span><span class="lang-zh">二次</span></td>
           <td>0.030</td>
           <td>0.029</td>
           <td>1.03&times;</td>
         </tr>
         <tr>
-          <td>Cubic</td>
+          <td><span class="lang-en">Cubic</span><span class="lang-zh">三次</span></td>
           <td>0.030</td>
           <td>0.029</td>
           <td>1.03&times;</td>
         </tr>
         <tr>
-          <td>Exponential</td>
+          <td><span class="lang-en">Exponential</span><span class="lang-zh">指数</span></td>
           <td>0.030</td>
           <td>0.029</td>
           <td>1.03&times;</td>
@@ -425,64 +465,64 @@
       </table>
     </div>
 
-    <p><strong>Finding:</strong> Under normalization, DeltaNet and RLS perform nearly identically (gap &lt; 5%). The expensive $O(d^3)$ matrix inversion in RLS provides minimal benefit when values are normalized.</p>
+    <p><span class="lang-en"><strong>Finding:</strong> Under normalization, DeltaNet and RLS perform nearly identically (gap &lt; 5%). The expensive $O(d^3)$ matrix inversion in RLS provides minimal benefit when values are normalized.</span><span class="lang-zh"><strong>结论：</strong>在归一化条件下，DeltaNet 与 RLS 表现几乎相同（差距小于 5%）。value 归一化之后，RLS 那个昂贵的 $O(d^3)$ 矩阵求逆几乎没带来收益。</span></p>
 
-    <h2>VII. What We Didn't Find</h2>
+    <h2><span class="lang-en">VII. What We Didn't Find</span><span class="lang-zh">七、我们没有找到的东西</span></h2>
 
-    <p>We started expecting to identify fundamental limitations of DeltaNet when confronted with extreme nonlinearities. Surely quartic polynomials, exponentials, or high-frequency periodic functions would expose breaking points.</p>
+    <p><span class="lang-en">We started expecting to identify fundamental limitations of DeltaNet when confronted with extreme nonlinearities. Surely quartic polynomials, exponentials, or high-frequency periodic functions would expose breaking points.</span><span class="lang-zh">一开始我们以为，在极端非线性面前能找出 DeltaNet 的根本局限。四次多项式、指数函数、高频周期函数，总该暴露出某个崩溃点吧。</span></p>
 
-    <p>Under standard normalized conditions, no such breaking points emerged. DeltaNet maintained MSE around 0.030 across every relationship tested. The anticipated "nonlinear ceiling" simply didn't materialize in realistic settings.</p>
+    <p><span class="lang-en">Under standard normalized conditions, no such breaking points emerged. DeltaNet maintained MSE around 0.030 across every relationship tested. The anticipated "nonlinear ceiling" simply didn't materialize in realistic settings.</span><span class="lang-zh">在标准归一化条件下，这样的崩溃点并没有出现。DeltaNet 在所有被测关系上都维持在 0.030 左右。我们预期的那道「非线性天花板」，在现实设定下根本没有出现。</span></p>
 
-    <p>This outcome is genuine insight into normalization's power. By projecting all relationships onto the unit sphere, normalization makes them equally tractable to linear approximation from a directional perspective. The wild diversity observed without normalization gets compressed into uniform angular variation that linear models handle consistently.</p>
+    <p><span class="lang-en">This outcome is genuine insight into normalization's power. By projecting all relationships onto the unit sphere, normalization makes them equally tractable to linear approximation from a directional perspective. The wild diversity observed without normalization gets compressed into uniform angular variation that linear models handle consistently.</span><span class="lang-zh">这个结果本身就是对归一化威力的真实认识。把所有关系投影到单位球面上之后，从方向的角度看，它们对线性近似的难度是一样的。不归一化时观察到的巨大差异，被压缩成了线性模型能够稳定处理的、均匀的角度变化。</span></p>
 
-    <h2>VIII. Multi-Query Retrieval Capacity</h2>
+    <h2><span class="lang-en">VIII. Multi-Query Retrieval Capacity</span><span class="lang-zh">八、多查询检索容量</span></h2>
 
-    <p>After processing 1000 tokens to build the final state $S_{\text{final}}$, we randomly selected past keys and measured reconstruction accuracy for their associated values. The test scaled from single-pair retrieval up to 50 simultaneous queries.</p>
+    <p><span class="lang-en">After processing 1000 tokens to build the final state $S_{\text{final}}$, we randomly selected past keys and measured reconstruction accuracy for their associated values. The test scaled from single-pair retrieval up to 50 simultaneous queries.</span><span class="lang-zh">在处理完 1000 个 token 得到最终状态 $S_{\text{final}}$ 之后，我们随机挑出过去的 key，测量对应 value 的重建精度。测试从单对检索一直做到同时 50 个查询。</span></p>
 
     <figure class="fig">
       <img src="../assets/linear-attn/retrieval_capacity.png" alt="Retrieval capacity">
-      <figcaption><strong>Figure 3:</strong> Retrieval MSE vs. number of retrieved pairs across three relationships. Identity (left) shows perfect recall. Quadratic (middle) shows minimal degradation even retrieving 50 pairs. Exponential (right) struggles significantly, with error jumping from 0.004 for single retrieval to 2.9 for 10 pairs.</figcaption>
+      <figcaption><span class="lang-en"><strong>Figure 3:</strong> Retrieval MSE vs. number of retrieved pairs across three relationships. Identity (left) shows perfect recall. Quadratic (middle) shows minimal degradation even retrieving 50 pairs. Exponential (right) struggles significantly, with error jumping from 0.004 for single retrieval to 2.9 for 10 pairs.</span><span class="lang-zh"><strong>图 3：</strong>三种关系下，检索 MSE 随检索对数的变化。恒等（左）是完美召回。二次（中）即使检索 50 对也几乎不退化。指数（右）明显吃力，误差从单对检索的 0.004 涨到 10 对时的 2.9。</span></figcaption>
     </figure>
 
-    <p>For identity relationships ($v = k$), both DeltaNet and RLS achieve remarkable results. Retrieval error stays below $10^{-6}$ regardless of how many pairs are queried simultaneously. The state becomes a perfect compressed representation.</p>
+    <p><span class="lang-en">For identity relationships ($v = k$), both DeltaNet and RLS achieve remarkable results. Retrieval error stays below $10^{-6}$ regardless of how many pairs are queried simultaneously. The state becomes a perfect compressed representation.</span><span class="lang-zh">在恒等关系（$v = k$）下，DeltaNet 和 RLS 的结果都非常好。无论同时查询多少对，检索误差都在 $10^{-6}$ 以下。此时状态矩阵就是一份完美的压缩表示。</span></p>
 
-    <p>Quadratic relationships ($v = k^2$) show graceful degradation. DeltaNet maintains MSE around 0.001 whether retrieving 1 pair or 50. Exponential relationships reveal real capacity limits&mdash;single-pair retrieval starts at MSE 0.004, but jumps to 2.9 when querying 10 historical pairs simultaneously.</p>
+    <p><span class="lang-en">Quadratic relationships ($v = k^2$) show graceful degradation. DeltaNet maintains MSE around 0.001 whether retrieving 1 pair or 50. Exponential relationships reveal real capacity limits&mdash;single-pair retrieval starts at MSE 0.004, but jumps to 2.9 when querying 10 historical pairs simultaneously.</span><span class="lang-zh">二次关系（$v = k^2$）退化得很平缓：不管检索 1 对还是 50 对，DeltaNet 的 MSE 都在 0.001 附近。指数关系则暴露出真正的容量上限&mdash;&mdash;单对检索的 MSE 是 0.004，同时查询 10 对历史记录时跳到 2.9。</span></p>
 
-    <h2>IX. Short Convolution as Nonlinearity Regulator</h2>
+    <h2><span class="lang-en">IX. Short Convolution as Nonlinearity Regulator</span><span class="lang-zh">九、短卷积作为非线性调节器</span></h2>
 
-    <p>The exponential relationship's poor performance suggested exploring architectural modifications. We tested 1D convolution with kernel sizes 3, 5, and 7, applied to both keys and values before DeltaNet processing.</p>
+    <p><span class="lang-en">The exponential relationship's poor performance suggested exploring architectural modifications. We tested 1D convolution with kernel sizes 3, 5, and 7, applied to both keys and values before DeltaNet processing.</span><span class="lang-zh">指数关系上的糟糕表现提示我们去试试架构层面的改动。我们在 DeltaNet 处理之前，对 key 和 value 都加了一维卷积，核大小分别取 3、5、7。</span></p>
 
     <figure class="fig">
       <img src="../assets/linear-attn/short_conv_effect.png" alt="Short convolution effect">
-      <figcaption><strong>Figure 4:</strong> Effect of short convolution on DeltaNet (log scale). For exponential relationships, short conv dramatically reduces MSE from 1.92 to 0.03&mdash;a 64&times; improvement. Quadratic sees slight degradation, while identity improves modestly.</figcaption>
+      <figcaption><span class="lang-en"><strong>Figure 4:</strong> Effect of short convolution on DeltaNet (log scale). For exponential relationships, short conv dramatically reduces MSE from 1.92 to 0.03&mdash;a 64&times; improvement. Quadratic sees slight degradation, while identity improves modestly.</span><span class="lang-zh"><strong>图 4：</strong>短卷积对 DeltaNet 的影响（对数刻度）。在指数关系上，短卷积把 MSE 从 1.92 大幅降到 0.03&mdash;&mdash;提升 64&times;。二次关系略有退化，恒等关系有小幅改善。</span></figcaption>
     </figure>
 
     <div class="insight-box">
-      <h3>Key Finding: Short Conv Helps Extreme Nonlinearities</h3>
-      <p><strong>Exponential relationships:</strong> Short conv provides massive benefit&mdash;MSE drops from 1.92 (no conv) to 0.033 (kernel=7). This 64&times; improvement suggests local smoothing helps tame magnitude explosions.</p>
-      <p><strong>Polynomial relationships:</strong> Short conv slightly hurts polynomials. Quadratic MSE increases from 0.001 to 0.034. Convolution may disrupt the element-wise structure.</p>
-      <p><strong>Identity:</strong> Minor improvement (0.030 &rarr; 0.027), suggesting convolution adds useful inductive bias for general cases.</p>
+      <h3><span class="lang-en">Key Finding: Short Conv Helps Extreme Nonlinearities</span><span class="lang-zh">关键发现：短卷积对极端非线性有效</span></h3>
+      <p><span class="lang-en"><strong>Exponential relationships:</strong> Short conv provides massive benefit&mdash;MSE drops from 1.92 (no conv) to 0.033 (kernel=7). This 64&times; improvement suggests local smoothing helps tame magnitude explosions.</span><span class="lang-zh"><strong>指数关系：</strong>短卷积收益巨大&mdash;&mdash;MSE 从 1.92（无卷积）降到 0.033（核大小 7）。这 64&times; 的提升说明局部平滑有助于压住幅值爆炸。</span></p>
+      <p><span class="lang-en"><strong>Polynomial relationships:</strong> Short conv slightly hurts polynomials. Quadratic MSE increases from 0.001 to 0.034. Convolution may disrupt the element-wise structure.</span><span class="lang-zh"><strong>多项式关系：</strong>短卷积略有害处。二次关系的 MSE 从 0.001 升到 0.034。卷积可能破坏了逐元素的结构。</span></p>
+      <p><span class="lang-en"><strong>Identity:</strong> Minor improvement (0.030 &rarr; 0.027), suggesting convolution adds useful inductive bias for general cases.</span><span class="lang-zh"><strong>恒等关系：</strong>小幅改善（0.030 &rarr; 0.027），说明卷积为一般情形引入了有用的归纳偏置。</span></p>
     </div>
 
-    <p>Short convolution acts as a <strong>nonlinearity regulator</strong>&mdash;smoothing extreme relationships while preserving structure for well-behaved ones.</p>
+    <p><span class="lang-en">Short convolution acts as a <strong>nonlinearity regulator</strong>&mdash;smoothing extreme relationships while preserving structure for well-behaved ones.</span><span class="lang-zh">短卷积起到了<strong>非线性调节器</strong>的作用&mdash;&mdash;把极端关系抹平，同时保留温和关系原有的结构。</span></p>
 
-    <h2>X. Scaling Analysis: From 500 to 32,000 Tokens</h2>
+    <h2><span class="lang-en">X. Scaling Analysis: From 500 to 32,000 Tokens</span><span class="lang-zh">十、规模分析：从 500 到 32,000 token</span></h2>
 
     <figure class="fig">
       <img src="../assets/linear-attn/scaling_seqlen.png" alt="Scaling with sequence length">
-      <figcaption><strong>Figure 5:</strong> MSE vs. sequence length (log scale). Linear attention degrades catastrophically (exponential growth), while DeltaNet and RLS remain stable. For exponential relationships (right), all methods struggle but DeltaNet/RLS scale gracefully.</figcaption>
+      <figcaption><span class="lang-en"><strong>Figure 5:</strong> MSE vs. sequence length (log scale). Linear attention degrades catastrophically (exponential growth), while DeltaNet and RLS remain stable. For exponential relationships (right), all methods struggle but DeltaNet/RLS scale gracefully.</span><span class="lang-zh"><strong>图 5：</strong>MSE 随序列长度的变化（对数刻度）。线性注意力灾难性退化（指数增长），而 DeltaNet 和 RLS 保持稳定。在指数关系上（右），所有方法都吃力，但 DeltaNet/RLS 的扩展曲线平缓得多。</span></figcaption>
     </figure>
 
     <div class="table-wrap">
       <table>
         <tr>
-          <th>Model</th>
-          <th>500 tokens</th>
-          <th>4000 tokens</th>
-          <th>32000 tokens</th>
+          <th><span class="lang-en">Model</span><span class="lang-zh">模型</span></th>
+          <th><span class="lang-en">500 tokens</span><span class="lang-zh">500 token</span></th>
+          <th><span class="lang-en">4000 tokens</span><span class="lang-zh">4000 token</span></th>
+          <th><span class="lang-en">32000 tokens</span><span class="lang-zh">32000 token</span></th>
         </tr>
         <tr>
-          <td><strong>Linear Attention</strong></td>
+          <td><span class="lang-en"><strong>Linear Attention</strong></span><span class="lang-zh"><strong>线性注意力</strong></span></td>
           <td>0.40</td>
           <td>20.8</td>
           <td>1306 (!)</td>
@@ -502,46 +542,46 @@
       </table>
     </div>
 
-    <p>The divergence is stark. Vanilla linear attention starts reasonably at 500 tokens but degrades exponentially. By 32,000 tokens, it completely breaks down with MSE exceeding 1300. DeltaNet and RLS maintain MSE around 0.031 regardless of sequence length. The delta rule's projection term $(I - k_t k_t^T)$ actively removes error accumulation before each update.</p>
+    <p><span class="lang-en">The divergence is stark. Vanilla linear attention starts reasonably at 500 tokens but degrades exponentially. By 32,000 tokens, it completely breaks down with MSE exceeding 1300. DeltaNet and RLS maintain MSE around 0.031 regardless of sequence length. The delta rule's projection term $(I - k_t k_t^T)$ actively removes error accumulation before each update.</span><span class="lang-zh">差距非常明显。原始线性注意力在 500 token 时还算正常，之后呈指数退化，到 32,000 token 时彻底崩掉，MSE 超过 1300。DeltaNet 和 RLS 则不管序列多长都维持在 0.031 左右。delta 规则的投影项 $(I - k_t k_t^T)$ 会在每次更新前主动清掉累积的误差。</span></p>
 
-    <h2>XI. Information-Theoretic Analysis</h2>
+    <h2><span class="lang-en">XI. Information-Theoretic Analysis</span><span class="lang-zh">十一、信息论分析</span></h2>
 
-    <p>Linear attention compresses a growing history $K_t, V_t$ (size $2td$) into a fixed state $S_t$ (size $d^2$). For our setup (t=1000, d=64): original 128,000 scalars compressed to 4,096 &mdash; a <strong>3.2% compression ratio</strong> (96.8% reduction). We quantify information loss using mutual information.</p>
+    <p><span class="lang-en">Linear attention compresses a growing history $K_t, V_t$ (size $2td$) into a fixed state $S_t$ (size $d^2$). For our setup (t=1000, d=64): original 128,000 scalars compressed to 4,096 &mdash; a <strong>3.2% compression ratio</strong> (96.8% reduction). We quantify information loss using mutual information.</span><span class="lang-zh">线性注意力把不断增长的历史 $K_t, V_t$（规模 $2td$）压缩进一个固定大小的状态 $S_t$（规模 $d^2$）。在我们的设定下（t=1000，d=64）：原本 128,000 个标量被压成 4,096 个 &mdash; <strong>压缩比 3.2%</strong>（减少 96.8%）。我们用互信息来量化信息损失。</span></p>
 
     <figure class="fig">
       <img src="../assets/linear-attn/information_theory.png" alt="Information theory metrics">
-      <figcaption><strong>Figure 6:</strong> LEFT: Information retention (%). DeltaNet retains 99.6% of information for identity but only 1.2% for exponential&mdash;explaining the MSE difference. RIGHT: Scatter plot shows strong correlation between info retention and MSE.</figcaption>
+      <figcaption><span class="lang-en"><strong>Figure 6:</strong> LEFT: Information retention (%). DeltaNet retains 99.6% of information for identity but only 1.2% for exponential&mdash;explaining the MSE difference. RIGHT: Scatter plot shows strong correlation between info retention and MSE.</span><span class="lang-zh"><strong>图 6：</strong>左：信息保留率（%）。DeltaNet 在恒等关系下保留 99.6% 的信息，在指数关系下只有 1.2%&mdash;&mdash;这解释了 MSE 的差异。右：散点图显示信息保留率与 MSE 之间有很强的相关性。</span></figcaption>
     </figure>
 
     <div class="table-wrap">
       <table>
         <tr>
-          <th>Relationship</th>
-          <th>MI(K,V)</th>
-          <th>DeltaNet Retention</th>
-          <th>RLS Retention</th>
+          <th><span class="lang-en">Relationship</span><span class="lang-zh">关系</span></th>
+          <th><span class="lang-en">MI(K,V)</span><span class="lang-zh">互信息 MI(K,V)</span></th>
+          <th><span class="lang-en">DeltaNet Retention</span><span class="lang-zh">DeltaNet 保留率</span></th>
+          <th><span class="lang-en">RLS Retention</span><span class="lang-zh">RLS 保留率</span></th>
         </tr>
         <tr>
-          <td>Identity</td>
-          <td>3.25 bits</td>
+          <td><span class="lang-en">Identity</span><span class="lang-zh">恒等</span></td>
+          <td><span class="lang-en">3.25 bits</span><span class="lang-zh">3.25 比特</span></td>
           <td><strong>99.6%</strong></td>
           <td>100%</td>
         </tr>
         <tr>
-          <td>Quadratic</td>
-          <td>1.62 bits</td>
+          <td><span class="lang-en">Quadratic</span><span class="lang-zh">二次</span></td>
+          <td><span class="lang-en">1.62 bits</span><span class="lang-zh">1.62 比特</span></td>
           <td>0.8%</td>
           <td>2.0%</td>
         </tr>
         <tr>
-          <td>Exponential</td>
-          <td>2.87 bits</td>
+          <td><span class="lang-en">Exponential</span><span class="lang-zh">指数</span></td>
+          <td><span class="lang-en">2.87 bits</span><span class="lang-zh">2.87 比特</span></td>
           <td><strong>1.2%</strong></td>
           <td>5.8%</td>
         </tr>
         <tr>
-          <td>Sin (10&pi;)</td>
-          <td>1.62 bits</td>
+          <td><span class="lang-en">Sin (10&pi;)</span><span class="lang-zh">正弦 (10&pi;)</span></td>
+          <td><span class="lang-en">1.62 bits</span><span class="lang-zh">1.62 比特</span></td>
           <td>1.2%</td>
           <td>3.1%</td>
         </tr>
@@ -549,29 +589,29 @@
     </div>
 
     <div class="insight-box">
-      <h3>Key Finding: Information Loss Explains MSE</h3>
-      <p><strong>Identity achieves near-perfect retention:</strong> DeltaNet preserves 99.6% of the 3.25 bits of mutual information between keys and values. This explains the near-zero MSE.</p>
-      <p><strong>Nonlinear relationships suffer massive loss:</strong> For exponential, DeltaNet retains only 1.2% (0.035 bits out of 2.87). The state matrix cannot linearly compress the exponential relationship.</p>
-      <p><strong>RLS helps but doesn't solve it:</strong> Even with optimal linear approximation, RLS retains only 5.8% for exponential. The fundamental issue is linearity, not the update rule.</p>
-      <p><strong>Paradoxically, low MI &ne; easy:</strong> Quartic has lowest original MI (0.45 bits) and lowest MSE (0.00001), but retention is still poor (1.7%). Polynomial shrinkage creates low-information relationships that are coincidentally easy to approximate.</p>
+      <h3><span class="lang-en">Key Finding: Information Loss Explains MSE</span><span class="lang-zh">关键发现：信息损失解释了 MSE</span></h3>
+      <p><span class="lang-en"><strong>Identity achieves near-perfect retention:</strong> DeltaNet preserves 99.6% of the 3.25 bits of mutual information between keys and values. This explains the near-zero MSE.</span><span class="lang-zh"><strong>恒等关系几乎完全保留信息：</strong>key 与 value 之间有 3.25 比特互信息，DeltaNet 保住了其中的 99.6%。这解释了它接近 0 的 MSE。</span></p>
+      <p><span class="lang-en"><strong>Nonlinear relationships suffer massive loss:</strong> For exponential, DeltaNet retains only 1.2% (0.035 bits out of 2.87). The state matrix cannot linearly compress the exponential relationship.</span><span class="lang-zh"><strong>非线性关系损失惨重：</strong>指数关系下 DeltaNet 只保留 1.2%（2.87 比特中的 0.035 比特）。状态矩阵没办法把指数关系线性地压缩下来。</span></p>
+      <p><span class="lang-en"><strong>RLS helps but doesn't solve it:</strong> Even with optimal linear approximation, RLS retains only 5.8% for exponential. The fundamental issue is linearity, not the update rule.</span><span class="lang-zh"><strong>RLS 有帮助但解决不了：</strong>即便用上最优线性近似，RLS 在指数关系上也只保留 5.8%。根本问题出在线性本身，而不在更新规则。</span></p>
+      <p><span class="lang-en"><strong>Paradoxically, low MI &ne; easy:</strong> Quartic has lowest original MI (0.45 bits) and lowest MSE (0.00001), but retention is still poor (1.7%). Polynomial shrinkage creates low-information relationships that are coincidentally easy to approximate.</span><span class="lang-zh"><strong>有意思的是，互信息低 &ne; 容易：</strong>四次关系的原始互信息最低（0.45 比特），MSE 也最低（0.00001），但保留率依然很差（1.7%）。多项式的幅值收缩造出了一种低信息量的关系，而它恰好很容易被逼近。</span></p>
     </div>
 
-    <h2>XII. Conclusion</h2>
+    <h2><span class="lang-en">XII. Conclusion</span><span class="lang-zh">十二、结论</span></h2>
 
-    <p>Testing linear attention mechanisms across diverse key-value relationships revealed patterns that weren't obvious from theory alone. Normalization emerged not as a numerical convenience but as fundamentally reshaping what these models learn. By converting all vectors to unit length, we shift from tracking magnitude and direction to purely angular relationships. This trade-off brings remarkable stability&mdash;DeltaNet maintains consistent performance whether values come from $k^2$ or $e^k$&mdash;but at the cost of losing information about scale.</p>
+    <p><span class="lang-en">Testing linear attention mechanisms across diverse key-value relationships revealed patterns that weren't obvious from theory alone. Normalization emerged not as a numerical convenience but as fundamentally reshaping what these models learn. By converting all vectors to unit length, we shift from tracking magnitude and direction to purely angular relationships. This trade-off brings remarkable stability&mdash;DeltaNet maintains consistent performance whether values come from $k^2$ or $e^k$&mdash;but at the cost of losing information about scale.</span><span class="lang-zh">把线性注意力放在各种 key-value 关系上测一遍，暴露出一些单靠理论看不出来的规律。归一化并不是一个数值上的便利手段，而是从根本上改变了这些模型学到的东西。把所有向量拉成单位长度之后，我们从「同时跟踪幅值和方向」变成了「只跟踪角度」。这笔交易换来了出色的稳定性&mdash;&mdash;不管 value 来自 $k^2$ 还是 $e^k$，DeltaNet 的表现都一致&mdash;&mdash;代价是丢掉了关于尺度的信息。</span></p>
 
-    <p>The polynomial mystery taught us to look beyond mathematical nonlinearity to actual signal characteristics. Higher-degree polynomials paradoxically become easier because they shrink variance toward zero. When quartic values cluster with variance 0.000005, almost any linear function fits well.</p>
+    <p><span class="lang-en">The polynomial mystery taught us to look beyond mathematical nonlinearity to actual signal characteristics. Higher-degree polynomials paradoxically become easier because they shrink variance toward zero. When quartic values cluster with variance 0.000005, almost any linear function fits well.</span><span class="lang-zh">多项式之谜教会我们：不要只盯着数学上的非线性，要看信号本身的特性。高次多项式反而更容易，是因为它把方差压向了 0。当四次关系的取值聚成方差 0.000005 的一团时，几乎任何线性函数都能拟合得不错。</span></p>
 
-    <p>Scaling tests extending to 32,000 tokens exposed the fundamental instability of vanilla linear attention. MSE explodes from 0.4 to 1306 as correlations accumulate. DeltaNet's delta rule projection fixes this by explicitly removing error before each update, resulting in flat scaling: 0.031 MSE whether processing 500 or 32,000 tokens.</p>
+    <p><span class="lang-en">Scaling tests extending to 32,000 tokens exposed the fundamental instability of vanilla linear attention. MSE explodes from 0.4 to 1306 as correlations accumulate. DeltaNet's delta rule projection fixes this by explicitly removing error before each update, resulting in flat scaling: 0.031 MSE whether processing 500 or 32,000 tokens.</span><span class="lang-zh">把规模推到 32,000 token 的测试，暴露了原始线性注意力的根本不稳定：随着相关性累积，MSE 从 0.4 爆到 1306。DeltaNet 的 delta 规则投影在每次更新前显式清除误差，因此扩展曲线是平的：不管处理 500 还是 32,000 个 token，MSE 都是 0.031。</span></p>
 
-    <p>Information-theoretic analysis provided the clearest framework for understanding capacity limits. DeltaNet retains 99.6% of mutual information for identity relationships&mdash;nearly perfect compression. For exponentials, only 1.2% survives. Linear models can't losslessly compress nonlinear relationships, and some relationships resist compression far more than others.</p>
+    <p><span class="lang-en">Information-theoretic analysis provided the clearest framework for understanding capacity limits. DeltaNet retains 99.6% of mutual information for identity relationships&mdash;nearly perfect compression. For exponentials, only 1.2% survives. Linear models can't losslessly compress nonlinear relationships, and some relationships resist compression far more than others.</span><span class="lang-zh">信息论分析提供了理解容量上限最清晰的框架。DeltaNet 在恒等关系下保留 99.6% 的互信息&mdash;&mdash;几乎是无损压缩；在指数关系下只剩 1.2%。线性模型无法无损地压缩非线性关系，而且有些关系对压缩的抵抗远强于另一些。</span></p>
 
-    <p>Short convolution provided an unexpected path forward for specific failure cases. Adding kernel-size-7 convolution to exponential relationships reduced MSE 64-fold (1.92 &rarr; 0.03). Local smoothing helps tame magnitude explosions. Interestingly, the same convolution slightly hurt polynomials, suggesting the solution is relationship-specific rather than universally beneficial.</p>
+    <p><span class="lang-en">Short convolution provided an unexpected path forward for specific failure cases. Adding kernel-size-7 convolution to exponential relationships reduced MSE 64-fold (1.92 &rarr; 0.03). Local smoothing helps tame magnitude explosions. Interestingly, the same convolution slightly hurt polynomials, suggesting the solution is relationship-specific rather than universally beneficial.</span><span class="lang-zh">对某些具体的失败情形，短卷积给出了一条意外的出路。给指数关系加上核大小为 7 的卷积，MSE 降低了 64 倍（1.92 &rarr; 0.03）。局部平滑有助于压住幅值爆炸。有意思的是，同样的卷积对多项式略有害处，说明这个方案是「看关系下菜」的，而不是普遍有益。</span></p>
 
-    <p>For practitioners deploying these systems: normalization isn't optional&mdash;it provides the stability that makes diverse data tractable. DeltaNet's delta rule offers genuine advantages over vanilla linear attention, especially at longer contexts. For researchers: testing under realistic conditions (normalization, appropriate sequence lengths) matters more than theoretical worst-case analysis.</p>
+    <p><span class="lang-en">For practitioners deploying these systems: normalization isn't optional&mdash;it provides the stability that makes diverse data tractable. DeltaNet's delta rule offers genuine advantages over vanilla linear attention, especially at longer contexts. For researchers: testing under realistic conditions (normalization, appropriate sequence lengths) matters more than theoretical worst-case analysis.</span><span class="lang-zh">对要把这些系统部署上线的人：归一化不是可选项&mdash;&mdash;正是它带来的稳定性，让多样的数据变得可处理。DeltaNet 的 delta 规则相对原始线性注意力有实实在在的优势，长上下文下尤其明显。对研究者：在现实条件下测试（带归一化、用合适的序列长度），比理论上的最坏情况分析更重要。</span></p>
 
     <div class="cite-box">
-      <div class="cite-label">Cite this post</div>
+      <div class="cite-label"><span class="lang-en">Cite this post</span><span class="lang-zh">引用本文</span></div>
       <pre>@misc{deng2026linearattention,
   title        = {Rethinking Key-Value Relationships in Linear Attention},
   author       = {Chunyuan Deng},
@@ -584,7 +624,7 @@
   </div>
 
   <footer>
-    <span>Chunyuan Deng &mdash; Rice University</span>
+    <span><span class="lang-en">Chunyuan Deng &mdash; Rice University</span><span class="lang-zh">Chunyuan Deng &mdash; 莱斯大学</span></span>
   </footer>
 </div>
 
@@ -600,6 +640,19 @@
       throwOnError: false
     });
   });
+</script>
+<script>
+  (function () {
+    var btn = document.getElementById('langToggle');
+    if (!btn) return;
+    btn.addEventListener('click', function () {
+      var next = document.documentElement.getAttribute('data-lang') === 'zh' ? 'en' : 'zh';
+      document.documentElement.setAttribute('data-lang', next);
+      document.documentElement.setAttribute('lang', next === 'zh' ? 'zh-Hans' : 'en');
+      try { localStorage.setItem('blog-lang', next); } catch (e) {}
+      if (typeof window.updateTocActive === 'function') window.updateTocActive();
+    });
+  })();
 </script>
 </body>
 </html>

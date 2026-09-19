@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -25,7 +25,7 @@
     }
 
     body {
-      font-family: 'Inter', sans-serif;
+      font-family: 'Inter', -apple-system, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
       background: var(--bg);
       color: var(--text);
       font-size: 14px;
@@ -42,7 +42,7 @@
     /* ── Hero ── */
     .hero { padding: 52px 0 36px; }
     .hero h1 {
-      font-family: 'Source Serif 4', Georgia, serif;
+      font-family: 'Source Serif 4', Georgia, 'Songti SC', 'Noto Serif CJK SC', serif;
       font-size: 2.2rem;
       font-weight: 600;
       letter-spacing: -0.025em;
@@ -66,7 +66,7 @@
     a:hover { text-decoration: underline; }
 
     h2 {
-      font-family: 'Source Serif 4', Georgia, serif;
+      font-family: 'Source Serif 4', Georgia, 'Songti SC', 'Noto Serif CJK SC', serif;
       font-size: 1.35rem;
       font-weight: 600;
       color: var(--text);
@@ -180,6 +180,32 @@
       white-space: pre;
     }
 
+    /* ---------- language toggle ---------- */
+
+    html[data-lang="en"] .lang-zh,
+    html[data-lang="zh"] .lang-en { display: none; }
+
+    html[data-lang="zh"] .prose { line-height: 1.95; }
+    html[data-lang="zh"] li { line-height: 1.9; }
+    html[data-lang="zh"] .hero h1,
+    html[data-lang="zh"] h2 { letter-spacing: 0; }
+    html[data-lang="zh"] .hero .subtitle { font-style: normal; }
+
+    .header-bar { align-items: center; display: flex; justify-content: space-between; }
+    .lang-toggle {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 11.5px;
+      line-height: 1.6;
+      padding: 2px 10px;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .lang-toggle:hover { border-color: var(--accent); color: var(--accent); }
+
     footer {
       border-top: 1px solid var(--border);
       padding: 24px 0;
@@ -202,65 +228,79 @@
       .hero h1 { font-size: 1.7rem; }
     }
   </style>
+  <script>
+    (function () {
+      try {
+        var l = localStorage.getItem('blog-lang');
+        if (l === 'zh' || l === 'en') {
+          document.documentElement.setAttribute('data-lang', l);
+          document.documentElement.setAttribute('lang', l === 'zh' ? 'zh-Hans' : 'en');
+        }
+      } catch (e) {}
+    })();
+  </script>
 </head>
 <body>
 
 <header>
-  <div class="container">
-    <a href="../index.html">&larr; Back to Home</a>
+  <div class="container header-bar">
+    <a href="../index.html"><span class="lang-en">&larr; Back to Home</span><span class="lang-zh">&larr; 返回首页</span></a>
+    <button class="lang-toggle" id="langToggle" type="button" aria-label="Switch language">
+      <span class="lang-en">中文</span><span class="lang-zh">English</span>
+    </button>
   </div>
 </header>
 
 <div class="container">
   <div class="hero">
-    <h1>The ABC Research Mindset</h1>
-    <p class="subtitle">A small habit that helps me think more honestly about new ideas</p>
-    <p class="meta">February 2026</p>
+    <h1><span class="lang-en">The ABC Research Mindset</span><span class="lang-zh">ABC 研究心态</span></h1>
+    <p class="subtitle"><span class="lang-en">A small habit that helps me think more honestly about new ideas</span><span class="lang-zh">一个帮我更诚实地看待新想法的小习惯</span></p>
+    <p class="meta"><span class="lang-en">February 2026</span><span class="lang-zh">2026 年 2 月</span></p>
   </div>
 
   <hr class="divider">
 
   <div class="prose">
 
-    <p>I want to share a small thinking tool I've been playing with. I'm definitely not an established researcher&mdash;just someone trying to get better at evaluating ideas honestly. I've found this little habit helpful for myself, so I figured I'd write it up. Maybe it resonates with you, maybe not. Either way, here it is.</p>
+    <p><span class="lang-en">I want to share a small thinking tool I've been playing with. I'm definitely not an established researcher&mdash;just someone trying to get better at evaluating ideas honestly. I've found this little habit helpful for myself, so I figured I'd write it up. Maybe it resonates with you, maybe not. Either way, here it is.</span><span class="lang-zh">想分享一个我最近一直在用的小思维工具。我肯定算不上什么资深研究者&mdash;&mdash;只是一个想把「诚实地评估想法」这件事做得更好一点的人。这个小习惯对我自己挺有用，就写下来了。你可能有共鸣，也可能没有，反正先放在这儿。</span></p>
 
-    <h2>The Novelty Trap</h2>
+    <h2><span class="lang-en">The Novelty Trap</span><span class="lang-zh">新颖性陷阱</span></h2>
 
-    <p>I think most of us, myself included, have a soft spot for new stuff. There's something about a shiny new idea that just <em>feels</em> better than the thing we already have. In research, I notice this a lot. The community has method A and method B, and someone proposes method C. You read the paper and think, "oh, this is interesting, this is fresh." But sometimes I catch myself realizing that it might not actually be <em>better</em>&mdash;it just feels that way because it's new.</p>
+    <p><span class="lang-en">I think most of us, myself included, have a soft spot for new stuff. There's something about a shiny new idea that just <em>feels</em> better than the thing we already have. In research, I notice this a lot. The community has method A and method B, and someone proposes method C. You read the paper and think, "oh, this is interesting, this is fresh." But sometimes I catch myself realizing that it might not actually be <em>better</em>&mdash;it just feels that way because it's new.</span><span class="lang-zh">我觉得大多数人，包括我自己，都对新东西有偏爱。一个闪亮的新想法，<em>感觉上</em>就是比手上已有的东西更好。做研究时我经常注意到这一点：社区里已经有方法 A 和方法 B，有人提出方法 C，你读完论文会想「哦，有意思，挺新的」。但有时我会反应过来，它未必真的<em>更好</em>&mdash;&mdash;只是因为它新，所以感觉更好。</span></p>
 
-    <p>I think novelty and progress can be different things, but at least for me, my brain has a hard time telling them apart sometimes.</p>
+    <p><span class="lang-en">I think novelty and progress can be different things, but at least for me, my brain has a hard time telling them apart sometimes.</span><span class="lang-zh">新颖和进步可以是两回事，但至少对我来说，大脑有时候是分不清的。</span></p>
 
-    <h2>The ABC Principle</h2>
+    <h2><span class="lang-en">The ABC Principle</span><span class="lang-zh">ABC 原则</span></h2>
 
-    <p>So here's the little trick. It's honestly pretty simple, maybe too simple, but it works for me.</p>
+    <p><span class="lang-en">So here's the little trick. It's honestly pretty simple, maybe too simple, but it works for me.</span><span class="lang-zh">所以有了这个小技巧。说实话它非常简单，可能简单过头了，但对我有用。</span></p>
 
-    <p>Say the community already has work <strong>A</strong> and <strong>B</strong>, and you (or someone) propose <strong>C</strong>. Instead of evaluating C in the natural order&mdash;given A and B, how good is C&mdash;try flipping it. Imagine a world where we already had A and C, and someone proposes B instead. Then see which proposal actually feels more compelling.</p>
+    <p><span class="lang-en">Say the community already has work <strong>A</strong> and <strong>B</strong>, and you (or someone) propose <strong>C</strong>. Instead of evaluating C in the natural order&mdash;given A and B, how good is C&mdash;try flipping it. Imagine a world where we already had A and C, and someone proposes B instead. Then see which proposal actually feels more compelling.</span><span class="lang-zh">假设社区里已经有工作 <strong>A</strong> 和 <strong>B</strong>，你（或者别人）提出了 <strong>C</strong>。不要按自然顺序去评估 C&mdash;&mdash;「已有 A 和 B，C 有多好」&mdash;&mdash;而是把顺序翻过来：想象一个世界里我们本来就有 A 和 C，这时有人提出 B。然后看看哪一个提案更有说服力。</span></p>
 
-    <p>Formally, compare <strong>C&thinsp;|&thinsp;A,B</strong> versus <strong>B&thinsp;|&thinsp;A,C</strong>.</p>
+    <p><span class="lang-en">Formally, compare <strong>C&thinsp;|&thinsp;A,B</strong> versus <strong>B&thinsp;|&thinsp;A,C</strong>.</span><span class="lang-zh">写得正式一点，就是比较 <strong>C&thinsp;|&thinsp;A,B</strong> 与 <strong>B&thinsp;|&thinsp;A,C</strong>。</span></p>
 
-    <p>That's basically it. The idea is that by swapping the order, you can maybe peel away some of the novelty bias. Instead of comparing "the new thing" against "the established things," you're trying to put them on more equal footing and see what you actually think.</p>
+    <p><span class="lang-en">That's basically it. The idea is that by swapping the order, you can maybe peel away some of the novelty bias. Instead of comparing "the new thing" against "the established things," you're trying to put them on more equal footing and see what you actually think.</span><span class="lang-zh">基本上就是这样。这么换个顺序，多少能剥掉一层新颖性偏差：你不再是拿「新东西」去比「既有的东西」，而是尽量把它们放在同一起跑线上，看看自己真实的判断是什么。</span></p>
 
     <!-- Figure 1 -->
     <figure class="fig">
       <svg viewBox="0 0 560 310" xmlns="http://www.w3.org/2000/svg" style="max-width: 520px;">
         <rect x="8" y="8" width="544" height="294" rx="6" fill="none" stroke="#e2e2e2" stroke-width="1.5"/>
 
-        <text x="280" y="46" text-anchor="middle" font-family="'Source Serif 4', Georgia, serif" font-size="15" fill="#1c1c1e" font-weight="600" letter-spacing="1">THE  SCALES  OF  JUDGMENT</text>
+        <text x="280" y="46" text-anchor="middle" font-family="'Source Serif 4', Georgia, 'Songti SC', 'Noto Serif CJK SC', serif" font-size="15" fill="#1c1c1e" font-weight="600" letter-spacing="1">THE  SCALES  OF  JUDGMENT</text>
         <line x1="140" y1="55" x2="420" y2="55" stroke="#e2e2e2" stroke-width="1"/>
 
         <text x="38" y="102" font-family="'Inter', sans-serif" font-size="12" fill="#888" font-style="italic">Natural order:</text>
 
         <circle cx="170" cy="97" r="20" fill="#eef2fb" stroke="#2b5ecc" stroke-width="1.2"/>
-        <text x="170" y="102" text-anchor="middle" font-family="'Source Serif 4', Georgia, serif" font-size="17" fill="#1c1c1e" font-weight="600">A</text>
+        <text x="170" y="102" text-anchor="middle" font-family="'Source Serif 4', Georgia, 'Songti SC', 'Noto Serif CJK SC', serif" font-size="17" fill="#1c1c1e" font-weight="600">A</text>
 
         <circle cx="222" cy="97" r="20" fill="#f6f7f9" stroke="#e2e2e2" stroke-width="1.2"/>
-        <text x="222" y="102" text-anchor="middle" font-family="'Source Serif 4', Georgia, serif" font-size="17" fill="#555" font-weight="600">B</text>
+        <text x="222" y="102" text-anchor="middle" font-family="'Source Serif 4', Georgia, 'Songti SC', 'Noto Serif CJK SC', serif" font-size="17" fill="#555" font-weight="600">B</text>
 
         <line x1="256" y1="97" x2="310" y2="97" stroke="#888" stroke-width="1.2"/>
         <polygon points="310,93 319,97 310,101" fill="#888"/>
 
         <circle cx="355" cy="97" r="22" fill="none" stroke="#2b5ecc" stroke-width="1.3" stroke-dasharray="4,3"/>
-        <text x="355" y="102" text-anchor="middle" font-family="'Source Serif 4', Georgia, serif" font-size="17" fill="#2b5ecc" font-weight="600">C</text>
+        <text x="355" y="102" text-anchor="middle" font-family="'Source Serif 4', Georgia, 'Songti SC', 'Noto Serif CJK SC', serif" font-size="17" fill="#2b5ecc" font-weight="600">C</text>
         <text x="355" y="130" text-anchor="middle" font-family="'Inter', sans-serif" font-size="10" fill="#2b5ecc" font-style="italic">proposed</text>
 
         <text x="448" y="93" font-family="'Inter', sans-serif" font-size="11.5" fill="#888" font-style="italic">"feels novel</text>
@@ -273,84 +313,84 @@
         <text x="38" y="207" font-family="'Inter', sans-serif" font-size="12" fill="#888" font-style="italic">Reordered:</text>
 
         <circle cx="170" cy="202" r="20" fill="#eef2fb" stroke="#2b5ecc" stroke-width="1.2"/>
-        <text x="170" y="207" text-anchor="middle" font-family="'Source Serif 4', Georgia, serif" font-size="17" fill="#1c1c1e" font-weight="600">A</text>
+        <text x="170" y="207" text-anchor="middle" font-family="'Source Serif 4', Georgia, 'Songti SC', 'Noto Serif CJK SC', serif" font-size="17" fill="#1c1c1e" font-weight="600">A</text>
 
         <circle cx="222" cy="202" r="20" fill="#f6f7f9" stroke="#e2e2e2" stroke-width="1.2"/>
-        <text x="222" y="207" text-anchor="middle" font-family="'Source Serif 4', Georgia, serif" font-size="17" fill="#555" font-weight="600">C</text>
+        <text x="222" y="207" text-anchor="middle" font-family="'Source Serif 4', Georgia, 'Songti SC', 'Noto Serif CJK SC', serif" font-size="17" fill="#555" font-weight="600">C</text>
 
         <line x1="256" y1="202" x2="310" y2="202" stroke="#888" stroke-width="1.2"/>
         <polygon points="310,198 319,202 310,206" fill="#888"/>
 
         <circle cx="355" cy="202" r="22" fill="none" stroke="#555" stroke-width="1.3" stroke-dasharray="4,3"/>
-        <text x="355" y="207" text-anchor="middle" font-family="'Source Serif 4', Georgia, serif" font-size="17" fill="#555" font-weight="600">B</text>
+        <text x="355" y="207" text-anchor="middle" font-family="'Source Serif 4', Georgia, 'Songti SC', 'Noto Serif CJK SC', serif" font-size="17" fill="#555" font-weight="600">B</text>
         <text x="355" y="235" text-anchor="middle" font-family="'Inter', sans-serif" font-size="10" fill="#555" font-style="italic">proposed</text>
 
         <text x="448" y="198" font-family="'Inter', sans-serif" font-size="11.5" fill="#555" font-style="italic">"now compare</text>
         <text x="448" y="213" font-family="'Inter', sans-serif" font-size="11.5" fill="#555" font-style="italic"> on equal footing"</text>
 
         <line x1="40" y1="258" x2="520" y2="258" stroke="#e2e2e2"/>
-        <text x="280" y="284" text-anchor="middle" font-family="'Source Serif 4', Georgia, serif" font-size="14" fill="#1c1c1e" font-weight="600" letter-spacing="0.5">C | A,B &nbsp;&nbsp;versus&nbsp;&nbsp; B | A,C</text>
+        <text x="280" y="284" text-anchor="middle" font-family="'Source Serif 4', Georgia, 'Songti SC', 'Noto Serif CJK SC', serif" font-size="14" fill="#1c1c1e" font-weight="600" letter-spacing="0.5">C | A,B &nbsp;&nbsp;versus&nbsp;&nbsp; B | A,C</text>
       </svg>
-      <figcaption><strong>Fig. 1</strong> &mdash; The ABC Principle: strip away the novelty premium by reordering the timeline.</figcaption>
+      <figcaption><span class="lang-en"><strong>Fig. 1</strong> &mdash; The ABC Principle: strip away the novelty premium by reordering the timeline.</span><span class="lang-zh"><strong>图 1</strong> &mdash;&mdash; ABC 原则：把时间顺序调换，剥掉新颖性溢价。</span></figcaption>
     </figure>
 
-    <h2>Example I: Latent Reasoning</h2>
+    <h2><span class="lang-en">Example I: Latent Reasoning</span><span class="lang-zh">例一：隐式推理</span></h2>
 
-    <p>Let me try walking through an example that's been on my mind. Just to be clear, this is totally my personal take&mdash;you might see it differently, and I'd be curious to hear why.</p>
+    <p><span class="lang-en">Let me try walking through an example that's been on my mind. Just to be clear, this is totally my personal take&mdash;you might see it differently, and I'd be curious to hear why.</span><span class="lang-zh">举一个最近一直在想的例子。先说清楚，这完全是我个人的看法&mdash;&mdash;你可能有不同意见，我也很想听听为什么。</span></p>
 
-    <p><strong>A</strong>&mdash;Machines naturally reason in latent space. This isn't really new. In some sense, all of machine learning is about building better representation spaces, finding good features for next-token prediction. The "latent space" has kind of always been there, quietly doing its thing.</p>
+    <p><span class="lang-en"><strong>A</strong>&mdash;Machines naturally reason in latent space. This isn't really new. In some sense, all of machine learning is about building better representation spaces, finding good features for next-token prediction. The "latent space" has kind of always been there, quietly doing its thing.</span><span class="lang-zh"><strong>A</strong>&mdash;&mdash;机器本来就在隐空间里推理。这并不新鲜。某种意义上，整个机器学习就是在构造更好的表示空间，为下一个 token 的预测找到好特征。「隐空间」一直都在那儿，安静地干着自己的活。</span></p>
 
-    <p><strong>B</strong>&mdash;Chain-of-Thought reasoning. Someone proposes that instead of reasoning purely in hidden states, we have models reason over explicit textual tokens. Step by step, in natural language. A pretty cool idea that changed how we think about inference.</p>
+    <p><span class="lang-en"><strong>B</strong>&mdash;Chain-of-Thought reasoning. Someone proposes that instead of reasoning purely in hidden states, we have models reason over explicit textual tokens. Step by step, in natural language. A pretty cool idea that changed how we think about inference.</span><span class="lang-zh"><strong>B</strong>&mdash;&mdash;思维链推理。有人提出，与其只在隐状态里推理，不如让模型在显式的文本 token 上推理，用自然语言一步一步来。这个想法很漂亮，也改变了大家对推理阶段的理解。</span></p>
 
-    <p><strong>C</strong>&mdash;Latent reasoning (the recent wave), along with interpretability work trying to understand what these latent tokens actually encode.</p>
+    <p><span class="lang-en"><strong>C</strong>&mdash;Latent reasoning (the recent wave), along with interpretability work trying to understand what these latent tokens actually encode.</span><span class="lang-zh"><strong>C</strong>&mdash;&mdash;最近这一波隐式推理，以及试图弄清这些隐式 token 到底编码了什么的可解释性工作。</span></p>
 
-    <p>In the natural order (<strong>A,B &rarr; propose C</strong>): latent reasoning feels exciting. We're going back to continuous representations, moving beyond the constraints of text. And it genuinely is different from text-based CoT, no question.</p>
+    <p><span class="lang-en">In the natural order (<strong>A,B &rarr; propose C</strong>): latent reasoning feels exciting. We're going back to continuous representations, moving beyond the constraints of text. And it genuinely is different from text-based CoT, no question.</span><span class="lang-zh">按自然顺序看（<strong>A、B &rarr; 提出 C</strong>）：隐式推理让人兴奋。我们回到了连续表示，跳出了文本的约束。它确实和基于文本的 CoT 不一样，这点毫无疑问。</span></p>
 
-    <p>But I keep thinking about what we might be trading away. One of CoT's really nice properties is that humans can read it, write it, supervise it, and scale it. Both humans and machines can generate reasoning traces pretty cheaply. But latent tokens are really hard to write or verify. And it's not obvious to me what we're getting in return.</p>
+    <p><span class="lang-en">But I keep thinking about what we might be trading away. One of CoT's really nice properties is that humans can read it, write it, supervise it, and scale it. Both humans and machines can generate reasoning traces pretty cheaply. But latent tokens are really hard to write or verify. And it's not obvious to me what we're getting in return.</span><span class="lang-zh">但我一直在想，我们换掉的是什么。CoT 有一个很好的性质：人能读、能写、能监督、能规模化。人和机器都能以很低的成本生成推理轨迹。而隐式 token 很难写，也很难验证。换回来的东西是什么，我并不清楚。</span></p>
 
-    <p>Now try flipping it. Imagine we live in a world with <strong>A and C</strong>&mdash;machines have always had latent reasoning, and people have been working on its interpretability. Now someone walks in and proposes <strong>B</strong>: <em>"Hey, what if we just make the model reason in plain text?"</em></p>
+    <p><span class="lang-en">Now try flipping it. Imagine we live in a world with <strong>A and C</strong>&mdash;machines have always had latent reasoning, and people have been working on its interpretability. Now someone walks in and proposes <strong>B</strong>: <em>"Hey, what if we just make the model reason in plain text?"</em></span><span class="lang-zh">现在把顺序翻过来。想象我们生活在只有 <strong>A 和 C</strong> 的世界里&mdash;&mdash;机器一直在隐空间里推理，大家一直在研究它的可解释性。这时有人进来提出 <strong>B</strong>：<em>「要不，我们干脆让模型用纯文本来推理？」</em></span></p>
 
-    <p>I think that's a pretty interesting pitch.</p>
+    <p><span class="lang-en">I think that's a pretty interesting pitch.</span><span class="lang-zh">我觉得这个提案相当有意思。</span></p>
 
     <!-- Diptych -->
     <div class="diptych">
       <div class="diptych-panel panel-natural">
-        <div class="panel-header">Propose C | A, B</div>
-        <div class="panel-subtitle-text">Given CoT exists, pitch latent reasoning</div>
-        <div class="panel-item">Operates in continuous space</div>
-        <div class="panel-item">Potentially richer representations</div>
-        <div class="panel-item con">Harder to supervise or scale</div>
-        <div class="panel-item con">Humans can't easily write latent tokens</div>
-        <div class="panel-item con">Needs interpretability work to understand</div>
-        <div class="panel-item con">Less clear what we gain in return</div>
+        <div class="panel-header"><span class="lang-en">Propose C | A, B</span><span class="lang-zh">提出 C | A, B</span></div>
+        <div class="panel-subtitle-text"><span class="lang-en">Given CoT exists, pitch latent reasoning</span><span class="lang-zh">在已有 CoT 的前提下，推销隐式推理</span></div>
+        <div class="panel-item"><span class="lang-en">Operates in continuous space</span><span class="lang-zh">在连续空间中运作</span></div>
+        <div class="panel-item"><span class="lang-en">Potentially richer representations</span><span class="lang-zh">表示可能更丰富</span></div>
+        <div class="panel-item con"><span class="lang-en">Harder to supervise or scale</span><span class="lang-zh">更难监督，也更难规模化</span></div>
+        <div class="panel-item con"><span class="lang-en">Humans can't easily write latent tokens</span><span class="lang-zh">人很难手写隐式 token</span></div>
+        <div class="panel-item con"><span class="lang-en">Needs interpretability work to understand</span><span class="lang-zh">需要可解释性工作才能读懂</span></div>
+        <div class="panel-item con"><span class="lang-en">Less clear what we gain in return</span><span class="lang-zh">换回来的收益并不清楚</span></div>
       </div>
       <div class="diptych-panel panel-reordered">
-        <div class="panel-header">Propose B | A, C</div>
-        <div class="panel-subtitle-text">Given latent reasoning exists, pitch CoT</div>
-        <div class="panel-item">Humans can read the reasoning</div>
-        <div class="panel-item">Both humans and machines can write it</div>
-        <div class="panel-item">It just works&mdash;no special decoding</div>
-        <div class="panel-item">Scales beautifully with more data</div>
-        <div class="panel-item">Easy to debug and verify</div>
-        <div class="panel-item">Naturally supports supervision</div>
+        <div class="panel-header"><span class="lang-en">Propose B | A, C</span><span class="lang-zh">提出 B | A, C</span></div>
+        <div class="panel-subtitle-text"><span class="lang-en">Given latent reasoning exists, pitch CoT</span><span class="lang-zh">在已有隐式推理的前提下，推销 CoT</span></div>
+        <div class="panel-item"><span class="lang-en">Humans can read the reasoning</span><span class="lang-zh">人能直接读懂推理过程</span></div>
+        <div class="panel-item"><span class="lang-en">Both humans and machines can write it</span><span class="lang-zh">人和机器都写得出来</span></div>
+        <div class="panel-item"><span class="lang-en">It just works&mdash;no special decoding</span><span class="lang-zh">开箱即用&mdash;&mdash;不需要特殊解码</span></div>
+        <div class="panel-item"><span class="lang-en">Scales beautifully with more data</span><span class="lang-zh">数据越多，规模化得越漂亮</span></div>
+        <div class="panel-item"><span class="lang-en">Easy to debug and verify</span><span class="lang-zh">易于调试和验证</span></div>
+        <div class="panel-item"><span class="lang-en">Naturally supports supervision</span><span class="lang-zh">天然支持监督信号</span></div>
       </div>
     </div>
 
     <figure class="fig">
-      <figcaption><strong>Fig. 2</strong> &mdash; The Latent Reasoning Diptych: compare the two proposals side by side.</figcaption>
+      <figcaption><span class="lang-en"><strong>Fig. 2</strong> &mdash; The Latent Reasoning Diptych: compare the two proposals side by side.</span><span class="lang-zh"><strong>图 2</strong> &mdash;&mdash; 隐式推理对照图：把两个提案并排比较。</span></figcaption>
     </figure>
 
-    <p>If you look at the two columns side by side, it seems like <strong>C&thinsp;|&thinsp;A,B</strong>&mdash;latent reasoning, given we already have CoT&mdash;is kind of asking us to trade some pretty concrete advantages for something less transparent. Meanwhile <strong>B&thinsp;|&thinsp;A,C</strong>&mdash;CoT, given we already have latent reasoning&mdash;feels like a really practical, scalable idea that anyone can inspect and build on.</p>
+    <p><span class="lang-en">If you look at the two columns side by side, it seems like <strong>C&thinsp;|&thinsp;A,B</strong>&mdash;latent reasoning, given we already have CoT&mdash;is kind of asking us to trade some pretty concrete advantages for something less transparent. Meanwhile <strong>B&thinsp;|&thinsp;A,C</strong>&mdash;CoT, given we already have latent reasoning&mdash;feels like a really practical, scalable idea that anyone can inspect and build on.</span><span class="lang-zh">把两栏并排看，<strong>C&thinsp;|&thinsp;A,B</strong>&mdash;&mdash;在已有 CoT 的情况下提出隐式推理&mdash;&mdash;像是在要求我们拿一些相当具体的优势，去换一个更不透明的东西。而 <strong>B&thinsp;|&thinsp;A,C</strong>&mdash;&mdash;在已有隐式推理的情况下提出 CoT&mdash;&mdash;则像一个非常实用、可规模化、谁都能检查并在上面继续搭建的想法。</span></p>
 
-    <p>I have my own sense of which proposal feels stronger, and you probably have yours. The point isn't really that one is definitively right&mdash;it's more that flipping the order helps me see past the initial reaction and actually think about the tradeoffs more clearly.</p>
+    <p><span class="lang-en">I have my own sense of which proposal feels stronger, and you probably have yours. The point isn't really that one is definitively right&mdash;it's more that flipping the order helps me see past the initial reaction and actually think about the tradeoffs more clearly.</span><span class="lang-zh">哪个提案更强，我心里有自己的判断，你大概也有。重点其实不在于哪个一定对&mdash;&mdash;而在于换个顺序，能帮我越过第一反应，把取舍看得更清楚一点。</span></p>
 
-    <h2>Example II: The Transformer</h2>
+    <h2><span class="lang-en">Example II: The Transformer</span><span class="lang-zh">例二：Transformer</span></h2>
 
-    <p>Here's another one I've been thinking about. The more I work with this stuff, the more I find myself appreciating it.</p>
+    <p><span class="lang-en">Here's another one I've been thinking about. The more I work with this stuff, the more I find myself appreciating it.</span><span class="lang-zh">再举一个我一直在想的例子。这东西我用得越多，越觉得它了不起。</span></p>
 
-    <p>The Transformer architecture. I think it's easy to take it for granted&mdash;it's been around since 2017, it's everywhere, it kind of fades into the background of modern ML. But when I actually stop and think about what it gives us, it's pretty remarkable.</p>
+    <p><span class="lang-en">The Transformer architecture. I think it's easy to take it for granted&mdash;it's been around since 2017, it's everywhere, it kind of fades into the background of modern ML. But when I actually stop and think about what it gives us, it's pretty remarkable.</span><span class="lang-zh">Transformer 架构。它太容易被当成理所当然了&mdash;&mdash;2017 年就有了，到处都是，几乎已经融进现代机器学习的背景里。但真停下来想想它给了我们什么，其实相当惊人。</span></p>
 
-    <p>A lot of architectures are finicky. You spend a lot of time tuning hyperparameters, finding the right configuration, trying to make things competitive. The Transformer just kind of... stands there. (My friend <a href="https://zhouxiangfang.github.io/">@zhouxiang</a> and I once did a funny cosplay of it&mdash;long story.) You train it, and it gives you good performance. It's really quite robust.</p>
+    <p><span class="lang-en">A lot of architectures are finicky. You spend a lot of time tuning hyperparameters, finding the right configuration, trying to make things competitive. The Transformer just kind of... stands there. (My friend <a href="https://zhouxiangfang.github.io/">@zhouxiang</a> and I once did a funny cosplay of it&mdash;long story.) You train it, and it gives you good performance. It's really quite robust.</span><span class="lang-zh">很多架构都很挑。你要花大量时间调超参、找配置，才能把效果做到能打。Transformer 则是……就那么立在那儿。（我和朋友 <a href="https://zhouxiangfang.github.io/">@zhouxiang</a> 还一起 cosplay 过它，说来话长。）你把它训起来，它就给你不错的性能。它是真的稳。</span></p>
 
     <!-- Figure 3 -->
     <figure class="fig">
@@ -379,7 +419,7 @@
         <rect x="280" y="94" width="80" height="14" rx="2" fill="#f6f7f9" stroke="#e2e2e2" stroke-width="1"/>
 
         <rect x="268" y="38" width="104" height="48" rx="4" fill="#eef2fb" stroke="#2b5ecc" stroke-width="1"/>
-        <text x="320" y="59" text-anchor="middle" font-family="'Source Serif 4', Georgia, serif" font-size="13" fill="#1c1c1e" font-weight="600" letter-spacing="1.5">TRANSFORMER</text>
+        <text x="320" y="59" text-anchor="middle" font-family="'Source Serif 4', Georgia, 'Songti SC', 'Noto Serif CJK SC', serif" font-size="13" fill="#1c1c1e" font-weight="600" letter-spacing="1.5">TRANSFORMER</text>
         <text x="320" y="77" text-anchor="middle" font-family="'Inter', sans-serif" font-size="11" fill="#888" font-style="italic">est. 2017</text>
 
         <line x1="290" y1="140" x2="195" y2="118" stroke="#e2e2e2" stroke-width="1"/>
@@ -408,33 +448,33 @@
 
         <text x="320" y="320" text-anchor="middle" font-family="'Inter', sans-serif" font-size="12" fill="#888" font-style="italic">"it just stands there"</text>
       </svg>
-      <figcaption><strong>Fig. 3</strong> &mdash; The Transformer, rendered as a classical column. It just stands there, and everything works.</figcaption>
+      <figcaption><span class="lang-en"><strong>Fig. 3</strong> &mdash; The Transformer, rendered as a classical column. It just stands there, and everything works.</span><span class="lang-zh"><strong>图 3</strong> &mdash;&mdash; 把 Transformer 画成一根古典柱子。它就立在那儿，一切照常运转。</span></figcaption>
     </figure>
 
-    <p>And the nice properties keep adding up. Transformers with CoT are theoretically Turing-complete&mdash;they can, in principle, compute anything. They maintain exact KV caches, which means fast inference and good recall over long contexts. They seem like a natural fit for post-training, for agentic RL, for a lot of the things people want to build on top.</p>
+    <p><span class="lang-en">And the nice properties keep adding up. Transformers with CoT are theoretically Turing-complete&mdash;they can, in principle, compute anything. They maintain exact KV caches, which means fast inference and good recall over long contexts. They seem like a natural fit for post-training, for agentic RL, for a lot of the things people want to build on top.</span><span class="lang-zh">好性质还在不断累加。带 CoT 的 Transformer 在理论上是图灵完备的&mdash;&mdash;原则上什么都能算。它维护精确的 KV cache，因此推理快、长上下文下的召回也好。它天然适配后训练、agentic RL，以及大家想在上面搭的许多东西。</span></p>
 
-    <p>So I tried the ABC test here too. For a new architecture that wants to replace the Transformer: imagine you already had that new architecture (<strong>C</strong>), and someone came along and proposed the Transformer (<strong>B</strong>). I think the pitch would sound something like this.</p>
+    <p><span class="lang-en">So I tried the ABC test here too. For a new architecture that wants to replace the Transformer: imagine you already had that new architecture (<strong>C</strong>), and someone came along and proposed the Transformer (<strong>B</strong>). I think the pitch would sound something like this.</span><span class="lang-zh">所以我在这里也做了一次 ABC 测试。对一个想取代 Transformer 的新架构：想象你手上本来就有那个新架构（<strong>C</strong>），这时有人过来提出 Transformer（<strong>B</strong>）。那段推销词大概会是这样。</span></p>
 
     <blockquote>
-      "Hey, I have this architecture that just works out of the box. It scales predictably. It has an exact memory mechanism. It supports all sorts of post-training. You barely need to tune anything. And paired with textual reasoning, it's theoretically universal."
+      <span class="lang-en">"Hey, I have this architecture that just works out of the box. It scales predictably. It has an exact memory mechanism. It supports all sorts of post-training. You barely need to tune anything. And paired with textual reasoning, it's theoretically universal."</span><span class="lang-zh">「我有个架构，开箱即用。scaling 行为可预测。带一套精确的记忆机制。各种后训练都支持。几乎不用调什么参。再配上文本推理，理论上还是通用的。」</span>
     </blockquote>
 
-    <p>I don't know about you, but to me that sounds like a really strong proposal. I think in a lot of cases, the Transformer-as-proposal might actually be the more compelling pitch.</p>
+    <p><span class="lang-en">I don't know about you, but to me that sounds like a really strong proposal. I think in a lot of cases, the Transformer-as-proposal might actually be the more compelling pitch.</span><span class="lang-zh">不知道你怎么想，反正在我听来这是一个很强的提案。很多情况下，「把 Transformer 当作新提案」反而是更有说服力的那一个。</span></p>
 
-    <p>This doesn't mean we should stop exploring new architectures&mdash;definitely not. But I think it helps to appreciate the baseline we're comparing against. The Transformer has earned its spot, and I think acknowledging that is just being honest with ourselves.</p>
+    <p><span class="lang-en">This doesn't mean we should stop exploring new architectures&mdash;definitely not. But I think it helps to appreciate the baseline we're comparing against. The Transformer has earned its spot, and I think acknowledging that is just being honest with ourselves.</span><span class="lang-zh">这不是说我们该停止探索新架构&mdash;&mdash;当然不是。但认清我们在跟什么样的 baseline 比，是有好处的。Transformer 这个位置是它自己挣来的，承认这一点，只是对自己诚实而已。</span></p>
 
-    <h2>Staying Honest</h2>
+    <h2><span class="lang-en">Staying Honest</span><span class="lang-zh">保持诚实</span></h2>
 
-    <p>The ABC thing isn't a rigorous framework or anything. It's really just a mental habit&mdash;a way to pause before I get too excited about something new and check whether I actually think it's better, or whether it just feels better because it's different.</p>
+    <p><span class="lang-en">The ABC thing isn't a rigorous framework or anything. It's really just a mental habit&mdash;a way to pause before I get too excited about something new and check whether I actually think it's better, or whether it just feels better because it's different.</span><span class="lang-zh">ABC 算不上什么严谨的框架。它只是一个思维习惯&mdash;&mdash;在对一个新东西太上头之前先停一下，问问自己是真觉得它更好，还是仅仅因为它不一样所以感觉更好。</span></p>
 
-    <p>I find it keeps me a bit more honest with myself, especially when I'm evaluating my own ideas. (My own ideas always feel the most novel to me, which is probably exactly when I need this the most.)</p>
+    <p><span class="lang-en">I find it keeps me a bit more honest with myself, especially when I'm evaluating my own ideas. (My own ideas always feel the most novel to me, which is probably exactly when I need this the most.)</span><span class="lang-zh">它让我对自己诚实一点，尤其是在评估我自己的想法时。（我自己的想法在我看来永远最新颖，而这大概正是最需要这一招的时候。）</span></p>
 
-    <p>If you have thoughts on this, or examples where this kind of thinking breaks down, or cases where flipping the order actually reveals the opposite of what you'd expect&mdash;I'd genuinely love to hear about them. This is very much a work in progress, like pretty much everything else in my research life.</p>
+    <p><span class="lang-en">If you have thoughts on this, or examples where this kind of thinking breaks down, or cases where flipping the order actually reveals the opposite of what you'd expect&mdash;I'd genuinely love to hear about them. This is very much a work in progress, like pretty much everything else in my research life.</span><span class="lang-zh">如果你对这个有想法，或者有这种思路失效的例子，又或者有「换个顺序之后结论反而相反」的情况&mdash;&mdash;我都很想听。这东西还远没有成型，就像我研究生活里的其他大部分事情一样。</span></p>
 
-    <p class="prose-footer"><em>Just a personal reflection, not trying to claim any authority here. If the ABC framing is useful to you, feel free to borrow it. If you think it's wrong, I'd honestly love to know why.</em></p>
+    <p class="prose-footer"><span class="lang-en"><em>Just a personal reflection, not trying to claim any authority here. If the ABC framing is useful to you, feel free to borrow it. If you think it's wrong, I'd honestly love to know why.</em></span><span class="lang-zh"><em>只是个人的一点反思，不敢说有什么权威性。ABC 这个说法如果对你有用，尽管拿去用。如果你觉得它不对，我也很想知道为什么。</em></span></p>
 
     <div class="cite-box">
-      <div class="cite-label">Cite this post</div>
+      <div class="cite-label"><span class="lang-en">Cite this post</span><span class="lang-zh">引用本文</span></div>
       <pre>@misc{deng2026abc,
   title        = {The {ABC} Research Mindset},
   author       = {Chunyuan Deng},
@@ -447,9 +487,22 @@
   </div>
 
   <footer>
-    <span>Chunyuan Deng &mdash; Rice University</span>
+    <span><span class="lang-en">Chunyuan Deng &mdash; Rice University</span><span class="lang-zh">Chunyuan Deng &mdash; 莱斯大学</span></span>
   </footer>
 </div>
 
+<script>
+  (function () {
+    var btn = document.getElementById('langToggle');
+    if (!btn) return;
+    btn.addEventListener('click', function () {
+      var next = document.documentElement.getAttribute('data-lang') === 'zh' ? 'en' : 'zh';
+      document.documentElement.setAttribute('data-lang', next);
+      document.documentElement.setAttribute('lang', next === 'zh' ? 'zh-Hans' : 'en');
+      try { localStorage.setItem('blog-lang', next); } catch (e) {}
+      if (typeof window.updateTocActive === 'function') window.updateTocActive();
+    });
+  })();
+</script>
 </body>
 </html>

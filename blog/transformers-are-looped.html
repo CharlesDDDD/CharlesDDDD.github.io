@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -29,7 +29,7 @@
     }
 
     body {
-      font-family: 'Inter', sans-serif;
+      font-family: 'Inter', -apple-system, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
       background: var(--bg);
       color: var(--text);
       font-size: 14px;
@@ -44,7 +44,7 @@
 
     .hero { padding: 52px 0 36px; }
     .hero h1 {
-      font-family: 'Source Serif 4', Georgia, serif;
+      font-family: 'Source Serif 4', Georgia, 'Songti SC', 'Noto Serif CJK SC', serif;
       font-size: 2.2rem;
       font-weight: 600;
       letter-spacing: -0.025em;
@@ -66,7 +66,7 @@
     a:hover { text-decoration: underline; }
 
     h2 {
-      font-family: 'Source Serif 4', Georgia, serif;
+      font-family: 'Source Serif 4', Georgia, 'Songti SC', 'Noto Serif CJK SC', serif;
       font-size: 1.35rem;
       font-weight: 600;
       color: var(--text);
@@ -192,6 +192,32 @@
       white-space: pre;
     }
 
+    /* ---------- language toggle ---------- */
+
+    html[data-lang="en"] .lang-zh,
+    html[data-lang="zh"] .lang-en { display: none; }
+
+    html[data-lang="zh"] .prose { line-height: 1.95; }
+    html[data-lang="zh"] li { line-height: 1.9; }
+    html[data-lang="zh"] .hero h1,
+    html[data-lang="zh"] h2 { letter-spacing: 0; }
+    html[data-lang="zh"] .hero .subtitle { font-style: normal; }
+
+    .header-bar { align-items: center; display: flex; justify-content: space-between; }
+    .lang-toggle {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 11.5px;
+      line-height: 1.6;
+      padding: 2px 10px;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .lang-toggle:hover { border-color: var(--accent); color: var(--accent); }
+
     footer {
       border-top: 1px solid var(--border);
       padding: 24px 0;
@@ -206,20 +232,34 @@
       .comparison-grid { grid-template-columns: 1fr; }
     }
   </style>
+  <script>
+    (function () {
+      try {
+        var l = localStorage.getItem('blog-lang');
+        if (l === 'zh' || l === 'en') {
+          document.documentElement.setAttribute('data-lang', l);
+          document.documentElement.setAttribute('lang', l === 'zh' ? 'zh-Hans' : 'en');
+        }
+      } catch (e) {}
+    })();
+  </script>
 </head>
 <body>
 
 <header>
-  <div class="container">
-    <a href="../index.html">&larr; Back to Home</a>
+  <div class="container header-bar">
+    <a href="../index.html"><span class="lang-en">&larr; Back to Home</span><span class="lang-zh">&larr; 返回首页</span></a>
+    <button class="lang-toggle" id="langToggle" type="button" aria-label="Switch language">
+      <span class="lang-en">中文</span><span class="lang-zh">English</span>
+    </button>
   </div>
 </header>
 
 <div class="container">
   <div class="hero">
-    <h1>Transformers Are (Naively) Looped Transformers, Horizontally</h1>
-    <p class="subtitle">Weight sharing across positions makes the Transformer a time-recurrent loop — and TTT is its learned-optimizer cousin</p>
-    <p class="meta">Chunyuan Deng &middot; May 2026</p>
+    <h1><span class="lang-en">Transformers Are (Naively) Looped Transformers, Horizontally</span><span class="lang-zh">Transformer 本身就是横向展开的循环 Transformer</span></h1>
+    <p class="subtitle"><span class="lang-en">Weight sharing across positions makes the Transformer a time-recurrent loop — and TTT is its learned-optimizer cousin</span><span class="lang-zh">跨位置共享权重，让 Transformer 成为一个时间维上的循环结构——而 TTT 是它「把循环体换成梯度下降」的那个近亲</span></p>
+    <p class="meta"><span class="lang-en">Chunyuan Deng &middot; May 2026</span><span class="lang-zh">Chunyuan Deng &middot; 2026 年 5 月</span></p>
   </div>
 
   <hr class="divider">
@@ -228,197 +268,197 @@
 
     <div class="tldr">
       <strong>TL;DR</strong><br><br>
-      The standard Transformer is position-invariant: it applies the <em>same</em> weight matrices at every sequence position. This makes it a <strong>horizontally looped</strong> (time-recurrent) architecture — not just a deep one. The natural generalization is to assign a distinct weight matrix to every position. Test-Time Training (TTT) is exactly this generalization realized through gradient descent: the hidden state stores a fast-weight model that is updated position by position, giving per-position weights without storing a separate matrix for each step.
+      <span class="lang-en">The standard Transformer is position-invariant: it applies the <em>same</em> weight matrices at every sequence position. This makes it a <strong>horizontally looped</strong> (time-recurrent) architecture — not just a deep one. The natural generalization is to assign a distinct weight matrix to every position. Test-Time Training (TTT) is exactly this generalization realized through gradient descent: the hidden state stores a fast-weight model that is updated position by position, giving per-position weights without storing a separate matrix for each step.</span><span class="lang-zh">标准 Transformer 是位置不变的：它在每个序列位置上用的是<em>同一组</em>权重矩阵。这让它成为一个<strong>横向循环</strong>（时间维递归）的架构，而不只是一个「深」的架构。最自然的推广，是给每个位置配一组各自的权重矩阵。Test-Time Training（TTT）正是用梯度下降实现的这种推广：隐状态里存的是一个快权重模型，逐位置更新，于是每个位置都有自己的权重，却不必为每一步单独存一个矩阵。</span>
     </div>
 
-    <h2>I. The Standard Transformer, Written Carefully</h2>
+    <h2><span class="lang-en">I. The Standard Transformer, Written Carefully</span><span class="lang-zh">一、把标准 Transformer 仔细写一遍</span></h2>
 
-    <p>Fix a sequence of $T$ tokens. After embedding, we have</p>
+    <p><span class="lang-en">Fix a sequence of $T$ tokens. After embedding, we have</span><span class="lang-zh">固定一条长度为 $T$ 的 token 序列。做完 embedding 后，我们有</span></p>
 
     $$X \in \mathbb{R}^{T \times d}$$
 
-    <p>where $T$ is the sequence length and $d$ is the model dimension. Denote the $t$-th row as $x_t \in \mathbb{R}^d$.</p>
+    <p><span class="lang-en">where $T$ is the sequence length and $d$ is the model dimension. Denote the $t$-th row as $x_t \in \mathbb{R}^d$.</span><span class="lang-zh">其中 $T$ 是序列长度，$d$ 是模型维度。把第 $t$ 行记作 $x_t \in \mathbb{R}^d$。</span></p>
 
-    <p>A single Transformer layer applies the same projection matrices $W_Q, W_K, W_V, W_O \in \mathbb{R}^{d \times d}$ to every position:</p>
+    <p><span class="lang-en">A single Transformer layer applies the same projection matrices $W_Q, W_K, W_V, W_O \in \mathbb{R}^{d \times d}$ to every position:</span><span class="lang-zh">单层 Transformer 会把同一组投影矩阵 $W_Q, W_K, W_V, W_O \in \mathbb{R}^{d \times d}$ 作用到每一个位置上：</span></p>
 
     <div class="math-block">
-      <div class="label">Self-Attention at position $t$</div>
+      <div class="label"><span class="lang-en">Self-Attention at position $t$</span><span class="lang-zh">位置 $t$ 上的自注意力</span></div>
       $$q_t = x_t W_Q, \quad k_t = x_t W_K, \quad v_t = x_t W_V \qquad q_t, k_t, v_t \in \mathbb{R}^d$$
       $$a_t = \sum_{s \leq t} \frac{\exp(q_t \cdot k_s / \sqrt{d})}{\sum_{s' \leq t} \exp(q_t \cdot k_{s'} / \sqrt{d})}\, v_s \qquad a_t \in \mathbb{R}^d$$
       $$o_t = a_t W_O \qquad o_t \in \mathbb{R}^d$$
     </div>
 
-    <p>The crucial observation: $W_Q, W_K, W_V, W_O$ carry <strong>no subscript $t$</strong>. Every position $t \in \{1, \ldots, T\}$ is processed by the <em>identical</em> linear maps. This is not a coincidence — it is a deliberate design choice called <strong>parameter sharing across time</strong>.</p>
+    <p><span class="lang-en">The crucial observation: $W_Q, W_K, W_V, W_O$ carry <strong>no subscript $t$</strong>. Every position $t \in \{1, \ldots, T\}$ is processed by the <em>identical</em> linear maps. This is not a coincidence — it is a deliberate design choice called <strong>parameter sharing across time</strong>.</span><span class="lang-zh">关键的观察是：$W_Q, W_K, W_V, W_O$ <strong>都不带下标 $t$</strong>。每个位置 $t \in \{1, \ldots, T\}$ 都被<em>完全相同</em>的线性映射处理。这不是巧合，而是一个刻意的设计选择，叫做<strong>沿时间维的参数共享</strong>。</span></p>
 
     <div class="insight-box">
-      <h3>The Weight-Sharing Fact</h3>
-      <p>In a standard Transformer with $L$ layers, the total number of weight parameters is $O(L \cdot d^2)$, independent of sequence length $T$. The same $d^2$ parameters are reused at every one of the $T$ positions within each layer.</p>
+      <h3><span class="lang-en">The Weight-Sharing Fact</span><span class="lang-zh">权重共享这件事</span></h3>
+      <p><span class="lang-en">In a standard Transformer with $L$ layers, the total number of weight parameters is $O(L \cdot d^2)$, independent of sequence length $T$. The same $d^2$ parameters are reused at every one of the $T$ positions within each layer.</span><span class="lang-zh">一个 $L$ 层的标准 Transformer，权重参数总量是 $O(L \cdot d^2)$，与序列长度 $T$ 无关。每层里的这 $d^2$ 个参数，会在全部 $T$ 个位置上被反复使用。</span></p>
     </div>
 
-    <h2>II. Transformers as Horizontally Looped Architectures</h2>
+    <h2><span class="lang-en">II. Transformers as Horizontally Looped Architectures</span><span class="lang-zh">二、把 Transformer 看作横向循环架构</span></h2>
 
-    <p>Think of the computation graph of a single Transformer layer. It has two axes:</p>
+    <p><span class="lang-en">Think of the computation graph of a single Transformer layer. It has two axes:</span><span class="lang-zh">看一层 Transformer 的计算图，它有两个轴：</span></p>
     <ul>
-      <li><strong>Depth axis (vertical):</strong> stacking $L$ layers on top of each other.</li>
-      <li><strong>Time axis (horizontal):</strong> processing positions $t = 1, \ldots, T$ left to right.</li>
+      <li><span class="lang-en"><strong>Depth axis (vertical):</strong> stacking $L$ layers on top of each other.</span><span class="lang-zh"><strong>深度轴（纵向）：</strong>把 $L$ 层叠起来。</span></li>
+      <li><span class="lang-en"><strong>Time axis (horizontal):</strong> processing positions $t = 1, \ldots, T$ left to right.</span><span class="lang-zh"><strong>时间轴（横向）：</strong>从左到右处理位置 $t = 1, \ldots, T$。</span></li>
     </ul>
 
-    <p>Because $W_Q, W_K, W_V, W_O$ are shared across the time axis, the Transformer is a <strong>loop unrolled in time</strong>:</p>
+    <p><span class="lang-en">Because $W_Q, W_K, W_V, W_O$ are shared across the time axis, the Transformer is a <strong>loop unrolled in time</strong>:</span><span class="lang-zh">因为 $W_Q, W_K, W_V, W_O$ 在时间轴上是共享的，Transformer 其实是<strong>一个在时间上展开的循环</strong>：</span></p>
 
     <div class="math-block">
-      <div class="label">Transformer as a Horizontal Loop</div>
-      <p>For each layer $\ell \in \{1,\ldots,L\}$ and position $t \in \{1,\ldots,T\}$:</p>
+      <div class="label"><span class="lang-en">Transformer as a Horizontal Loop</span><span class="lang-zh">作为横向循环的 Transformer</span></div>
+      <p><span class="lang-en">For each layer $\ell \in \{1,\ldots,L\}$ and position $t \in \{1,\ldots,T\}$:</span><span class="lang-zh">对每一层 $\ell \in \{1,\ldots,L\}$ 和每个位置 $t \in \{1,\ldots,T\}$：</span></p>
       $$h_t^{(\ell)} = f_\theta\!\left(h_t^{(\ell-1)},\; \{h_s^{(\ell-1)}\}_{s \leq t}\right)$$
-      <p>where $f_\theta$ is the <em>same function</em> (same $\theta = \{W_Q, W_K, W_V, W_O, W_{\text{FF}}\}$) for all $t$.</p>
+      <p><span class="lang-en">where $f_\theta$ is the <em>same function</em> (same $\theta = \{W_Q, W_K, W_V, W_O, W_{\text{FF}}\}$) for all $t$.</span><span class="lang-zh">其中对所有 $t$，$f_\theta$ 都是<em>同一个函数</em>（同一组 $\theta = \{W_Q, W_K, W_V, W_O, W_{\text{FF}}\}$）。</span></p>
     </div>
 
-    <p>This is precisely a <strong>recurrent computation</strong> along the time axis. The Transformer is not recurrent in the traditional RNN sense (it does not pass a hidden state vector from step to step), but it is <em>parameter-recurrent</em>: the same weight loop is applied at every time step.</p>
+    <p><span class="lang-en">This is precisely a <strong>recurrent computation</strong> along the time axis. The Transformer is not recurrent in the traditional RNN sense (it does not pass a hidden state vector from step to step), but it is <em>parameter-recurrent</em>: the same weight loop is applied at every time step.</span><span class="lang-zh">这恰好就是沿时间轴的<strong>递归计算</strong>。Transformer 不是传统 RNN 意义上的递归（它不在步与步之间传递隐状态向量），但它是<em>参数意义上的递归</em>：同一组权重构成的循环体，在每个时间步上被重复施加。</span></p>
 
-    <p>Concretely, consider the per-position update at a fixed layer:</p>
+    <p><span class="lang-en">Concretely, consider the per-position update at a fixed layer:</span><span class="lang-zh">具体来说，看固定某一层时逐位置的更新：</span></p>
 
     $$h_t \leftarrow f_\theta(h_t,\; \text{context up to } t), \quad t = 1, 2, \ldots, T$$
 
-    <p>This is a loop over $T$ steps, each executing $f_\theta$. The Transformer is therefore a <strong>naively looped Transformer</strong> — naive in the sense that the loop body $f_\theta$ never changes across iterations.</p>
+    <p><span class="lang-en">This is a loop over $T$ steps, each executing $f_\theta$. The Transformer is therefore a <strong>naively looped Transformer</strong> — naive in the sense that the loop body $f_\theta$ never changes across iterations.</span><span class="lang-zh">这就是一个跑 $T$ 步的循环，每步执行一次 $f_\theta$。所以 Transformer 是一个<strong>朴素的循环 Transformer</strong>——朴素之处在于，循环体 $f_\theta$ 在所有迭代中从不改变。</span></p>
 
-    <h2>III. The General, Non-Shared Version</h2>
+    <h2><span class="lang-en">III. The General, Non-Shared Version</span><span class="lang-zh">三、一般形式：不共享权重的版本</span></h2>
 
-    <p>The natural generalization removes the weight-sharing constraint: assign a distinct set of parameters to each position.</p>
+    <p><span class="lang-en">The natural generalization removes the weight-sharing constraint: assign a distinct set of parameters to each position.</span><span class="lang-zh">最自然的推广是把权重共享这条约束去掉：给每个位置配一组独立的参数。</span></p>
 
     <div class="math-block">
-      <div class="label">Per-Position (Non-Shared) Transformer</div>
+      <div class="label"><span class="lang-en">Per-Position (Non-Shared) Transformer</span><span class="lang-zh">逐位置（不共享）的 Transformer</span></div>
       $$q_t = x_t W_Q^{(t)}, \quad k_t = x_t W_K^{(t)}, \quad v_t = x_t W_V^{(t)} \qquad W_Q^{(t)}, W_K^{(t)}, W_V^{(t)} \in \mathbb{R}^{d \times d}$$
     </div>
 
-    <p>Here the superscript $(t)$ indicates that each position $t$ has its <em>own</em> projection matrices. The total parameter count is now $O(T \cdot d^2)$ per layer — linear in sequence length.</p>
+    <p><span class="lang-en">Here the superscript $(t)$ indicates that each position $t$ has its <em>own</em> projection matrices. The total parameter count is now $O(T \cdot d^2)$ per layer — linear in sequence length.</span><span class="lang-zh">这里的上标 $(t)$ 表示每个位置 $t$ 都有<em>自己的</em>投影矩阵。此时每层的参数量变成 $O(T \cdot d^2)$——随序列长度线性增长。</span></p>
 
-    <p>For $T = 1{,}000{,}000$ and $d = 4{,}096$, this is $\approx 1.7 \times 10^{13}$ parameters per layer — obviously infeasible to store explicitly. Yet this is the conceptually correct, most expressive model: position 1 should arguably use different processing logic than position 1,000,000.</p>
+    <p><span class="lang-en">For $T = 1{,}000{,}000$ and $d = 4{,}096$, this is $\approx 1.7 \times 10^{13}$ parameters per layer — obviously infeasible to store explicitly. Yet this is the conceptually correct, most expressive model: position 1 should arguably use different processing logic than position 1,000,000.</span><span class="lang-zh">取 $T = 1{,}000{,}000$、$d = 4{,}096$，每层约 $1.7 \times 10^{13}$ 个参数——显式存下来显然不现实。但从概念上讲，这才是最正确、表达力最强的模型：位置 1 本来就应该用和位置 1,000,000 不一样的处理逻辑。</span></p>
 
-    <p>The standard Transformer is the special case $W^{(1)} = W^{(2)} = \cdots = W^{(T)} = W$: a single shared matrix used for all positions. Positional encodings are the only mechanism that breaks this symmetry, but they act on the <em>inputs</em>, not the <em>weights</em>.</p>
+    <p><span class="lang-en">The standard Transformer is the special case $W^{(1)} = W^{(2)} = \cdots = W^{(T)} = W$: a single shared matrix used for all positions. Positional encodings are the only mechanism that breaks this symmetry, but they act on the <em>inputs</em>, not the <em>weights</em>.</span><span class="lang-zh">标准 Transformer 是其中的特例 $W^{(1)} = W^{(2)} = \cdots = W^{(T)} = W$：所有位置共用一个矩阵。位置编码是唯一打破这种对称性的机制，但它作用在<em>输入</em>上，而不是<em>权重</em>上。</span></p>
 
     <div class="comparison-grid">
       <div class="comparison-cell">
-        <h3>Standard Transformer</h3>
-        <p>Weights: $W^{(t)} = W$ for all $t$</p>
-        <p>Parameters: $O(d^2)$ per layer</p>
-        <p>Position awareness: via positional encodings on inputs</p>
-        <p>Expressivity: same function applied everywhere</p>
+        <h3><span class="lang-en">Standard Transformer</span><span class="lang-zh">标准 Transformer</span></h3>
+        <p><span class="lang-en">Weights: $W^{(t)} = W$ for all $t$</span><span class="lang-zh">权重：对所有 $t$ 都有 $W^{(t)} = W$</span></p>
+        <p><span class="lang-en">Parameters: $O(d^2)$ per layer</span><span class="lang-zh">参数量：每层 $O(d^2)$</span></p>
+        <p><span class="lang-en">Position awareness: via positional encodings on inputs</span><span class="lang-zh">位置感知：靠作用在输入上的位置编码</span></p>
+        <p><span class="lang-en">Expressivity: same function applied everywhere</span><span class="lang-zh">表达力：处处都是同一个函数</span></p>
       </div>
       <div class="comparison-cell">
-        <h3>Per-Position (General) Model</h3>
-        <p>Weights: $W^{(t)}$ distinct for each $t$</p>
-        <p>Parameters: $O(T \cdot d^2)$ per layer</p>
-        <p>Position awareness: baked into the weights themselves</p>
-        <p>Expressivity: different function at every position</p>
+        <h3><span class="lang-en">Per-Position (General) Model</span><span class="lang-zh">逐位置（一般）模型</span></h3>
+        <p><span class="lang-en">Weights: $W^{(t)}$ distinct for each $t$</span><span class="lang-zh">权重：每个 $t$ 对应不同的 $W^{(t)}$</span></p>
+        <p><span class="lang-en">Parameters: $O(T \cdot d^2)$ per layer</span><span class="lang-zh">参数量：每层 $O(T \cdot d^2)$</span></p>
+        <p><span class="lang-en">Position awareness: baked into the weights themselves</span><span class="lang-zh">位置感知：直接刻进权重本身</span></p>
+        <p><span class="lang-en">Expressivity: different function at every position</span><span class="lang-zh">表达力：每个位置一个不同的函数</span></p>
       </div>
     </div>
 
-    <p>The gap between these two extremes is enormous. Can we find a tractable middle ground that achieves position-dependent processing without storing $T$ full weight matrices?</p>
+    <p><span class="lang-en">The gap between these two extremes is enormous. Can we find a tractable middle ground that achieves position-dependent processing without storing $T$ full weight matrices?</span><span class="lang-zh">这两个极端之间的差距非常大。有没有一个可行的中间地带，既能做到依位置而变的处理，又不用存下 $T$ 个完整的权重矩阵？</span></p>
 
-    <h2>IV. TTT: Horizontal Looping with Learned Gradient Steps</h2>
+    <h2><span class="lang-en">IV. TTT: Horizontal Looping with Learned Gradient Steps</span><span class="lang-zh">四、TTT：把梯度步当作循环体的横向循环</span></h2>
 
-    <p>Test-Time Training (TTT) [<a href="#ref-sun2024">Sun et al., 2024</a>] closes this gap by replacing the static weight $W$ with a <strong>fast-weight model</strong> $W_t$ that is updated at each position via gradient descent. The key idea is that instead of storing a per-position weight matrix, we <em>generate</em> it on the fly by running a small optimization.</p>
+    <p><span class="lang-en">Test-Time Training (TTT) [<a href="#ref-sun2024">Sun et al., 2024</a>] closes this gap by replacing the static weight $W$ with a <strong>fast-weight model</strong> $W_t$ that is updated at each position via gradient descent. The key idea is that instead of storing a per-position weight matrix, we <em>generate</em> it on the fly by running a small optimization.</span><span class="lang-zh">Test-Time Training（TTT）[<a href="#ref-sun2024">Sun et al., 2024</a>] 填上了这个空隙：它把静态权重 $W$ 换成一个<strong>快权重模型</strong> $W_t$，在每个位置上用梯度下降更新一次。核心想法是，与其把逐位置的权重矩阵存下来，不如靠跑一个小优化<em>现场生成</em>它。</span></p>
 
-    <h3>Setup: The Fast-Weight Model</h3>
+    <h3><span class="lang-en">Setup: The Fast-Weight Model</span><span class="lang-zh">设定：快权重模型</span></h3>
 
-    <p>At each position $t$, TTT maintains a weight matrix $W_t \in \mathbb{R}^{d \times d}$ (or a small neural network parameterized by $W_t$). The hidden state of the sequence model <em>is</em> $W_t$.</p>
+    <p><span class="lang-en">At each position $t$, TTT maintains a weight matrix $W_t \in \mathbb{R}^{d \times d}$ (or a small neural network parameterized by $W_t$). The hidden state of the sequence model <em>is</em> $W_t$.</span><span class="lang-zh">在每个位置 $t$，TTT 维护一个权重矩阵 $W_t \in \mathbb{R}^{d \times d}$（或者一个以 $W_t$ 为参数的小网络）。序列模型的隐状态<em>就是</em> $W_t$。</span></p>
 
-    <p>For each incoming token $x_t \in \mathbb{R}^d$, TTT constructs a self-supervised task:</p>
+    <p><span class="lang-en">For each incoming token $x_t \in \mathbb{R}^d$, TTT constructs a self-supervised task:</span><span class="lang-zh">对每个进来的 token $x_t \in \mathbb{R}^d$，TTT 构造一个自监督任务：</span></p>
 
     <div class="math-block">
-      <div class="label">TTT Self-Supervised Loss at Position $t$</div>
+      <div class="label"><span class="lang-en">TTT Self-Supervised Loss at Position $t$</span><span class="lang-zh">位置 $t$ 上的 TTT 自监督损失</span></div>
       $$\mathcal{L}_t(W) = \left\| W \cdot k_t - v_t \right\|^2$$
-      <p>where $k_t = x_t W_K \in \mathbb{R}^d$ is the key and $v_t = x_t W_V \in \mathbb{R}^d$ is the target value, with $W_K, W_V \in \mathbb{R}^{d \times d}$ being outer (slow) weights shared across all positions.</p>
+      <p><span class="lang-en">where $k_t = x_t W_K \in \mathbb{R}^d$ is the key and $v_t = x_t W_V \in \mathbb{R}^d$ is the target value, with $W_K, W_V \in \mathbb{R}^{d \times d}$ being outer (slow) weights shared across all positions.</span><span class="lang-zh">其中 $k_t = x_t W_K \in \mathbb{R}^d$ 是 key，$v_t = x_t W_V \in \mathbb{R}^d$ 是目标 value，而 $W_K, W_V \in \mathbb{R}^{d \times d}$ 是所有位置共享的外层（慢）权重。</span></p>
     </div>
 
-    <p>This is a simple ridge regression objective: the fast-weight matrix $W_t$ is asked to map the current key to the current value.</p>
+    <p><span class="lang-en">This is a simple ridge regression objective: the fast-weight matrix $W_t$ is asked to map the current key to the current value.</span><span class="lang-zh">这就是一个简单的岭回归目标：要求快权重矩阵 $W_t$ 把当前的 key 映射到当前的 value。</span></p>
 
-    <h3>The Recurrent Update Rule</h3>
+    <h3><span class="lang-en">The Recurrent Update Rule</span><span class="lang-zh">递归更新规则</span></h3>
 
-    <p>The weight is updated by a gradient step:</p>
+    <p><span class="lang-en">The weight is updated by a gradient step:</span><span class="lang-zh">权重用一步梯度更新：</span></p>
 
     <div class="math-block">
-      <div class="label">TTT Update (one gradient step)</div>
+      <div class="label"><span class="lang-en">TTT Update (one gradient step)</span><span class="lang-zh">TTT 更新（一步梯度）</span></div>
       $$W_t = W_{t-1} - \eta \,\nabla_W \mathcal{L}_t(W_{t-1})$$
       $$= W_{t-1} - \eta \left(W_{t-1} k_t - v_t\right) k_t^\top$$
-      <p>where $\eta > 0$ is a learned step size (scalar or per-parameter), and the gradient $\nabla_W \mathcal{L}_t(W) = (Wk_t - v_t)k_t^\top \in \mathbb{R}^{d \times d}$ is the outer product of the residual and the key.</p>
+      <p><span class="lang-en">where $\eta > 0$ is a learned step size (scalar or per-parameter), and the gradient $\nabla_W \mathcal{L}_t(W) = (Wk_t - v_t)k_t^\top \in \mathbb{R}^{d \times d}$ is the outer product of the residual and the key.</span><span class="lang-zh">其中 $\eta > 0$ 是学出来的步长（标量或逐参数），梯度 $\nabla_W \mathcal{L}_t(W) = (Wk_t - v_t)k_t^\top \in \mathbb{R}^{d \times d}$ 是残差与 key 的外积。</span></p>
     </div>
 
-    <p>The output at position $t$ is then read out by querying the updated model:</p>
+    <p><span class="lang-en">The output at position $t$ is then read out by querying the updated model:</span><span class="lang-zh">位置 $t$ 的输出，就是拿 query 去问更新后的模型：</span></p>
 
     $$z_t = W_t \cdot q_t \qquad z_t \in \mathbb{R}^d$$
 
-    <p>where $q_t = x_t W_Q \in \mathbb{R}^d$ is the query, again using a shared slow weight $W_Q \in \mathbb{R}^{d \times d}$.</p>
+    <p><span class="lang-en">where $q_t = x_t W_Q \in \mathbb{R}^d$ is the query, again using a shared slow weight $W_Q \in \mathbb{R}^{d \times d}$.</span><span class="lang-zh">其中 $q_t = x_t W_Q \in \mathbb{R}^d$ 是 query，同样用共享的慢权重 $W_Q \in \mathbb{R}^{d \times d}$ 得到。</span></p>
 
-    <h3>Why This is Per-Position Weights</h3>
+    <h3><span class="lang-en">Why This is Per-Position Weights</span><span class="lang-zh">为什么这就是逐位置权重</span></h3>
 
-    <p>After $t$ gradient steps, the fast weight $W_t$ encodes the accumulated gradient information from all positions $1, \ldots, t$:</p>
+    <p><span class="lang-en">After $t$ gradient steps, the fast weight $W_t$ encodes the accumulated gradient information from all positions $1, \ldots, t$:</span><span class="lang-zh">走完 $t$ 步梯度之后，快权重 $W_t$ 编码了位置 $1, \ldots, t$ 上累积的全部梯度信息：</span></p>
 
     $$W_t = W_0 - \eta \sum_{s=1}^{t} \left(W_{s-1} k_s - v_s\right) k_s^\top$$
 
-    <p>Each $W_t$ is distinct — it depends on the entire history $(x_1, \ldots, x_t)$. This is precisely the per-position weight matrix $W^{(t)}$ from the general model, but expressed implicitly through gradient accumulation rather than stored explicitly.</p>
+    <p><span class="lang-en">Each $W_t$ is distinct — it depends on the entire history $(x_1, \ldots, x_t)$. This is precisely the per-position weight matrix $W^{(t)}$ from the general model, but expressed implicitly through gradient accumulation rather than stored explicitly.</span><span class="lang-zh">每个 $W_t$ 都不一样——它依赖于整段历史 $(x_1, \ldots, x_t)$。这正是一般模型里的逐位置权重矩阵 $W^{(t)}$，只不过是用梯度累积隐式表达出来的，而不是显式存下来的。</span></p>
 
     <div class="insight-box">
-      <h3>TTT = Horizontal Looping + Gradient Descent as the Loop Body</h3>
-      <p>The standard Transformer loops the same static function $f_W$ over positions. TTT loops a function whose <em>weights change</em> at each step via gradient descent. The loop body is not $f_W$ but $f_{W_t}$, and $W_t$ evolves by a local optimization step at each position.</p>
-      <p>This gives TTT the expressivity of per-position weights without the $O(T \cdot d^2)$ storage cost. The trade-off: the per-position weight is determined by a fixed optimization trajectory (gradient descent from $W_0$), not a freely learned mapping.</p>
+      <h3><span class="lang-en">TTT = Horizontal Looping + Gradient Descent as the Loop Body</span><span class="lang-zh">TTT = 横向循环 + 以梯度下降为循环体</span></h3>
+      <p><span class="lang-en">The standard Transformer loops the same static function $f_W$ over positions. TTT loops a function whose <em>weights change</em> at each step via gradient descent. The loop body is not $f_W$ but $f_{W_t}$, and $W_t$ evolves by a local optimization step at each position.</span><span class="lang-zh">标准 Transformer 在各个位置上循环同一个静态函数 $f_W$。TTT 循环的则是一个<em>权重会变</em>的函数，每步都由梯度下降更新。循环体不是 $f_W$ 而是 $f_{W_t}$，而 $W_t$ 在每个位置上都经过一次局部优化。</span></p>
+      <p><span class="lang-en">This gives TTT the expressivity of per-position weights without the $O(T \cdot d^2)$ storage cost. The trade-off: the per-position weight is determined by a fixed optimization trajectory (gradient descent from $W_0$), not a freely learned mapping.</span><span class="lang-zh">这让 TTT 拿到了逐位置权重的表达力，却不必付出 $O(T \cdot d^2)$ 的存储代价。代价在于：逐位置的权重由一条固定的优化轨迹决定（从 $W_0$ 出发的梯度下降），而不是一个可以自由学习的映射。</span></p>
     </div>
 
-    <h2>V. The LocoProp Connection</h2>
+    <h2><span class="lang-en">V. The LocoProp Connection</span><span class="lang-zh">五、与 LocoProp 的联系</span></h2>
 
-    <p>The TTT update is more than vanilla gradient descent — it is closely related to <strong>LocoProp</strong> [<a href="#ref-amid2022">Amid et al., 2022</a>], a local propagation algorithm for training neural networks layer by layer.</p>
+    <p><span class="lang-en">The TTT update is more than vanilla gradient descent — it is closely related to <strong>LocoProp</strong> [<a href="#ref-amid2022">Amid et al., 2022</a>], a local propagation algorithm for training neural networks layer by layer.</span><span class="lang-zh">TTT 的更新不止是普通梯度下降——它和 <strong>LocoProp</strong> [<a href="#ref-amid2022">Amid et al., 2022</a>] 关系密切，后者是一种逐层训练神经网络的局部传播算法。</span></p>
 
-    <p>LocoProp decomposes the global training objective into local per-layer targets. Each layer is trained to minimize:</p>
+    <p><span class="lang-en">LocoProp decomposes the global training objective into local per-layer targets. Each layer is trained to minimize:</span><span class="lang-zh">LocoProp 把全局训练目标拆成每层的局部目标。每一层要最小化的是：</span></p>
 
     <div class="math-block">
-      <div class="label">LocoProp Local Objective</div>
+      <div class="label"><span class="lang-en">LocoProp Local Objective</span><span class="lang-zh">LocoProp 的局部目标</span></div>
       $$\mathcal{L}^{\text{loco}}_\ell(W_\ell) = \left\| W_\ell \cdot h_{\ell-1} - \hat{h}_\ell \right\|^2 + \lambda \left\| W_\ell - W_\ell^{\text{prev}} \right\|^2_F$$
-      <p>where $h_{\ell-1} \in \mathbb{R}^d$ is the input to layer $\ell$, $\hat{h}_\ell \in \mathbb{R}^d$ is the local target (a detached signal from the next layer's gradient), $W_\ell^{\text{prev}}$ is the previous iterate, and $\|\cdot\|_F$ denotes the Frobenius norm.</p>
+      <p><span class="lang-en">where $h_{\ell-1} \in \mathbb{R}^d$ is the input to layer $\ell$, $\hat{h}_\ell \in \mathbb{R}^d$ is the local target (a detached signal from the next layer's gradient), $W_\ell^{\text{prev}}$ is the previous iterate, and $\|\cdot\|_F$ denotes the Frobenius norm.</span><span class="lang-zh">其中 $h_{\ell-1} \in \mathbb{R}^d$ 是第 $\ell$ 层的输入，$\hat{h}_\ell \in \mathbb{R}^d$ 是局部目标（来自下一层梯度、已 detach 的信号），$W_\ell^{\text{prev}}$ 是上一次迭代的权重，$\|\cdot\|_F$ 表示 Frobenius 范数。</span></p>
     </div>
 
-    <p>TTT's self-supervised loss $\mathcal{L}_t(W) = \|W k_t - v_t\|^2$ is structurally identical, with the key $k_t$ playing the role of the layer input and the value $v_t$ as the local target. TTT is therefore LocoProp applied <em>horizontally across time</em> rather than vertically across depth.</p>
+    <p><span class="lang-en">TTT's self-supervised loss $\mathcal{L}_t(W) = \|W k_t - v_t\|^2$ is structurally identical, with the key $k_t$ playing the role of the layer input and the value $v_t$ as the local target. TTT is therefore LocoProp applied <em>horizontally across time</em> rather than vertically across depth.</span><span class="lang-zh">TTT 的自监督损失 $\mathcal{L}_t(W) = \|W k_t - v_t\|^2$ 在结构上与之完全一致：key $k_t$ 扮演层输入的角色，value $v_t$ 充当局部目标。所以 TTT 就是把 LocoProp <em>横着沿时间轴</em>用了一遍，而不是纵向沿深度用。</span></p>
 
     <div class="comparison-grid">
       <div class="comparison-cell">
-        <h3>LocoProp (Vertical)</h3>
-        <p>Axis: depth (layer $\ell$)</p>
-        <p>Target: signal from adjacent layer</p>
-        <p>Update: local regression per layer</p>
-        <p>Purpose: credit assignment without full backprop</p>
+        <h3><span class="lang-en">LocoProp (Vertical)</span><span class="lang-zh">LocoProp（纵向）</span></h3>
+        <p><span class="lang-en">Axis: depth (layer $\ell$)</span><span class="lang-zh">轴：深度（第 $\ell$ 层）</span></p>
+        <p><span class="lang-en">Target: signal from adjacent layer</span><span class="lang-zh">目标：来自相邻层的信号</span></p>
+        <p><span class="lang-en">Update: local regression per layer</span><span class="lang-zh">更新：每层一次局部回归</span></p>
+        <p><span class="lang-en">Purpose: credit assignment without full backprop</span><span class="lang-zh">目的：不做完整反向传播的信用分配</span></p>
       </div>
       <div class="comparison-cell">
-        <h3>TTT (Horizontal)</h3>
-        <p>Axis: time (position $t$)</p>
-        <p>Target: value $v_t$ at current position</p>
-        <p>Update: local regression per position</p>
-        <p>Purpose: per-position weight adaptation</p>
+        <h3><span class="lang-en">TTT (Horizontal)</span><span class="lang-zh">TTT（横向）</span></h3>
+        <p><span class="lang-en">Axis: time (position $t$)</span><span class="lang-zh">轴：时间（位置 $t$）</span></p>
+        <p><span class="lang-en">Target: value $v_t$ at current position</span><span class="lang-zh">目标：当前位置的 value $v_t$</span></p>
+        <p><span class="lang-en">Update: local regression per position</span><span class="lang-zh">更新：每个位置一次局部回归</span></p>
+        <p><span class="lang-en">Purpose: per-position weight adaptation</span><span class="lang-zh">目的：逐位置的权重自适应</span></p>
       </div>
     </div>
 
-    <h2>VI. Connecting Everything: A Unified View</h2>
+    <h2><span class="lang-en">VI. Connecting Everything: A Unified View</span><span class="lang-zh">六、串起来：一个统一视角</span></h2>
 
-    <p>We can now arrange these architectures on a spectrum of how much weight sharing they enforce along the time axis:</p>
+    <p><span class="lang-en">We can now arrange these architectures on a spectrum of how much weight sharing they enforce along the time axis:</span><span class="lang-zh">现在可以把这些架构按「沿时间轴共享多少权重」排成一个谱：</span></p>
 
     <div class="math-block">
-      <div class="label">Spectrum of Time-Axis Weight Sharing</div>
-      <p><strong>Full sharing (Standard Transformer):</strong> $W^{(t)} = W$ for all $t \in \{1,\ldots,T\}$. One matrix, reused everywhere. Cheapest, but position-invariant.</p>
-      <p><strong>Gradient-accumulated sharing (TTT):</strong> $W^{(t)} = W_0 - \eta\sum_{s \leq t} g_s$, where $g_s$ is the gradient at step $s$. Position-dependent, but constrained to a gradient descent trajectory. $O(d^2)$ hidden state.</p>
-      <p><strong>No sharing (Per-Position Model):</strong> $W^{(t)}$ freely chosen for each $t$. Most expressive, but $O(T \cdot d^2)$ parameters — infeasible for long sequences.</p>
+      <div class="label"><span class="lang-en">Spectrum of Time-Axis Weight Sharing</span><span class="lang-zh">时间轴权重共享谱</span></div>
+      <p><span class="lang-en"><strong>Full sharing (Standard Transformer):</strong> $W^{(t)} = W$ for all $t \in \{1,\ldots,T\}$. One matrix, reused everywhere. Cheapest, but position-invariant.</span><span class="lang-zh"><strong>完全共享（标准 Transformer）：</strong>对所有 $t \in \{1,\ldots,T\}$ 都有 $W^{(t)} = W$。一个矩阵，到处复用。最省，但位置不变。</span></p>
+      <p><span class="lang-en"><strong>Gradient-accumulated sharing (TTT):</strong> $W^{(t)} = W_0 - \eta\sum_{s \leq t} g_s$, where $g_s$ is the gradient at step $s$. Position-dependent, but constrained to a gradient descent trajectory. $O(d^2)$ hidden state.</span><span class="lang-zh"><strong>梯度累积式共享（TTT）：</strong>$W^{(t)} = W_0 - \eta\sum_{s \leq t} g_s$，其中 $g_s$ 是第 $s$ 步的梯度。依位置而变，但被限制在一条梯度下降轨迹上。隐状态规模 $O(d^2)$。</span></p>
+      <p><span class="lang-en"><strong>No sharing (Per-Position Model):</strong> $W^{(t)}$ freely chosen for each $t$. Most expressive, but $O(T \cdot d^2)$ parameters — infeasible for long sequences.</span><span class="lang-zh"><strong>完全不共享（逐位置模型）：</strong>每个 $t$ 的 $W^{(t)}$ 自由取值。表达力最强，但参数量 $O(T \cdot d^2)$——长序列下不可行。</span></p>
     </div>
 
-    <p>The standard Transformer's position-invariance is its defining limitation at long context. When processing position $t = 1{,}000{,}000$, the model uses the exact same weight matrices as at position $t = 1$. The only differentiation comes from the attention pattern over context, not from the processing function itself.</p>
+    <p><span class="lang-en">The standard Transformer's position-invariance is its defining limitation at long context. When processing position $t = 1{,}000{,}000$, the model uses the exact same weight matrices as at position $t = 1$. The only differentiation comes from the attention pattern over context, not from the processing function itself.</span><span class="lang-zh">位置不变性，是标准 Transformer 在长上下文下最本质的局限。处理位置 $t = 1{,}000{,}000$ 时，模型用的还是位置 $t = 1$ 那组权重矩阵。唯一的区别来自注意力在上下文上的分布，而不是处理函数本身。</span></p>
 
-    <p>TTT breaks this invariance in a principled, memory-efficient way. The fast weight $W_t$ at position $t$ encodes a compressed summary of all keys and values seen so far, updated via a gradient step that costs only $O(d^2)$ per position — the same asymptotic cost as a standard attention operation.</p>
+    <p><span class="lang-en">TTT breaks this invariance in a principled, memory-efficient way. The fast weight $W_t$ at position $t$ encodes a compressed summary of all keys and values seen so far, updated via a gradient step that costs only $O(d^2)$ per position — the same asymptotic cost as a standard attention operation.</span><span class="lang-zh">TTT 以一种有原则且省显存的方式打破了这种不变性。位置 $t$ 上的快权重 $W_t$ 压缩地记录了此前见过的所有 key 与 value，每个位置只需一步 $O(d^2)$ 的梯度更新——和标准注意力操作是同一个渐近量级。</span></p>
 
-    <h2>VII. Summary</h2>
+    <h2><span class="lang-en">VII. Summary</span><span class="lang-zh">七、小结</span></h2>
 
     <ul>
-      <li><strong>Transformers are horizontally looped:</strong> They apply the same weight matrices at every position, making them a time-recurrent loop with a static body $f_W$.</li>
-      <li><strong>The general model has per-position weights:</strong> $W^{(t)}$ distinct for each $t$, giving $O(T \cdot d^2)$ parameters — expressive but infeasible.</li>
-      <li><strong>TTT bridges the gap:</strong> It replaces the static $W$ with a fast-weight model $W_t$ updated by gradient descent at each position, achieving per-position weight adaptation at $O(d^2)$ memory cost.</li>
-      <li><strong>TTT is LocoProp along the time axis:</strong> The self-supervised key-value regression at each position is structurally identical to LocoProp's local layer-wise objectives, transposed from the depth axis to the time axis.</li>
+      <li><span class="lang-en"><strong>Transformers are horizontally looped:</strong> They apply the same weight matrices at every position, making them a time-recurrent loop with a static body $f_W$.</span><span class="lang-zh"><strong>Transformer 是横向循环的：</strong>它在每个位置用同一组权重矩阵，因此是一个循环体固定为 $f_W$ 的时间维循环。</span></li>
+      <li><span class="lang-en"><strong>The general model has per-position weights:</strong> $W^{(t)}$ distinct for each $t$, giving $O(T \cdot d^2)$ parameters — expressive but infeasible.</span><span class="lang-zh"><strong>一般模型带逐位置权重：</strong>每个 $t$ 有各自的 $W^{(t)}$，参数量 $O(T \cdot d^2)$——表达力强但不可行。</span></li>
+      <li><span class="lang-en"><strong>TTT bridges the gap:</strong> It replaces the static $W$ with a fast-weight model $W_t$ updated by gradient descent at each position, achieving per-position weight adaptation at $O(d^2)$ memory cost.</span><span class="lang-zh"><strong>TTT 架起了中间的桥：</strong>它把静态的 $W$ 换成每个位置都用梯度下降更新的快权重模型 $W_t$，以 $O(d^2)$ 的显存代价实现了逐位置的权重自适应。</span></li>
+      <li><span class="lang-en"><strong>TTT is LocoProp along the time axis:</strong> The self-supervised key-value regression at each position is structurally identical to LocoProp's local layer-wise objectives, transposed from the depth axis to the time axis.</span><span class="lang-zh"><strong>TTT 就是沿时间轴的 LocoProp：</strong>每个位置上的 key-value 自监督回归，与 LocoProp 的逐层局部目标在结构上完全相同，只是把深度轴换成了时间轴。</span></li>
     </ul>
 
-    <h2>References</h2>
+    <h2><span class="lang-en">References</span><span class="lang-zh">参考文献</span></h2>
 
     <ul class="ref-list" id="references">
       <li id="ref-sun2024">
@@ -439,7 +479,7 @@
     </ul>
 
     <div class="cite-box">
-      <div class="cite-label">Cite this post</div>
+      <div class="cite-label"><span class="lang-en">Cite this post</span><span class="lang-zh">引用本文</span></div>
       <pre>@misc{deng2026looped,
   title        = {Transformers Are (Naively) Looped Transformers, Horizontally},
   author       = {Chunyuan Deng},
@@ -452,7 +492,7 @@
   </div>
 
   <footer>
-    <span>Chunyuan Deng &mdash; Rice University</span>
+    <span><span class="lang-en">Chunyuan Deng &mdash; Rice University</span><span class="lang-zh">Chunyuan Deng &mdash; 莱斯大学</span></span>
   </footer>
 </div>
 
@@ -468,6 +508,19 @@
       throwOnError: false
     });
   });
+</script>
+<script>
+  (function () {
+    var btn = document.getElementById('langToggle');
+    if (!btn) return;
+    btn.addEventListener('click', function () {
+      var next = document.documentElement.getAttribute('data-lang') === 'zh' ? 'en' : 'zh';
+      document.documentElement.setAttribute('data-lang', next);
+      document.documentElement.setAttribute('lang', next === 'zh' ? 'zh-Hans' : 'en');
+      try { localStorage.setItem('blog-lang', next); } catch (e) {}
+      if (typeof window.updateTocActive === 'function') window.updateTocActive();
+    });
+  })();
 </script>
 </body>
 </html>

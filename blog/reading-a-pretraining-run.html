@@ -433,7 +433,7 @@
     </details>
 
     <main class="prose">
-    <p><span class="lang-en">A large training run can produce thousands of metrics. You cannot watch them all. I group them into three levels: the few that should trigger an alert, the ones to open when something looks wrong, and the detailed ones for a specific investigation. For each metric, I give the definition, how to combine it across workers, and how often to record it.</span><span class="lang-zh"><em>探针</em>（probe）是挂在训练上的一次测量。一次大规模训练会吐出成千上万个探针，难的从来不是多采几个，而是知道该盯住哪十个。所以这里的每个指标除了定义、聚合方式和默认采样频率，还带一个优先级。</span></p>
+    <p><span class="lang-en">This post gives a broad view of the metrics worth tracking during pretraining. Every lab has its own dashboard, so this list is necessarily opinionated. It can also help when testing a new architecture or optimizer: instead of looking only at loss, we can see how the change affects the model and the training system as a whole.</span><span class="lang-zh"><em>探针</em>（probe）是挂在训练上的一次测量。一次大规模训练会吐出成千上万个探针，难的从来不是多采几个，而是知道该盯住哪十个。所以这里的每个指标除了定义、聚合方式和默认采样频率，还带一个优先级。</span></p>
 
     <div class="table-wrap prio-table">
       <table>

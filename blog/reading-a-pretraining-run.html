@@ -219,8 +219,12 @@
 
     .index-table table { min-width: 720px; }
     .index-table td:first-child { color: var(--text); font-weight: 600; white-space: nowrap; }
-    .index-table td:nth-child(3),
     .index-table td:last-child { white-space: nowrap; }
+    .index-table th:nth-child(3),
+    .index-table td:nth-child(3) {
+      width: 118px;
+      white-space: normal;
+    }
     .index-table td:nth-child(3) { color: var(--text-secondary); }
 
     .index-table td:first-child a,

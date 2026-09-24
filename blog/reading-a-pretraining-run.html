@@ -771,12 +771,6 @@
             <td><span class="lang-en">Final checkpoints</span><span class="lang-zh">最终 checkpoint</span></td>
             <td><span class="p p-1">P1</span></td>
           </tr>
-          <tr>
-            <td><a href="#m-ema"><span class="lang-en">Averaged-weight evaluation (optional)</span><span class="lang-zh">权重平均评测（可选）</span></a></td>
-            <td><span class="lang-en">A less noisy way to compare checkpoints</span><span class="lang-zh">去掉训练中途的噪声再做对比</span></td>
-            <td><span class="lang-en">Selected evaluations</span><span class="lang-zh">选定的评测点</span></td>
-            <td><span class="p p-2">P2</span></td>
-          </tr>
         </tbody>
       </table>
     </div>
@@ -1201,7 +1195,7 @@
         $$\widehat{\operatorname{pass@}k}
         =1-\frac{\binom{n-c}{k}}{\binom{n}{k}}.$$
       </div>
-      <p><span class="lang-en">If $n-c&lt;k$, the estimate is 1. Pass@1 measures one attempt. Larger values of $k$ ask whether repeated sampling can find a correct answer. This estimator is described in the Codex evaluation paper <a href="#ref-codex">[6]</a>.</span><span class="lang-zh">当 $n-c&lt;k$ 时估计值为 1。pass@1 衡量一次作答的水平，$k$ 更大时衡量的是重复采样下的覆盖率。这个估计量见 Codex 的公开评测论文 <a href="#ref-codex">[6]</a>。</span></p>
+      <p><span class="lang-en">If $n-c&lt;k$, the estimate is 1. Pass@1 measures one attempt. Larger values of $k$ ask whether repeated sampling can find a correct answer. This estimator is described in the Codex evaluation paper <a href="#ref-codex">[5]</a>.</span><span class="lang-zh">当 $n-c&lt;k$ 时估计值为 1。pass@1 衡量一次作答的水平，$k$ 更大时衡量的是重复采样下的覆盖率。这个估计量见 Codex 的公开评测论文 <a href="#ref-codex">[5]</a>。</span></p>
     </div>
 
     <div class="metric-entry" id="m-iou">
@@ -1214,14 +1208,9 @@
       <p><span class="lang-en">A score of 0 means no overlap; 1 means the regions match exactly. Make this P0 when grounding is a main goal of the run.</span><span class="lang-zh">完全不重叠为 0，完全重合为 1。如果这次训练的目标能力以 grounding 为主，就把它提到 P0。</span></p>
     </div>
 
-    <div class="metric-entry" id="m-ema">
-      <p><span class="metric-name"><span class="lang-en">Optional example: averaged-weight evaluation.</span><span class="lang-zh">可选示例：权重平均评测。</span></span><span class="p p-2">P2</span> <span class="lang-en">If the training method maintains an averaged copy of the weights, evaluate it at selected milestones alongside the raw checkpoint. Weight averaging is a general public technique; see the EMA overview in <a href="#ref-ema">[4]</a>.</span><span class="lang-zh">如果训练方法维护了一份平均权重，可以在选定里程碑同时评测它与原始 checkpoint。权重平均是公开的通用技术；EMA 的公开综述见 <a href="#ref-ema">[4]</a>。</span></p>
-      <p><span class="lang-en">Choose the comparison stream in advance and keep it fixed. Averaged weights are not guaranteed to outperform raw weights for every optimizer, schedule, or task.</span><span class="lang-zh">应预先确定用于比较的权重版本并保持一致；平均权重并不保证在所有优化器、调度或任务上优于原始权重。</span></p>
-    </div>
-
     <p class="caution"><span class="lang-en"><strong>Keep the evaluation fixed.</strong> Version the dataset, tokenizer, prompt, decoding settings, answer cleanup, and judge. If the definition changes, you cannot tell whether the model changed.</span><span class="lang-zh"><strong>可比性：</strong>数据集、分词器、prompt、解码参数、后处理和判分器都要有版本号。定义跟着一起变了的指标，涨跌都没法解释。</span></p>
 
-    <p class="caution"><span class="lang-en"><strong>Optional reporting practice.</strong> Predictions outside the range used to fit a scaling curve are extrapolations. Label them explicitly and report uncertainty rather than presenting one number as a measurement; this is a general regression caution <a href="#ref-extrapolation">[5]</a>.</span><span class="lang-zh"><strong>可选报告方式。</strong>超出 scaling 曲线拟合区间的预测属于外推，应明确标注并报告不确定性，而不要把单个预测值写成实测结果；这是通用的回归分析注意事项 <a href="#ref-extrapolation">[5]</a>。</span></p>
+    <p class="caution"><span class="lang-en"><strong>Optional reporting practice.</strong> Predictions outside the range used to fit a scaling curve are extrapolations. Label them explicitly and report uncertainty rather than presenting one number as a measurement; this is a general regression caution <a href="#ref-extrapolation">[4]</a>.</span><span class="lang-zh"><strong>可选报告方式。</strong>超出 scaling 曲线拟合区间的预测属于外推，应明确标注并报告不确定性，而不要把单个预测值写成实测结果；这是通用的回归分析注意事项 <a href="#ref-extrapolation">[4]</a>。</span></p>
 
     <div class="part"><span class="lang-en">Part V &middot; Practice</span><span class="lang-zh">第五部分 &middot; 实践</span></div>
 
@@ -1299,7 +1288,6 @@
       <li id="ref-spike-no-more"><a href="https://arxiv.org/abs/2312.16903">Takase et al., “Spike No More: Stabilizing the Pre-training of Large Language Models”</a> — <span class="lang-en">loss spikes, gradient growth, and residual-path stability.</span><span class="lang-zh">loss spike、梯度增长与 residual-path 稳定性。</span></li>
       <li id="ref-deepseek-v3"><a href="https://arxiv.org/abs/2412.19437">DeepSeek-AI, “DeepSeek-V3 Technical Report”</a> — <span class="lang-en">public discussion of MoE expert-load monitoring and balancing.</span><span class="lang-zh">公开介绍 MoE expert load 的监控与均衡。</span></li>
       <li id="ref-llava"><a href="https://arxiv.org/abs/2304.08485">Liu et al., “Visual Instruction Tuning”</a> — <span class="lang-en">a public encoder-projector multimodal architecture.</span><span class="lang-zh">公开的 encoder-projector 多模态架构示例。</span></li>
-      <li id="ref-ema"><a href="https://arxiv.org/abs/2411.18704">Morales-Brotons et al., “Exponential Moving Average of Weights in Deep Learning: Dynamics and Benefits”</a> — <span class="lang-en">a public treatment of weight EMA.</span><span class="lang-zh">关于权重 EMA 的公开研究。</span></li>
       <li id="ref-extrapolation"><a href="https://online.stat.psu.edu/stat200/lesson/12/12.5">Penn State STAT 200, “Cautions”</a> — <span class="lang-en">a public introduction to the risks of regression extrapolation.</span><span class="lang-zh">关于回归外推风险的公开介绍。</span></li>
       <li id="ref-codex"><a href="https://arxiv.org/abs/2107.03374">Chen et al., “Evaluating Large Language Models Trained on Code”</a> — <span class="lang-en">the unbiased pass@$k$ estimator.</span><span class="lang-zh">无偏 pass@$k$ 估计量。</span></li>
     </ol>

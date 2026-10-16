@@ -289,10 +289,10 @@
   <div class="prose">
 
     <div class="stats">
-      <div class="stat"><div class="v">15.6<span class="arrow">&rarr;</span>1.0</div><div class="k">layer-1 MaxVio, steps 3000&ndash;3999, after layer-1 centering</div></div>
-      <div class="stat"><div class="v">26<span class="arrow">&rarr;</span>0.4</div><div class="k">starved layer-1 experts per step (under 0.1&times; share), steps 3000&ndash;5000</div></div>
-      <div class="stat"><div class="v">&asymp;0</div><div class="k">final loss change: val &minus;0.0001, test +0.0001 (one seed)</div></div>
-      <div class="stat"><div class="v">4<span class="arrow">&rarr;</span>0</div><div class="k">gradient-clipping events after step 600</div></div>
+      <div class="stat"><div class="v">12.1<span class="arrow">&rarr;</span>1.1</div><div class="k">layer-1 MaxVio (steps 1000&ndash;5000), second-order centering of layer 1</div></div>
+      <div class="stat"><div class="v">25<span class="arrow">&rarr;</span>0.8</div><div class="k">starved layer-1 experts per step (under 0.1&times; share, steps 1000&ndash;2999), same method</div></div>
+      <div class="stat"><div class="v">&asymp;0 <span class="arrow">/</span> +0.002</div><div class="k">final val loss change: centering / second-order centering of layer 1 (one seed)</div></div>
+      <div class="stat"><div class="v">4<span class="arrow">&rarr;</span>0</div><div class="k">gradient-clipping events after step 600, every centered run</div></div>
     </div>
 
     <!-- ======================================================================= -->
@@ -8974,7 +8974,8 @@ L 394.4 66.0
     </figure>
 
     <h3>Results: balance</h3>
-    <p>Same setup and seed as the baseline; only the router logits change.</p>
+    <p>Same setup and seed as the baseline; only the router logits change. Centering and whitening act on <strong>layer 1 only</strong>; differential acts on <strong>all 8 layers</strong>.</p>
+    <div class="tldr"><strong>Best balance: second-order centering of layer 1</strong> (whitening, $a = 0.1$). Lowest layer-1 MaxVio (1.10) and MinVio (0.68), lowest MaxVio$_{\text{mean}}$ (0.39) and MinVio$_{\text{worst}}$ (0.77) over the whole model, and the fewest starved experts. Its cost: +0.002 validation loss (one seed).</div>
 
     <figure class="fig">
       <svg id="f07centeringmaxvio" role="img" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 576 309.6" xmlns="http://www.w3.org/2000/svg" version="1.1">
@@ -12696,7 +12697,7 @@ L 394.0 253.6
     <p>Whole model, mean over steps 1000&ndash;5000:</p>
     <div class="table-wrap">
       <table>
-        <tr><th>metric</th><th class="num"><span class="dot" style="background:#4a4a4a"></span>no centering</th><th class="num"><span class="dot" style="background:#2b5ecc"></span>center layer 1</th><th class="num"><span class="dot" style="background:#1b7a4b"></span>differential</th><th class="num"><span class="dot" style="background:#9b3d8c"></span>whiten $a = 0.1$</th><th class="num"><span class="dot" style="background:#d4832a"></span>whiten $a = 1$</th></tr>
+        <tr><th>metric</th><th class="num"><span class="dot" style="background:#4a4a4a"></span>no centering</th><th class="num"><span class="dot" style="background:#2b5ecc"></span>center<br><small>layer 1</small></th><th class="num"><span class="dot" style="background:#1b7a4b"></span>differential<br><small>all layers</small></th><th class="num"><span class="dot" style="background:#9b3d8c"></span>whiten $a = 0.1$<br><small>layer 1</small></th><th class="num"><span class="dot" style="background:#d4832a"></span>whiten $a = 1$<br><small>layer 1</small></th></tr>
         <tr><td>MaxVio$_{\text{mean}}$</td><td class="num">1.77</td><td class="num">0.45</td><td class="num">0.42</td><td class="num best">0.39</td><td class="num">0.42</td></tr>
         <tr><td>MaxVio$_{\text{worst}}$</td><td class="num">12.98</td><td class="num best">1.82</td><td class="num">2.50</td><td class="num">1.83</td><td class="num">2.04</td></tr>
         <tr><td>MinVio$_{\text{mean}}$</td><td class="num">0.39</td><td class="num">0.39</td><td class="num best">0.34</td><td class="num">0.35</td><td class="num">0.37</td></tr>
@@ -12706,7 +12707,7 @@ L 394.0 253.6
     <p>Every layer, mean over steps 1000&ndash;5000 (worst single step in brackets):</p>
     <div class="table-wrap">
       <table>
-        <tr><th>layer</th><th class="num"><span class="dot" style="background:#4a4a4a"></span>no centering</th><th class="num"><span class="dot" style="background:#2b5ecc"></span>center layer 1</th><th class="num"><span class="dot" style="background:#1b7a4b"></span>differential</th><th class="num"><span class="dot" style="background:#9b3d8c"></span>whiten $a = 0.1$</th><th class="num"><span class="dot" style="background:#d4832a"></span>whiten $a = 1$</th></tr>
+        <tr><th>layer</th><th class="num"><span class="dot" style="background:#4a4a4a"></span>no centering</th><th class="num"><span class="dot" style="background:#2b5ecc"></span>center<br><small>layer 1</small></th><th class="num"><span class="dot" style="background:#1b7a4b"></span>differential<br><small>all layers</small></th><th class="num"><span class="dot" style="background:#9b3d8c"></span>whiten $a = 0.1$<br><small>layer 1</small></th><th class="num"><span class="dot" style="background:#d4832a"></span>whiten $a = 1$<br><small>layer 1</small></th></tr>
         <tr class="band"><td colspan="6">MaxVio: mean over steps 1000&ndash;5000 [worst single step]</td></tr>
         <tr><td>1</td><td class="num">12.1 <span style="color:var(--text-light)">[31.0]</span></td><td class="num">1.23 <span style="color:var(--text-light)">[4.19]</span></td><td class="num">1.75 <span style="color:var(--text-light)">[7.46]</span></td><td class="num best">1.10 <span style="color:var(--text-light)">[5.17]</span></td><td class="num">1.34 <span style="color:var(--text-light)">[5.54]</span></td></tr>
         <tr><td>2</td><td class="num">0.67 <span style="color:var(--text-light)">[2.42]</span></td><td class="num">1.00 <span style="color:var(--text-light)">[2.29]</span></td><td class="num best">0.46 <span style="color:var(--text-light)">[1.85]</span></td><td class="num">0.68 <span style="color:var(--text-light)">[1.94]</span></td><td class="num">0.70 <span style="color:var(--text-light)">[1.94]</span></td></tr>
@@ -12729,7 +12730,7 @@ L 394.0 253.6
     </div>
     <ul>
       <li><strong>Whole model.</strong> MaxVio$_{\text{worst}}$ is set by layer 1: 13.0 &rarr; 1.8&ndash;2.5. MaxVio$_{\text{mean}}$ falls 4&times; (1.77 &rarr; 0.39&ndash;0.45). MinVio$_{\text{mean}}$ barely moves (0.34&ndash;0.39); MinVio$_{\text{worst}}$ is lowest with whitening (0.77).</li>
-      <li><strong>Layer 1.</strong> Every variant cuts mean MaxVio 7&ndash;11&times; (12.1 &rarr; 1.1&ndash;1.8) and the worst step from 31 to 4&ndash;7.5. MinVio stays high (0.7&ndash;0.95): some experts still starve at times; whitening with $a = 0.1$ is lowest.</li>
+      <li><strong>Layer 1.</strong> Every method cuts mean MaxVio 7&ndash;11&times; (12.1 &rarr; 1.1&ndash;1.8) and the worst step from 31 to 4&ndash;7.5. MinVio stays high (0.7&ndash;0.95): some experts still starve at times; whitening with $a = 0.1$ is lowest.</li>
       <li><strong>Layer 2.</strong> Centering only layer 1 makes it a little worse (MaxVio 0.67 &rarr; 1.00, MinVio 0.68 &rarr; 0.84); whitening does not; differential, which also centers layer 2, makes it better (0.46 / 0.48).</li>
       <li><strong>Layers 3&ndash;8.</strong> Means barely move (0.17&ndash;0.27), but worst steps halve (about 2.0 &rarr; 0.7&ndash;1.4): in the baseline one event (step ~1665) hits every layer at once.</li>
     </ul>
@@ -13576,9 +13577,9 @@ L 355.7 66.0
     <p class="where">&Delta;: vs the baseline at the final step, in units of $10^{-3}$. One seed per run; for scale, the three unwhitened runs end within 0.6 (val) and 0.9 (test) of each other.</p>
 
     <ul class="takeaways">
-      <li><strong>Layer-1 centering: no measurable loss change.</strong></li>
+      <li><strong>Centering of layer 1: no measurable loss change.</strong></li>
       <li><strong>Centering every layer costs loss</strong>: +0.020 and +0.029 at steps 500 and 1000, so we stopped it. It pins every expert's mean logit at 0, so scores sit near $\sigma(0) = 0.5$; layers 2&ndash;8 want low scores and sharp weights. <strong>Differential</strong> centering keeps the shared level and costs far less: +0.0005 (val), +0.0009 (test).</li>
-      <li><strong>Whitening costs +0.002 at both $a$.</strong> Likely reason: MuonH fixes $\|W\|_F$, so the router can grow its logits only by aligning with loud directions, and whitening flattens them (layer-1 logit spread 0.20&ndash;0.25 vs 0.39). We have not tested this reason yet.</li>
+      <li><strong>Second-order centering (whitening) of layer 1 costs +0.002 at both $a$.</strong> Likely reason: MuonH fixes $\|W\|_F$, so the router can grow its logits only by aligning with loud directions, and whitening flattens them (layer-1 logit spread 0.20&ndash;0.25 vs 0.39). We have not tested this reason yet.</li>
     </ul>
 
     <h3>Late phase: the bias step</h3>
@@ -14525,7 +14526,7 @@ L 383.1 55.4
     <p>Every stability measure we log, after warm-up:</p>
     <div class="table-wrap">
       <table>
-        <tr><th>measure</th><th class="num"><span class="dot" style="background:#4a4a4a"></span>no centering</th><th class="num"><span class="dot" style="background:#2b5ecc"></span>center layer 1</th><th class="num"><span class="dot" style="background:#1b7a4b"></span>differential</th><th class="num"><span class="dot" style="background:#9b3d8c"></span>whiten $a = 0.1$</th><th class="num"><span class="dot" style="background:#d4832a"></span>whiten $a = 1$</th></tr>
+        <tr><th>measure</th><th class="num"><span class="dot" style="background:#4a4a4a"></span>no centering</th><th class="num"><span class="dot" style="background:#2b5ecc"></span>center<br><small>layer 1</small></th><th class="num"><span class="dot" style="background:#1b7a4b"></span>differential<br><small>all layers</small></th><th class="num"><span class="dot" style="background:#9b3d8c"></span>whiten $a = 0.1$<br><small>layer 1</small></th><th class="num"><span class="dot" style="background:#d4832a"></span>whiten $a = 1$<br><small>layer 1</small></th></tr>
         <tr><td>clipped steps after step 600</td><td class="num">4</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td></tr>
         <tr><td>spike flags of its own, gradient norm / loss</td><td class="num">5 / 7</td><td class="num">1 / 1</td><td class="num">0 / 0</td><td class="num">0 / 0</td><td class="num">0 / 0</td></tr>
         <tr><td>largest gradient-norm jump (&times; neighbours)</td><td class="num">11.3×</td><td class="num">1.13×</td><td class="num">1.20×</td><td class="num">1.24×</td><td class="num">1.18×</td></tr>

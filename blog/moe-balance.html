@@ -3599,12 +3599,23 @@ z
  </defs>
 </svg>
 </div></div>
-      <figcaption><strong>Figure 2.</strong> Layer 1 at the end of training, routed by logits alone (no bias). One dot per expert: x, cosine between its weight $w_e$ and the mean $\mu$; y, its load. Left (no centering): experts that point away from $\mu$ get nothing, and the one that points most along it is in 90% of tokens' top-8 (rank correlation 0.75). Right (centering): direction no longer decides load (&minus;0.10).</figcaption>
+      <figcaption><strong>Figure 2.</strong> Layer 1 at the end of training, routed by logits alone (no bias). One dot per expert: x, experts sorted by the cosine between their weight $w_e$ and the mean $\mu$ (baseline: &minus;0.95 to +0.11); y, their load. Left (no centering): experts that point away from $\mu$ get nothing, and the two that point most along it are each in 90% of tokens' top-8 (rank correlation 0.75). Right (centering): direction no longer decides load (&minus;0.10).</figcaption>
     </figure>
-    <p>Without the bias, the baseline router would starve 103 of 256 experts (under 0.3&times; their share), and the 8 experts that point most along $\mu$ would take 41% of all slots (fair: 3%). The bias fights exactly this: across experts, its value and the expert's pull along $\mu$ have rank correlation &minus;0.93. With centering, 47 experts are starved and those 8 take 3.8%.</p>
+    <p>Without the bias, the baseline router would starve 103 of 256 experts (under 0.3&times; their share), and the 8 experts that point most along $\mu$ would take 40% of all slots (fair: 3%). With centering, 47 are starved and those 8 take 2.3%.</p>
+    <p>Same weights, only the mean changed (no bias):</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>router weights</th><th>input</th><th class="num">busiest expert</th><th class="num">experts under 0.1&times;</th></tr>
+        <tr><td>baseline</td><td>$x$ (as trained)</td><td class="num">28.8&times;</td><td class="num">64</td></tr>
+        <tr><td>baseline</td><td>$x - \mu$</td><td class="num">12.8&times;</td><td class="num">21</td></tr>
+        <tr><td>layer-1 centering</td><td>$x - \mu$ (as trained)</td><td class="num">4.4&times;</td><td class="num">32</td></tr>
+        <tr><td>layer-1 centering</td><td>$x$</td><td class="num">31.7&times;</td><td class="num">155</td></tr>
+      </table>
+    </div>
+    <p>Removing $\mu$ from the baseline router's input halves its busiest expert; giving the centered router back $\mu$ makes one expert win 99% of tokens.</p>
 
     <h3>Dose by dose</h3>
-    <p>Change only what the layer-1 router reads: raw $x$, then $x - \hat\mu$, then whitened with $a = 1$ and $a = 0.1$. Its input goes from 1.4 to 88, 777 and 1022 effective directions (participation ratio of $\frac{1}{N}\sum_t z_t z_t^\top$, where $z_t \in \mathbb{R}^d$ is what the router reads).</p>
+    <p>Change only what the layer-1 router reads: raw $x$, then $x - \hat\mu$, then whitened with $a = 1$ and $a = 0.1$. At the end of training its input has 1.4, 88, 777 and 1022 effective directions (participation ratio of $\frac{1}{N}\sum_t z_t z_t^\top$, where $z_t \in \mathbb{R}^d$ is what the router reads; for raw $x$ the mean dominates).</p>
     <figure class="fig">
       <div class="fig-pair"><div><div class="sub">layer-1 MaxVio</div><svg id="f12aisotropymaxvio" role="img" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 302.4 244.8" xmlns="http://www.w3.org/2000/svg" version="1.1">
  
@@ -12679,7 +12690,7 @@ L 394.0 253.6
  </defs>
 </svg>
 
-      <figcaption><strong>Figure 8.</strong> Layer-1 MinVio over training (100-step running means; legend: mean over steps 1000&ndash;5000; 1 = some expert got no token). The baseline sits at 1 throughout. Centering lowers it, whitening with $a = 0.1$ the most, but some experts still starve at times.</figcaption>
+      <figcaption><strong>Figure 8.</strong> Layer-1 MinVio over training (100-step running means; legend: mean over steps 1000&ndash;5000; 1 = some expert got no token). The baseline sits at 1 throughout (runs at 1 overlap). Centering lowers it, whitening with $a = 0.1$ the most, but some experts still starve at times.</figcaption>
     </figure>
 
     <p>Whole model, mean over steps 1000&ndash;5000:</p>
@@ -12720,7 +12731,7 @@ L 394.0 253.6
       <li><strong>Whole model.</strong> MaxVio$_{\text{worst}}$ is set by layer 1: 13.0 &rarr; 1.8&ndash;2.5. MaxVio$_{\text{mean}}$ falls 4&times; (1.77 &rarr; 0.39&ndash;0.45). MinVio$_{\text{mean}}$ barely moves (0.34&ndash;0.39); MinVio$_{\text{worst}}$ is lowest with whitening (0.77).</li>
       <li><strong>Layer 1.</strong> Every variant cuts mean MaxVio 7&ndash;11&times; (12.1 &rarr; 1.1&ndash;1.8) and the worst step from 31 to 4&ndash;7.5. MinVio stays high (0.7&ndash;0.95): some experts still starve at times; whitening with $a = 0.1$ is lowest.</li>
       <li><strong>Layer 2.</strong> Centering only layer 1 makes it a little worse (MaxVio 0.67 &rarr; 1.00, MinVio 0.68 &rarr; 0.84); whitening does not; differential, which also centers layer 2, makes it better (0.46 / 0.48).</li>
-      <li><strong>Layers 3&ndash;8.</strong> Means barely move (0.17&ndash;0.27), but worst steps halve (about 2.0 &rarr; 0.7&ndash;1.4): in the baseline, a layer-1 event hits every layer at once (step 1670).</li>
+      <li><strong>Layers 3&ndash;8.</strong> Means barely move (0.17&ndash;0.27), but worst steps halve (about 2.0 &rarr; 0.7&ndash;1.4): in the baseline one event (step ~1665) hits every layer at once.</li>
     </ul>
 
     <figure class="fig">
@@ -17005,7 +17016,7 @@ L 386.1 98.2
  </defs>
 </svg>
 
-      <figcaption><strong>Figure 12.</strong> Gradient norm over training, every logged step (legend: largest jump over its neighbours after step 600). Only the baseline jumps: 11&times; at step 2600, and it is the only run clipped after step 600.</figcaption>
+      <figcaption><strong>Figure 12.</strong> Gradient norm over training, every 10th step (legend: largest jump over its neighbours after step 600). Only the baseline jumps: 11&times; at step 2600; it is also the only run clipped after step 600.</figcaption>
     </figure>
 
     <figure class="fig">
@@ -17858,12 +17869,12 @@ L 73.3 80.2
  </defs>
 </svg>
 
-      <figcaption><strong>Figure 13.</strong> Layer-1 MoE output, largest value per probe (legend: largest after step 1000). The baseline jumps to 8, 36 and 348; every centered run stays near 1.</figcaption>
+      <figcaption><strong>Figure 13.</strong> Layer-1 MoE output, largest value per probe (every 100 steps, ~0.2% of tokens) (legend: largest after step 1000). The baseline jumps to 8, 36 and 348; every centered run stays near 1.</figcaption>
     </figure>
 
     <ul class="takeaways">
       <li><strong>The baseline is the only unstable run.</strong> It clips 4 times after step 600, has 5 gradient and 7 loss spike flags of its own, and its gradient norm jumps 11&times; at step 2600. At step 4400 one batch drives its layer-1 MoE output to 348 and the residual stream to 87 in every layer.</li>
-      <li><strong>Every centered run is clean on every measure.</strong> No clipping, at most one spike flag of its own, gradient jumps of at most 1.24&times;, layer-1 MoE output at most 1.12. Loss roughness falls from 5.9 to 4.5&ndash;4.6 ($\times10^{-3}$).</li>
+      <li><strong>Every centered run is clean on every measure.</strong> No clipping, at most one spike flag of its own, gradient jumps of at most 1.24&times; on logged steps, layer-1 MoE output at most 1.12. Loss roughness falls from 5.9 to 4.5&ndash;4.6 ($\times10^{-3}$).</li>
       <li><strong>Among centered runs the differences are small.</strong> Whitening has a little more gradient jitter (0.054 vs 0.046) and heavier logit tails (kurtosis 13 vs 5.4, because its typical logit is smaller); neither shows up in the loss or the gradient norm.</li>
     </ul>
 

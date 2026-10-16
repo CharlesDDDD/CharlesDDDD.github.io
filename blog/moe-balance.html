@@ -3918,28 +3918,16 @@ L 109.7 73.5
     <!-- ======================================================================= -->
     <h2 id="centering"><span class="num">2</span>Representation centering</h2>
 
-    <p class="lead">Remove the mean before the router reads it:</p>
-    <div class="eqn">$$l_t = W\,(x_t - \hat\mu),$$</div>
-    <p class="where">where $\hat\mu \in \mathbb{R}^d$ estimates $\mu$. One rule: $\hat\mu$ must not see future tokens, so a batch mean is out.</p>
-    <p>We keep an exponential moving average (EMA) over past steps:</p>
-    <div class="eqn">$$\hat\mu \leftarrow \beta_i\, \hat\mu + (1-\beta_i)\, \mu,$$</div>
-    <p class="where">applied after step $i$, where $\mu$ is that step's token mean and $\beta_i \in [0,1)$ the decay.</p>
-    <p>It folds into the gate, $l_t = W x_t - W\hat\mu$: one matrix multiply plus one constant per expert. $W$ keeps its exact gradient; $\hat\mu$ is not trained and is saved with checkpoints.</p>
+    <h3>Centering</h3>
+    <p class="lead">Remove the average token representation before the router reads it:</p>
+    <div class="eqn">$$l_t = W\,(x_t - \mu), \qquad \mu = \frac{1}{N}\sum_{t=1}^{N} x_t,$$</div>
+    <p class="where">where $x_t \in \mathbb{R}^d$ is token $t$'s router input (its representation), $\mu \in \mathbb{R}^d$ the average over the $N$ tokens of a step, and $W \in \mathbb{R}^{E\times d}$ the router weight. Only the router reads $x_t - \mu$; the experts and the residual stream still get $x_t$.</p>
+    <p>It folds into the gate, $l_t = W x_t - W\mu$: one matrix multiply plus one constant per expert, and $W$ keeps its exact gradient. $\mu$ must not use future tokens, so in practice it is a running average over past steps (power EMA, below).</p>
 
-    <h3>Power EMA</h3>
-    <div class="eqn">$$\beta_i = \min\!\Big(\beta_{\max},\ \big(1 - \tfrac{1}{i}\big)^{\gamma+1}\Big),$$</div>
-    <p class="where">where $i$ is the number of updates so far, $\gamma = 17$ and $\beta_{\max} = 0.95$. The EMA spans about the last $i/(\gamma+1)$ updates: short memory early, when the representation moves fastest. The cap ($\approx$20-step window) is reached at update 352. A fixed $\beta$ lags behind in warm-up.</p>
-
-    <h3>Where</h3>
-    <p>All layers, or layer 1 only.</p>
-
-    <h3>Differential</h3>
-    <div class="eqn">$$l_{t,e} = (w_e - \bar w)^\top (x_t - \hat\mu) \;+\; \bar w^\top x_t,$$</div>
-    <p class="where">where $\bar w = \frac{1}{E}\sum_e w_e \in \mathbb{R}^d$ is the average expert's weight. Only the experts' differences are centered; the shared level $\bar w^\top x_t$, which sets where the sigmoid operates, is kept.</p>
-
-    <h3>Second order: whitening</h3>
-    <div class="eqn">$$l_t = W\, T\, (x_t - \hat\mu), \qquad T = c\, \max\!\big(\hat\Sigma,\ a\bar\lambda I\big)^{-1/2},$$</div>
-    <p class="where">where $T \in \mathbb{R}^{d\times d}$, $\hat\Sigma \in \mathbb{R}^{d\times d}$ is the EMA covariance (same EMA), $\bar\lambda = \operatorname{tr}\hat\Sigma/d$ its mean eigenvalue, $\max$ acts on eigenvalues, $a > 0$ sets the strength, and the scalar $c$ keeps the total variance, $\operatorname{tr}(T\hat\Sigma T) = \operatorname{tr}\hat\Sigma$. Directions louder than $a\bar\lambda$ come out equally loud; quieter ones keep their relative size. $a \to 0$: full whitening. $a \ge \lambda_{\max}/\bar\lambda$: no change. Folded as $W' = WT$; $T$ is rebuilt every step (one $d\times d$ eigendecomposition).</p>
+    <h3>Second-order centering: whitening</h3>
+    <p>Centering removes the mean (first order). Whitening also evens out the spread (second order):</p>
+    <div class="eqn">$$l_t = W\, T\, (x_t - \mu), \qquad T = c\, \max\!\big(\Sigma,\ a\bar\lambda I\big)^{-1/2}, \qquad \Sigma = \frac{1}{N}\sum_{t=1}^{N} (x_t-\mu)(x_t-\mu)^\top,$$</div>
+    <p class="where">where $\Sigma \in \mathbb{R}^{d\times d}$ is the covariance of the token representations, $T \in \mathbb{R}^{d\times d}$ the whitening matrix, $\bar\lambda = \operatorname{tr}\Sigma/d$ the mean eigenvalue of $\Sigma$, $\max$ acts on eigenvalues, $a > 0$ sets the strength, and the scalar $c$ keeps the total variance, $\operatorname{tr}(T\Sigma T) = \operatorname{tr}\Sigma$. Directions louder than $a\bar\lambda$ come out equally loud; quieter ones keep their relative size. $a \to 0$: full whitening. $a \ge \lambda_{\max}/\bar\lambda$: plain centering. Folded as $W' = WT$; $T$ is rebuilt every step (one $d\times d$ eigendecomposition).</p>
 
     <figure class="fig">
       <svg id="f09whiteningspectrum" role="img" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 576 309.6" xmlns="http://www.w3.org/2000/svg" version="1.1">
@@ -4717,6 +4705,18 @@ L 394.4 66.0
 
       <figcaption><strong>Figure 2.</strong> Layer-1 router input at the end of training: energy per direction, largest first, in units of the average. Baseline (raw input, mean included): one direction, the mean, carries 84% of everything (859&times; the average). Centering removes it; the loudest direction left carries 82&times;. Whitening caps that at 1.9&times; ($a = 1$) or 1.0&times; ($a = 0.1$). The baseline curve uses the baseline run's inputs (150K tokens); the others the $a = 1$ run's EMA covariance.</figcaption>
     </figure>
+
+    <h3>Power EMA of $\mu$</h3>
+    <p>A batch mean would leak future tokens, so we keep an exponential moving average (EMA) over past steps (for whitening, of $\Sigma$ as well):</p>
+    <div class="eqn">$$\hat\mu \leftarrow \beta_i\, \hat\mu + (1-\beta_i)\, \mu_i, \qquad \beta_i = \min\!\Big(\beta_{\max},\ \big(1 - \tfrac{1}{i}\big)^{\gamma+1}\Big),$$</div>
+    <p class="where">where $\mu_i \in \mathbb{R}^d$ is the token average of step $i$, $\hat\mu \in \mathbb{R}^d$ the estimate the router uses in place of $\mu$, $i$ the number of updates so far, $\gamma = 17$ and $\beta_{\max} = 0.95$. The EMA spans about the last $i/(\gamma+1)$ updates: short memory early, when the representation moves fastest; the cap ($\approx$20-step window) is reached at update 352. A fixed $\beta$ lags behind in warm-up. $\hat\mu$ is not trained and is saved with checkpoints.</p>
+
+    <h3>Variant: differential centering</h3>
+    <div class="eqn">$$l_{t,e} = (w_e - \bar w)^\top (x_t - \hat\mu) \;+\; \bar w^\top x_t,$$</div>
+    <p class="where">where $w_e \in \mathbb{R}^d$ is expert $e$'s row of $W$ and $\bar w = \frac{1}{E}\sum_e w_e \in \mathbb{R}^d$ the average row. Only the experts' differences are centered; the shared level $\bar w^\top x_t$, which sets where the sigmoid operates, is kept.</p>
+
+    <h3>Where</h3>
+    <p>Layer 1 only, or all layers. Below, centering and whitening act on layer 1; differential acts on all 8 layers.</p>
 
     <h3>Results: balance</h3>
     <p>Same setup and seed as the baseline; only the router logits change. Centering and whitening act on <strong>layer 1 only</strong>; differential acts on <strong>all 8 layers</strong>.</p>

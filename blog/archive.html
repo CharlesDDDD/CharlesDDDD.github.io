@@ -190,6 +190,13 @@
         <div class="blog-item-desc">We fine-tune a 30B mixture-of-experts with its middle layers looped three times. Looping adds nothing on the coding data we train on, but prevents the forgetting that plain fine-tuning suffers on the nine benchmarks we never train on. Reading the probes showed why the loop underperforms: the second and third passes route to nearly the same experts and barely change the representation.</div>
       </a>
       -->
+      <!-- Unlisted (reachable at moe-balance.html, not linked here):
+      <a href="moe-balance.html" class="blog-item">
+        <div class="blog-item-date">October 2026</div>
+        <div class="blog-item-title">Balance Is a Representation Problem</div>
+        <div class="blog-item-desc">In MoE pretraining, the first layer's router input is a narrow cone, and it is the only layer that fails to balance. Centering the router input in layer 1 removes the takeovers with no measurable loss change; late in training, the fixed bias step itself causes load spikes.</div>
+      </a>
+      -->
       <a href="linear-attention-key-value.html" class="blog-item">
         <div class="blog-item-date"><span class="lang-en">February 2026</span><span class="lang-zh">2026 年 2 月</span></div>
         <div class="blog-item-title"><span class="lang-en">Rethinking Key-Value Relationships in Linear Attention</span><span class="lang-zh">重新审视线性注意力中的 key-value 关系</span></div>

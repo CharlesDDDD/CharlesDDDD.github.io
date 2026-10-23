@@ -281,14 +281,14 @@
   <div class="hero">
     <div class="kicker">MoE pretraining &middot; load balancing &middot; representation</div>
     <h1>The Anisotropic Direction the Router Wants to See in LM Pretraining</h1>
-    <p class="subtitle">Every balancer sees the same router input, and the layer whose input is least isotropic is where balance breaks. The network needs the shared direction; the router does not.</p>
+    <p class="subtitle">Every balancer sees the same router input, and the layer with the strongest anisotropic direction is where balance breaks. The network needs that direction; the router does not.</p>
   </div>
 
   <hr class="divider">
 
   <div class="prose">
 
-    <p>This post makes three points. First, the shape of the router input is the same no matter which balancer we use, and the least isotropic layer is where balance breaks; balancers differ only in whether their router learns to read the shared direction (Section 1). Second, so we fix the input instead of the balancer: center it, or whiten it, before the router reads it (Section 2). Third, the shared direction that causes the trouble is built on purpose by the network and is used downstream; removing it from the representation hurts, hiding it from the router does not (Section 3).</p>
+    <p>This post makes three points. First, the shape of the router input is the same no matter which balancer we use, and the layer with the strongest anisotropic direction (the largest mean share $m$) is where balance breaks; balancers differ only in whether their router learns to read that direction (Section 1). Second, so we fix the input instead of the balancer: center it, or whiten it, before the router reads it (Section 2). Third, the anisotropic direction that causes the trouble is built on purpose by the network and is used downstream; removing it from the representation hurts, hiding it from the router does not (Section 3).</p>
 
     <!-- ======================================================================= -->
     <h2 id="setup">Setup</h2>
@@ -344,20 +344,21 @@
     <p class="where">where $\text{MaxVio}_\ell$ is layer $\ell$'s value. For MaxVio$_{\text{worst}}$ we take the worst single step in each 10-step window; MinVio$_{\text{mean}}$ and MinVio$_{\text{worst}}$ are defined the same way with 10-step means.</p>
 
     <!-- ======================================================================= -->
-    <h2 id="isotropy">How we measure isotropy</h2>
+    <h2 id="isotropy">The anisotropic direction and its mean share $m$</h2>
     <p>Over the $N$ tokens of a step:</p>
-    <div class="eqn">$$\mu = \frac{1}{N}\sum_t x_t, \qquad \Sigma = \frac{1}{N}\sum_t (x_t-\mu)(x_t-\mu)^\top, \qquad m = \frac{\|\mu\|^2}{\frac{1}{N}\sum_t \|x_t\|^2}, \qquad \text{PR} = \frac{(\operatorname{tr}\Sigma)^2}{\operatorname{tr}(\Sigma^2)},$$</div>
-    <p class="where">where $\mu \in \mathbb{R}^d$ is the mean router input, $\Sigma \in \mathbb{R}^{d\times d}$ its covariance, $m \in [0,1]$ the <b>mean share</b>, and $\text{PR} \in [1, d]$ the <b>participation ratio</b>.</p>
-    <p>A representation is <strong>isotropic</strong> when it has no preferred direction: $\mu = 0$ and $\Sigma \propto I$, i.e. $m = 0$ and $\text{PR} = d$.</p>
+    <div class="eqn">$$\mu = \frac{1}{N}\sum_t x_t, \qquad v = \frac{\mu}{\|\mu\|}, \qquad \Sigma = \frac{1}{N}\sum_t (x_t-\mu)(x_t-\mu)^\top, \qquad m = \frac{\|\mu\|^2}{\frac{1}{N}\sum_t \|x_t\|^2},$$</div>
+    <p class="where">where $\mu \in \mathbb{R}^d$ is the mean router input, $v \in \mathbb{R}^d$ its unit direction, $\Sigma \in \mathbb{R}^{d\times d}$ the covariance of the tokens around $\mu$, and $m \in [0,1]$ the <b>mean share</b>.</p>
+    <p>We call $v$ the <strong>anisotropic direction</strong>: every token carries the same offset $\mu$ along it, whatever the token is. Its strength is $m$, the share of the input's energy that all tokens have in common, since $\frac{1}{N}\sum_t \|x_t\|^2 = \|\mu\|^2 + \operatorname{tr}\Sigma$.</p>
     <ul>
-      <li><strong>$m$</strong> is the first-order part. It is the share of the input's energy that every token has in common, since $\frac{1}{N}\sum_t \|x_t\|^2 = \|\mu\|^2 + \operatorname{tr}\Sigma$. For tokens of equal norm it is the average cosine between two tokens.</li>
-      <li><strong>PR</strong> is the second-order part: how many directions the spread around $\mu$ really uses.</li>
+      <li>$m = 0$: there is no shared direction. $m = 1$: every token is the same vector $\mu$.</li>
+      <li>For tokens of equal norm, $m$ is the average cosine between two tokens.</li>
     </ul>
+    <p>An isotropic representation has no preferred direction ($\mu = 0$ and $\Sigma \propto I$), so its mean share is 0. In this post, <em>less isotropic</em> means a larger $m$, i.e. a stronger anisotropic direction. We track $m$ and not a measure of the spread (such as how many directions $\Sigma$ uses) because $m$ is the representation's half of the head-start ratio that decides imbalance (Section 1).</p>
 
     <!-- ======================================================================= -->
     <h2 id="observation"><span class="num">1</span>Imbalance follows the representation, not the balancer</h2>
 
-    <p>We trained the same model five times, changing only the balancer: bias, QB, QB with the k-th bar, LBL, and none. If imbalance came from the balancer, a different balancer should give a different picture. It does not: the mean share of the router input is the same in all five runs, and in four of them the worst layer is the least isotropic one. (The LBL run also uses a softmax router, as Qwen does, so it differs in two ways.)</p>
+    <p>We trained the same model five times, changing only the balancer: bias, QB, QB with the k-th bar, LBL, and none. If imbalance came from the balancer, a different balancer should give a different picture. It does not: the mean share of the router input is the same in all five runs, and in four of them the worst layer is the one with the largest $m$. (The LBL run also uses a softmax router, as Qwen does, so it differs in two ways.)</p>
 
     <h3>The router input is the same under every balancer</h3>
     <figure class="fig">
@@ -3126,28 +3127,21 @@ L 79.41 84.77
       <figcaption><strong>Figure 2.</strong> Layer-1 mean share $m$ over training (log scale), every logged step. The five runs follow nearly the same curve: 0.16 at step 60, 0.51&ndash;0.54 at step 500, 0.69&ndash;0.73 at step 1000. They part only after step ~1000, and only the run with no balancing ends lower.</figcaption>
     </figure>
 
-    <p>Mean share and participation ratio of the router input per layer, steps 3001&ndash;5000:</p>
+    <p>Mean share $m$ of the router input per layer, steps 3001&ndash;5000:</p>
     <div class="table-wrap">
       <table>
         <tr><th>balancer</th><th class="num">layer 1</th><th class="num">2</th><th class="num">3</th><th class="num">4</th><th class="num">5</th><th class="num">6</th><th class="num">7</th><th class="num">8</th></tr>
-        <tr class="band"><td colspan="9">mean share $m$</td></tr>
         <tr><td><span class="dot" style="background:#2F63AE"></span>bias</td><td class="num">0.84</td><td class="num">0.63</td><td class="num">0.46</td><td class="num">0.38</td><td class="num">0.27</td><td class="num">0.20</td><td class="num">0.15</td><td class="num">0.10</td></tr>
         <tr><td><span class="dot" style="background:#CC6633"></span>QB</td><td class="num">0.82</td><td class="num">0.62</td><td class="num">0.46</td><td class="num">0.38</td><td class="num">0.26</td><td class="num">0.19</td><td class="num">0.14</td><td class="num">0.10</td></tr>
         <tr><td><span class="dot" style="background:#663399"></span>QB, k-th bar</td><td class="num">0.82</td><td class="num">0.63</td><td class="num">0.46</td><td class="num">0.37</td><td class="num">0.26</td><td class="num">0.19</td><td class="num">0.14</td><td class="num">0.10</td></tr>
         <tr><td><span class="dot" style="background:#339966"></span>LBL</td><td class="num">0.82</td><td class="num">0.65</td><td class="num">0.48</td><td class="num">0.40</td><td class="num">0.30</td><td class="num">0.21</td><td class="num">0.15</td><td class="num">0.12</td></tr>
         <tr><td><span class="dot" style="background:#4a4a4a"></span>none</td><td class="num">0.76</td><td class="num">0.61</td><td class="num">0.47</td><td class="num">0.39</td><td class="num">0.28</td><td class="num">0.21</td><td class="num">0.15</td><td class="num">0.11</td></tr>
-        <tr class="band"><td colspan="9">participation ratio PR (of $d = 1024$)</td></tr>
-        <tr><td><span class="dot" style="background:#2F63AE"></span>bias</td><td class="num">82</td><td class="num">119</td><td class="num">177</td><td class="num">191</td><td class="num">259</td><td class="num">297</td><td class="num">244</td><td class="num">275</td></tr>
-        <tr><td><span class="dot" style="background:#CC6633"></span>QB</td><td class="num">77</td><td class="num">119</td><td class="num">188</td><td class="num">208</td><td class="num">271</td><td class="num">302</td><td class="num">246</td><td class="num">277</td></tr>
-        <tr><td><span class="dot" style="background:#663399"></span>QB, k-th bar</td><td class="num">73</td><td class="num">118</td><td class="num">187</td><td class="num">213</td><td class="num">265</td><td class="num">305</td><td class="num">245</td><td class="num">279</td></tr>
-        <tr><td><span class="dot" style="background:#339966"></span>LBL</td><td class="num">79</td><td class="num">98</td><td class="num">150</td><td class="num">161</td><td class="num">217</td><td class="num">270</td><td class="num">229</td><td class="num">266</td></tr>
-        <tr><td><span class="dot" style="background:#4a4a4a"></span>none</td><td class="num">117</td><td class="num">119</td><td class="num">177</td><td class="num">201</td><td class="num">263</td><td class="num">297</td><td class="num">249</td><td class="num">284</td></tr>
       </table>
     </div>
-    <p class="where">PR is measured on validation batches every 500 steps; $m$ on every training step. Both are of the input the router reads before any centering.</p>
-    <p>The mean share matches across balancers to within 0.03 in every layer except layer 1 without a balancer. The spread is similar but not identical: LBL's PR is 15&ndash;20% lower in layers 2&ndash;5, and without a balancer layer 1 has a higher PR (117 vs 73&ndash;82). Either way, layer 1 is the least isotropic layer in every run, on both measures: two random layer-1 tokens have cosine about 0.84.</p>
+    <p class="where">$m$ is measured on every training step, on the input the router reads before any centering.</p>
+    <p>The mean share matches across balancers to within 0.04 in every layer except layer 1 without a balancer. In every run, layer 1 has the strongest anisotropic direction: two random layer-1 tokens have cosine about 0.84.</p>
 
-    <h3>The least isotropic layer is the least balanced</h3>
+    <h3>The layer with the largest $m$ is the least balanced</h3>
     <figure class="fig">
       <svg id="np1layervio" role="img" viewBox="0 0 576 331.2" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1">
  
@@ -3777,7 +3771,7 @@ L 443.89 290.82
       <figcaption><strong>Figure 3.</strong> MaxVio of each layer, averaged over steps 3001&ndash;5000 (log scale; legend: layer 1). With bias, QB or the k-th bar, layer 1 is 5&ndash;20&times; worse than the next-worst layer. With no balancer, layer 1 sits at the ceiling (31: one expert in every token's top-8). LBL is the exception: layer 1 is its best layer, and its layers 2&ndash;8 are 5&ndash;19&times; worse than with QB.</figcaption>
     </figure>
 
-    <p>With bias, QB (either bar) and no balancer, layer 1, the least isotropic layer, is by far the worst; the other layers do not line up as neatly. Over all layers and validation steps from step 1000, the rank correlation between PR and MaxVio is $-0.66$ (bias), $-0.46$ (QB), $-0.37$ (k-th bar) and $-0.70$ (none). LBL goes the other way ($+0.80$). The next part explains both.</p>
+    <p>With bias, QB (either bar) and no balancer, layer 1, the layer with the largest $m$, is by far the worst. Below layer 1 the link is loose: in the two QB runs, MaxVio in layers 2&ndash;8 stays between 0.12 and 0.26 while $m$ falls from 0.63 to 0.10. Over all layers and nine 500-step windows centred on steps 1000, 1500, &hellip;, 5000, the rank correlation between $m$ and MaxVio is $+0.57$ (bias), $+0.28$ (QB), $+0.22$ (k-th bar) and $+0.66$ (none). It is weak for QB because nearly all of the signal is layer 1. LBL goes the other way ($-0.83$). The next part explains both.</p>
 
     <h3>Why: a head start for each expert</h3>
     <p>Split each logit into the part every token shares and the part that varies:</p>
@@ -3785,7 +3779,7 @@ L 443.89 290.82
     <p class="where">where $\bar w = \frac{1}{E}\sum_e w_e \in \mathbb{R}^d$ is the average router row and $o_e \in \mathbb{R}$ is expert $e$'s <b>head start</b>: how much higher it scores than the average expert on every token, before the token says anything. A shift shared by all experts does not change which logits are largest, so (ignoring $b$) only $o_e$ and the token part decide which experts win.</p>
     <p>If the head starts differ by more than what tokens can change, the same experts win every token. Their size relative to the token part is the <strong>head-start ratio</strong> $\rho$:</p>
     <div class="eqn">$$\rho^2 = \frac{\sum_e o_e^2}{\operatorname{tr}\!\big(W_c \Sigma W_c^\top\big)} = \underbrace{\frac{m}{1-m}}_{\text{representation}} \cdot \underbrace{\frac{a}{g}}_{\text{router}}, \qquad a = \frac{\|W_c v\|^2}{\|W_c\|_F^2/d}, \qquad g = \frac{\operatorname{tr}(W_c \Sigma W_c^\top)}{\operatorname{tr}\Sigma \cdot \|W_c\|_F^2/d},$$</div>
-    <p class="where">where $W_c \in \mathbb{R}^{E\times d}$ is $W$ with $\bar w$ subtracted from every row (so $W_c \mu$ is the vector of head starts $o$), $v = \mu/\|\mu\|$ the direction of the mean, $a$ the router's <b>gain on the mean</b> (how strongly the experts' differences point along $\mu$, relative to a random direction; $a = 1$ for a random router) and $g$ its <b>gain on the token spread</b> (the same, averaged over the directions tokens vary in). The identity is exact: it follows from $\frac{1}{N}\sum_t\|x_t\|^2 = \|\mu\|^2 + \operatorname{tr}\Sigma$.</p>
+    <p class="where">where $W_c \in \mathbb{R}^{E\times d}$ is $W$ with $\bar w$ subtracted from every row (so $W_c \mu$ is the vector of head starts $o$), $v$ the anisotropic direction, $a$ the router's <b>gain on the mean</b> (how strongly the experts' differences point along $\mu$, relative to a random direction; $a = 1$ for a random router) and $g$ its <b>gain on the token spread</b> (the same, averaged over the directions tokens vary in). The identity is exact: it follows from $\frac{1}{N}\sum_t\|x_t\|^2 = \|\mu\|^2 + \operatorname{tr}\Sigma$.</p>
     <p>So imbalance needs two things: a representation with a large shared part ($m/(1-m)$) and a router that reads it ($a/g$). The first is set by the network (Figures 1 and 2). The second is where balancers differ:</p>
 
     <figure class="fig">
@@ -14527,8 +14521,8 @@ L 333.60 302.38
       <li><strong>Loss moves within &minus;0.0013 to +0.0023 of QB.</strong> The best-balanced run is also the lowest, but that gain comes from the k-th bar, not from layer-1 balance: with the paper's bar the same whitening is 0.0031 worse, while its layer-1 MaxVio is the same until step 3000. Gaps this small need seeds.</li>
     </ul>
 
-    <h3>More isotropic, better balanced</h3>
-    <p>With the bias rule, change only what the layer-1 router reads: raw $x$, then $x - \hat\mu$, then whitened with $a_w = 1$ and $a_w = 0.1$. At the end of training its input has 1.4, 88, 777 and 1022 effective directions (participation ratio of $\frac{1}{N}\sum_t z_t z_t^\top$, where $z_t \in \mathbb{R}^d$ is what the router reads; for raw $x$ the mean dominates).</p>
+    <h3>Remove the direction, then even out the rest</h3>
+    <p>With the bias rule, change only what the layer-1 router reads: raw $x$, then $x - \hat\mu$, then whitened with $a_w = 1$ and $a_w = 0.1$. Centering removes the anisotropic direction ($m \to 0$); whitening also evens out the spread around it. At the end of training its input has 1.4, 88, 777 and 1022 effective directions (participation ratio of $\frac{1}{N}\sum_t z_t z_t^\top$, where $z_t \in \mathbb{R}^d$ is what the router reads; for raw $x$ the mean dominates).</p>
     <figure class="fig">
       <div class="fig-pair"><div><div class="sub">layer-1 MaxVio</div><svg id="f12aisotropymaxvio" role="img" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 302.4 244.8" xmlns="http://www.w3.org/2000/svg" version="1.1">
  
@@ -15135,7 +15129,7 @@ z
  </defs>
 </svg>
 </div></div>
-      <figcaption><strong>Figure 12.</strong> Layer 1 with the bias rule, steps 1000&ndash;2999 (before the late phase). x: effective directions of the router's input. Left: MaxVio. Right: experts under 0.1&times; their share, per step. Each step toward isotropy helps: MaxVio 12.9 &rarr; 1.08 &rarr; 0.79 &rarr; 0.70; starved experts 25 &rarr; 7.2 &rarr; 1.7 &rarr; 0.8.</figcaption>
+      <figcaption><strong>Figure 12.</strong> Layer 1 with the bias rule, steps 1000&ndash;2999 (before the late phase). x: effective directions of the router's input. Left: MaxVio. Right: experts under 0.1&times; their share, per step. Each step helps, and removing the direction helps most: MaxVio 12.9 &rarr; 1.08 &rarr; 0.79 &rarr; 0.70; starved experts 25 &rarr; 7.2 &rarr; 1.7 &rarr; 0.8.</figcaption>
     </figure>
     <p>The order holds with the bias switched off entirely: experts the router cannot reach on its own (under 0.3&times; share, end of training) go 103 &rarr; 47 &rarr; 30 &rarr; 15.</p>
 

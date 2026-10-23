@@ -4903,6 +4903,7 @@ L 86.61 80.78
       <li><strong>The representation factor is the same everywhere</strong> (4.7&ndash;5.1; 3.1 with no balancer). No balancer changes what the router is given.</li>
       <li><strong>Bias and QB only move $b$.</strong> They never touch the router, so the language-model loss is free to turn it toward $\mu$ (with no balancer it does so too: $a = 30$). The bias rule, a fixed step of $10^{-3}$, falls behind: $\rho = 7$, MaxVio 11. QB re-solves $b$ every step and keeps up better, but the head starts are still 2.4&ndash;2.7&times; the token part.</li>
       <li><strong>LBL is the only balancer with a gradient into the router</strong>, and it keeps layer 1's router off $\mu$ ($a = 1.7$, $\rho = 1.2$). Its layer 1 is balanced, but its layers 2&ndash;8 are the worst of any balancer (MaxVio 1.83 vs 0.16 for QB), with fixed hot and cold experts.</li>
+      <li><strong>Below layer 1, bias and QB need no help</strong>, because both factors are small there. The representation factor falls from 1.7 in layer 2 to 0.11 in layer 8, and the router reads $\mu$ no more than a random direction ($a = 0.7$&ndash;$1.3$ in layers 2&ndash;8 of the bias and QB runs). So $\rho = 0.3$&ndash;$0.7$: each token's own signal is larger than the head starts.</li>
     </ul>
     <p>So the balancers do not differ in the problem they face, only in where they leave it. In every run the problem starts in the representation.</p>
 
@@ -22354,7 +22355,7 @@ L 442.63 330.63
       <figcaption><strong>Figure 15.</strong> Mean share $m$ of every layer's router input over training, bias run (log scale; legend: value at the end). First wave, steps 30&ndash;150: every layer's input turns toward one direction, the deeper the more (layer 8 reaches 0.96 at step 60), then lets go. Second wave, from step ~150: layer 1 alone climbs to 0.84 and stays there; layer 2 follows at 0.62.</figcaption>
     </figure>
     <ul>
-      <li><strong>The first wave is the unigram stage.</strong> Around step 60 the loss crosses the unigram entropy (7.77 nats) in every run we checked: the model predicts the frequent tokens regardless of input, and a constant vector is the cheapest way to do that. It fades by step ~200, as the model starts to use the current token (the loss crosses the bigram level at steps 140&ndash;155).</li>
+      <li><strong>The first wave is the unigram stage.</strong> Around step 60 the loss crosses the unigram entropy (7.77 nats) in every run we checked: the model predicts the frequent tokens regardless of input, and a constant vector is the cheapest way to do that. It fades by step ~200, as the model starts to use the current token (the loss crosses the bigram level at steps 140&ndash;155). A trace of it stays at the top of the network: at the end, the mean of the final hidden state still encodes token frequency, and it is nearly orthogonal to the layer-1 constant below (cosine 0.07).</li>
       <li><strong>The second wave is a layer-1 constant</strong>, and it is the one that hurts balance. It is the same under every balancer (Figure 2).</li>
     </ul>
 
@@ -22371,7 +22372,9 @@ L 442.63 330.63
     </div>
 
     <h3>The network uses it</h3>
-    <p>The model has no bias terms in its linear layers; a vector that every token carries can play that role. Removing it or replacing it, at the final checkpoint:</p>
+    <p>The model has no bias terms in its linear layers, and a vector that every token carries can play that role. For any weight matrix $U$ that reads the residual stream,</p>
+    <div class="eqn">$$U x_t = \underbrace{U\mu}_{\text{same for every token}} + U(x_t - \mu),$$</div>
+    <p class="where">where $U$ is, for example, a query, key, value or gate projection in a later layer. The first term is a bias that the network gets for free. Removing or replacing the constant, at the final checkpoint:</p>
     <div class="table-wrap">
       <table>
         <tr><th>change to the layer-1 attention output</th><th class="num">loss change (nats)</th></tr>
@@ -22380,7 +22383,7 @@ L 442.63 330.63
         <tr><td>replace its mean by a random vector of the same size</td><td class="num">+6.1 to +7.7</td></tr>
       </table>
     </div>
-    <p>Losing the constant costs 30&times; more than losing everything token-specific that layer-1 attention passes on. Later layers read it as a bias: it sets the attention gates of layers 2&ndash;6 (3&ndash;6&times; change when removed, vs 0.2&ndash;0.5&times; for a random direction), acts as a key temperature (layer-2 attention entropy 3.6 &rarr; 1.4 without it), and makes the first-token attention sink in the global layers (layer 4: 12% of attention &rarr; 0.1%).</p>
+    <p>Losing the constant costs 30&times; more than losing everything token-specific that layer-1 attention passes on. Later layers read it as a bias: it sets the attention gates of layers 2&ndash;6 (3&ndash;6&times; change when removed, vs 0.2&ndash;0.5&times; for a random direction), acts as a key temperature (layer-2 attention entropy 3.6 &rarr; 1.4 without it), and makes the first-token attention sink in the global layers (layer 4: 12% of attention &rarr; 0.1%). A random vector of the same size is as bad as removing the constant, or worse, so later layers rely on this particular direction, not on just any constant.</p>
 
     <h3>Remove it, or hide it?</h3>
     <p>We tried both, with QB, changing one thing per run:</p>
@@ -25578,6 +25581,7 @@ L 79.41 56.27
       <li><strong>One seed, one scale.</strong> We have no repeated runs. Runs are not bitwise reproducible, and three different treatments without whitening end within $0.6\times10^{-3}$ (val) and $0.9\times10^{-3}$ (test) of each other, so loss gaps below about 0.002 need seeds. All runs are 80M active / 1.9B total parameters.</li>
       <li><strong>Balance does not buy loss here.</strong> Every GPU holds all experts (no expert parallelism) and no token is dropped, so imbalance costs no quality; the run with no balancer has the best loss (2.66236), even though about 160 of its 256 layer-1 experts get no token in a typical late step. The value of balance is speed under expert parallelism, which these runs do not measure.</li>
       <li><strong>Baselines that change the architecture</strong>, running now: a dense FFN in layer 1 (as DeepSeek-V3 and Kimi do), and a shared expert in layer 1.</li>
+      <li><strong>Why a constant and not a bias.</strong> Every run disables the bias terms of linear layers. We have not tested whether the layer-1 constant still forms, or whether the router still turns toward it, when the model has its own biases.</li>
       <li><strong>More experts and bigger models.</strong> On an earlier setup with the bias rule, takeover steps in layer 1 went from 11% at 256 experts to 39% at 512 (QB and LBL had none).</li>
     </ul>
 

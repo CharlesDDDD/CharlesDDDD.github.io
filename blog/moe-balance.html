@@ -234,13 +234,16 @@
     /* ---------- additions for this post ---------- */
     .hero { padding: 64px 0 40px; text-align: center; }
     .hero .subtitle { max-width: 700px; margin: 0 auto 8px; }
-    .byline { margin-top: 28px; }
+    .byline { margin-top: 26px; }
+    .abstract { max-width: 700px; margin: 34px auto 0; text-align: justify; hyphens: auto; }
+    .abstract-label { text-align: center; font-family: 'Source Serif 4', Georgia, serif; font-weight: 600; font-size: 1.05rem; margin-bottom: 8px; }
+    .abstract p { font-size: 13.5px; line-height: 1.75; color: var(--text); }
     .authors { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 24px; font-size: 15.5px; font-weight: 500; color: var(--text); }
     .authors sup, .affil sup { font-size: 0.66em; color: var(--accent); margin-left: 1px; font-weight: 600; }
     .affils { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px 32px; margin-top: 12px; font-size: 13.5px; color: var(--text-secondary); }
     .affil { display: inline-flex; align-items: center; gap: 7px; }
     .affil .logo svg, .affil .logo img { height: 20px; width: auto; display: block; }
-    .toc { border: 1px solid var(--border); border-radius: 8px; background: var(--surface); padding: 14px 20px 12px; margin: 28px 0 8px; }
+    .toc { border: 1px solid var(--border); border-radius: 8px; background: var(--surface); padding: 14px 20px 12px; margin: 0 0 8px; }
     .toc-label { font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-light); margin-bottom: 6px; }
     .toc ol { list-style: none; margin: 0; columns: 2; column-gap: 32px; }
     .toc li { font-size: 13px; margin: 3px 0; break-inside: avoid; }
@@ -298,9 +301,7 @@
 
 <div class="container">
   <div class="hero">
-    <div class="kicker">MoE pretraining &middot; load balancing &middot; representation</div>
     <h1>Hide It from the Router: The Anisotropic Direction in MoE Pretraining</h1>
-    <p class="subtitle">Every balancer sees the same router input, and the layer with the strongest anisotropic direction is where balance breaks. The network needs that direction; the router does not.</p>
     <div class="byline">
       <div class="authors">
         <span>Chunyuan Deng<sup>1,2</sup></span>
@@ -314,15 +315,17 @@
         <span class="affil"><sup>2</sup>Rice University</span>
       </div>
     </div>
+    <div class="abstract">
+      <div class="abstract-label">Abstract</div>
+      <p>Load balancing in mixture-of-experts (MoE) models is usually treated as a property of the balancer. We show that the problem starts earlier, in what the router reads. Across five balancers (a bias rule, two forms of quantile balancing, an auxiliary loss, and none), the router input has the same shape: one direction that every token shares, whose share of the input's energy, the mean share $m$, is 0.82&ndash;0.84 in layer 1 and falls to 0.10&ndash;0.12 by layer 8. Layer 1 is where balance breaks. An exact identity splits each expert's head start into a representation factor, $m/(1-m)$, which no balancer changes, and a router factor, which is where balancers differ. Centering or whitening the layer-1 router input removes the head start: with quantile balancing and an exact entry bar, layer-1 MaxVio late in training falls from 1.41 to 0.10 without hurting the loss. Finally, the direction is built on purpose by layer-1 attention and used downstream as a bias. Removing it from the representation costs loss (up to +0.03), and the network rebuilds it; hiding it from the router costs about 0.001. The network needs the direction; the router does not.</p>
+    </div>
   </div>
 
   <hr class="divider">
 
   <div class="prose">
 
-    <p>This post makes three points. First, the shape of the router input is the same no matter which balancer we use, and the layer with the strongest anisotropic direction (the largest mean share $m$) is where balance breaks; balancers differ only in whether their router learns to read that direction (Section 1). Second, so we fix the input instead of the balancer: center it, or whiten it, before the router reads it (Section 2). Third, the anisotropic direction that causes the trouble is built on purpose by the network and is used downstream; removing it from the representation hurts, hiding it from the router does not (Section 3).</p>
-
-        <nav class="toc">
+    <nav class="toc">
       <div class="toc-label">Contents</div>
       <ol>
         <li><span class="n"></span><a href="#setup">Setup</a></li>

@@ -407,7 +407,8 @@
     <!-- ======================================================================= -->
     <h2 id="observation"><span class="num">1</span>Imbalance follows the representation, not the balancer</h2>
 
-    <p>We trained the same model five times, changing only the balancer: bias, QB, QB with the k-th bar, LBL, and none. If imbalance came from the balancer, a different balancer should give a different picture. It does not: the mean share of the router input is the same in all five runs, and in four of them the worst layer is the one with the largest $m$. (The LBL run also uses a softmax router, as Qwen does, so it differs in two ways.)</p>
+    <p><strong>Under every balancer that does not train the router, the layer with the largest $m$ is the least balanced, and that layer is always layer 1. Below layer 1, $m$ does not predict balance.</strong></p>
+    <p>We trained the same model five times, changing only the balancer: bias, QB, QB with the k-th bar, LBL, and none. The router input has the same shape in all five runs. Layer 1 is the worst layer in four of them; the exception is LBL, the only balancer whose gradient reaches the router. (The LBL run also uses a softmax router, as Qwen does, so it differs in two ways.)</p>
 
     <h3>The router input is the same under every balancer</h3>
     <figure class="fig">
@@ -3190,637 +3191,1951 @@ L 79.41 84.77
     <p class="where">$m$ is measured on every training step, on the input the router reads before any centering.</p>
     <p>The mean share matches across balancers to within 0.04 in every layer except layer 1 without a balancer. In every run, layer 1 has the strongest anisotropic direction: two random layer-1 tokens have cosine about 0.84.</p>
 
-    <h3>The layer with the largest $m$ is the least balanced</h3>
+    <h3>Only layer 1 stands out</h3>
     <figure class="fig">
-      <svg id="np1layervio" role="img" viewBox="0 0 576 331.2" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1">
+      <svg id="np1mvioscatter" role="img" viewBox="0 0 676.8 237.6" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1">
  
  <defs>
   <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
  </defs>
- <g id="np1layervio-figure_1">
-  <g id="np1layervio-patch_1">
-   <path d="M 0 331.2 
-L 576 331.2 
-L 576 0 
+ <g id="np1mvioscatter-figure_1">
+  <g id="np1mvioscatter-patch_1">
+   <path d="M 0 237.6 
+L 676.8 237.6 
+L 676.8 0 
 L 0 0 
 z
 " style="fill: #ffffff"/>
   </g>
-  <g id="np1layervio-axes_1">
-   <g id="np1layervio-patch_2">
-    <path d="M 58.04 241.55 
-L 525.72 241.55 
-L 525.72 11.34 
-L 58.04 11.34 
+  <g id="np1mvioscatter-axes_1">
+   <g id="np1mvioscatter-patch_2">
+    <path d="M 56.6 194.09 
+L 154.32 194.09 
+L 154.32 37.74 
+L 56.6 37.74 
 z
 " style="fill: #ffffff"/>
    </g>
-   <g id="np1layervio-matplotlib.axis_1">
-    <g id="np1layervio-xtick_1">
-     <g id="np1layervio-line2d_1">
-      <path d="M 79.29 241.55 
-L 79.29 11.34 
-" clip-path="url(#np1layervio-pa689ae05bd)" style="fill: none; stroke: #ececec; stroke-width: 0.8; stroke-linecap: square"/>
+   <g id="np1mvioscatter-matplotlib.axis_1">
+    <g id="np1mvioscatter-xtick_1">
+     <g id="np1mvioscatter-line2d_1">
+      <path d="M 56.6 194.09 
+L 56.6 37.74 
+" clip-path="url(#np1mvioscatter-p81084bfc3c)" style="fill: none; stroke: #ececec; stroke-width: 0.8; stroke-linecap: square"/>
      </g>
-     <g id="np1layervio-line2d_2">
+     <g id="np1mvioscatter-line2d_2">
       <defs>
-       <path id="np1layervio-m5bc59dc0cc" d="M 0 0 
+       <path id="np1mvioscatter-m98c0b5ac2f" d="M 0 0 
 L 0 3.5 
 " style="stroke: #555555; stroke-width: 0.8"/>
       </defs>
       <g>
-       <use xlink:href="#np1layervio-m5bc59dc0cc" x="79.29" y="241.55" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+       <use xlink:href="#np1mvioscatter-m98c0b5ac2f" x="56.6" y="194.09" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
       </g>
      </g>
-     <g id="np1layervio-text_1">
-      <text style="font-size: 10.5px; font-family: 'Inter', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #555555" x="79.29" y="256.52" transform="rotate(-0 79.29 256.52)">1</text>
+     <g id="np1mvioscatter-text_1">
+      <text style="font-size: 10px; font-family: 'Inter', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #555555" x="56.6" y="208.69" transform="rotate(-0 56.6 208.69)">0.0</text>
      </g>
     </g>
-    <g id="np1layervio-xtick_2">
-     <g id="np1layervio-line2d_3">
-      <path d="M 140.03 241.55 
-L 140.03 11.34 
-" clip-path="url(#np1layervio-pa689ae05bd)" style="fill: none; stroke: #ececec; stroke-width: 0.8; stroke-linecap: square"/>
+    <g id="np1mvioscatter-xtick_2">
+     <g id="np1mvioscatter-line2d_3">
+      <path d="M 99.08 194.09 
+L 99.08 37.74 
+" clip-path="url(#np1mvioscatter-p81084bfc3c)" style="fill: none; stroke: #ececec; stroke-width: 0.8; stroke-linecap: square"/>
      </g>
-     <g id="np1layervio-line2d_4">
+     <g id="np1mvioscatter-line2d_4">
       <g>
-       <use xlink:href="#np1layervio-m5bc59dc0cc" x="140.03" y="241.55" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+       <use xlink:href="#np1mvioscatter-m98c0b5ac2f" x="99.08" y="194.09" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
       </g>
      </g>
-     <g id="np1layervio-text_2">
-      <text style="font-size: 10.5px; font-family: 'Inter', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #555555" x="140.03" y="256.52" transform="rotate(-0 140.03 256.52)">2</text>
+     <g id="np1mvioscatter-text_2">
+      <text style="font-size: 10px; font-family: 'Inter', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #555555" x="99.08" y="208.69" transform="rotate(-0 99.08 208.69)">0.4</text>
      </g>
     </g>
-    <g id="np1layervio-xtick_3">
-     <g id="np1layervio-line2d_5">
-      <path d="M 200.77 241.55 
-L 200.77 11.34 
-" clip-path="url(#np1layervio-pa689ae05bd)" style="fill: none; stroke: #ececec; stroke-width: 0.8; stroke-linecap: square"/>
+    <g id="np1mvioscatter-xtick_3">
+     <g id="np1mvioscatter-line2d_5">
+      <path d="M 141.57 194.09 
+L 141.57 37.74 
+" clip-path="url(#np1mvioscatter-p81084bfc3c)" style="fill: none; stroke: #ececec; stroke-width: 0.8; stroke-linecap: square"/>
      </g>
-     <g id="np1layervio-line2d_6">
+     <g id="np1mvioscatter-line2d_6">
       <g>
-       <use xlink:href="#np1layervio-m5bc59dc0cc" x="200.77" y="241.55" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+       <use xlink:href="#np1mvioscatter-m98c0b5ac2f" x="141.57" y="194.09" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
       </g>
      </g>
-     <g id="np1layervio-text_3">
-      <text style="font-size: 10.5px; font-family: 'Inter', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #555555" x="200.77" y="256.52" transform="rotate(-0 200.77 256.52)">3</text>
+     <g id="np1mvioscatter-text_3">
+      <text style="font-size: 10px; font-family: 'Inter', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #555555" x="141.57" y="208.69" transform="rotate(-0 141.57 208.69)">0.8</text>
      </g>
     </g>
-    <g id="np1layervio-xtick_4">
-     <g id="np1layervio-line2d_7">
-      <path d="M 261.51 241.55 
-L 261.51 11.34 
-" clip-path="url(#np1layervio-pa689ae05bd)" style="fill: none; stroke: #ececec; stroke-width: 0.8; stroke-linecap: square"/>
+    <g id="np1mvioscatter-text_4">
+     
+     <g style="fill: #333333" transform="translate(67.55 223.07)">
+      <text>
+       <tspan x="0" y="-0.01" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333">m</tspan>
+       <tspan x="10.22" y="-0.01" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333">e</tspan>
+       <tspan x="16.68" y="-0.01" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333">a</tspan>
+       <tspan x="23.12" y="-0.01" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333">n</tspan>
+       <tspan x="29.77" y="-0.01" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333"> </tspan>
+       <tspan x="33.11" y="-0.01" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333">s</tspan>
+       <tspan x="38.58" y="-0.01" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333">h</tspan>
+       <tspan x="45.24" y="-0.01" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333">a</tspan>
+       <tspan x="51.67" y="-0.01" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333">r</tspan>
+       <tspan x="55.99" y="-0.01" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333">e</tspan>
+       <tspan x="62.45" y="-0.01" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333"> </tspan>
+       <tspan x="65.78" y="-0.01" style="font-style: oblique; font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333">m</tspan>
+      </text>
      </g>
-     <g id="np1layervio-line2d_8">
-      <g>
-       <use xlink:href="#np1layervio-m5bc59dc0cc" x="261.51" y="241.55" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="np1layervio-text_4">
-      <text style="font-size: 10.5px; font-family: 'Inter', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #555555" x="261.51" y="256.52" transform="rotate(-0 261.51 256.52)">4</text>
-     </g>
-    </g>
-    <g id="np1layervio-xtick_5">
-     <g id="np1layervio-line2d_9">
-      <path d="M 322.24 241.55 
-L 322.24 11.34 
-" clip-path="url(#np1layervio-pa689ae05bd)" style="fill: none; stroke: #ececec; stroke-width: 0.8; stroke-linecap: square"/>
-     </g>
-     <g id="np1layervio-line2d_10">
-      <g>
-       <use xlink:href="#np1layervio-m5bc59dc0cc" x="322.24" y="241.55" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="np1layervio-text_5">
-      <text style="font-size: 10.5px; font-family: 'Inter', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #555555" x="322.24" y="256.52" transform="rotate(-0 322.24 256.52)">5</text>
-     </g>
-    </g>
-    <g id="np1layervio-xtick_6">
-     <g id="np1layervio-line2d_11">
-      <path d="M 382.98 241.55 
-L 382.98 11.34 
-" clip-path="url(#np1layervio-pa689ae05bd)" style="fill: none; stroke: #ececec; stroke-width: 0.8; stroke-linecap: square"/>
-     </g>
-     <g id="np1layervio-line2d_12">
-      <g>
-       <use xlink:href="#np1layervio-m5bc59dc0cc" x="382.98" y="241.55" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="np1layervio-text_6">
-      <text style="font-size: 10.5px; font-family: 'Inter', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #555555" x="382.98" y="256.52" transform="rotate(-0 382.98 256.52)">6</text>
-     </g>
-    </g>
-    <g id="np1layervio-xtick_7">
-     <g id="np1layervio-line2d_13">
-      <path d="M 443.72 241.55 
-L 443.72 11.34 
-" clip-path="url(#np1layervio-pa689ae05bd)" style="fill: none; stroke: #ececec; stroke-width: 0.8; stroke-linecap: square"/>
-     </g>
-     <g id="np1layervio-line2d_14">
-      <g>
-       <use xlink:href="#np1layervio-m5bc59dc0cc" x="443.72" y="241.55" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="np1layervio-text_7">
-      <text style="font-size: 10.5px; font-family: 'Inter', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #555555" x="443.72" y="256.52" transform="rotate(-0 443.72 256.52)">7</text>
-     </g>
-    </g>
-    <g id="np1layervio-xtick_8">
-     <g id="np1layervio-line2d_15">
-      <path d="M 504.46 241.55 
-L 504.46 11.34 
-" clip-path="url(#np1layervio-pa689ae05bd)" style="fill: none; stroke: #ececec; stroke-width: 0.8; stroke-linecap: square"/>
-     </g>
-     <g id="np1layervio-line2d_16">
-      <g>
-       <use xlink:href="#np1layervio-m5bc59dc0cc" x="504.46" y="241.55" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="np1layervio-text_8">
-      <text style="font-size: 10.5px; font-family: 'Inter', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #555555" x="504.46" y="256.52" transform="rotate(-0 504.46 256.52)">8</text>
-     </g>
-    </g>
-    <g id="np1layervio-text_9">
-     <text style="font-size: 10.5px; font-family: 'Inter', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #333333" x="291.88" y="271.03" transform="rotate(-0 291.88 271.03)">layer</text>
     </g>
    </g>
-   <g id="np1layervio-matplotlib.axis_2">
-    <g id="np1layervio-ytick_1">
-     <g id="np1layervio-line2d_17">
-      <path d="M 58.04 233.79 
-L 525.72 233.79 
-" clip-path="url(#np1layervio-pa689ae05bd)" style="fill: none; stroke: #ececec; stroke-width: 0.8; stroke-linecap: square"/>
+   <g id="np1mvioscatter-matplotlib.axis_2">
+    <g id="np1mvioscatter-ytick_1">
+     <g id="np1mvioscatter-line2d_7">
+      <path d="M 56.6 188.82 
+L 154.32 188.82 
+" clip-path="url(#np1mvioscatter-p81084bfc3c)" style="fill: none; stroke: #ececec; stroke-width: 0.8; stroke-linecap: square"/>
      </g>
-     <g id="np1layervio-line2d_18">
+     <g id="np1mvioscatter-line2d_8">
       <defs>
-       <path id="np1layervio-meb215d2b4e" d="M 0 0 
+       <path id="np1mvioscatter-m63c2835d6f" d="M 0 0 
 L -3.5 0 
 " style="stroke: #555555; stroke-width: 0.8"/>
       </defs>
       <g>
-       <use xlink:href="#np1layervio-meb215d2b4e" x="58.04" y="233.79" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+       <use xlink:href="#np1mvioscatter-m63c2835d6f" x="56.6" y="188.82" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
       </g>
      </g>
-     <g id="np1layervio-text_10">
+     <g id="np1mvioscatter-text_5">
       
-      <g style="fill: #555555" transform="translate(26.36 238.67)">
+      <g style="fill: #555555" transform="translate(26.1 193.47)">
        <text>
-        <tspan x="0" y="-0.30" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #555555">1</tspan>
-        <tspan x="6.68" y="-0.30" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #555555">0</tspan>
-        <tspan x="13.46" y="-4.64" style="font-size: 7.35px; font-family: 'DejaVu Sans'; fill: #555555">−</tspan>
-        <tspan x="19.61" y="-4.64" style="font-size: 7.35px; font-family: 'DejaVu Sans'; fill: #555555">1</tspan>
+        <tspan x="0" y="-0.76" style="font-size: 10px; font-family: 'DejaVu Sans'; fill: #555555">1</tspan>
+        <tspan x="6.36" y="-0.76" style="font-size: 10px; font-family: 'DejaVu Sans'; fill: #555555">0</tspan>
+        <tspan x="12.82" y="-4.89" style="font-size: 7px; font-family: 'DejaVu Sans'; fill: #555555">−</tspan>
+        <tspan x="18.68" y="-4.89" style="font-size: 7px; font-family: 'DejaVu Sans'; fill: #555555">1</tspan>
        </text>
       </g>
      </g>
     </g>
-    <g id="np1layervio-ytick_2">
-     <g id="np1layervio-line2d_19">
-      <path d="M 58.04 153.72 
-L 525.72 153.72 
-" clip-path="url(#np1layervio-pa689ae05bd)" style="fill: none; stroke: #ececec; stroke-width: 0.8; stroke-linecap: square"/>
+    <g id="np1mvioscatter-ytick_2">
+     <g id="np1mvioscatter-line2d_9">
+      <path d="M 56.6 134.44 
+L 154.32 134.44 
+" clip-path="url(#np1mvioscatter-p81084bfc3c)" style="fill: none; stroke: #ececec; stroke-width: 0.8; stroke-linecap: square"/>
      </g>
-     <g id="np1layervio-line2d_20">
+     <g id="np1mvioscatter-line2d_10">
       <g>
-       <use xlink:href="#np1layervio-meb215d2b4e" x="58.04" y="153.72" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+       <use xlink:href="#np1mvioscatter-m63c2835d6f" x="56.6" y="134.44" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
       </g>
      </g>
-     <g id="np1layervio-text_11">
+     <g id="np1mvioscatter-text_6">
       
-      <g style="fill: #555555" transform="translate(32.56 158.65)">
+      <g style="fill: #555555" transform="translate(32 139.14)">
        <text>
-        <tspan x="0" y="-0.20" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #555555">1</tspan>
-        <tspan x="6.68" y="-0.20" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #555555">0</tspan>
-        <tspan x="13.46" y="-4.54" style="font-size: 7.35px; font-family: 'DejaVu Sans'; fill: #555555">0</tspan>
+        <tspan x="0" y="-0.67" style="font-size: 10px; font-family: 'DejaVu Sans'; fill: #555555">1</tspan>
+        <tspan x="6.36" y="-0.67" style="font-size: 10px; font-family: 'DejaVu Sans'; fill: #555555">0</tspan>
+        <tspan x="12.82" y="-4.80" style="font-size: 7px; font-family: 'DejaVu Sans'; fill: #555555">0</tspan>
        </text>
       </g>
      </g>
     </g>
-    <g id="np1layervio-ytick_3">
-     <g id="np1layervio-line2d_21">
-      <path d="M 58.04 73.64 
-L 525.72 73.64 
-" clip-path="url(#np1layervio-pa689ae05bd)" style="fill: none; stroke: #ececec; stroke-width: 0.8; stroke-linecap: square"/>
+    <g id="np1mvioscatter-ytick_3">
+     <g id="np1mvioscatter-line2d_11">
+      <path d="M 56.6 80.06 
+L 154.32 80.06 
+" clip-path="url(#np1mvioscatter-p81084bfc3c)" style="fill: none; stroke: #ececec; stroke-width: 0.8; stroke-linecap: square"/>
      </g>
-     <g id="np1layervio-line2d_22">
+     <g id="np1mvioscatter-line2d_12">
       <g>
-       <use xlink:href="#np1layervio-meb215d2b4e" x="58.04" y="73.64" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+       <use xlink:href="#np1mvioscatter-m63c2835d6f" x="56.6" y="80.06" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
       </g>
      </g>
-     <g id="np1layervio-text_12">
+     <g id="np1mvioscatter-text_7">
       
-      <g style="fill: #555555" transform="translate(32.56 78.53)">
+      <g style="fill: #555555" transform="translate(32 84.71)">
        <text>
-        <tspan x="0" y="-0.30" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #555555">1</tspan>
-        <tspan x="6.68" y="-0.30" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #555555">0</tspan>
-        <tspan x="13.46" y="-4.64" style="font-size: 7.35px; font-family: 'DejaVu Sans'; fill: #555555">1</tspan>
+        <tspan x="0" y="-0.76" style="font-size: 10px; font-family: 'DejaVu Sans'; fill: #555555">1</tspan>
+        <tspan x="6.36" y="-0.76" style="font-size: 10px; font-family: 'DejaVu Sans'; fill: #555555">0</tspan>
+        <tspan x="12.82" y="-4.89" style="font-size: 7px; font-family: 'DejaVu Sans'; fill: #555555">1</tspan>
        </text>
       </g>
      </g>
     </g>
-    <g id="np1layervio-ytick_4">
-     <g id="np1layervio-line2d_23">
+    <g id="np1mvioscatter-ytick_4">
+     <g id="np1mvioscatter-line2d_13">
       <defs>
-       <path id="np1layervio-m212c97db8d" d="M 0 0 
+       <path id="np1mvioscatter-m43a5774661" d="M 0 0 
 L -2 0 
 " style="stroke: #555555; stroke-width: 0.6"/>
       </defs>
       <g>
-       <use xlink:href="#np1layervio-m212c97db8d" x="58.04" y="241.55" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="56.6" y="194.09" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
-    <g id="np1layervio-ytick_5">
-     <g id="np1layervio-line2d_24">
+    <g id="np1mvioscatter-ytick_5">
+     <g id="np1mvioscatter-line2d_14">
       <g>
-       <use xlink:href="#np1layervio-m212c97db8d" x="58.04" y="237.45" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="56.6" y="191.31" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
-    <g id="np1layervio-ytick_6">
-     <g id="np1layervio-line2d_25">
+    <g id="np1mvioscatter-ytick_6">
+     <g id="np1mvioscatter-line2d_15">
       <g>
-       <use xlink:href="#np1layervio-m212c97db8d" x="58.04" y="209.68" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="56.6" y="172.45" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
-    <g id="np1layervio-ytick_7">
-     <g id="np1layervio-line2d_26">
+    <g id="np1mvioscatter-ytick_7">
+     <g id="np1mvioscatter-line2d_16">
       <g>
-       <use xlink:href="#np1layervio-m212c97db8d" x="58.04" y="195.58" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="56.6" y="162.88" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
-    <g id="np1layervio-ytick_8">
-     <g id="np1layervio-line2d_27">
+    <g id="np1mvioscatter-ytick_8">
+     <g id="np1mvioscatter-line2d_17">
       <g>
-       <use xlink:href="#np1layervio-m212c97db8d" x="58.04" y="185.58" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="56.6" y="156.08" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
-    <g id="np1layervio-ytick_9">
-     <g id="np1layervio-line2d_28">
+    <g id="np1mvioscatter-ytick_9">
+     <g id="np1mvioscatter-line2d_18">
       <g>
-       <use xlink:href="#np1layervio-m212c97db8d" x="58.04" y="177.82" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="56.6" y="150.81" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
-    <g id="np1layervio-ytick_10">
-     <g id="np1layervio-line2d_29">
+    <g id="np1mvioscatter-ytick_10">
+     <g id="np1mvioscatter-line2d_19">
       <g>
-       <use xlink:href="#np1layervio-m212c97db8d" x="58.04" y="171.48" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="56.6" y="146.50" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
-    <g id="np1layervio-ytick_11">
-     <g id="np1layervio-line2d_30">
+    <g id="np1mvioscatter-ytick_11">
+     <g id="np1mvioscatter-line2d_20">
       <g>
-       <use xlink:href="#np1layervio-m212c97db8d" x="58.04" y="166.12" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="56.6" y="142.86" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
-    <g id="np1layervio-ytick_12">
-     <g id="np1layervio-line2d_31">
+    <g id="np1mvioscatter-ytick_12">
+     <g id="np1mvioscatter-line2d_21">
       <g>
-       <use xlink:href="#np1layervio-m212c97db8d" x="58.04" y="161.47" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="56.6" y="139.71" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
-    <g id="np1layervio-ytick_13">
-     <g id="np1layervio-line2d_32">
+    <g id="np1mvioscatter-ytick_13">
+     <g id="np1mvioscatter-line2d_22">
       <g>
-       <use xlink:href="#np1layervio-m212c97db8d" x="58.04" y="157.38" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="56.6" y="136.93" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
-    <g id="np1layervio-ytick_14">
-     <g id="np1layervio-line2d_33">
+    <g id="np1mvioscatter-ytick_14">
+     <g id="np1mvioscatter-line2d_23">
       <g>
-       <use xlink:href="#np1layervio-m212c97db8d" x="58.04" y="129.61" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="56.6" y="118.07" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
-    <g id="np1layervio-ytick_15">
-     <g id="np1layervio-line2d_34">
+    <g id="np1mvioscatter-ytick_15">
+     <g id="np1mvioscatter-line2d_24">
       <g>
-       <use xlink:href="#np1layervio-m212c97db8d" x="58.04" y="115.51" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="56.6" y="108.49" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
-    <g id="np1layervio-ytick_16">
-     <g id="np1layervio-line2d_35">
+    <g id="np1mvioscatter-ytick_16">
+     <g id="np1mvioscatter-line2d_25">
       <g>
-       <use xlink:href="#np1layervio-m212c97db8d" x="58.04" y="105.51" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="56.6" y="101.70" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
-    <g id="np1layervio-ytick_17">
-     <g id="np1layervio-line2d_36">
+    <g id="np1mvioscatter-ytick_17">
+     <g id="np1mvioscatter-line2d_26">
       <g>
-       <use xlink:href="#np1layervio-m212c97db8d" x="58.04" y="97.75" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="56.6" y="96.43" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
-    <g id="np1layervio-ytick_18">
-     <g id="np1layervio-line2d_37">
+    <g id="np1mvioscatter-ytick_18">
+     <g id="np1mvioscatter-line2d_27">
       <g>
-       <use xlink:href="#np1layervio-m212c97db8d" x="58.04" y="91.41" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="56.6" y="92.12" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
-    <g id="np1layervio-ytick_19">
-     <g id="np1layervio-line2d_38">
+    <g id="np1mvioscatter-ytick_19">
+     <g id="np1mvioscatter-line2d_28">
       <g>
-       <use xlink:href="#np1layervio-m212c97db8d" x="58.04" y="86.05" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="56.6" y="88.48" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
-    <g id="np1layervio-ytick_20">
-     <g id="np1layervio-line2d_39">
+    <g id="np1mvioscatter-ytick_20">
+     <g id="np1mvioscatter-line2d_29">
       <g>
-       <use xlink:href="#np1layervio-m212c97db8d" x="58.04" y="81.40" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="56.6" y="85.33" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
-    <g id="np1layervio-ytick_21">
-     <g id="np1layervio-line2d_40">
+    <g id="np1mvioscatter-ytick_21">
+     <g id="np1mvioscatter-line2d_30">
       <g>
-       <use xlink:href="#np1layervio-m212c97db8d" x="58.04" y="77.31" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="56.6" y="82.55" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
-    <g id="np1layervio-ytick_22">
-     <g id="np1layervio-line2d_41">
+    <g id="np1mvioscatter-ytick_22">
+     <g id="np1mvioscatter-line2d_31">
       <g>
-       <use xlink:href="#np1layervio-m212c97db8d" x="58.04" y="49.54" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="56.6" y="63.69" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
-    <g id="np1layervio-ytick_23">
-     <g id="np1layervio-line2d_42">
+    <g id="np1mvioscatter-ytick_23">
+     <g id="np1mvioscatter-line2d_32">
       <g>
-       <use xlink:href="#np1layervio-m212c97db8d" x="58.04" y="35.44" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="56.6" y="54.11" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
-    <g id="np1layervio-ytick_24">
-     <g id="np1layervio-line2d_43">
+    <g id="np1mvioscatter-ytick_24">
+     <g id="np1mvioscatter-line2d_33">
       <g>
-       <use xlink:href="#np1layervio-m212c97db8d" x="58.04" y="25.43" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="56.6" y="47.32" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
-    <g id="np1layervio-ytick_25">
-     <g id="np1layervio-line2d_44">
+    <g id="np1mvioscatter-ytick_25">
+     <g id="np1mvioscatter-line2d_34">
       <g>
-       <use xlink:href="#np1layervio-m212c97db8d" x="58.04" y="17.68" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="56.6" y="42.05" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
-    <g id="np1layervio-ytick_26">
-     <g id="np1layervio-line2d_45">
+    <g id="np1mvioscatter-ytick_26">
+     <g id="np1mvioscatter-line2d_35">
       <g>
-       <use xlink:href="#np1layervio-m212c97db8d" x="58.04" y="11.34" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="56.6" y="37.74" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
-    <g id="np1layervio-text_13">
-     <text style="font-size: 10.5px; font-family: 'Inter', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #333333" x="19.84" y="126.44" transform="rotate(-90 19.84 126.44)">MaxVio (mean over steps 3001–5000)</text>
+    <g id="np1mvioscatter-text_8">
+     <text style="font-size: 10.5px; font-family: 'Inter', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #333333" x="19.57" y="115.92" transform="rotate(-90 19.57 115.92)">MaxVio (log scale)</text>
     </g>
    </g>
-   <g id="np1layervio-line2d_46">
-    <path d="M 79.29 69.38 
-L 140.03 173.14 
-L 200.77 220.20 
-L 261.51 210.06 
-L 322.24 219.92 
-L 382.98 218.42 
-L 443.72 215.59 
-L 504.46 210.31 
-" clip-path="url(#np1layervio-pa689ae05bd)" style="fill: none; stroke: #2f63ae; stroke-opacity: 0.9; stroke-width: 2; stroke-linecap: square"/>
+   <g id="np1mvioscatter-line2d_36">
+    <path d="M 145.03 73.04 
+L 123.48 146.04 
+L 105.38 177.29 
+L 97.34 171.33 
+L 84.82 177.94 
+L 77.40 177.41 
+L 72.28 175.33 
+L 67.73 172.33 
+" clip-path="url(#np1mvioscatter-p81084bfc3c)" style="fill: none; stroke: #2f63ae; stroke-opacity: 0.45; stroke-width: 0.9; stroke-linecap: square"/>
+   </g>
+   <g id="np1mvioscatter-PathCollection_1">
     <defs>
-     <path id="np1layervio-m9144d9ff02" d="M 0 3 
-C 0.79 3 1.55 2.68 2.12 2.12 
-C 2.68 1.55 3 0.79 3 0 
-C 3 -0.79 2.68 -1.55 2.12 -2.12 
-C 1.55 -2.68 0.79 -3 0 -3 
-C -0.79 -3 -1.55 -2.68 -2.12 -2.12 
-C -2.68 -1.55 -3 -0.79 -3 0 
-C -3 0.79 -2.68 1.55 -2.12 2.12 
-C -1.55 2.68 -0.79 3 0 3 
+     <path id="np1mvioscatter-m7cb9dbd643" d="M 0 2.91 
+C 0.77 2.91 1.51 2.60 2.06 2.06 
+C 2.60 1.51 2.91 0.77 2.91 0 
+C 2.91 -0.77 2.60 -1.51 2.06 -2.06 
+C 1.51 -2.60 0.77 -2.91 0 -2.91 
+C -0.77 -2.91 -1.51 -2.60 -2.06 -2.06 
+C -2.60 -1.51 -2.91 -0.77 -2.91 0 
+C -2.91 0.77 -2.60 1.51 -2.06 2.06 
+C -1.51 2.60 -0.77 2.91 0 2.91 
 z
-" style="stroke: #2f63ae; stroke-opacity: 0.9"/>
+" style="stroke: #ffffff"/>
     </defs>
-    <g clip-path="url(#np1layervio-pa689ae05bd)">
-     <use xlink:href="#np1layervio-m9144d9ff02" x="79.29" y="69.38" style="fill: #2f63ae; fill-opacity: 0.9; stroke: #2f63ae; stroke-opacity: 0.9"/>
-     <use xlink:href="#np1layervio-m9144d9ff02" x="140.03" y="173.14" style="fill: #2f63ae; fill-opacity: 0.9; stroke: #2f63ae; stroke-opacity: 0.9"/>
-     <use xlink:href="#np1layervio-m9144d9ff02" x="200.77" y="220.20" style="fill: #2f63ae; fill-opacity: 0.9; stroke: #2f63ae; stroke-opacity: 0.9"/>
-     <use xlink:href="#np1layervio-m9144d9ff02" x="261.51" y="210.06" style="fill: #2f63ae; fill-opacity: 0.9; stroke: #2f63ae; stroke-opacity: 0.9"/>
-     <use xlink:href="#np1layervio-m9144d9ff02" x="322.24" y="219.92" style="fill: #2f63ae; fill-opacity: 0.9; stroke: #2f63ae; stroke-opacity: 0.9"/>
-     <use xlink:href="#np1layervio-m9144d9ff02" x="382.98" y="218.42" style="fill: #2f63ae; fill-opacity: 0.9; stroke: #2f63ae; stroke-opacity: 0.9"/>
-     <use xlink:href="#np1layervio-m9144d9ff02" x="443.72" y="215.59" style="fill: #2f63ae; fill-opacity: 0.9; stroke: #2f63ae; stroke-opacity: 0.9"/>
-     <use xlink:href="#np1layervio-m9144d9ff02" x="504.46" y="210.31" style="fill: #2f63ae; fill-opacity: 0.9; stroke: #2f63ae; stroke-opacity: 0.9"/>
+    <g clip-path="url(#np1mvioscatter-p81084bfc3c)">
+     <use xlink:href="#np1mvioscatter-m7cb9dbd643" x="123.48" y="146.04" style="fill: #2f63ae; stroke: #ffffff"/>
+     <use xlink:href="#np1mvioscatter-m7cb9dbd643" x="105.38" y="177.29" style="fill: #2f63ae; stroke: #ffffff"/>
+     <use xlink:href="#np1mvioscatter-m7cb9dbd643" x="97.34" y="171.33" style="fill: #2f63ae; stroke: #ffffff"/>
+     <use xlink:href="#np1mvioscatter-m7cb9dbd643" x="84.82" y="177.94" style="fill: #2f63ae; stroke: #ffffff"/>
+     <use xlink:href="#np1mvioscatter-m7cb9dbd643" x="77.40" y="177.41" style="fill: #2f63ae; stroke: #ffffff"/>
+     <use xlink:href="#np1mvioscatter-m7cb9dbd643" x="72.28" y="175.33" style="fill: #2f63ae; stroke: #ffffff"/>
+     <use xlink:href="#np1mvioscatter-m7cb9dbd643" x="67.73" y="172.33" style="fill: #2f63ae; stroke: #ffffff"/>
     </g>
    </g>
-   <g id="np1layervio-line2d_47">
-    <path d="M 79.29 132.73 
-L 140.03 207.81 
-L 200.77 227.65 
-L 261.51 216.88 
-L 322.24 224.39 
-L 382.98 221.98 
-L 443.72 220.90 
-L 504.46 207.76 
-" clip-path="url(#np1layervio-pa689ae05bd)" style="fill: none; stroke: #cc6633; stroke-opacity: 0.9; stroke-width: 2; stroke-linecap: square"/>
-    <defs>
-     <path id="np1layervio-m532700b99a" d="M -3 3 
-L 3 3 
-L 3 -3 
-L -3 -3 
-z
-" style="stroke: #cc6633; stroke-opacity: 0.9; stroke-linejoin: miter"/>
-    </defs>
-    <g clip-path="url(#np1layervio-pa689ae05bd)">
-     <use xlink:href="#np1layervio-m532700b99a" x="79.29" y="132.73" style="fill: #cc6633; fill-opacity: 0.9; stroke: #cc6633; stroke-opacity: 0.9; stroke-linejoin: miter"/>
-     <use xlink:href="#np1layervio-m532700b99a" x="140.03" y="207.81" style="fill: #cc6633; fill-opacity: 0.9; stroke: #cc6633; stroke-opacity: 0.9; stroke-linejoin: miter"/>
-     <use xlink:href="#np1layervio-m532700b99a" x="200.77" y="227.65" style="fill: #cc6633; fill-opacity: 0.9; stroke: #cc6633; stroke-opacity: 0.9; stroke-linejoin: miter"/>
-     <use xlink:href="#np1layervio-m532700b99a" x="261.51" y="216.88" style="fill: #cc6633; fill-opacity: 0.9; stroke: #cc6633; stroke-opacity: 0.9; stroke-linejoin: miter"/>
-     <use xlink:href="#np1layervio-m532700b99a" x="322.24" y="224.39" style="fill: #cc6633; fill-opacity: 0.9; stroke: #cc6633; stroke-opacity: 0.9; stroke-linejoin: miter"/>
-     <use xlink:href="#np1layervio-m532700b99a" x="382.98" y="221.98" style="fill: #cc6633; fill-opacity: 0.9; stroke: #cc6633; stroke-opacity: 0.9; stroke-linejoin: miter"/>
-     <use xlink:href="#np1layervio-m532700b99a" x="443.72" y="220.90" style="fill: #cc6633; fill-opacity: 0.9; stroke: #cc6633; stroke-opacity: 0.9; stroke-linejoin: miter"/>
-     <use xlink:href="#np1layervio-m532700b99a" x="504.46" y="207.76" style="fill: #cc6633; fill-opacity: 0.9; stroke: #cc6633; stroke-opacity: 0.9; stroke-linejoin: miter"/>
-    </g>
-   </g>
-   <g id="np1layervio-line2d_48">
-    <path d="M 79.29 144.02 
-L 140.03 209.21 
-L 200.77 212.44 
-L 261.51 207.86 
-L 322.24 208.22 
-L 382.98 214.71 
-L 443.72 210.03 
-L 504.46 200.51 
-" clip-path="url(#np1layervio-pa689ae05bd)" style="fill: none; stroke: #663399; stroke-opacity: 0.9; stroke-width: 2; stroke-linecap: square"/>
-    <defs>
-     <path id="np1layervio-m11456f046d" d="M -0 4.24 
-L 4.24 0 
-L 0 -4.24 
-L -4.24 -0 
-z
-" style="stroke: #663399; stroke-opacity: 0.9; stroke-linejoin: miter"/>
-    </defs>
-    <g clip-path="url(#np1layervio-pa689ae05bd)">
-     <use xlink:href="#np1layervio-m11456f046d" x="79.29" y="144.02" style="fill: #663399; fill-opacity: 0.9; stroke: #663399; stroke-opacity: 0.9; stroke-linejoin: miter"/>
-     <use xlink:href="#np1layervio-m11456f046d" x="140.03" y="209.21" style="fill: #663399; fill-opacity: 0.9; stroke: #663399; stroke-opacity: 0.9; stroke-linejoin: miter"/>
-     <use xlink:href="#np1layervio-m11456f046d" x="200.77" y="212.44" style="fill: #663399; fill-opacity: 0.9; stroke: #663399; stroke-opacity: 0.9; stroke-linejoin: miter"/>
-     <use xlink:href="#np1layervio-m11456f046d" x="261.51" y="207.86" style="fill: #663399; fill-opacity: 0.9; stroke: #663399; stroke-opacity: 0.9; stroke-linejoin: miter"/>
-     <use xlink:href="#np1layervio-m11456f046d" x="322.24" y="208.22" style="fill: #663399; fill-opacity: 0.9; stroke: #663399; stroke-opacity: 0.9; stroke-linejoin: miter"/>
-     <use xlink:href="#np1layervio-m11456f046d" x="382.98" y="214.71" style="fill: #663399; fill-opacity: 0.9; stroke: #663399; stroke-opacity: 0.9; stroke-linejoin: miter"/>
-     <use xlink:href="#np1layervio-m11456f046d" x="443.72" y="210.03" style="fill: #663399; fill-opacity: 0.9; stroke: #663399; stroke-opacity: 0.9; stroke-linejoin: miter"/>
-     <use xlink:href="#np1layervio-m11456f046d" x="504.46" y="200.51" style="fill: #663399; fill-opacity: 0.9; stroke: #663399; stroke-opacity: 0.9; stroke-linejoin: miter"/>
-    </g>
-   </g>
-   <g id="np1layervio-line2d_49">
-    <path d="M 79.29 158.51 
-L 140.03 151.25 
-L 200.77 137.33 
-L 261.51 152.41 
-L 322.24 122.90 
-L 382.98 131.00 
-L 443.72 126.77 
-L 504.46 120.70 
-" clip-path="url(#np1layervio-pa689ae05bd)" style="fill: none; stroke: #339966; stroke-opacity: 0.9; stroke-width: 2; stroke-linecap: square"/>
-    <defs>
-     <path id="np1layervio-m2360921fc9" d="M 0 -3 
-L -3 3 
-L 3 3 
-z
-" style="stroke: #339966; stroke-opacity: 0.9; stroke-linejoin: miter"/>
-    </defs>
-    <g clip-path="url(#np1layervio-pa689ae05bd)">
-     <use xlink:href="#np1layervio-m2360921fc9" x="79.29" y="158.51" style="fill: #339966; fill-opacity: 0.9; stroke: #339966; stroke-opacity: 0.9; stroke-linejoin: miter"/>
-     <use xlink:href="#np1layervio-m2360921fc9" x="140.03" y="151.25" style="fill: #339966; fill-opacity: 0.9; stroke: #339966; stroke-opacity: 0.9; stroke-linejoin: miter"/>
-     <use xlink:href="#np1layervio-m2360921fc9" x="200.77" y="137.33" style="fill: #339966; fill-opacity: 0.9; stroke: #339966; stroke-opacity: 0.9; stroke-linejoin: miter"/>
-     <use xlink:href="#np1layervio-m2360921fc9" x="261.51" y="152.41" style="fill: #339966; fill-opacity: 0.9; stroke: #339966; stroke-opacity: 0.9; stroke-linejoin: miter"/>
-     <use xlink:href="#np1layervio-m2360921fc9" x="322.24" y="122.90" style="fill: #339966; fill-opacity: 0.9; stroke: #339966; stroke-opacity: 0.9; stroke-linejoin: miter"/>
-     <use xlink:href="#np1layervio-m2360921fc9" x="382.98" y="131.00" style="fill: #339966; fill-opacity: 0.9; stroke: #339966; stroke-opacity: 0.9; stroke-linejoin: miter"/>
-     <use xlink:href="#np1layervio-m2360921fc9" x="443.72" y="126.77" style="fill: #339966; fill-opacity: 0.9; stroke: #339966; stroke-opacity: 0.9; stroke-linejoin: miter"/>
-     <use xlink:href="#np1layervio-m2360921fc9" x="504.46" y="120.70" style="fill: #339966; fill-opacity: 0.9; stroke: #339966; stroke-opacity: 0.9; stroke-linejoin: miter"/>
-    </g>
-   </g>
-   <g id="np1layervio-line2d_50">
-    <path d="M 79.29 34.34 
-L 140.03 45.38 
-L 200.77 72.70 
-L 261.51 84.54 
-L 322.24 92.28 
-L 382.98 103.31 
-L 443.72 90.22 
-L 504.46 62.68 
-" clip-path="url(#np1layervio-pa689ae05bd)" style="fill: none; stroke: #4a4a4a; stroke-opacity: 0.9; stroke-width: 2; stroke-linecap: square"/>
-    <defs>
-     <path id="np1layervio-mb828d0b468" d="M -0 3 
-L 3 -3 
-L -3 -3 
-z
-" style="stroke: #4a4a4a; stroke-opacity: 0.9; stroke-linejoin: miter"/>
-    </defs>
-    <g clip-path="url(#np1layervio-pa689ae05bd)">
-     <use xlink:href="#np1layervio-mb828d0b468" x="79.29" y="34.34" style="fill: #4a4a4a; fill-opacity: 0.9; stroke: #4a4a4a; stroke-opacity: 0.9; stroke-linejoin: miter"/>
-     <use xlink:href="#np1layervio-mb828d0b468" x="140.03" y="45.38" style="fill: #4a4a4a; fill-opacity: 0.9; stroke: #4a4a4a; stroke-opacity: 0.9; stroke-linejoin: miter"/>
-     <use xlink:href="#np1layervio-mb828d0b468" x="200.77" y="72.70" style="fill: #4a4a4a; fill-opacity: 0.9; stroke: #4a4a4a; stroke-opacity: 0.9; stroke-linejoin: miter"/>
-     <use xlink:href="#np1layervio-mb828d0b468" x="261.51" y="84.54" style="fill: #4a4a4a; fill-opacity: 0.9; stroke: #4a4a4a; stroke-opacity: 0.9; stroke-linejoin: miter"/>
-     <use xlink:href="#np1layervio-mb828d0b468" x="322.24" y="92.28" style="fill: #4a4a4a; fill-opacity: 0.9; stroke: #4a4a4a; stroke-opacity: 0.9; stroke-linejoin: miter"/>
-     <use xlink:href="#np1layervio-mb828d0b468" x="382.98" y="103.31" style="fill: #4a4a4a; fill-opacity: 0.9; stroke: #4a4a4a; stroke-opacity: 0.9; stroke-linejoin: miter"/>
-     <use xlink:href="#np1layervio-mb828d0b468" x="443.72" y="90.22" style="fill: #4a4a4a; fill-opacity: 0.9; stroke: #4a4a4a; stroke-opacity: 0.9; stroke-linejoin: miter"/>
-     <use xlink:href="#np1layervio-mb828d0b468" x="504.46" y="62.68" style="fill: #4a4a4a; fill-opacity: 0.9; stroke: #4a4a4a; stroke-opacity: 0.9; stroke-linejoin: miter"/>
-    </g>
-   </g>
-   <g id="np1layervio-patch_3">
-    <path d="M 58.04 241.55 
-L 58.04 11.34 
+   <g id="np1mvioscatter-patch_3">
+    <path d="M 56.6 194.09 
+L 56.6 37.74 
 " style="fill: none; stroke: #555555; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
    </g>
-   <g id="np1layervio-patch_4">
-    <path d="M 58.04 241.55 
-L 525.72 241.55 
+   <g id="np1mvioscatter-patch_4">
+    <path d="M 56.6 194.09 
+L 154.32 194.09 
 " style="fill: none; stroke: #555555; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
    </g>
-   <g id="np1layervio-legend_1">
-    <g id="np1layervio-line2d_51">
-     <path d="M 28.24 290.82 
-L 37.74 290.82 
-L 47.24 290.82 
-" style="fill: none; stroke: #2f63ae; stroke-opacity: 0.9; stroke-width: 2; stroke-linecap: square"/>
-     <g>
-      <use xlink:href="#np1layervio-m9144d9ff02" x="37.74" y="290.82" style="fill: #2f63ae; fill-opacity: 0.9; stroke: #2f63ae; stroke-opacity: 0.9"/>
+   <g id="np1mvioscatter-PathCollection_2">
+    <defs>
+     <path id="np1mvioscatter-m867ffa41f3" d="M 0 4.18 
+C 1.10 4.18 2.17 3.74 2.95 2.95 
+C 3.74 2.17 4.18 1.10 4.18 0 
+C 4.18 -1.10 3.74 -2.17 2.95 -2.95 
+C 2.17 -3.74 1.10 -4.18 0 -4.18 
+C -1.10 -4.18 -2.17 -3.74 -2.95 -2.95 
+C -3.74 -2.17 -4.18 -1.10 -4.18 0 
+C -4.18 1.10 -3.74 2.17 -2.95 2.95 
+C -2.17 3.74 -1.10 4.18 0 4.18 
+z
+" style="stroke: #ffffff; stroke-width: 1.2"/>
+    </defs>
+    <g clip-path="url(#np1mvioscatter-p81084bfc3c)">
+     <use xlink:href="#np1mvioscatter-m867ffa41f3" x="145.03" y="73.04" style="fill: #2f63ae; stroke: #ffffff; stroke-width: 1.2"/>
+    </g>
+   </g>
+   <g id="np1mvioscatter-text_9">
+    <text style="font-size: 10px; font-family: 'Inter', 'DejaVu Sans', sans-serif; text-anchor: end; fill: #333333" x="139.03" y="66.04" transform="rotate(-0 139.03 66.04)">layer 1</text>
+   </g>
+   <g id="np1mvioscatter-text_10">
+    <text style="font-size: 10px; font-family: 'Inter', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #333333" x="67.73" y="163.93" transform="rotate(-0 67.73 163.93)">8</text>
+   </g>
+   <g id="np1mvioscatter-text_11">
+    
+    <g style="fill: #666666" transform="translate(56.44 32.33)">
+     <text>
+      <tspan x="0" y="-0.95" style="font-style: oblique; font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">r</tspan>
+      <tspan x="3.90" y="0.47" style="font-style: oblique; font-size: 6.65px; font-family: 'DejaVu Sans'; fill: #666666">s</tspan>
+      <tspan x="7.63" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666"> </tspan>
+      <tspan x="10.64" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">=</tspan>
+      <tspan x="18.60" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666"> </tspan>
+      <tspan x="21.62" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">+</tspan>
+      <tspan x="29.58" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">0</tspan>
+      <tspan x="35.63" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">.</tspan>
+      <tspan x="38.65" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">5</tspan>
+      <tspan x="44.69" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">2</tspan>
+      <tspan x="50.74" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">,</tspan>
+      <tspan x="53.76" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666"> </tspan>
+      <tspan x="56.78" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">p</tspan>
+      <tspan x="62.81" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666"> </tspan>
+      <tspan x="65.83" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">=</tspan>
+      <tspan x="73.79" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666"> </tspan>
+      <tspan x="76.81" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">0</tspan>
+      <tspan x="82.85" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">.</tspan>
+      <tspan x="85.87" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">1</tspan>
+      <tspan x="91.91" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">8</tspan>
+     </text>
+    </g>
+   </g>
+   <g id="np1mvioscatter-text_12">
+    <text style="font-size: 11px; font-family: 'Inter', 'DejaVu Sans', sans-serif; fill: #333333" transform="translate(94.20 20.79)">bias</text>
+    <text style="font-size: 11px; font-family: 'Inter', 'DejaVu Sans', sans-serif; fill: #333333" transform="translate(105.46 34.00)"/>
+   </g>
+  </g>
+  <g id="np1mvioscatter-axes_2">
+   <g id="np1mvioscatter-patch_5">
+    <path d="M 183.44 194.09 
+L 281.17 194.09 
+L 281.17 37.74 
+L 183.44 37.74 
+z
+" style="fill: #ffffff"/>
+   </g>
+   <g id="np1mvioscatter-matplotlib.axis_3">
+    <g id="np1mvioscatter-xtick_4">
+     <g id="np1mvioscatter-line2d_37">
+      <path d="M 183.44 194.09 
+L 183.44 37.74 
+" clip-path="url(#np1mvioscatter-pa4c17ec5ba)" style="fill: none; stroke: #ececec; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="np1mvioscatter-line2d_38">
+      <g>
+       <use xlink:href="#np1mvioscatter-m98c0b5ac2f" x="183.44" y="194.09" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="np1mvioscatter-text_13">
+      <text style="font-size: 10px; font-family: 'Inter', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #555555" x="183.44" y="208.69" transform="rotate(-0 183.44 208.69)">0.0</text>
      </g>
     </g>
-    <g id="np1layervio-text_14">
-     <text style="font-size: 9.5px; font-family: 'Inter', 'DejaVu Sans', sans-serif; text-anchor: start" x="54.84" y="294.15" transform="rotate(-0 54.84 294.15)">bias (DeepSeek-V3): layer 1 → 11.30</text>
-    </g>
-    <g id="np1layervio-line2d_52">
-     <path d="M 28.24 305.07 
-L 37.74 305.07 
-L 47.24 305.07 
-" style="fill: none; stroke: #cc6633; stroke-opacity: 0.9; stroke-width: 2; stroke-linecap: square"/>
-     <g>
-      <use xlink:href="#np1layervio-m532700b99a" x="37.74" y="305.07" style="fill: #cc6633; fill-opacity: 0.9; stroke: #cc6633; stroke-opacity: 0.9; stroke-linejoin: miter"/>
+    <g id="np1mvioscatter-xtick_5">
+     <g id="np1mvioscatter-line2d_39">
+      <path d="M 225.93 194.09 
+L 225.93 37.74 
+" clip-path="url(#np1mvioscatter-pa4c17ec5ba)" style="fill: none; stroke: #ececec; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="np1mvioscatter-line2d_40">
+      <g>
+       <use xlink:href="#np1mvioscatter-m98c0b5ac2f" x="225.93" y="194.09" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="np1mvioscatter-text_14">
+      <text style="font-size: 10px; font-family: 'Inter', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #555555" x="225.93" y="208.69" transform="rotate(-0 225.93 208.69)">0.4</text>
      </g>
     </g>
-    <g id="np1layervio-text_15">
-     <text style="font-size: 9.5px; font-family: 'Inter', 'DejaVu Sans', sans-serif; text-anchor: start" x="54.84" y="308.40" transform="rotate(-0 54.84 308.40)">QB (Kimi K3): layer 1 → 1.83</text>
-    </g>
-    <g id="np1layervio-line2d_53">
-     <path d="M 247.70 290.82 
-L 257.20 290.82 
-L 266.70 290.82 
-" style="fill: none; stroke: #663399; stroke-opacity: 0.9; stroke-width: 2; stroke-linecap: square"/>
-     <g>
-      <use xlink:href="#np1layervio-m11456f046d" x="257.20" y="290.82" style="fill: #663399; fill-opacity: 0.9; stroke: #663399; stroke-opacity: 0.9; stroke-linejoin: miter"/>
+    <g id="np1mvioscatter-xtick_6">
+     <g id="np1mvioscatter-line2d_41">
+      <path d="M 268.42 194.09 
+L 268.42 37.74 
+" clip-path="url(#np1mvioscatter-pa4c17ec5ba)" style="fill: none; stroke: #ececec; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="np1mvioscatter-line2d_42">
+      <g>
+       <use xlink:href="#np1mvioscatter-m98c0b5ac2f" x="268.42" y="194.09" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="np1mvioscatter-text_15">
+      <text style="font-size: 10px; font-family: 'Inter', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #555555" x="268.42" y="208.69" transform="rotate(-0 268.42 208.69)">0.8</text>
      </g>
     </g>
-    <g id="np1layervio-text_16">
-     <text style="font-size: 9.5px; font-family: 'Inter', 'DejaVu Sans', sans-serif; text-anchor: start" x="274.30" y="294.15" transform="rotate(-0 274.30 294.15)">QB, k-th bar: layer 1 → 1.32</text>
-    </g>
-    <g id="np1layervio-line2d_54">
-     <path d="M 247.70 305.07 
-L 257.20 305.07 
-L 266.70 305.07 
-" style="fill: none; stroke: #339966; stroke-opacity: 0.9; stroke-width: 2; stroke-linecap: square"/>
-     <g>
-      <use xlink:href="#np1layervio-m2360921fc9" x="257.20" y="305.07" style="fill: #339966; fill-opacity: 0.9; stroke: #339966; stroke-opacity: 0.9; stroke-linejoin: miter"/>
+    <g id="np1mvioscatter-text_16">
+     
+     <g style="fill: #333333" transform="translate(194.40 223.07)">
+      <text>
+       <tspan x="0" y="-0.01" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333">m</tspan>
+       <tspan x="10.22" y="-0.01" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333">e</tspan>
+       <tspan x="16.68" y="-0.01" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333">a</tspan>
+       <tspan x="23.12" y="-0.01" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333">n</tspan>
+       <tspan x="29.77" y="-0.01" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333"> </tspan>
+       <tspan x="33.11" y="-0.01" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333">s</tspan>
+       <tspan x="38.58" y="-0.01" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333">h</tspan>
+       <tspan x="45.24" y="-0.01" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333">a</tspan>
+       <tspan x="51.67" y="-0.01" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333">r</tspan>
+       <tspan x="55.99" y="-0.01" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333">e</tspan>
+       <tspan x="62.45" y="-0.01" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333"> </tspan>
+       <tspan x="65.78" y="-0.01" style="font-style: oblique; font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333">m</tspan>
+      </text>
      </g>
     </g>
-    <g id="np1layervio-text_17">
-     <text style="font-size: 9.5px; font-family: 'Inter', 'DejaVu Sans', sans-serif; text-anchor: start" x="274.30" y="308.40" transform="rotate(-0 274.30 308.40)">LBL (Qwen): layer 1 → 0.87</text>
-    </g>
-    <g id="np1layervio-line2d_55">
-     <path d="M 424.89 290.82 
-L 434.39 290.82 
-L 443.89 290.82 
-" style="fill: none; stroke: #4a4a4a; stroke-opacity: 0.9; stroke-width: 2; stroke-linecap: square"/>
-     <g>
-      <use xlink:href="#np1layervio-mb828d0b468" x="434.39" y="290.82" style="fill: #4a4a4a; fill-opacity: 0.9; stroke: #4a4a4a; stroke-opacity: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="np1mvioscatter-matplotlib.axis_4">
+    <g id="np1mvioscatter-ytick_27">
+     <g id="np1mvioscatter-line2d_43">
+      <path d="M 183.44 188.82 
+L 281.17 188.82 
+" clip-path="url(#np1mvioscatter-pa4c17ec5ba)" style="fill: none; stroke: #ececec; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="np1mvioscatter-line2d_44">
+      <g>
+       <use xlink:href="#np1mvioscatter-m63c2835d6f" x="183.44" y="188.82" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
      </g>
     </g>
-    <g id="np1layervio-text_18">
-     <text style="font-size: 9.5px; font-family: 'Inter', 'DejaVu Sans', sans-serif; text-anchor: start" x="451.49" y="294.15" transform="rotate(-0 451.49 294.15)">none: layer 1 → 30.97</text>
+    <g id="np1mvioscatter-ytick_28">
+     <g id="np1mvioscatter-line2d_45">
+      <path d="M 183.44 134.44 
+L 281.17 134.44 
+" clip-path="url(#np1mvioscatter-pa4c17ec5ba)" style="fill: none; stroke: #ececec; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="np1mvioscatter-line2d_46">
+      <g>
+       <use xlink:href="#np1mvioscatter-m63c2835d6f" x="183.44" y="134.44" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
     </g>
+    <g id="np1mvioscatter-ytick_29">
+     <g id="np1mvioscatter-line2d_47">
+      <path d="M 183.44 80.06 
+L 281.17 80.06 
+" clip-path="url(#np1mvioscatter-pa4c17ec5ba)" style="fill: none; stroke: #ececec; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="np1mvioscatter-line2d_48">
+      <g>
+       <use xlink:href="#np1mvioscatter-m63c2835d6f" x="183.44" y="80.06" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_30">
+     <g id="np1mvioscatter-line2d_49">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="183.44" y="194.09" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_31">
+     <g id="np1mvioscatter-line2d_50">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="183.44" y="191.31" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_32">
+     <g id="np1mvioscatter-line2d_51">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="183.44" y="172.45" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_33">
+     <g id="np1mvioscatter-line2d_52">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="183.44" y="162.88" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_34">
+     <g id="np1mvioscatter-line2d_53">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="183.44" y="156.08" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_35">
+     <g id="np1mvioscatter-line2d_54">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="183.44" y="150.81" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_36">
+     <g id="np1mvioscatter-line2d_55">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="183.44" y="146.50" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_37">
+     <g id="np1mvioscatter-line2d_56">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="183.44" y="142.86" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_38">
+     <g id="np1mvioscatter-line2d_57">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="183.44" y="139.71" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_39">
+     <g id="np1mvioscatter-line2d_58">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="183.44" y="136.93" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_40">
+     <g id="np1mvioscatter-line2d_59">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="183.44" y="118.07" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_41">
+     <g id="np1mvioscatter-line2d_60">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="183.44" y="108.49" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_42">
+     <g id="np1mvioscatter-line2d_61">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="183.44" y="101.70" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_43">
+     <g id="np1mvioscatter-line2d_62">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="183.44" y="96.43" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_44">
+     <g id="np1mvioscatter-line2d_63">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="183.44" y="92.12" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_45">
+     <g id="np1mvioscatter-line2d_64">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="183.44" y="88.48" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_46">
+     <g id="np1mvioscatter-line2d_65">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="183.44" y="85.33" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_47">
+     <g id="np1mvioscatter-line2d_66">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="183.44" y="82.55" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_48">
+     <g id="np1mvioscatter-line2d_67">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="183.44" y="63.69" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_49">
+     <g id="np1mvioscatter-line2d_68">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="183.44" y="54.11" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_50">
+     <g id="np1mvioscatter-line2d_69">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="183.44" y="47.32" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_51">
+     <g id="np1mvioscatter-line2d_70">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="183.44" y="42.05" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_52">
+     <g id="np1mvioscatter-line2d_71">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="183.44" y="37.74" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+   </g>
+   <g id="np1mvioscatter-line2d_72">
+    <path d="M 270.80 119.75 
+L 250.09 169.41 
+L 232.74 182.78 
+L 223.67 176.29 
+L 211.26 180.77 
+L 203.86 179.89 
+L 198.64 178.47 
+L 194.41 170.56 
+" clip-path="url(#np1mvioscatter-pa4c17ec5ba)" style="fill: none; stroke: #cc6633; stroke-opacity: 0.45; stroke-width: 0.9; stroke-linecap: square"/>
+   </g>
+   <g id="np1mvioscatter-PathCollection_3">
+    <defs>
+     <path id="np1mvioscatter-m22247337cf" d="M -2.91 2.91 
+L 2.91 2.91 
+L 2.91 -2.91 
+L -2.91 -2.91 
+z
+" style="stroke: #ffffff"/>
+    </defs>
+    <g clip-path="url(#np1mvioscatter-pa4c17ec5ba)">
+     <use xlink:href="#np1mvioscatter-m22247337cf" x="250.09" y="169.41" style="fill: #cc6633; stroke: #ffffff"/>
+     <use xlink:href="#np1mvioscatter-m22247337cf" x="232.74" y="182.78" style="fill: #cc6633; stroke: #ffffff"/>
+     <use xlink:href="#np1mvioscatter-m22247337cf" x="223.67" y="176.29" style="fill: #cc6633; stroke: #ffffff"/>
+     <use xlink:href="#np1mvioscatter-m22247337cf" x="211.26" y="180.77" style="fill: #cc6633; stroke: #ffffff"/>
+     <use xlink:href="#np1mvioscatter-m22247337cf" x="203.86" y="179.89" style="fill: #cc6633; stroke: #ffffff"/>
+     <use xlink:href="#np1mvioscatter-m22247337cf" x="198.64" y="178.47" style="fill: #cc6633; stroke: #ffffff"/>
+     <use xlink:href="#np1mvioscatter-m22247337cf" x="194.41" y="170.56" style="fill: #cc6633; stroke: #ffffff"/>
+    </g>
+   </g>
+   <g id="np1mvioscatter-patch_6">
+    <path d="M 183.44 194.09 
+L 183.44 37.74 
+" style="fill: none; stroke: #555555; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="np1mvioscatter-patch_7">
+    <path d="M 183.44 194.09 
+L 281.17 194.09 
+" style="fill: none; stroke: #555555; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="np1mvioscatter-PathCollection_4">
+    <defs>
+     <path id="np1mvioscatter-m1403267d56" d="M -4.18 4.18 
+L 4.18 4.18 
+L 4.18 -4.18 
+L -4.18 -4.18 
+z
+" style="stroke: #ffffff; stroke-width: 1.2"/>
+    </defs>
+    <g clip-path="url(#np1mvioscatter-pa4c17ec5ba)">
+     <use xlink:href="#np1mvioscatter-m1403267d56" x="270.80" y="119.75" style="fill: #cc6633; stroke: #ffffff; stroke-width: 1.2"/>
+    </g>
+   </g>
+   <g id="np1mvioscatter-text_17">
+    <text style="font-size: 10px; font-family: 'Inter', 'DejaVu Sans', sans-serif; text-anchor: end; fill: #333333" x="264.80" y="112.75" transform="rotate(-0 264.80 112.75)">layer 1</text>
+   </g>
+   <g id="np1mvioscatter-text_18">
+    <text style="font-size: 10px; font-family: 'Inter', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #333333" x="194.41" y="162.16" transform="rotate(-0 194.41 162.16)">8</text>
+   </g>
+   <g id="np1mvioscatter-text_19">
+    
+    <g style="fill: #666666" transform="translate(183.29 32.33)">
+     <text>
+      <tspan x="0" y="-0.95" style="font-style: oblique; font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">r</tspan>
+      <tspan x="3.90" y="0.47" style="font-style: oblique; font-size: 6.65px; font-family: 'DejaVu Sans'; fill: #666666">s</tspan>
+      <tspan x="7.63" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666"> </tspan>
+      <tspan x="10.64" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">=</tspan>
+      <tspan x="18.60" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666"> </tspan>
+      <tspan x="21.62" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">+</tspan>
+      <tspan x="29.58" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">0</tspan>
+      <tspan x="35.63" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">.</tspan>
+      <tspan x="38.65" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">3</tspan>
+      <tspan x="44.69" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">1</tspan>
+      <tspan x="50.74" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">,</tspan>
+      <tspan x="53.76" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666"> </tspan>
+      <tspan x="56.78" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">p</tspan>
+      <tspan x="62.81" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666"> </tspan>
+      <tspan x="65.83" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">=</tspan>
+      <tspan x="73.79" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666"> </tspan>
+      <tspan x="76.81" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">0</tspan>
+      <tspan x="82.85" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">.</tspan>
+      <tspan x="85.87" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">4</tspan>
+      <tspan x="91.91" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">6</tspan>
+     </text>
+    </g>
+   </g>
+   <g id="np1mvioscatter-text_20">
+    <text style="font-size: 11px; font-family: 'Inter', 'DejaVu Sans', sans-serif; fill: #333333" transform="translate(224.20 20.79)">QB</text>
+    <text style="font-size: 11px; font-family: 'Inter', 'DejaVu Sans', sans-serif; fill: #333333" transform="translate(232.31 34.00)"/>
+   </g>
+  </g>
+  <g id="np1mvioscatter-axes_3">
+   <g id="np1mvioscatter-patch_8">
+    <path d="M 310.29 194.09 
+L 408.02 194.09 
+L 408.02 37.74 
+L 310.29 37.74 
+z
+" style="fill: #ffffff"/>
+   </g>
+   <g id="np1mvioscatter-matplotlib.axis_5">
+    <g id="np1mvioscatter-xtick_7">
+     <g id="np1mvioscatter-line2d_73">
+      <path d="M 310.29 194.09 
+L 310.29 37.74 
+" clip-path="url(#np1mvioscatter-p662adbf4fb)" style="fill: none; stroke: #ececec; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="np1mvioscatter-line2d_74">
+      <g>
+       <use xlink:href="#np1mvioscatter-m98c0b5ac2f" x="310.29" y="194.09" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="np1mvioscatter-text_21">
+      <text style="font-size: 10px; font-family: 'Inter', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #555555" x="310.29" y="208.69" transform="rotate(-0 310.29 208.69)">0.0</text>
+     </g>
+    </g>
+    <g id="np1mvioscatter-xtick_8">
+     <g id="np1mvioscatter-line2d_75">
+      <path d="M 352.78 194.09 
+L 352.78 37.74 
+" clip-path="url(#np1mvioscatter-p662adbf4fb)" style="fill: none; stroke: #ececec; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="np1mvioscatter-line2d_76">
+      <g>
+       <use xlink:href="#np1mvioscatter-m98c0b5ac2f" x="352.78" y="194.09" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="np1mvioscatter-text_22">
+      <text style="font-size: 10px; font-family: 'Inter', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #555555" x="352.78" y="208.69" transform="rotate(-0 352.78 208.69)">0.4</text>
+     </g>
+    </g>
+    <g id="np1mvioscatter-xtick_9">
+     <g id="np1mvioscatter-line2d_77">
+      <path d="M 395.27 194.09 
+L 395.27 37.74 
+" clip-path="url(#np1mvioscatter-p662adbf4fb)" style="fill: none; stroke: #ececec; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="np1mvioscatter-line2d_78">
+      <g>
+       <use xlink:href="#np1mvioscatter-m98c0b5ac2f" x="395.27" y="194.09" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="np1mvioscatter-text_23">
+      <text style="font-size: 10px; font-family: 'Inter', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #555555" x="395.27" y="208.69" transform="rotate(-0 395.27 208.69)">0.8</text>
+     </g>
+    </g>
+    <g id="np1mvioscatter-text_24">
+     
+     <g style="fill: #333333" transform="translate(321.25 223.07)">
+      <text>
+       <tspan x="0" y="-0.01" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333">m</tspan>
+       <tspan x="10.22" y="-0.01" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333">e</tspan>
+       <tspan x="16.68" y="-0.01" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333">a</tspan>
+       <tspan x="23.12" y="-0.01" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333">n</tspan>
+       <tspan x="29.77" y="-0.01" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333"> </tspan>
+       <tspan x="33.11" y="-0.01" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333">s</tspan>
+       <tspan x="38.58" y="-0.01" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333">h</tspan>
+       <tspan x="45.24" y="-0.01" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333">a</tspan>
+       <tspan x="51.67" y="-0.01" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333">r</tspan>
+       <tspan x="55.99" y="-0.01" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333">e</tspan>
+       <tspan x="62.45" y="-0.01" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333"> </tspan>
+       <tspan x="65.78" y="-0.01" style="font-style: oblique; font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333">m</tspan>
+      </text>
+     </g>
+    </g>
+   </g>
+   <g id="np1mvioscatter-matplotlib.axis_6">
+    <g id="np1mvioscatter-ytick_53">
+     <g id="np1mvioscatter-line2d_79">
+      <path d="M 310.29 188.82 
+L 408.02 188.82 
+" clip-path="url(#np1mvioscatter-p662adbf4fb)" style="fill: none; stroke: #ececec; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="np1mvioscatter-line2d_80">
+      <g>
+       <use xlink:href="#np1mvioscatter-m63c2835d6f" x="310.29" y="188.82" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_54">
+     <g id="np1mvioscatter-line2d_81">
+      <path d="M 310.29 134.44 
+L 408.02 134.44 
+" clip-path="url(#np1mvioscatter-p662adbf4fb)" style="fill: none; stroke: #ececec; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="np1mvioscatter-line2d_82">
+      <g>
+       <use xlink:href="#np1mvioscatter-m63c2835d6f" x="310.29" y="134.44" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_55">
+     <g id="np1mvioscatter-line2d_83">
+      <path d="M 310.29 80.06 
+L 408.02 80.06 
+" clip-path="url(#np1mvioscatter-p662adbf4fb)" style="fill: none; stroke: #ececec; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="np1mvioscatter-line2d_84">
+      <g>
+       <use xlink:href="#np1mvioscatter-m63c2835d6f" x="310.29" y="80.06" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_56">
+     <g id="np1mvioscatter-line2d_85">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="310.29" y="194.09" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_57">
+     <g id="np1mvioscatter-line2d_86">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="310.29" y="191.31" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_58">
+     <g id="np1mvioscatter-line2d_87">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="310.29" y="172.45" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_59">
+     <g id="np1mvioscatter-line2d_88">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="310.29" y="162.88" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_60">
+     <g id="np1mvioscatter-line2d_89">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="310.29" y="156.08" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_61">
+     <g id="np1mvioscatter-line2d_90">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="310.29" y="150.81" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_62">
+     <g id="np1mvioscatter-line2d_91">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="310.29" y="146.50" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_63">
+     <g id="np1mvioscatter-line2d_92">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="310.29" y="142.86" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_64">
+     <g id="np1mvioscatter-line2d_93">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="310.29" y="139.71" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_65">
+     <g id="np1mvioscatter-line2d_94">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="310.29" y="136.93" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_66">
+     <g id="np1mvioscatter-line2d_95">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="310.29" y="118.07" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_67">
+     <g id="np1mvioscatter-line2d_96">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="310.29" y="108.49" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_68">
+     <g id="np1mvioscatter-line2d_97">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="310.29" y="101.70" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_69">
+     <g id="np1mvioscatter-line2d_98">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="310.29" y="96.43" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_70">
+     <g id="np1mvioscatter-line2d_99">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="310.29" y="92.12" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_71">
+     <g id="np1mvioscatter-line2d_100">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="310.29" y="88.48" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_72">
+     <g id="np1mvioscatter-line2d_101">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="310.29" y="85.33" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_73">
+     <g id="np1mvioscatter-line2d_102">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="310.29" y="82.55" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_74">
+     <g id="np1mvioscatter-line2d_103">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="310.29" y="63.69" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_75">
+     <g id="np1mvioscatter-line2d_104">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="310.29" y="54.11" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_76">
+     <g id="np1mvioscatter-line2d_105">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="310.29" y="47.32" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_77">
+     <g id="np1mvioscatter-line2d_106">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="310.29" y="42.05" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_78">
+     <g id="np1mvioscatter-line2d_107">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="310.29" y="37.74" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+   </g>
+   <g id="np1mvioscatter-line2d_108">
+    <path d="M 397.75 128.33 
+L 377.06 170.87 
+L 358.79 172.88 
+L 349.85 169.93 
+L 337.83 170.54 
+L 330.48 174.14 
+L 325.49 171.16 
+L 321.21 165.69 
+" clip-path="url(#np1mvioscatter-p662adbf4fb)" style="fill: none; stroke: #663399; stroke-opacity: 0.45; stroke-width: 0.9; stroke-linecap: square"/>
+   </g>
+   <g id="np1mvioscatter-PathCollection_5">
+    <defs>
+     <path id="np1mvioscatter-m718d6becb4" d="M -0 4.12 
+L 4.12 0 
+L 0 -4.12 
+L -4.12 -0 
+z
+" style="stroke: #ffffff"/>
+    </defs>
+    <g clip-path="url(#np1mvioscatter-p662adbf4fb)">
+     <use xlink:href="#np1mvioscatter-m718d6becb4" x="377.06" y="170.87" style="fill: #663399; stroke: #ffffff"/>
+     <use xlink:href="#np1mvioscatter-m718d6becb4" x="358.79" y="172.88" style="fill: #663399; stroke: #ffffff"/>
+     <use xlink:href="#np1mvioscatter-m718d6becb4" x="349.85" y="169.93" style="fill: #663399; stroke: #ffffff"/>
+     <use xlink:href="#np1mvioscatter-m718d6becb4" x="337.83" y="170.54" style="fill: #663399; stroke: #ffffff"/>
+     <use xlink:href="#np1mvioscatter-m718d6becb4" x="330.48" y="174.14" style="fill: #663399; stroke: #ffffff"/>
+     <use xlink:href="#np1mvioscatter-m718d6becb4" x="325.49" y="171.16" style="fill: #663399; stroke: #ffffff"/>
+     <use xlink:href="#np1mvioscatter-m718d6becb4" x="321.21" y="165.69" style="fill: #663399; stroke: #ffffff"/>
+    </g>
+   </g>
+   <g id="np1mvioscatter-patch_9">
+    <path d="M 310.29 194.09 
+L 310.29 37.74 
+" style="fill: none; stroke: #555555; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="np1mvioscatter-patch_10">
+    <path d="M 310.29 194.09 
+L 408.02 194.09 
+" style="fill: none; stroke: #555555; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="np1mvioscatter-PathCollection_6">
+    <defs>
+     <path id="np1mvioscatter-mcb96d53bc5" d="M -0 5.91 
+L 5.91 0 
+L 0 -5.91 
+L -5.91 -0 
+z
+" style="stroke: #ffffff; stroke-width: 1.2"/>
+    </defs>
+    <g clip-path="url(#np1mvioscatter-p662adbf4fb)">
+     <use xlink:href="#np1mvioscatter-mcb96d53bc5" x="397.75" y="128.33" style="fill: #663399; stroke: #ffffff; stroke-width: 1.2"/>
+    </g>
+   </g>
+   <g id="np1mvioscatter-text_25">
+    <text style="font-size: 10px; font-family: 'Inter', 'DejaVu Sans', sans-serif; text-anchor: end; fill: #333333" x="391.75" y="121.33" transform="rotate(-0 391.75 121.33)">layer 1</text>
+   </g>
+   <g id="np1mvioscatter-text_26">
+    <text style="font-size: 10px; font-family: 'Inter', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #333333" x="321.21" y="157.29" transform="rotate(-0 321.21 157.29)">8</text>
+   </g>
+   <g id="np1mvioscatter-text_27">
+    
+    <g style="fill: #666666" transform="translate(310.13 32.33)">
+     <text>
+      <tspan x="0" y="-0.95" style="font-style: oblique; font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">r</tspan>
+      <tspan x="3.90" y="0.47" style="font-style: oblique; font-size: 6.65px; font-family: 'DejaVu Sans'; fill: #666666">s</tspan>
+      <tspan x="7.63" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666"> </tspan>
+      <tspan x="10.64" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">=</tspan>
+      <tspan x="18.60" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666"> </tspan>
+      <tspan x="21.62" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">+</tspan>
+      <tspan x="29.58" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">0</tspan>
+      <tspan x="35.63" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">.</tspan>
+      <tspan x="38.65" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">1</tspan>
+      <tspan x="44.69" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">9</tspan>
+      <tspan x="50.74" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">,</tspan>
+      <tspan x="53.76" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666"> </tspan>
+      <tspan x="56.78" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">p</tspan>
+      <tspan x="62.81" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666"> </tspan>
+      <tspan x="65.83" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">=</tspan>
+      <tspan x="73.79" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666"> </tspan>
+      <tspan x="76.81" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">0</tspan>
+      <tspan x="82.85" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">.</tspan>
+      <tspan x="85.87" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">6</tspan>
+      <tspan x="91.91" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">5</tspan>
+     </text>
+    </g>
+   </g>
+   <g id="np1mvioscatter-text_28">
+    <text style="font-size: 11px; font-family: 'Inter', 'DejaVu Sans', sans-serif; fill: #333333" transform="translate(325.87 20.79)">QB, k-th bar</text>
+    <text style="font-size: 11px; font-family: 'Inter', 'DejaVu Sans', sans-serif; fill: #333333" transform="translate(359.15 34.00)"/>
+   </g>
+  </g>
+  <g id="np1mvioscatter-axes_4">
+   <g id="np1mvioscatter-patch_11">
+    <path d="M 437.14 194.09 
+L 534.86 194.09 
+L 534.86 37.74 
+L 437.14 37.74 
+z
+" style="fill: #ffffff"/>
+   </g>
+   <g id="np1mvioscatter-matplotlib.axis_7">
+    <g id="np1mvioscatter-xtick_10">
+     <g id="np1mvioscatter-line2d_109">
+      <path d="M 437.14 194.09 
+L 437.14 37.74 
+" clip-path="url(#np1mvioscatter-p4489429773)" style="fill: none; stroke: #ececec; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="np1mvioscatter-line2d_110">
+      <g>
+       <use xlink:href="#np1mvioscatter-m98c0b5ac2f" x="437.14" y="194.09" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="np1mvioscatter-text_29">
+      <text style="font-size: 10px; font-family: 'Inter', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #555555" x="437.14" y="208.69" transform="rotate(-0 437.14 208.69)">0.0</text>
+     </g>
+    </g>
+    <g id="np1mvioscatter-xtick_11">
+     <g id="np1mvioscatter-line2d_111">
+      <path d="M 479.63 194.09 
+L 479.63 37.74 
+" clip-path="url(#np1mvioscatter-p4489429773)" style="fill: none; stroke: #ececec; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="np1mvioscatter-line2d_112">
+      <g>
+       <use xlink:href="#np1mvioscatter-m98c0b5ac2f" x="479.63" y="194.09" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="np1mvioscatter-text_30">
+      <text style="font-size: 10px; font-family: 'Inter', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #555555" x="479.63" y="208.69" transform="rotate(-0 479.63 208.69)">0.4</text>
+     </g>
+    </g>
+    <g id="np1mvioscatter-xtick_12">
+     <g id="np1mvioscatter-line2d_113">
+      <path d="M 522.12 194.09 
+L 522.12 37.74 
+" clip-path="url(#np1mvioscatter-p4489429773)" style="fill: none; stroke: #ececec; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="np1mvioscatter-line2d_114">
+      <g>
+       <use xlink:href="#np1mvioscatter-m98c0b5ac2f" x="522.12" y="194.09" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="np1mvioscatter-text_31">
+      <text style="font-size: 10px; font-family: 'Inter', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #555555" x="522.12" y="208.69" transform="rotate(-0 522.12 208.69)">0.8</text>
+     </g>
+    </g>
+    <g id="np1mvioscatter-text_32">
+     
+     <g style="fill: #333333" transform="translate(448.10 223.07)">
+      <text>
+       <tspan x="0" y="-0.01" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333">m</tspan>
+       <tspan x="10.22" y="-0.01" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333">e</tspan>
+       <tspan x="16.68" y="-0.01" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333">a</tspan>
+       <tspan x="23.12" y="-0.01" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333">n</tspan>
+       <tspan x="29.77" y="-0.01" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333"> </tspan>
+       <tspan x="33.11" y="-0.01" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333">s</tspan>
+       <tspan x="38.58" y="-0.01" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333">h</tspan>
+       <tspan x="45.24" y="-0.01" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333">a</tspan>
+       <tspan x="51.67" y="-0.01" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333">r</tspan>
+       <tspan x="55.99" y="-0.01" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333">e</tspan>
+       <tspan x="62.45" y="-0.01" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333"> </tspan>
+       <tspan x="65.78" y="-0.01" style="font-style: oblique; font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333">m</tspan>
+      </text>
+     </g>
+    </g>
+   </g>
+   <g id="np1mvioscatter-matplotlib.axis_8">
+    <g id="np1mvioscatter-ytick_79">
+     <g id="np1mvioscatter-line2d_115">
+      <path d="M 437.14 188.82 
+L 534.86 188.82 
+" clip-path="url(#np1mvioscatter-p4489429773)" style="fill: none; stroke: #ececec; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="np1mvioscatter-line2d_116">
+      <g>
+       <use xlink:href="#np1mvioscatter-m63c2835d6f" x="437.14" y="188.82" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_80">
+     <g id="np1mvioscatter-line2d_117">
+      <path d="M 437.14 134.44 
+L 534.86 134.44 
+" clip-path="url(#np1mvioscatter-p4489429773)" style="fill: none; stroke: #ececec; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="np1mvioscatter-line2d_118">
+      <g>
+       <use xlink:href="#np1mvioscatter-m63c2835d6f" x="437.14" y="134.44" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_81">
+     <g id="np1mvioscatter-line2d_119">
+      <path d="M 437.14 80.06 
+L 534.86 80.06 
+" clip-path="url(#np1mvioscatter-p4489429773)" style="fill: none; stroke: #ececec; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="np1mvioscatter-line2d_120">
+      <g>
+       <use xlink:href="#np1mvioscatter-m63c2835d6f" x="437.14" y="80.06" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_82">
+     <g id="np1mvioscatter-line2d_121">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="437.14" y="194.09" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_83">
+     <g id="np1mvioscatter-line2d_122">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="437.14" y="191.31" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_84">
+     <g id="np1mvioscatter-line2d_123">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="437.14" y="172.45" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_85">
+     <g id="np1mvioscatter-line2d_124">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="437.14" y="162.88" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_86">
+     <g id="np1mvioscatter-line2d_125">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="437.14" y="156.08" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_87">
+     <g id="np1mvioscatter-line2d_126">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="437.14" y="150.81" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_88">
+     <g id="np1mvioscatter-line2d_127">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="437.14" y="146.50" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_89">
+     <g id="np1mvioscatter-line2d_128">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="437.14" y="142.86" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_90">
+     <g id="np1mvioscatter-line2d_129">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="437.14" y="139.71" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_91">
+     <g id="np1mvioscatter-line2d_130">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="437.14" y="136.93" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_92">
+     <g id="np1mvioscatter-line2d_131">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="437.14" y="118.07" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_93">
+     <g id="np1mvioscatter-line2d_132">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="437.14" y="108.49" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_94">
+     <g id="np1mvioscatter-line2d_133">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="437.14" y="101.70" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_95">
+     <g id="np1mvioscatter-line2d_134">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="437.14" y="96.43" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_96">
+     <g id="np1mvioscatter-line2d_135">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="437.14" y="92.12" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_97">
+     <g id="np1mvioscatter-line2d_136">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="437.14" y="88.48" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_98">
+     <g id="np1mvioscatter-line2d_137">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="437.14" y="85.33" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_99">
+     <g id="np1mvioscatter-line2d_138">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="437.14" y="82.55" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_100">
+     <g id="np1mvioscatter-line2d_139">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="437.14" y="63.69" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_101">
+     <g id="np1mvioscatter-line2d_140">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="437.14" y="54.11" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_102">
+     <g id="np1mvioscatter-line2d_141">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="437.14" y="47.32" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_103">
+     <g id="np1mvioscatter-line2d_142">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="437.14" y="42.05" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_104">
+     <g id="np1mvioscatter-line2d_143">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="437.14" y="37.74" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+   </g>
+   <g id="np1mvioscatter-line2d_144">
+    <path d="M 524.53 137.02 
+L 506.43 132.09 
+L 488.20 123.47 
+L 479.84 133.57 
+L 468.30 113.60 
+L 458.83 118.88 
+L 453.03 116.09 
+L 449.77 111.29 
+" clip-path="url(#np1mvioscatter-p4489429773)" style="fill: none; stroke: #339966; stroke-opacity: 0.45; stroke-width: 0.9; stroke-linecap: square"/>
+   </g>
+   <g id="np1mvioscatter-PathCollection_7">
+    <defs>
+     <path id="np1mvioscatter-me8d9071731" d="M 0 -2.91 
+L -2.91 2.91 
+L 2.91 2.91 
+z
+" style="stroke: #ffffff"/>
+    </defs>
+    <g clip-path="url(#np1mvioscatter-p4489429773)">
+     <use xlink:href="#np1mvioscatter-me8d9071731" x="506.43" y="132.09" style="fill: #339966; stroke: #ffffff"/>
+     <use xlink:href="#np1mvioscatter-me8d9071731" x="488.20" y="123.47" style="fill: #339966; stroke: #ffffff"/>
+     <use xlink:href="#np1mvioscatter-me8d9071731" x="479.84" y="133.57" style="fill: #339966; stroke: #ffffff"/>
+     <use xlink:href="#np1mvioscatter-me8d9071731" x="468.30" y="113.60" style="fill: #339966; stroke: #ffffff"/>
+     <use xlink:href="#np1mvioscatter-me8d9071731" x="458.83" y="118.88" style="fill: #339966; stroke: #ffffff"/>
+     <use xlink:href="#np1mvioscatter-me8d9071731" x="453.03" y="116.09" style="fill: #339966; stroke: #ffffff"/>
+     <use xlink:href="#np1mvioscatter-me8d9071731" x="449.77" y="111.29" style="fill: #339966; stroke: #ffffff"/>
+    </g>
+   </g>
+   <g id="np1mvioscatter-patch_12">
+    <path d="M 437.14 194.09 
+L 437.14 37.74 
+" style="fill: none; stroke: #555555; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="np1mvioscatter-patch_13">
+    <path d="M 437.14 194.09 
+L 534.86 194.09 
+" style="fill: none; stroke: #555555; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="np1mvioscatter-PathCollection_8">
+    <defs>
+     <path id="np1mvioscatter-m8768883e43" d="M 0 -4.18 
+L -4.18 4.18 
+L 4.18 4.18 
+z
+" style="stroke: #ffffff; stroke-width: 1.2"/>
+    </defs>
+    <g clip-path="url(#np1mvioscatter-p4489429773)">
+     <use xlink:href="#np1mvioscatter-m8768883e43" x="524.53" y="137.02" style="fill: #339966; stroke: #ffffff; stroke-width: 1.2"/>
+    </g>
+   </g>
+   <g id="np1mvioscatter-text_33">
+    <text style="font-size: 10px; font-family: 'Inter', 'DejaVu Sans', sans-serif; text-anchor: end; fill: #333333" x="522.53" y="152.02" transform="rotate(-0 522.53 152.02)">layer 1</text>
+   </g>
+   <g id="np1mvioscatter-text_34">
+    <text style="font-size: 10px; font-family: 'Inter', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #333333" x="449.77" y="102.89" transform="rotate(-0 449.77 102.89)">8</text>
+   </g>
+   <g id="np1mvioscatter-text_35">
+    
+    <g style="fill: #666666" transform="translate(430.95 32.33)">
+     <text>
+      <tspan x="0" y="-0.95" style="font-style: oblique; font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">r</tspan>
+      <tspan x="3.90" y="0.47" style="font-style: oblique; font-size: 6.65px; font-family: 'DejaVu Sans'; fill: #666666">s</tspan>
+      <tspan x="7.63" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666"> </tspan>
+      <tspan x="10.64" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">=</tspan>
+      <tspan x="18.60" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666"> </tspan>
+      <tspan x="21.62" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">−</tspan>
+      <tspan x="29.58" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">0</tspan>
+      <tspan x="35.63" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">.</tspan>
+      <tspan x="38.65" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">8</tspan>
+      <tspan x="44.69" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">6</tspan>
+      <tspan x="50.74" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">,</tspan>
+      <tspan x="53.76" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666"> </tspan>
+      <tspan x="56.78" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">p</tspan>
+      <tspan x="62.81" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666"> </tspan>
+      <tspan x="65.83" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">=</tspan>
+      <tspan x="73.79" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666"> </tspan>
+      <tspan x="76.81" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">0</tspan>
+      <tspan x="82.85" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">.</tspan>
+      <tspan x="85.87" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">0</tspan>
+      <tspan x="91.91" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">0</tspan>
+      <tspan x="97.96" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">6</tspan>
+      <tspan x="104.00" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">5</tspan>
+     </text>
+    </g>
+   </g>
+   <g id="np1mvioscatter-text_36">
+    <text style="font-size: 11px; font-family: 'Inter', 'DejaVu Sans', sans-serif; fill: #333333" transform="translate(476.10 20.79)">LBL</text>
+    <text style="font-size: 11px; font-family: 'Inter', 'DejaVu Sans', sans-serif; fill: #333333" transform="translate(486.00 34.00)"/>
+   </g>
+  </g>
+  <g id="np1mvioscatter-axes_5">
+   <g id="np1mvioscatter-patch_14">
+    <path d="M 563.99 194.09 
+L 661.71 194.09 
+L 661.71 37.74 
+L 563.99 37.74 
+z
+" style="fill: #ffffff"/>
+   </g>
+   <g id="np1mvioscatter-matplotlib.axis_9">
+    <g id="np1mvioscatter-xtick_13">
+     <g id="np1mvioscatter-line2d_145">
+      <path d="M 563.99 194.09 
+L 563.99 37.74 
+" clip-path="url(#np1mvioscatter-pcc7bc4dc66)" style="fill: none; stroke: #ececec; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="np1mvioscatter-line2d_146">
+      <g>
+       <use xlink:href="#np1mvioscatter-m98c0b5ac2f" x="563.99" y="194.09" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="np1mvioscatter-text_37">
+      <text style="font-size: 10px; font-family: 'Inter', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #555555" x="563.99" y="208.69" transform="rotate(-0 563.99 208.69)">0.0</text>
+     </g>
+    </g>
+    <g id="np1mvioscatter-xtick_14">
+     <g id="np1mvioscatter-line2d_147">
+      <path d="M 606.48 194.09 
+L 606.48 37.74 
+" clip-path="url(#np1mvioscatter-pcc7bc4dc66)" style="fill: none; stroke: #ececec; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="np1mvioscatter-line2d_148">
+      <g>
+       <use xlink:href="#np1mvioscatter-m98c0b5ac2f" x="606.48" y="194.09" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="np1mvioscatter-text_38">
+      <text style="font-size: 10px; font-family: 'Inter', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #555555" x="606.48" y="208.69" transform="rotate(-0 606.48 208.69)">0.4</text>
+     </g>
+    </g>
+    <g id="np1mvioscatter-xtick_15">
+     <g id="np1mvioscatter-line2d_149">
+      <path d="M 648.97 194.09 
+L 648.97 37.74 
+" clip-path="url(#np1mvioscatter-pcc7bc4dc66)" style="fill: none; stroke: #ececec; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="np1mvioscatter-line2d_150">
+      <g>
+       <use xlink:href="#np1mvioscatter-m98c0b5ac2f" x="648.97" y="194.09" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="np1mvioscatter-text_39">
+      <text style="font-size: 10px; font-family: 'Inter', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #555555" x="648.97" y="208.69" transform="rotate(-0 648.97 208.69)">0.8</text>
+     </g>
+    </g>
+    <g id="np1mvioscatter-text_40">
+     
+     <g style="fill: #333333" transform="translate(574.94 223.07)">
+      <text>
+       <tspan x="0" y="-0.01" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333">m</tspan>
+       <tspan x="10.22" y="-0.01" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333">e</tspan>
+       <tspan x="16.68" y="-0.01" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333">a</tspan>
+       <tspan x="23.12" y="-0.01" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333">n</tspan>
+       <tspan x="29.77" y="-0.01" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333"> </tspan>
+       <tspan x="33.11" y="-0.01" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333">s</tspan>
+       <tspan x="38.58" y="-0.01" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333">h</tspan>
+       <tspan x="45.24" y="-0.01" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333">a</tspan>
+       <tspan x="51.67" y="-0.01" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333">r</tspan>
+       <tspan x="55.99" y="-0.01" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333">e</tspan>
+       <tspan x="62.45" y="-0.01" style="font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333"> </tspan>
+       <tspan x="65.78" y="-0.01" style="font-style: oblique; font-size: 10.5px; font-family: 'DejaVu Sans'; fill: #333333">m</tspan>
+      </text>
+     </g>
+    </g>
+   </g>
+   <g id="np1mvioscatter-matplotlib.axis_10">
+    <g id="np1mvioscatter-ytick_105">
+     <g id="np1mvioscatter-line2d_151">
+      <path d="M 563.99 188.82 
+L 661.71 188.82 
+" clip-path="url(#np1mvioscatter-pcc7bc4dc66)" style="fill: none; stroke: #ececec; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="np1mvioscatter-line2d_152">
+      <g>
+       <use xlink:href="#np1mvioscatter-m63c2835d6f" x="563.99" y="188.82" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_106">
+     <g id="np1mvioscatter-line2d_153">
+      <path d="M 563.99 134.44 
+L 661.71 134.44 
+" clip-path="url(#np1mvioscatter-pcc7bc4dc66)" style="fill: none; stroke: #ececec; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="np1mvioscatter-line2d_154">
+      <g>
+       <use xlink:href="#np1mvioscatter-m63c2835d6f" x="563.99" y="134.44" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_107">
+     <g id="np1mvioscatter-line2d_155">
+      <path d="M 563.99 80.06 
+L 661.71 80.06 
+" clip-path="url(#np1mvioscatter-pcc7bc4dc66)" style="fill: none; stroke: #ececec; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="np1mvioscatter-line2d_156">
+      <g>
+       <use xlink:href="#np1mvioscatter-m63c2835d6f" x="563.99" y="80.06" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_108">
+     <g id="np1mvioscatter-line2d_157">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="563.99" y="194.09" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_109">
+     <g id="np1mvioscatter-line2d_158">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="563.99" y="191.31" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_110">
+     <g id="np1mvioscatter-line2d_159">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="563.99" y="172.45" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_111">
+     <g id="np1mvioscatter-line2d_160">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="563.99" y="162.88" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_112">
+     <g id="np1mvioscatter-line2d_161">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="563.99" y="156.08" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_113">
+     <g id="np1mvioscatter-line2d_162">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="563.99" y="150.81" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_114">
+     <g id="np1mvioscatter-line2d_163">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="563.99" y="146.50" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_115">
+     <g id="np1mvioscatter-line2d_164">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="563.99" y="142.86" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_116">
+     <g id="np1mvioscatter-line2d_165">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="563.99" y="139.71" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_117">
+     <g id="np1mvioscatter-line2d_166">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="563.99" y="136.93" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_118">
+     <g id="np1mvioscatter-line2d_167">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="563.99" y="118.07" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_119">
+     <g id="np1mvioscatter-line2d_168">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="563.99" y="108.49" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_120">
+     <g id="np1mvioscatter-line2d_169">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="563.99" y="101.70" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_121">
+     <g id="np1mvioscatter-line2d_170">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="563.99" y="96.43" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_122">
+     <g id="np1mvioscatter-line2d_171">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="563.99" y="92.12" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_123">
+     <g id="np1mvioscatter-line2d_172">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="563.99" y="88.48" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_124">
+     <g id="np1mvioscatter-line2d_173">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="563.99" y="85.33" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_125">
+     <g id="np1mvioscatter-line2d_174">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="563.99" y="82.55" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_126">
+     <g id="np1mvioscatter-line2d_175">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="563.99" y="63.69" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_127">
+     <g id="np1mvioscatter-line2d_176">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="563.99" y="54.11" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_128">
+     <g id="np1mvioscatter-line2d_177">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="563.99" y="47.32" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_129">
+     <g id="np1mvioscatter-line2d_178">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="563.99" y="42.05" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="np1mvioscatter-ytick_130">
+     <g id="np1mvioscatter-line2d_179">
+      <g>
+       <use xlink:href="#np1mvioscatter-m43a5774661" x="563.99" y="37.74" style="fill: #555555; stroke: #555555; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+   </g>
+   <g id="np1mvioscatter-line2d_180">
+    <path d="M 644.11 53.36 
+L 629.27 60.73 
+L 613.71 79.27 
+L 605.33 87.67 
+L 593.26 92.96 
+L 585.55 100.37 
+L 580.26 92.13 
+L 576.06 74.26 
+" clip-path="url(#np1mvioscatter-pcc7bc4dc66)" style="fill: none; stroke: #4a4a4a; stroke-opacity: 0.45; stroke-width: 0.9; stroke-linecap: square"/>
+   </g>
+   <g id="np1mvioscatter-PathCollection_9">
+    <defs>
+     <path id="np1mvioscatter-m79a5ecc602" d="M -0 2.91 
+L 2.91 -2.91 
+L -2.91 -2.91 
+z
+" style="stroke: #ffffff"/>
+    </defs>
+    <g clip-path="url(#np1mvioscatter-pcc7bc4dc66)">
+     <use xlink:href="#np1mvioscatter-m79a5ecc602" x="629.27" y="60.73" style="fill: #4a4a4a; stroke: #ffffff"/>
+     <use xlink:href="#np1mvioscatter-m79a5ecc602" x="613.71" y="79.27" style="fill: #4a4a4a; stroke: #ffffff"/>
+     <use xlink:href="#np1mvioscatter-m79a5ecc602" x="605.33" y="87.67" style="fill: #4a4a4a; stroke: #ffffff"/>
+     <use xlink:href="#np1mvioscatter-m79a5ecc602" x="593.26" y="92.96" style="fill: #4a4a4a; stroke: #ffffff"/>
+     <use xlink:href="#np1mvioscatter-m79a5ecc602" x="585.55" y="100.37" style="fill: #4a4a4a; stroke: #ffffff"/>
+     <use xlink:href="#np1mvioscatter-m79a5ecc602" x="580.26" y="92.13" style="fill: #4a4a4a; stroke: #ffffff"/>
+     <use xlink:href="#np1mvioscatter-m79a5ecc602" x="576.06" y="74.26" style="fill: #4a4a4a; stroke: #ffffff"/>
+    </g>
+   </g>
+   <g id="np1mvioscatter-patch_15">
+    <path d="M 563.99 194.09 
+L 563.99 37.74 
+" style="fill: none; stroke: #555555; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="np1mvioscatter-patch_16">
+    <path d="M 563.99 194.09 
+L 661.71 194.09 
+" style="fill: none; stroke: #555555; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="np1mvioscatter-PathCollection_10">
+    <defs>
+     <path id="np1mvioscatter-maba17c4dc8" d="M -0 4.18 
+L 4.18 -4.18 
+L -4.18 -4.18 
+z
+" style="stroke: #ffffff; stroke-width: 1.2"/>
+    </defs>
+    <g clip-path="url(#np1mvioscatter-pcc7bc4dc66)">
+     <use xlink:href="#np1mvioscatter-maba17c4dc8" x="644.11" y="53.36" style="fill: #4a4a4a; stroke: #ffffff; stroke-width: 1.2"/>
+    </g>
+   </g>
+   <g id="np1mvioscatter-text_41">
+    <text style="font-size: 10px; font-family: 'Inter', 'DejaVu Sans', sans-serif; text-anchor: end; fill: #333333" x="638.11" y="46.36" transform="rotate(-0 638.11 46.36)">layer 1</text>
+   </g>
+   <g id="np1mvioscatter-text_42">
+    <text style="font-size: 10px; font-family: 'Inter', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #333333" x="576.06" y="65.86" transform="rotate(-0 576.06 65.86)">8</text>
+   </g>
+   <g id="np1mvioscatter-text_43">
+    
+    <g style="fill: #666666" transform="translate(563.83 32.33)">
+     <text>
+      <tspan x="0" y="-0.95" style="font-style: oblique; font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">r</tspan>
+      <tspan x="3.90" y="0.47" style="font-style: oblique; font-size: 6.65px; font-family: 'DejaVu Sans'; fill: #666666">s</tspan>
+      <tspan x="7.63" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666"> </tspan>
+      <tspan x="10.64" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">=</tspan>
+      <tspan x="18.60" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666"> </tspan>
+      <tspan x="21.62" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">+</tspan>
+      <tspan x="29.58" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">0</tspan>
+      <tspan x="35.63" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">.</tspan>
+      <tspan x="38.65" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">5</tspan>
+      <tspan x="44.69" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">7</tspan>
+      <tspan x="50.74" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">,</tspan>
+      <tspan x="53.76" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666"> </tspan>
+      <tspan x="56.78" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">p</tspan>
+      <tspan x="62.81" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666"> </tspan>
+      <tspan x="65.83" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">=</tspan>
+      <tspan x="73.79" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666"> </tspan>
+      <tspan x="76.81" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">0</tspan>
+      <tspan x="82.85" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">.</tspan>
+      <tspan x="85.87" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">1</tspan>
+      <tspan x="91.91" y="-0.95" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #666666">4</tspan>
+     </text>
+    </g>
+   </g>
+   <g id="np1mvioscatter-text_44">
+    <text style="font-size: 11px; font-family: 'Inter', 'DejaVu Sans', sans-serif; fill: #333333" transform="translate(599.13 20.79)">none</text>
+    <text style="font-size: 11px; font-family: 'Inter', 'DejaVu Sans', sans-serif; fill: #333333" transform="translate(612.85 34.00)"/>
    </g>
   </g>
  </g>
  <defs>
-  <clipPath id="np1layervio-pa689ae05bd">
-   <rect x="58.04" y="11.34" width="467.68" height="230.21"/>
+  <clipPath id="np1mvioscatter-p81084bfc3c">
+   <rect x="56.6" y="37.74" width="97.72" height="156.35"/>
+  </clipPath>
+  <clipPath id="np1mvioscatter-pa4c17ec5ba">
+   <rect x="183.44" y="37.74" width="97.72" height="156.35"/>
+  </clipPath>
+  <clipPath id="np1mvioscatter-p662adbf4fb">
+   <rect x="310.29" y="37.74" width="97.72" height="156.35"/>
+  </clipPath>
+  <clipPath id="np1mvioscatter-p4489429773">
+   <rect x="437.14" y="37.74" width="97.72" height="156.35"/>
+  </clipPath>
+  <clipPath id="np1mvioscatter-pcc7bc4dc66">
+   <rect x="563.99" y="37.74" width="97.72" height="156.35"/>
   </clipPath>
  </defs>
 </svg>
 
-      <figcaption><strong>Figure 3.</strong> MaxVio of each layer, averaged over steps 3001&ndash;5000 (log scale; legend: layer 1). With bias, QB or the k-th bar, layer 1 is 5&ndash;20&times; worse than the next-worst layer. With no balancer, layer 1 sits at the ceiling (31: one expert in every token's top-8). LBL is the exception: layer 1 is its best layer, and its layers 2&ndash;8 are 5&ndash;19&times; worse than with QB.</figcaption>
+      <figcaption><strong>Figure 3.</strong> Mean share $m$ (x) against MaxVio (y, log scale) for each layer, both averaged over steps 2501&ndash;5000, the second half of training. One point per layer ($n = 8$ per panel); the line joins the layers in order, from layer 1 (large marker) to layer 8. Under bias, QB and the k-th bar, layer 1 sits far above the rest, while layers 2&ndash;8 lie on a nearly flat line although their $m$ ranges from 0.10 to 0.63. With no balancer every layer is far from balanced, and layer 1 is still the worst. Under LBL, MaxVio rises as $m$ falls. $r_s$ and $p$: see below.</figcaption>
     </figure>
 
-    <p>With bias, QB (either bar) and no balancer, layer 1, the layer with the largest $m$, is by far the worst. Below layer 1 the link is loose: in the two QB runs, MaxVio in layers 2&ndash;8 stays between 0.12 and 0.26 while $m$ falls from 0.63 to 0.10. Over all layers and nine 500-step windows centred on steps 1000, 1500, &hellip;, 5000, the rank correlation between $m$ and MaxVio is $+0.57$ (bias), $+0.28$ (QB), $+0.22$ (k-th bar) and $+0.66$ (none). It is weak for QB because nearly all of the signal is layer 1. LBL goes the other way ($-0.83$). The next part explains both.</p>
+    <p>In the second half of training, layer 1's MaxVio is 22&times; that of the next-worst layer with bias, 8&times; with QB, 4.8&times; with the k-th bar, and 1.4&times; with no balancer (where every layer is far from balanced). To see whether there is more to it than layer 1, we compute three rank correlations between $m$ and MaxVio for each run:</p>
+    <ul>
+      <li><strong>Across layers.</strong> One point per layer, $m$ and MaxVio averaged over steps 2501&ndash;5000 ($n = 8$). We also repeat it without layer 1 ($n = 7$).</li>
+      <li><strong>Within a layer, over time.</strong> For each layer on its own, nine 500-step windows centred on steps 1000, 1500, &hellip;, 5000 ($n = 9$). We report the mean over the 8 layers, and in brackets how many layers reach $p &lt; 0.05$ with a positive or a negative sign.</li>
+      <li><strong>Pooled.</strong> All $8 \times 9$ layer-window points together ($n = 72$). This single number is what we reported before.</li>
+    </ul>
+    <p class="where">where $r_s$ is Spearman's rank correlation between $m$ and MaxVio ($+1$: the larger $m$, the larger MaxVio; $0$: no relation), and $p$ is the two-sided p-value for $r_s = 0$, shown in brackets after each $r_s$.</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>balancer</th><th class="num">across layers<br><small>all 8 layers, $n = 8$</small></th><th class="num">across layers<br><small>layers 2&ndash;8, $n = 7$</small></th><th class="num">within a layer, over time<br><small>mean of 8 layers, $n = 9$ each</small></th><th class="num">pooled<br><small>$n = 72$</small></th></tr>
+        <tr><td><span class="dot" style="background:#2F63AE"></span>bias</td><td class="num">+0.52 (0.18)</td><td class="num">+0.29 (0.54)</td><td class="num">+0.19 &nbsp;(1+ / 0&minus;)</td><td class="num">+0.57 (1&times;10<sup>&minus;7</sup>)</td></tr>
+        <tr><td><span class="dot" style="background:#CC6633"></span>QB</td><td class="num">+0.31 (0.46)</td><td class="num">&minus;0.04 (0.94)</td><td class="num">&minus;0.03 &nbsp;(1+ / 2&minus;)</td><td class="num">+0.28 (0.02)</td></tr>
+        <tr><td><span class="dot" style="background:#663399"></span>QB, k-th bar</td><td class="num">+0.19 (0.65)</td><td class="num">&minus;0.21 (0.65)</td><td class="num">+0.05 &nbsp;(2+ / 3&minus;)</td><td class="num">+0.22 (0.06)</td></tr>
+        <tr><td><span class="dot" style="background:#339966"></span>LBL</td><td class="num">&minus;0.86 (0.007)</td><td class="num">&minus;0.79 (0.04)</td><td class="num">+0.19 &nbsp;(2+ / 1&minus;)</td><td class="num">&minus;0.83 (4&times;10<sup>&minus;19</sup>)</td></tr>
+        <tr><td><span class="dot" style="background:#4a4a4a"></span>none</td><td class="num">+0.57 (0.14)</td><td class="num">+0.36 (0.43)</td><td class="num">+0.26 &nbsp;(2+ / 1&minus;)</td><td class="num">+0.66 (3&times;10<sup>&minus;10</sup>)</td></tr>
+      </table>
+    </div>
+    <p class="where">Neighbouring windows are not independent, so the within-layer and pooled p-values are optimistic.</p>
+    <ul>
+      <li><strong>Across layers, the link is layer 1 and nothing else.</strong> With bias, QB, the k-th bar and no balancer, $r_s$ is positive but not significant with 8 layers ($p = 0.14$&ndash;$0.65$), and without layer 1 it is close to zero ($-0.21$ to $+0.36$). It is a threshold, not a trend: under bias and both QB forms, the one layer with $m \approx 0.8$ is far worse than the rest, and between $m = 0.1$ and $m = 0.63$ balance hardly depends on $m$.</li>
+      <li><strong>Within a layer, over time, there is no consistent sign.</strong> In the same run, single layers go from about $-0.9$ to $+0.9$, and the means are between $-0.03$ and $+0.26$. Over training both $m$ and MaxVio drift with the schedule ($m$ climbs while the learning rate decays), so their correlation in time says more about the schedule than about routing.</li>
+      <li><strong>The pooled number mixes the two.</strong> It is significant for bias, QB and no balancer because layer 1 is high in both $m$ and MaxVio. It looked weak for the two QB runs because their layers 2&ndash;8 lean slightly the other way ($r_s = -0.04$ and $-0.21$ without layer 1).</li>
+    </ul>
+    <p><strong>LBL runs the other way.</strong> Layer 1 is its best layer (MaxVio 0.90), and MaxVio grows toward the deep layers, where $m$ is smallest (2.66 in layer 8), so $r_s = -0.86$ across layers. Its gradient keeps layer 1's router off the shared direction ($a = 1.7$ below), so layer 1's large $m$ does no harm there. But its imbalance in layers 2&ndash;8 does not follow the representation either: $m$ falls with depth while MaxVio rises, and the head-start ratio introduced below falls too (from 1.13 in layer 2 to 0.49 in layer 8). We have not found its source, and since this run also changes the router to softmax, we cannot tell the two changes apart.</p>
 
     <h3>Why: a head start for each expert</h3>
     <p>Split each logit into the part every token shares and the part that varies:</p>

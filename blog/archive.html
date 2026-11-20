@@ -197,6 +197,13 @@
         <div class="blog-item-desc">In MoE pretraining, the first layer's router input is a narrow cone, and it is the only layer that fails to balance. Centering the router input in layer 1 removes the takeovers with no measurable loss change; late in training, the fixed bias step itself causes load spikes.</div>
       </a>
       -->
+      <!-- Unlisted (reachable at depth-recurrent-vectors.html, not linked here):
+      <a href="depth-recurrent-vectors.html" class="blog-item">
+        <div class="blog-item-date">November 2026</div>
+        <div class="blog-item-title">Depth Recurrent Vectors</div>
+        <div class="blog-item-desc">We continue pretraining Qwen3-1.7B with its middle twelve layers run several times with shared weights. Three passes lower the test loss from 1.146 to 1.118; restarting each pass from the block input keeps extra passes stable, and averaging runs reaches 1.1125. The weight difference that loops does not transfer to other models. Seventeen checkpoints are on Hugging Face.</div>
+      </a>
+      -->
       <!-- Unlisted (reachable at matryoshka-ladder.html, not linked here):
       <a href="matryoshka-ladder.html" class="blog-item">
         <div class="blog-item-date">November 2026</div>

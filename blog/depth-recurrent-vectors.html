@@ -1,0 +1,2160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Depth Recurrent Vectors</title>
+  <!-- Unlisted: reachable by URL, but not linked from the index or the archive. -->
+  <meta name="robots" content="noindex, nofollow">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --text: #1c1c1e; --text-secondary: #555; --text-light: #888;
+      --accent: #2F63AE; --border: #e2e2e2; --surface: #f6f7f9;
+    }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      color: var(--text); background: #fff; font-size: 14.5px; line-height: 1.75;
+    }
+    .container { max-width: 780px; margin: 0 auto; padding: 0 28px; }
+    header { border-bottom: 1px solid var(--border); padding: 16px 0; }
+    header a, footer a { font-size: 12px; color: var(--text-secondary); text-decoration: none; }
+    header a:hover, footer a:hover { color: var(--accent); }
+
+    .hero { padding: 76px 0 44px; text-align: center; }
+    .hero h1 {
+      font-family: 'Source Serif 4', Georgia, serif; font-size: 2.9rem; font-weight: 600;
+      letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 16px;
+    }
+    .hero .subtitle { font-size: 16px; color: var(--text-secondary); font-style: italic; max-width: 580px; margin: 0 auto 18px; }
+    .hero .meta { font-size: 12.5px; color: var(--text-light); }
+
+    .prose { padding: 8px 0 40px; }
+    .prose p { margin-bottom: 1.05em; }
+    .lead { font-size: 16px; line-height: 1.8; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    strong { font-weight: 600; }
+
+    h2 {
+      font-family: 'Source Serif 4', Georgia, serif; font-size: 1.5rem; font-weight: 600;
+      letter-spacing: -0.01em; margin: 56px 0 14px;
+    }
+    h3 { font-family: 'Source Serif 4', Georgia, serif; font-size: 1.1rem; font-weight: 600; margin: 30px 0 10px; }
+
+    ul { margin: 6px 0 14px 22px; }
+    li { margin-bottom: 6px; }
+    .short li { margin-bottom: 9px; }
+
+    .eqn { margin: 16px 0; text-align: center; overflow-x: auto; overflow-y: hidden; }
+    .eqn .katex { font-size: 1.18em; }
+    .where { font-size: 13px; color: var(--text-secondary); margin: 4px 0 16px; }
+
+    figure { margin: 30px 0; }
+    figure svg { width: 100%; height: auto; display: block; }
+    figcaption { margin-top: 10px; font-size: 12.5px; color: var(--text-secondary); line-height: 1.6; }
+
+    .table-wrap { margin: 20px 0 24px; overflow-x: auto; border-top: 1.5px solid #222; border-bottom: 1.5px solid #222; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { text-align: left; font-weight: 600; font-size: 12px; padding: 8px 10px; border-bottom: 1px solid #222; white-space: nowrap; }
+    td { padding: 6px 10px; border-bottom: 1px solid #eee; vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    tr.band td { font-style: italic; color: var(--accent); font-weight: 600; padding-top: 12px; border-bottom: 1px solid #d0d0d0; }
+    .best { font-weight: 700; }
+    .dim { color: var(--text-light); }
+    .tabnote { font-size: 12.5px; color: var(--text-secondary); margin-top: -12px; margin-bottom: 20px; }
+
+    .box { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 14px 18px; margin: 18px 0; font-size: 13.5px; }
+    .box p:last-child { margin-bottom: 0; }
+
+    code { font-family: 'SFMono-Regular', Menlo, monospace; font-size: 12.5px; background: var(--surface); border: 1px solid var(--border); border-radius: 3px; padding: 1px 5px; }
+    pre { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 14px 16px; overflow-x: auto; margin: 16px 0; }
+    pre code { background: none; border: none; padding: 0; font-size: 12.5px; line-height: 1.65; }
+
+    footer { border-top: 1px solid var(--border); padding: 24px 0; text-align: center; }
+
+    @media (max-width: 640px) {
+      .hero h1 { font-size: 2.1rem; }
+      th, td { padding: 5px 7px; font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<header><div class="container"><a href="../index.html">&larr; Back to Home</a></div></header>
+
+<div class="container">
+  <div class="hero">
+    <h1>Depth Recurrent Vectors</h1>
+    <p class="subtitle">Teaching a pretrained Qwen3 to reuse its own middle layers, and what that does to its weights.</p>
+    <p class="meta">November 2026 &middot; <a href="https://huggingface.co/collections/CharlesDDDD/depth-recurrent-vector-6afb5dd4d36338a8677f35fa">17 checkpoints on Hugging Face</a></p>
+  </div>
+
+  <div class="prose">
+
+    <p class="lead">We took Qwen3-1.7B-Base and kept pretraining it for 20B tokens with one change: twelve of its middle layers run several times in a row, with the same weights. At three passes the test loss goes from 1.146 to 1.118, on the same data with the same recipe.</p>
+
+    <p>This post is the notebook behind that number: the recipe, every ablation we ran and what each one compares, and the checkpoints. The &ldquo;vectors&rdquo; in the title are the weight differences between a looped model and the base model. They turned out to be less portable than we hoped.</p>
+
+    <h2 id="short">The short version</h2>
+    <ul class="short">
+      <li><strong>Looping helps.</strong> 1.1460 &rarr; 1.1178 at three passes. Each training step takes 1.84&times; as long as the plain model&rsquo;s, and we have not yet trained a plain model that much longer.</li>
+      <li><strong>How the passes are connected barely matters at the trained depth.</strong> Twenty-three variants land within 0.005 of each other. It matters a lot once you run more passes than you trained with. Only the variant where each pass re-reads the block&rsquo;s original input stays stable.</li>
+      <li><strong>A small loss on every pass is free in loss</strong> for that variant, and it makes the early passes usable. It does make each step 52% slower.</li>
+      <li><strong>Three or four passes are equally good.</strong> Two and five are worse. If you want to pick the depth at test time, train with a random depth: it costs 0.004 at three passes, and the loss stays flat from three to eight passes.</li>
+      <li><strong>Averaging the weights of independent runs gains 0.004 for free,</strong> about as much as an EMA of the weights. Together they reach 1.1125.</li>
+      <li><strong>The loop does not come apart from the rest of training.</strong> Subtracting the plain run from the looped run and adding the difference to the base model sends the loss to 9.5.</li>
+    </ul>
+
+    <h2 id="setup">Setup</h2>
+
+    <p>All runs continue from Qwen3-1.7B-Base (28 layers, hidden size 2048):</p>
+    <ul>
+      <li><strong>Data:</strong> web text 42%, PDFs 23%, code 26%, agent trajectories 9%. That is 20.0B tokens, seen once, in 16K-token sequences packed with document masking (attention never crosses documents).</li>
+      <li><strong>Optimizer:</strong> AdamW with weight decay 0.1, batches of 128 sequences (2.1M tokens), 9,551 steps, 125 warmup steps, then cosine decay to 0.1&times; the peak LR.</li>
+      <li><strong>Evaluation:</strong> test loss on a held-out split of the same mix. Every number below is on the same test sequences.</li>
+    </ul>
+
+    <p>We picked the learning rate on the plain model, then reused it for every looped run without retuning:</p>
+
+    <div class="table-wrap"><table>
+      <tr><th>schedule, batch</th><th class="num">7e-5</th><th class="num">9e-5</th><th class="num">1e-4</th><th class="num">1.2e-4</th><th class="num">1.4e-4</th><th class="num">1.5e-4</th><th class="num">2e-4</th><th class="num">3e-4</th><th class="num">6e-4</th></tr>
+      <tr><td>cosine, 128</td><td class="num">1.1756</td><td class="num">1.1679</td><td class="num dim">&ndash;</td><td class="num">1.1603</td><td class="num dim">&ndash;</td><td class="num">1.1559</td><td class="num dim">&ndash;</td><td class="num best">1.1460</td><td class="num">1.1549</td></tr>
+      <tr><td>constant, 128</td><td class="num dim">&ndash;</td><td class="num dim">&ndash;</td><td class="num">1.1753</td><td class="num dim">&ndash;</td><td class="num">1.1785</td><td class="num dim">&ndash;</td><td class="num">1.1881</td><td class="num">1.2071</td><td class="num dim">&ndash;</td></tr>
+      <tr><td>cosine, 64</td><td class="num">1.1606</td><td class="num">1.1545</td><td class="num dim">&ndash;</td><td class="num dim">&ndash;</td><td class="num dim">&ndash;</td><td class="num dim">&ndash;</td><td class="num dim">&ndash;</td><td class="num dim">&ndash;</td><td class="num dim">&ndash;</td></tr>
+      <tr><td>cosine, 256</td><td class="num">1.1885</td><td class="num">1.1803</td><td class="num dim">&ndash;</td><td class="num dim">&ndash;</td><td class="num dim">&ndash;</td><td class="num dim">&ndash;</td><td class="num dim">&ndash;</td><td class="num dim">&ndash;</td><td class="num dim">&ndash;</td></tr>
+    </table></div>
+    <p class="tabnote">Test loss of the plain model (no loop) by peak LR. The base model starts at 1.5515.</p>
+
+    <h2 id="loop">The loop</h2>
+
+    <figure>
+      <svg viewBox="0 -6 700 156" role="img" aria-label="Prelude, looped block, coda">
+        <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#888"/></marker></defs>
+        <g font-family="Inter, sans-serif" font-size="13" text-anchor="middle">
+          <text x="38" y="84" fill="#555">tokens</text>
+          <line x1="70" y1="80" x2="104" y2="80" stroke="#888" stroke-width="1.4" marker-end="url(#ah)"/>
+          <rect x="108" y="56" width="132" height="48" rx="6" fill="#f6f7f9" stroke="#bbb"/>
+          <text x="174" y="78" fill="#1c1c1e" font-weight="600">layers 0&ndash;7</text>
+          <text x="174" y="95" fill="#888" font-size="11">once</text>
+          <line x1="240" y1="80" x2="284" y2="80" stroke="#888" stroke-width="1.4" marker-end="url(#ah)"/>
+          <text x="262" y="72" fill="#2F63AE" font-style="italic" font-size="14">e</text>
+          <rect x="288" y="50" width="160" height="60" rx="6" fill="#eef3fa" stroke="#2F63AE" stroke-width="1.5"/>
+          <text x="368" y="76" fill="#1c1c1e" font-weight="600">layers 8&ndash;19</text>
+          <text x="368" y="94" fill="#2F63AE" font-size="11">K passes, shared weights</text>
+          <path d="M 330 50 C 330 18, 406 18, 406 46" fill="none" stroke="#2F63AE" stroke-width="1.5" marker-end="url(#ah)"/>
+          <text x="368" y="14" fill="#2F63AE" font-size="12">&times; K</text>
+          <line x1="448" y1="80" x2="492" y2="80" stroke="#888" stroke-width="1.4" marker-end="url(#ah)"/>
+          <text x="470" y="72" fill="#2F63AE" font-style="italic" font-size="14">s<tspan font-size="10" dy="3">K</tspan></text>
+          <rect x="496" y="56" width="132" height="48" rx="6" fill="#f6f7f9" stroke="#bbb"/>
+          <text x="562" y="78" fill="#1c1c1e" font-weight="600">layers 20&ndash;27</text>
+          <text x="562" y="95" fill="#888" font-size="11">once</text>
+          <line x1="628" y1="80" x2="660" y2="80" stroke="#888" stroke-width="1.4" marker-end="url(#ah)"/>
+          <text x="680" y="84" fill="#555">logits</text>
+          <text x="368" y="136" fill="#888" font-size="11.5">52 layer applications per token at K = 3, vs 28 for the plain model</text>
+        </g>
+      </svg>
+    </figure>
+
+    <p>The 28 layers split into three parts. Layers 0&ndash;7 run once and produce $e$. The <em>block</em>, layers 8&ndash;19, runs $K$ times with the same weights. Layers 20&ndash;27 run once on the block&rsquo;s last output $s_K$. Write $B$ for one pass through the block. Most of this post compares two ways of connecting the passes:</p>
+
+    <div class="eqn">$$\textbf{chained:}\quad s_1 = B(e),\qquad s_r = s_{r-1} + g \odot \big(B(s_{r-1}) - s_{r-1}\big)$$</div>
+    <div class="eqn">$$\textbf{anchored:}\quad s_1 = B(e),\qquad s_r = B\big(e + g \odot (s_{r-1} - e)\big)$$</div>
+    <p class="where">$g \in \mathbb{R}^{2048}$ is one learned number per channel, shared by all passes. It trains with 5&times; the learning rate and no weight decay.</p>
+
+    <p>In both forms, $g = 0$ makes every pass compute $B(e)$, which is exactly the original Qwen3. Training therefore starts from the base model&rsquo;s function, with no initial jump in loss. Chained passes refine the previous output. Anchored passes always restart from $e$ and only borrow a hint from the previous pass.</p>
+
+    <p>The second ingredient is optional: a loss on every pass, which we call <strong>intermediate supervision (IS)</strong>. Layers 20&ndash;27 and the output head read each intermediate $s_r$ too, and those predictions join the loss with a small weight:</p>
+    <div class="eqn">$$\mathcal{L} \;=\; \mathcal{L}_K \;+\; \lambda \sum_{r&lt;K} \mathcal{L}_r,\qquad \lambda = 0.0555$$</div>
+
+    <h2 id="connection">How the passes are connected</h2>
+
+    <p>Here $K = 3$ and the recipe stay fixed, and only the connection changes. Besides chained and anchored, we tried the following variants:</p>
+    <ul>
+      <li><strong>Data-dependent gate:</strong> $g = \sigma(\beta + f(x))$, with $f$ starting at zero. Scalar: $f = w^\top \hat{x}$, one gate per token. Low-rank: $f = W_\text{up}\,\mathrm{swish}(W_\text{down}\hat{x})$, rank 16, as in GatedNorm. The input $x$ is the previous state (<em>state</em>), the proposed update $B(s)-s$ (<em>delta</em>), or both (<em>full</em>). Each part is RMS-normalized.</li>
+      <li><strong>Variance-preserving:</strong> $s_r = \sqrt{1-g}\odot s_{r-1} + \sqrt{g}\odot B(s_{r-1})$.</li>
+      <li><strong>Injection (Parcae):</strong> the block reads $\Lambda\odot s_{r-1} + u$, where $u = \Delta\odot W\,\mathrm{norm}(e)$ and $\Lambda = e^{-\Delta\odot\alpha}\in(0,1)$. <strong>OrthoInj</strong> additionally removes the old state&rsquo;s component along $u$ first.</li>
+    </ul>
+
+    <div class="table-wrap"><table>
+      <tr><th>connection</th><th>gate start, LR</th><th class="num">1 pass</th><th class="num">3 passes</th><th class="num">6 passes</th><th class="num">8 passes</th></tr>
+      <tr class="band"><td colspan="6">chained, one gate per channel</td></tr>
+      <tr><td>static</td><td>0, 5&times;</td><td class="num">2.063</td><td class="num">1.1198</td><td class="num">1.274</td><td class="num">1.439</td></tr>
+      <tr><td>static</td><td>0.3, 1&times;</td><td class="num">2.094</td><td class="num">1.1194</td><td class="num">1.238</td><td class="num">1.371</td></tr>
+      <tr><td>static</td><td>0.3, 5&times;</td><td class="num">2.154</td><td class="num">1.1215</td><td class="num">1.255</td><td class="num">1.402</td></tr>
+      <tr><td>static</td><td>0.5, 1&times;</td><td class="num">2.405</td><td class="num">1.1201</td><td class="num">1.252</td><td class="num">1.403</td></tr>
+      <tr><td>static</td><td>0.5, 5&times;</td><td class="num">2.241</td><td class="num">1.1215</td><td class="num">1.248</td><td class="num">1.392</td></tr>
+      <tr><td>static</td><td>0.5, 10&times;</td><td class="num">2.224</td><td class="num">1.1210</td><td class="num">1.253</td><td class="num">1.401</td></tr>
+      <tr class="band"><td colspan="6">chained, data-dependent gate</td></tr>
+      <tr><td>scalar &middot; state</td><td>0.3, 1&times;</td><td class="num">2.201</td><td class="num">1.1199</td><td class="num">1.198</td><td class="num">1.280</td></tr>
+      <tr><td>scalar &middot; delta</td><td>0.3, 1&times;</td><td class="num">2.097</td><td class="num">1.1196</td><td class="num">1.233</td><td class="num">1.354</td></tr>
+      <tr><td>scalar &middot; full</td><td>0.3, 1&times;</td><td class="num">2.157</td><td class="num">1.1199</td><td class="num">1.212</td><td class="num">1.312</td></tr>
+      <tr><td>low-rank &middot; state</td><td>0.3, 1&times;</td><td class="num">2.112</td><td class="num">1.1210</td><td class="num">1.188</td><td class="num">1.251</td></tr>
+      <tr><td>low-rank &middot; delta</td><td>0.3, 1&times;</td><td class="num">2.162</td><td class="num">1.1194</td><td class="num">1.244</td><td class="num">1.366</td></tr>
+      <tr><td>low-rank &middot; full</td><td>0.3, 1&times;</td><td class="num">2.213</td><td class="num">1.1197</td><td class="num">1.203</td><td class="num">1.284</td></tr>
+      <tr><td>low-rank &middot; state, no sigmoid</td><td>0, 5&times;</td><td class="num">2.260</td><td class="num">1.1195</td><td class="num">1.189</td><td class="num">1.252</td></tr>
+      <tr class="band"><td colspan="6">variance-preserving, data-dependent gate</td></tr>
+      <tr><td>scalar &middot; state / delta / full</td><td>0.3, 1&times;</td><td class="num">2.39&ndash;2.51</td><td class="num">1.1200&ndash;1.1205</td><td class="num">1.34&ndash;1.37</td><td class="num">1.77&ndash;1.85</td></tr>
+      <tr><td>low-rank &middot; state / delta / full</td><td>0.3, 1&times;</td><td class="num">2.40&ndash;2.52</td><td class="num">1.1198&ndash;1.1205</td><td class="num">1.38&ndash;1.43</td><td class="num">1.80&ndash;2.01</td></tr>
+      <tr class="band"><td colspan="6">injection</td></tr>
+      <tr><td>Parcae</td><td>own init</td><td class="num">2.627</td><td class="num">1.1219</td><td class="num">1.282</td><td class="num">1.368</td></tr>
+      <tr><td>OrthoInj</td><td>own init</td><td class="num">2.025</td><td class="num">1.1184</td><td class="num">1.657</td><td class="num">1.733</td></tr>
+      <tr class="band"><td colspan="6">anchored, one gate per channel</td></tr>
+      <tr><td>static</td><td>0, 1&times;</td><td class="num">2.504</td><td class="num best">1.1172</td><td class="num">1.155</td><td class="num">1.174</td></tr>
+      <tr><td>static</td><td>0, 5&times;</td><td class="num">2.474</td><td class="num">1.1176</td><td class="num">1.158</td><td class="num">1.169</td></tr>
+    </table></div>
+    <p class="tabnote">Test loss of models trained with 3 passes and no intermediate supervision, evaluated at 1, 3, 6 and 8 passes. The plain model is 1.1460. &ldquo;Gate start&rdquo; is the gate&rsquo;s initial value; above 0, the model starts away from the base model.</p>
+
+    <p>At three passes, everything lands between 1.117 and 1.122. Three runs of the same anchored setup span 0.0007, so most rows are ties. Anchored is ahead by about 0.002. Data-dependent gates did not lower the loss, and neither did a warmer start or a larger gate LR.</p>
+
+    <p>What separates the variants is what happens past three passes. In the chained forms, nothing pulls the state back toward where training left it, so the loss climbs with every extra pass. Data-dependent gates slow this down but do not stop it. The variance-preserving form is the worst. The anchored form stays within 0.06 out to eight passes, because every pass restarts from $e$ and the block&rsquo;s input cannot run away.</p>
+
+    <p>The learned anchored gate is small, with a mean of 0.08&ndash;0.10 (chained gates settle at 0.22&ndash;0.43). That does not mean the loop is barely used: one pass moves the state 9&ndash;11&times; the size of $e$, so the hint $g\odot(s-e)$ is about as large as $e$ itself.</p>
+
+    <p>Without IS, one pass is useless in every variant (2.0&ndash;2.6): the model learns to rely on all three passes.</p>
+
+    <h2 id="is">A loss on every pass</h2>
+
+    <figure>
+      <svg id="fconn" role="img" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 520.797656 223.518594" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-11-17T01:17:16.955885</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.11.1, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="fconn-figure_1">
+  <g id="fconn-patch_1">
+   <path d="M 0 223.518594 
+L 520.797656 223.518594 
+L 520.797656 0 
+L 0 0 
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="fconn-axes_1">
+   <g id="fconn-patch_2">
+    <path d="M 44.359766 190.197891 
+L 255.588711 190.197891 
+L 255.588711 36.92 
+L 44.359766 36.92 
+z
+" style="fill: #ffffff"/>
+   </g>
+   <g id="fconn-line2d_1">
+    <path d="M 108.825742 190.197891 
+L 108.825742 36.92 
+" clip-path="url(#fconn-p84973d8cff)" style="fill: none; stroke: #cccccc; stroke-linecap: square"/>
+   </g>
+   <g id="fconn-matplotlib.axis_1">
+    <g id="fconn-xtick_1">
+     <g id="fconn-line2d_2">
+      <path d="M 53.961081 190.197891 
+L 53.961081 36.92 
+" clip-path="url(#fconn-p84973d8cff)" style="fill: none; stroke: #eeeeee; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="fconn-line2d_3">
+      <defs>
+       <path id="fconn-mdce6748fa0" d="M 0 0 
+L 0 3.5 
+" style="stroke: #555555; stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#fconn-mdce6748fa0" x="53.961081" y="190.197891" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="fconn-text_1">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #555555" x="53.961081" y="204.035781" transform="rotate(-0 53.961081 204.035781)">1</text>
+     </g>
+    </g>
+    <g id="fconn-xtick_2">
+     <g id="fconn-line2d_4">
+      <path d="M 81.393412 190.197891 
+L 81.393412 36.92 
+" clip-path="url(#fconn-p84973d8cff)" style="fill: none; stroke: #eeeeee; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="fconn-line2d_5">
+      <g>
+       <use xlink:href="#fconn-mdce6748fa0" x="81.393412" y="190.197891" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="fconn-text_2">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #555555" x="81.393412" y="204.035781" transform="rotate(-0 81.393412 204.035781)">2</text>
+     </g>
+    </g>
+    <g id="fconn-xtick_3">
+     <g id="fconn-line2d_6">
+      <path d="M 108.825742 190.197891 
+L 108.825742 36.92 
+" clip-path="url(#fconn-p84973d8cff)" style="fill: none; stroke: #eeeeee; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="fconn-line2d_7">
+      <g>
+       <use xlink:href="#fconn-mdce6748fa0" x="108.825742" y="190.197891" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="fconn-text_3">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #555555" x="108.825742" y="204.035781" transform="rotate(-0 108.825742 204.035781)">3</text>
+     </g>
+    </g>
+    <g id="fconn-xtick_4">
+     <g id="fconn-line2d_8">
+      <path d="M 136.258073 190.197891 
+L 136.258073 36.92 
+" clip-path="url(#fconn-p84973d8cff)" style="fill: none; stroke: #eeeeee; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="fconn-line2d_9">
+      <g>
+       <use xlink:href="#fconn-mdce6748fa0" x="136.258073" y="190.197891" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="fconn-text_4">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #555555" x="136.258073" y="204.035781" transform="rotate(-0 136.258073 204.035781)">4</text>
+     </g>
+    </g>
+    <g id="fconn-xtick_5">
+     <g id="fconn-line2d_10">
+      <path d="M 163.690404 190.197891 
+L 163.690404 36.92 
+" clip-path="url(#fconn-p84973d8cff)" style="fill: none; stroke: #eeeeee; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="fconn-line2d_11">
+      <g>
+       <use xlink:href="#fconn-mdce6748fa0" x="163.690404" y="190.197891" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="fconn-text_5">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #555555" x="163.690404" y="204.035781" transform="rotate(-0 163.690404 204.035781)">5</text>
+     </g>
+    </g>
+    <g id="fconn-xtick_6">
+     <g id="fconn-line2d_12">
+      <path d="M 191.122734 190.197891 
+L 191.122734 36.92 
+" clip-path="url(#fconn-p84973d8cff)" style="fill: none; stroke: #eeeeee; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="fconn-line2d_13">
+      <g>
+       <use xlink:href="#fconn-mdce6748fa0" x="191.122734" y="190.197891" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="fconn-text_6">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #555555" x="191.122734" y="204.035781" transform="rotate(-0 191.122734 204.035781)">6</text>
+     </g>
+    </g>
+    <g id="fconn-xtick_7">
+     <g id="fconn-line2d_14">
+      <path d="M 218.555065 190.197891 
+L 218.555065 36.92 
+" clip-path="url(#fconn-p84973d8cff)" style="fill: none; stroke: #eeeeee; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="fconn-line2d_15">
+      <g>
+       <use xlink:href="#fconn-mdce6748fa0" x="218.555065" y="190.197891" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="fconn-text_7">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #555555" x="218.555065" y="204.035781" transform="rotate(-0 218.555065 204.035781)">7</text>
+     </g>
+    </g>
+    <g id="fconn-xtick_8">
+     <g id="fconn-line2d_16">
+      <path d="M 245.987395 190.197891 
+L 245.987395 36.92 
+" clip-path="url(#fconn-p84973d8cff)" style="fill: none; stroke: #eeeeee; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="fconn-line2d_17">
+      <g>
+       <use xlink:href="#fconn-mdce6748fa0" x="245.987395" y="190.197891" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="fconn-text_8">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #555555" x="245.987395" y="204.035781" transform="rotate(-0 245.987395 204.035781)">8</text>
+     </g>
+    </g>
+    <g id="fconn-text_9">
+     <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #333333" x="149.974238" y="217.036484" transform="rotate(-0 149.974238 217.036484)">passes at test time</text>
+    </g>
+   </g>
+   <g id="fconn-matplotlib.axis_2">
+    <g id="fconn-ytick_1">
+     <g id="fconn-line2d_18">
+      <path d="M 44.359766 174.870102 
+L 255.588711 174.870102 
+" clip-path="url(#fconn-p84973d8cff)" style="fill: none; stroke: #eeeeee; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="fconn-line2d_19">
+      <defs>
+       <path id="fconn-md1c1f13275" d="M 0 0 
+L -3.5 0 
+" style="stroke: #555555; stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#fconn-md1c1f13275" x="44.359766" y="174.870102" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="fconn-text_10">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #555555" x="37.359766" y="178.289047" transform="rotate(-0 37.359766 178.289047)">1.12</text>
+     </g>
+    </g>
+    <g id="fconn-ytick_2">
+     <g id="fconn-line2d_20">
+      <path d="M 44.359766 144.214523 
+L 255.588711 144.214523 
+" clip-path="url(#fconn-p84973d8cff)" style="fill: none; stroke: #eeeeee; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="fconn-line2d_21">
+      <g>
+       <use xlink:href="#fconn-md1c1f13275" x="44.359766" y="144.214523" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="fconn-text_11">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #555555" x="37.359766" y="147.633469" transform="rotate(-0 37.359766 147.633469)">1.14</text>
+     </g>
+    </g>
+    <g id="fconn-ytick_3">
+     <g id="fconn-line2d_22">
+      <path d="M 44.359766 113.558945 
+L 255.588711 113.558945 
+" clip-path="url(#fconn-p84973d8cff)" style="fill: none; stroke: #eeeeee; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="fconn-line2d_23">
+      <g>
+       <use xlink:href="#fconn-md1c1f13275" x="44.359766" y="113.558945" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="fconn-text_12">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #555555" x="37.359766" y="116.977891" transform="rotate(-0 37.359766 116.977891)">1.16</text>
+     </g>
+    </g>
+    <g id="fconn-ytick_4">
+     <g id="fconn-line2d_24">
+      <path d="M 44.359766 82.903367 
+L 255.588711 82.903367 
+" clip-path="url(#fconn-p84973d8cff)" style="fill: none; stroke: #eeeeee; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="fconn-line2d_25">
+      <g>
+       <use xlink:href="#fconn-md1c1f13275" x="44.359766" y="82.903367" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="fconn-text_13">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #555555" x="37.359766" y="86.322312" transform="rotate(-0 37.359766 86.322312)">1.18</text>
+     </g>
+    </g>
+    <g id="fconn-ytick_5">
+     <g id="fconn-line2d_26">
+      <path d="M 44.359766 52.247789 
+L 255.588711 52.247789 
+" clip-path="url(#fconn-p84973d8cff)" style="fill: none; stroke: #eeeeee; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="fconn-line2d_27">
+      <g>
+       <use xlink:href="#fconn-md1c1f13275" x="44.359766" y="52.247789" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="fconn-text_14">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #555555" x="37.359766" y="55.666734" transform="rotate(-0 37.359766 55.666734)">1.20</text>
+     </g>
+    </g>
+    <g id="fconn-text_15">
+     <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #333333" x="11.158594" y="113.558945" transform="rotate(-90 11.158594 113.558945)">test loss</text>
+    </g>
+   </g>
+   <g id="fconn-line2d_28">
+    <path d="M 53.961081 59.605128 
+L 81.393412 133.331793 
+L 108.825742 178.242215 
+L 136.258073 160.46198 
+L 163.690404 170.884876 
+L 191.122734 159.542313 
+L 218.555065 165.213594 
+L 245.987395 158.316089 
+" clip-path="url(#fconn-p84973d8cff)" style="fill: none; stroke: #2f63ae; stroke-width: 1.6; stroke-linecap: square"/>
+    <defs>
+     <path id="fconn-m1cad76cdac" d="M 0 1.6 
+C 0.424325 1.6 0.831328 1.431414 1.131371 1.131371 
+C 1.431414 0.831328 1.6 0.424325 1.6 0 
+C 1.6 -0.424325 1.431414 -0.831328 1.131371 -1.131371 
+C 0.831328 -1.431414 0.424325 -1.6 0 -1.6 
+C -0.424325 -1.6 -0.831328 -1.431414 -1.131371 -1.131371 
+C -1.431414 -0.831328 -1.6 -0.424325 -1.6 0 
+C -1.6 0.424325 -1.431414 0.831328 -1.131371 1.131371 
+C -0.831328 1.431414 -0.424325 1.6 0 1.6 
+z
+" style="stroke: #2f63ae"/>
+    </defs>
+    <g clip-path="url(#fconn-p84973d8cff)">
+     <use xlink:href="#fconn-m1cad76cdac" x="53.961081" y="59.605128" style="fill: #2f63ae; stroke: #2f63ae"/>
+     <use xlink:href="#fconn-m1cad76cdac" x="81.393412" y="133.331793" style="fill: #2f63ae; stroke: #2f63ae"/>
+     <use xlink:href="#fconn-m1cad76cdac" x="108.825742" y="178.242215" style="fill: #2f63ae; stroke: #2f63ae"/>
+     <use xlink:href="#fconn-m1cad76cdac" x="136.258073" y="160.46198" style="fill: #2f63ae; stroke: #2f63ae"/>
+     <use xlink:href="#fconn-m1cad76cdac" x="163.690404" y="170.884876" style="fill: #2f63ae; stroke: #2f63ae"/>
+     <use xlink:href="#fconn-m1cad76cdac" x="191.122734" y="159.542313" style="fill: #2f63ae; stroke: #2f63ae"/>
+     <use xlink:href="#fconn-m1cad76cdac" x="218.555065" y="165.213594" style="fill: #2f63ae; stroke: #2f63ae"/>
+     <use xlink:href="#fconn-m1cad76cdac" x="245.987395" y="158.316089" style="fill: #2f63ae; stroke: #2f63ae"/>
+    </g>
+   </g>
+   <g id="fconn-line2d_29">
+    <path d="M 53.961081 50.101899 
+L 81.393412 138.389964 
+L 108.825742 169.352098 
+L 136.258073 162.60787 
+L 163.690404 145.90058 
+L 191.122734 123.522008 
+L 218.555065 96.851655 
+L 245.987395 66.962467 
+" clip-path="url(#fconn-p84973d8cff)" style="fill: none; stroke: #d9822b; stroke-width: 1.6; stroke-linecap: square"/>
+    <defs>
+     <path id="fconn-m9768e755c1" d="M 0 1.6 
+C 0.424325 1.6 0.831328 1.431414 1.131371 1.131371 
+C 1.431414 0.831328 1.6 0.424325 1.6 0 
+C 1.6 -0.424325 1.431414 -0.831328 1.131371 -1.131371 
+C 0.831328 -1.431414 0.424325 -1.6 0 -1.6 
+C -0.424325 -1.6 -0.831328 -1.431414 -1.131371 -1.131371 
+C -1.431414 -0.831328 -1.6 -0.424325 -1.6 0 
+C -1.6 0.424325 -1.431414 0.831328 -1.131371 1.131371 
+C -0.831328 1.431414 -0.424325 1.6 0 1.6 
+z
+" style="stroke: #d9822b"/>
+    </defs>
+    <g clip-path="url(#fconn-p84973d8cff)">
+     <use xlink:href="#fconn-m9768e755c1" x="53.961081" y="50.101899" style="fill: #d9822b; stroke: #d9822b"/>
+     <use xlink:href="#fconn-m9768e755c1" x="81.393412" y="138.389964" style="fill: #d9822b; stroke: #d9822b"/>
+     <use xlink:href="#fconn-m9768e755c1" x="108.825742" y="169.352098" style="fill: #d9822b; stroke: #d9822b"/>
+     <use xlink:href="#fconn-m9768e755c1" x="136.258073" y="162.60787" style="fill: #d9822b; stroke: #d9822b"/>
+     <use xlink:href="#fconn-m9768e755c1" x="163.690404" y="145.90058" style="fill: #d9822b; stroke: #d9822b"/>
+     <use xlink:href="#fconn-m9768e755c1" x="191.122734" y="123.522008" style="fill: #d9822b; stroke: #d9822b"/>
+     <use xlink:href="#fconn-m9768e755c1" x="218.555065" y="96.851655" style="fill: #d9822b; stroke: #d9822b"/>
+     <use xlink:href="#fconn-m9768e755c1" x="245.987395" y="66.962467" style="fill: #d9822b; stroke: #d9822b"/>
+    </g>
+   </g>
+   <g id="fconn-patch_3">
+    <path d="M 44.359766 190.197891 
+L 44.359766 36.92 
+" style="fill: none; stroke: #888888; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="fconn-patch_4">
+    <path d="M 44.359766 190.197891 
+L 255.588711 190.197891 
+" style="fill: none; stroke: #888888; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="fconn-text_16">
+    <text style="font-size: 9.5px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #333333" x="149.974238" y="30.92" transform="rotate(-0 149.974238 30.92)">loss on every pass (IS)</text>
+   </g>
+  </g>
+  <g id="fconn-axes_2">
+   <g id="fconn-patch_5">
+    <path d="M 305.248711 190.197891 
+L 516.477656 190.197891 
+L 516.477656 36.92 
+L 305.248711 36.92 
+z
+" style="fill: #ffffff"/>
+   </g>
+   <g id="fconn-line2d_30">
+    <path d="M 369.714688 190.197891 
+L 369.714688 36.92 
+" clip-path="url(#fconn-p79d8faeea0)" style="fill: none; stroke: #cccccc; stroke-linecap: square"/>
+   </g>
+   <g id="fconn-matplotlib.axis_3">
+    <g id="fconn-xtick_9">
+     <g id="fconn-line2d_31">
+      <path d="M 314.850027 190.197891 
+L 314.850027 36.92 
+" clip-path="url(#fconn-p79d8faeea0)" style="fill: none; stroke: #eeeeee; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="fconn-line2d_32">
+      <g>
+       <use xlink:href="#fconn-mdce6748fa0" x="314.850027" y="190.197891" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="fconn-text_17">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #555555" x="314.850027" y="204.035781" transform="rotate(-0 314.850027 204.035781)">1</text>
+     </g>
+    </g>
+    <g id="fconn-xtick_10">
+     <g id="fconn-line2d_33">
+      <path d="M 342.282357 190.197891 
+L 342.282357 36.92 
+" clip-path="url(#fconn-p79d8faeea0)" style="fill: none; stroke: #eeeeee; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="fconn-line2d_34">
+      <g>
+       <use xlink:href="#fconn-mdce6748fa0" x="342.282357" y="190.197891" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="fconn-text_18">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #555555" x="342.282357" y="204.035781" transform="rotate(-0 342.282357 204.035781)">2</text>
+     </g>
+    </g>
+    <g id="fconn-xtick_11">
+     <g id="fconn-line2d_35">
+      <path d="M 369.714688 190.197891 
+L 369.714688 36.92 
+" clip-path="url(#fconn-p79d8faeea0)" style="fill: none; stroke: #eeeeee; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="fconn-line2d_36">
+      <g>
+       <use xlink:href="#fconn-mdce6748fa0" x="369.714688" y="190.197891" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="fconn-text_19">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #555555" x="369.714688" y="204.035781" transform="rotate(-0 369.714688 204.035781)">3</text>
+     </g>
+    </g>
+    <g id="fconn-xtick_12">
+     <g id="fconn-line2d_37">
+      <path d="M 397.147018 190.197891 
+L 397.147018 36.92 
+" clip-path="url(#fconn-p79d8faeea0)" style="fill: none; stroke: #eeeeee; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="fconn-line2d_38">
+      <g>
+       <use xlink:href="#fconn-mdce6748fa0" x="397.147018" y="190.197891" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="fconn-text_20">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #555555" x="397.147018" y="204.035781" transform="rotate(-0 397.147018 204.035781)">4</text>
+     </g>
+    </g>
+    <g id="fconn-xtick_13">
+     <g id="fconn-line2d_39">
+      <path d="M 424.579349 190.197891 
+L 424.579349 36.92 
+" clip-path="url(#fconn-p79d8faeea0)" style="fill: none; stroke: #eeeeee; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="fconn-line2d_40">
+      <g>
+       <use xlink:href="#fconn-mdce6748fa0" x="424.579349" y="190.197891" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="fconn-text_21">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #555555" x="424.579349" y="204.035781" transform="rotate(-0 424.579349 204.035781)">5</text>
+     </g>
+    </g>
+    <g id="fconn-xtick_14">
+     <g id="fconn-line2d_41">
+      <path d="M 452.011679 190.197891 
+L 452.011679 36.92 
+" clip-path="url(#fconn-p79d8faeea0)" style="fill: none; stroke: #eeeeee; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="fconn-line2d_42">
+      <g>
+       <use xlink:href="#fconn-mdce6748fa0" x="452.011679" y="190.197891" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="fconn-text_22">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #555555" x="452.011679" y="204.035781" transform="rotate(-0 452.011679 204.035781)">6</text>
+     </g>
+    </g>
+    <g id="fconn-xtick_15">
+     <g id="fconn-line2d_43">
+      <path d="M 479.44401 190.197891 
+L 479.44401 36.92 
+" clip-path="url(#fconn-p79d8faeea0)" style="fill: none; stroke: #eeeeee; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="fconn-line2d_44">
+      <g>
+       <use xlink:href="#fconn-mdce6748fa0" x="479.44401" y="190.197891" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="fconn-text_23">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #555555" x="479.44401" y="204.035781" transform="rotate(-0 479.44401 204.035781)">7</text>
+     </g>
+    </g>
+    <g id="fconn-xtick_16">
+     <g id="fconn-line2d_45">
+      <path d="M 506.876341 190.197891 
+L 506.876341 36.92 
+" clip-path="url(#fconn-p79d8faeea0)" style="fill: none; stroke: #eeeeee; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="fconn-line2d_46">
+      <g>
+       <use xlink:href="#fconn-mdce6748fa0" x="506.876341" y="190.197891" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="fconn-text_24">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #555555" x="506.876341" y="204.035781" transform="rotate(-0 506.876341 204.035781)">8</text>
+     </g>
+    </g>
+    <g id="fconn-text_25">
+     <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #333333" x="410.863184" y="217.036484" transform="rotate(-0 410.863184 217.036484)">passes at test time</text>
+    </g>
+   </g>
+   <g id="fconn-matplotlib.axis_4">
+    <g id="fconn-ytick_6">
+     <g id="fconn-line2d_47">
+      <path d="M 305.248711 190.197891 
+L 516.477656 190.197891 
+" clip-path="url(#fconn-p79d8faeea0)" style="fill: none; stroke: #eeeeee; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="fconn-line2d_48">
+      <g>
+       <use xlink:href="#fconn-md1c1f13275" x="305.248711" y="190.197891" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="fconn-text_26">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #555555" x="298.248711" y="193.616836" transform="rotate(-0 298.248711 193.616836)">1.10</text>
+     </g>
+    </g>
+    <g id="fconn-ytick_7">
+     <g id="fconn-line2d_49">
+      <path d="M 305.248711 171.038154 
+L 516.477656 171.038154 
+" clip-path="url(#fconn-p79d8faeea0)" style="fill: none; stroke: #eeeeee; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="fconn-line2d_50">
+      <g>
+       <use xlink:href="#fconn-md1c1f13275" x="305.248711" y="171.038154" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="fconn-text_27">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #555555" x="298.248711" y="174.4571" transform="rotate(-0 298.248711 174.4571)">1.15</text>
+     </g>
+    </g>
+    <g id="fconn-ytick_8">
+     <g id="fconn-line2d_51">
+      <path d="M 305.248711 151.878418 
+L 516.477656 151.878418 
+" clip-path="url(#fconn-p79d8faeea0)" style="fill: none; stroke: #eeeeee; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="fconn-line2d_52">
+      <g>
+       <use xlink:href="#fconn-md1c1f13275" x="305.248711" y="151.878418" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="fconn-text_28">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #555555" x="298.248711" y="155.297363" transform="rotate(-0 298.248711 155.297363)">1.20</text>
+     </g>
+    </g>
+    <g id="fconn-ytick_9">
+     <g id="fconn-line2d_53">
+      <path d="M 305.248711 132.718682 
+L 516.477656 132.718682 
+" clip-path="url(#fconn-p79d8faeea0)" style="fill: none; stroke: #eeeeee; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="fconn-line2d_54">
+      <g>
+       <use xlink:href="#fconn-md1c1f13275" x="305.248711" y="132.718682" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="fconn-text_29">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #555555" x="298.248711" y="136.137627" transform="rotate(-0 298.248711 136.137627)">1.25</text>
+     </g>
+    </g>
+    <g id="fconn-ytick_10">
+     <g id="fconn-line2d_55">
+      <path d="M 305.248711 113.558945 
+L 516.477656 113.558945 
+" clip-path="url(#fconn-p79d8faeea0)" style="fill: none; stroke: #eeeeee; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="fconn-line2d_56">
+      <g>
+       <use xlink:href="#fconn-md1c1f13275" x="305.248711" y="113.558945" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="fconn-text_30">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #555555" x="298.248711" y="116.977891" transform="rotate(-0 298.248711 116.977891)">1.30</text>
+     </g>
+    </g>
+    <g id="fconn-ytick_11">
+     <g id="fconn-line2d_57">
+      <path d="M 305.248711 94.399209 
+L 516.477656 94.399209 
+" clip-path="url(#fconn-p79d8faeea0)" style="fill: none; stroke: #eeeeee; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="fconn-line2d_58">
+      <g>
+       <use xlink:href="#fconn-md1c1f13275" x="305.248711" y="94.399209" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="fconn-text_31">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #555555" x="298.248711" y="97.818154" transform="rotate(-0 298.248711 97.818154)">1.35</text>
+     </g>
+    </g>
+    <g id="fconn-ytick_12">
+     <g id="fconn-line2d_59">
+      <path d="M 305.248711 75.239473 
+L 516.477656 75.239473 
+" clip-path="url(#fconn-p79d8faeea0)" style="fill: none; stroke: #eeeeee; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="fconn-line2d_60">
+      <g>
+       <use xlink:href="#fconn-md1c1f13275" x="305.248711" y="75.239473" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="fconn-text_32">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #555555" x="298.248711" y="78.658418" transform="rotate(-0 298.248711 78.658418)">1.40</text>
+     </g>
+    </g>
+    <g id="fconn-ytick_13">
+     <g id="fconn-line2d_61">
+      <path d="M 305.248711 56.079736 
+L 516.477656 56.079736 
+" clip-path="url(#fconn-p79d8faeea0)" style="fill: none; stroke: #eeeeee; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="fconn-line2d_62">
+      <g>
+       <use xlink:href="#fconn-md1c1f13275" x="305.248711" y="56.079736" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="fconn-text_33">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #555555" x="298.248711" y="59.498682" transform="rotate(-0 298.248711 59.498682)">1.45</text>
+     </g>
+    </g>
+    <g id="fconn-ytick_14">
+     <g id="fconn-line2d_63">
+      <path d="M 305.248711 36.92 
+L 516.477656 36.92 
+" clip-path="url(#fconn-p79d8faeea0)" style="fill: none; stroke: #eeeeee; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="fconn-line2d_64">
+      <g>
+       <use xlink:href="#fconn-md1c1f13275" x="305.248711" y="36.92" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="fconn-text_34">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #555555" x="298.248711" y="40.338945" transform="rotate(-0 298.248711 40.338945)">1.50</text>
+     </g>
+    </g>
+   </g>
+   <g id="fconn-line2d_65">
+    <path d="M 352.669691 -1 
+L 369.714688 183.453663 
+L 397.147018 147.778234 
+L 424.579349 168.43243 
+L 452.011679 167.895958 
+L 479.44401 164.025691 
+L 506.876341 163.910732 
+" clip-path="url(#fconn-p79d8faeea0)" style="fill: none; stroke: #2f63ae; stroke-width: 1.6; stroke-linecap: square"/>
+    <g clip-path="url(#fconn-p79d8faeea0)">
+     <use xlink:href="#fconn-m1cad76cdac" x="352.669691" y="-1" style="fill: #2f63ae; stroke: #2f63ae"/>
+     <use xlink:href="#fconn-m1cad76cdac" x="369.714688" y="183.453663" style="fill: #2f63ae; stroke: #2f63ae"/>
+     <use xlink:href="#fconn-m1cad76cdac" x="397.147018" y="147.778234" style="fill: #2f63ae; stroke: #2f63ae"/>
+     <use xlink:href="#fconn-m1cad76cdac" x="424.579349" y="168.43243" style="fill: #2f63ae; stroke: #2f63ae"/>
+     <use xlink:href="#fconn-m1cad76cdac" x="452.011679" y="167.895958" style="fill: #2f63ae; stroke: #2f63ae"/>
+     <use xlink:href="#fconn-m1cad76cdac" x="479.44401" y="164.025691" style="fill: #2f63ae; stroke: #2f63ae"/>
+     <use xlink:href="#fconn-m1cad76cdac" x="506.876341" y="163.910732" style="fill: #2f63ae; stroke: #2f63ae"/>
+    </g>
+   </g>
+   <g id="fconn-line2d_66">
+    <path d="M 331.661072 -1 
+L 342.282357 111.298096 
+L 369.714688 182.610635 
+L 397.147018 171.996141 
+L 424.579349 150.422278 
+L 452.011679 123.636967 
+L 479.44401 93.326264 
+L 506.876341 60.294878 
+" clip-path="url(#fconn-p79d8faeea0)" style="fill: none; stroke: #d9822b; stroke-width: 1.6; stroke-linecap: square"/>
+    <g clip-path="url(#fconn-p79d8faeea0)">
+     <use xlink:href="#fconn-m9768e755c1" x="331.661072" y="-1" style="fill: #d9822b; stroke: #d9822b"/>
+     <use xlink:href="#fconn-m9768e755c1" x="342.282357" y="111.298096" style="fill: #d9822b; stroke: #d9822b"/>
+     <use xlink:href="#fconn-m9768e755c1" x="369.714688" y="182.610635" style="fill: #d9822b; stroke: #d9822b"/>
+     <use xlink:href="#fconn-m9768e755c1" x="397.147018" y="171.996141" style="fill: #d9822b; stroke: #d9822b"/>
+     <use xlink:href="#fconn-m9768e755c1" x="424.579349" y="150.422278" style="fill: #d9822b; stroke: #d9822b"/>
+     <use xlink:href="#fconn-m9768e755c1" x="452.011679" y="123.636967" style="fill: #d9822b; stroke: #d9822b"/>
+     <use xlink:href="#fconn-m9768e755c1" x="479.44401" y="93.326264" style="fill: #d9822b; stroke: #d9822b"/>
+     <use xlink:href="#fconn-m9768e755c1" x="506.876341" y="60.294878" style="fill: #d9822b; stroke: #d9822b"/>
+    </g>
+   </g>
+   <g id="fconn-line2d_67">
+    <path d="M 339.138789 -1 
+L 342.282357 40.215475 
+L 369.714688 182.342399 
+L 397.147018 171.766224 
+L 424.579349 144.137884 
+L 452.011679 98.920907 
+L 479.44401 31.09544 
+L 488.472159 -1 
+" clip-path="url(#fconn-p79d8faeea0)" style="fill: none; stroke: #9a9a9a; stroke-width: 1.6; stroke-linecap: square"/>
+    <defs>
+     <path id="fconn-m21a7ae21a9" d="M 0 1.6 
+C 0.424325 1.6 0.831328 1.431414 1.131371 1.131371 
+C 1.431414 0.831328 1.6 0.424325 1.6 0 
+C 1.6 -0.424325 1.431414 -0.831328 1.131371 -1.131371 
+C 0.831328 -1.431414 0.424325 -1.6 0 -1.6 
+C -0.424325 -1.6 -0.831328 -1.431414 -1.131371 -1.131371 
+C -1.431414 -0.831328 -1.6 -0.424325 -1.6 0 
+C -1.6 0.424325 -1.431414 0.831328 -1.131371 1.131371 
+C -0.831328 1.431414 -0.424325 1.6 0 1.6 
+z
+" style="stroke: #9a9a9a"/>
+    </defs>
+    <g clip-path="url(#fconn-p79d8faeea0)">
+     <use xlink:href="#fconn-m21a7ae21a9" x="339.138789" y="-1" style="fill: #9a9a9a; stroke: #9a9a9a"/>
+     <use xlink:href="#fconn-m21a7ae21a9" x="342.282357" y="40.215475" style="fill: #9a9a9a; stroke: #9a9a9a"/>
+     <use xlink:href="#fconn-m21a7ae21a9" x="369.714688" y="182.342399" style="fill: #9a9a9a; stroke: #9a9a9a"/>
+     <use xlink:href="#fconn-m21a7ae21a9" x="397.147018" y="171.766224" style="fill: #9a9a9a; stroke: #9a9a9a"/>
+     <use xlink:href="#fconn-m21a7ae21a9" x="424.579349" y="144.137884" style="fill: #9a9a9a; stroke: #9a9a9a"/>
+     <use xlink:href="#fconn-m21a7ae21a9" x="452.011679" y="98.920907" style="fill: #9a9a9a; stroke: #9a9a9a"/>
+     <use xlink:href="#fconn-m21a7ae21a9" x="479.44401" y="31.09544" style="fill: #9a9a9a; stroke: #9a9a9a"/>
+     <use xlink:href="#fconn-m21a7ae21a9" x="488.472159" y="-1" style="fill: #9a9a9a; stroke: #9a9a9a"/>
+    </g>
+   </g>
+   <g id="fconn-patch_6">
+    <path d="M 305.248711 190.197891 
+L 305.248711 36.92 
+" style="fill: none; stroke: #888888; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="fconn-patch_7">
+    <path d="M 305.248711 190.197891 
+L 516.477656 190.197891 
+" style="fill: none; stroke: #888888; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="fconn-text_35">
+    <text style="font-size: 9.5px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #333333" x="410.863184" y="30.92" transform="rotate(-0 410.863184 30.92)">loss on the last pass only</text>
+   </g>
+  </g>
+  <g id="fconn-legend_1">
+   <g id="fconn-line2d_68">
+    <path d="M 117.301406 10.79875 
+L 125.301406 10.79875 
+L 133.301406 10.79875 
+" style="fill: none; stroke: #2f63ae; stroke-width: 1.6; stroke-linecap: square"/>
+    <g>
+     <use xlink:href="#fconn-m1cad76cdac" x="125.301406" y="10.79875" style="fill: #2f63ae; stroke: #2f63ae"/>
+    </g>
+   </g>
+   <g id="fconn-text_36">
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; text-anchor: start" x="139.701406" y="13.59875" transform="rotate(-0 139.701406 13.59875)">anchored</text>
+   </g>
+   <g id="fconn-line2d_69">
+    <path d="M 193.151406 10.79875 
+L 201.151406 10.79875 
+L 209.151406 10.79875 
+" style="fill: none; stroke: #d9822b; stroke-width: 1.6; stroke-linecap: square"/>
+    <g>
+     <use xlink:href="#fconn-m9768e755c1" x="201.151406" y="10.79875" style="fill: #d9822b; stroke: #d9822b"/>
+    </g>
+   </g>
+   <g id="fconn-text_37">
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; text-anchor: start" x="215.551406" y="13.59875" transform="rotate(-0 215.551406 13.59875)">chained</text>
+   </g>
+   <g id="fconn-line2d_70">
+    <path d="M 263.216406 10.79875 
+L 271.216406 10.79875 
+L 279.216406 10.79875 
+" style="fill: none; stroke: #9a9a9a; stroke-width: 1.6; stroke-linecap: square"/>
+    <g>
+     <use xlink:href="#fconn-m21a7ae21a9" x="271.216406" y="10.79875" style="fill: #9a9a9a; stroke: #9a9a9a"/>
+    </g>
+   </g>
+   <g id="fconn-text_38">
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; text-anchor: start" x="285.616406" y="13.59875" transform="rotate(-0 285.616406 13.59875)">chained, variance-preserving</text>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="fconn-p84973d8cff">
+   <rect x="44.359766" y="36.92" width="211.228945" height="153.277891"/>
+  </clipPath>
+  <clipPath id="fconn-p79d8faeea0">
+   <rect x="305.248711" y="36.92" width="211.228945" height="153.277891"/>
+  </clipPath>
+ </defs>
+</svg>
+
+      <figcaption>Test loss at 1&ndash;8 passes for models trained with 3 passes (gray line). <strong>Left:</strong> trained with IS. <strong>Right:</strong> trained with a loss on the last pass only. Off the chart there: anchored 2.47 and 1.89 at passes 1&ndash;2; chained 2.06 at pass 1; variance-preserving 2.43 at pass 1, 1.52 at pass 7 and 1.77 at pass 8.</figcaption>
+    </figure>
+
+    <div class="table-wrap"><table>
+      <tr><th>connection</th><th class="num">1 pass</th><th class="num">3 passes</th><th class="num">6 passes</th><th></th><th class="num">1 pass</th><th class="num">3 passes</th><th class="num">6 passes</th></tr>
+      <tr><td></td><td colspan="3" class="num dim" style="text-align:center">last pass only</td><td></td><td colspan="3" class="num dim" style="text-align:center">every pass (IS)</td></tr>
+      <tr><td>anchored, gate 0, 1&times;</td><td class="num">2.504</td><td class="num">1.1172</td><td class="num">1.155</td><td></td><td class="num">1.194</td><td class="num">1.1185</td><td class="num">1.130</td></tr>
+      <tr><td>anchored, gate 0, 5&times;</td><td class="num">2.474</td><td class="num">1.1176</td><td class="num">1.158</td><td></td><td class="num">1.195</td><td class="num">1.1178</td><td class="num">1.130</td></tr>
+      <tr><td>chained, gate 0, 5&times;</td><td class="num">2.063</td><td class="num">1.1198</td><td class="num">1.274</td><td></td><td class="num">1.201</td><td class="num">1.1236</td><td class="num">1.154</td></tr>
+      <tr><td>chained, gate 0.3, 1&times;</td><td class="num">2.094</td><td class="num">1.1194</td><td class="num">1.238</td><td></td><td class="num">1.204</td><td class="num">1.1225</td><td class="num">1.148</td></tr>
+      <tr><td>chained, low-rank &middot; state, 0.3, 1&times;</td><td class="num">2.112</td><td class="num">1.1210</td><td class="num">1.188</td><td></td><td class="num">1.202</td><td class="num">1.1220</td><td class="num">1.135</td></tr>
+      <tr><td>chained, low-rank &middot; state, no sigmoid, 0, 5&times;</td><td class="num">2.260</td><td class="num">1.1195</td><td class="num">1.189</td><td></td><td class="num">1.202</td><td class="num">1.1226</td><td class="num">1.133</td></tr>
+    </table></div>
+
+    <p>IS takes one pass from 2.0&ndash;2.5 down to about 1.2. For the anchored form it is nearly free at three passes (+0.0002 at 5&times; gate LR), and it flattens the zigzag beyond. For the chained forms it costs 0.003&ndash;0.004 at three passes. The real price is time: in our implementation, the extra exits make each step 52% slower (4.8 s &rarr; 7.2 s, against 2.6 s for the plain model).</p>
+
+    <p>From here on, every model is anchored, with gate start 0, 5&times; gate LR and IS.</p>
+
+    <h2 id="passes">How many passes</h2>
+
+    <figure>
+      <svg id="fpasses" role="img" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 394.639766 203.960703" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-11-17T01:17:16.763446</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.11.1, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="fpasses-figure_1">
+  <g id="fpasses-patch_1">
+   <path d="M 0 203.960703 
+L 394.639766 203.960703 
+L 394.639766 0 
+L 0 0 
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="fpasses-axes_1">
+   <g id="fpasses-patch_2">
+    <path d="M 44.359766 170.64 
+L 390.319766 170.64 
+L 390.319766 4.32 
+L 44.359766 4.32 
+z
+" style="fill: #ffffff"/>
+   </g>
+   <g id="fpasses-matplotlib.axis_1">
+    <g id="fpasses-xtick_1">
+     <g id="fpasses-line2d_1">
+      <path d="M 60.08522 170.64 
+L 60.08522 4.32 
+" clip-path="url(#fpasses-pcc058e433f)" style="fill: none; stroke: #eeeeee; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="fpasses-line2d_2">
+      <defs>
+       <path id="fpasses-mc655a7617e" d="M 0 0 
+L 0 3.5 
+" style="stroke: #555555; stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#fpasses-mc655a7617e" x="60.08522" y="170.64" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="fpasses-text_1">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #555555" x="60.08522" y="184.477891" transform="rotate(-0 60.08522 184.477891)">1</text>
+     </g>
+    </g>
+    <g id="fpasses-xtick_2">
+     <g id="fpasses-line2d_3">
+      <path d="M 105.01509 170.64 
+L 105.01509 4.32 
+" clip-path="url(#fpasses-pcc058e433f)" style="fill: none; stroke: #eeeeee; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="fpasses-line2d_4">
+      <g>
+       <use xlink:href="#fpasses-mc655a7617e" x="105.01509" y="170.64" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="fpasses-text_2">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #555555" x="105.01509" y="184.477891" transform="rotate(-0 105.01509 184.477891)">2</text>
+     </g>
+    </g>
+    <g id="fpasses-xtick_3">
+     <g id="fpasses-line2d_5">
+      <path d="M 149.94496 170.64 
+L 149.94496 4.32 
+" clip-path="url(#fpasses-pcc058e433f)" style="fill: none; stroke: #eeeeee; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="fpasses-line2d_6">
+      <g>
+       <use xlink:href="#fpasses-mc655a7617e" x="149.94496" y="170.64" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="fpasses-text_3">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #555555" x="149.94496" y="184.477891" transform="rotate(-0 149.94496 184.477891)">3</text>
+     </g>
+    </g>
+    <g id="fpasses-xtick_4">
+     <g id="fpasses-line2d_7">
+      <path d="M 194.874831 170.64 
+L 194.874831 4.32 
+" clip-path="url(#fpasses-pcc058e433f)" style="fill: none; stroke: #eeeeee; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="fpasses-line2d_8">
+      <g>
+       <use xlink:href="#fpasses-mc655a7617e" x="194.874831" y="170.64" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="fpasses-text_4">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #555555" x="194.874831" y="184.477891" transform="rotate(-0 194.874831 184.477891)">4</text>
+     </g>
+    </g>
+    <g id="fpasses-xtick_5">
+     <g id="fpasses-line2d_9">
+      <path d="M 239.804701 170.64 
+L 239.804701 4.32 
+" clip-path="url(#fpasses-pcc058e433f)" style="fill: none; stroke: #eeeeee; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="fpasses-line2d_10">
+      <g>
+       <use xlink:href="#fpasses-mc655a7617e" x="239.804701" y="170.64" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="fpasses-text_5">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #555555" x="239.804701" y="184.477891" transform="rotate(-0 239.804701 184.477891)">5</text>
+     </g>
+    </g>
+    <g id="fpasses-xtick_6">
+     <g id="fpasses-line2d_11">
+      <path d="M 284.734571 170.64 
+L 284.734571 4.32 
+" clip-path="url(#fpasses-pcc058e433f)" style="fill: none; stroke: #eeeeee; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="fpasses-line2d_12">
+      <g>
+       <use xlink:href="#fpasses-mc655a7617e" x="284.734571" y="170.64" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="fpasses-text_6">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #555555" x="284.734571" y="184.477891" transform="rotate(-0 284.734571 184.477891)">6</text>
+     </g>
+    </g>
+    <g id="fpasses-xtick_7">
+     <g id="fpasses-line2d_13">
+      <path d="M 329.664441 170.64 
+L 329.664441 4.32 
+" clip-path="url(#fpasses-pcc058e433f)" style="fill: none; stroke: #eeeeee; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="fpasses-line2d_14">
+      <g>
+       <use xlink:href="#fpasses-mc655a7617e" x="329.664441" y="170.64" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="fpasses-text_7">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #555555" x="329.664441" y="184.477891" transform="rotate(-0 329.664441 184.477891)">7</text>
+     </g>
+    </g>
+    <g id="fpasses-xtick_8">
+     <g id="fpasses-line2d_15">
+      <path d="M 374.594311 170.64 
+L 374.594311 4.32 
+" clip-path="url(#fpasses-pcc058e433f)" style="fill: none; stroke: #eeeeee; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="fpasses-line2d_16">
+      <g>
+       <use xlink:href="#fpasses-mc655a7617e" x="374.594311" y="170.64" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="fpasses-text_8">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #555555" x="374.594311" y="184.477891" transform="rotate(-0 374.594311 184.477891)">8</text>
+     </g>
+    </g>
+    <g id="fpasses-text_9">
+     <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #333333" x="217.339766" y="197.478594" transform="rotate(-0 217.339766 197.478594)">passes through the block at test time</text>
+    </g>
+   </g>
+   <g id="fpasses-matplotlib.axis_2">
+    <g id="fpasses-ytick_1">
+     <g id="fpasses-line2d_17">
+      <path d="M 44.359766 154.8 
+L 390.319766 154.8 
+" clip-path="url(#fpasses-pcc058e433f)" style="fill: none; stroke: #eeeeee; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="fpasses-line2d_18">
+      <defs>
+       <path id="fpasses-mc813492c5b" d="M 0 0 
+L -3.5 0 
+" style="stroke: #555555; stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#fpasses-mc813492c5b" x="44.359766" y="154.8" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="fpasses-text_10">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #555555" x="37.359766" y="158.218945" transform="rotate(-0 37.359766 158.218945)">1.12</text>
+     </g>
+    </g>
+    <g id="fpasses-ytick_2">
+     <g id="fpasses-line2d_19">
+      <path d="M 44.359766 123.12 
+L 390.319766 123.12 
+" clip-path="url(#fpasses-pcc058e433f)" style="fill: none; stroke: #eeeeee; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="fpasses-line2d_20">
+      <g>
+       <use xlink:href="#fpasses-mc813492c5b" x="44.359766" y="123.12" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="fpasses-text_11">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #555555" x="37.359766" y="126.538945" transform="rotate(-0 37.359766 126.538945)">1.14</text>
+     </g>
+    </g>
+    <g id="fpasses-ytick_3">
+     <g id="fpasses-line2d_21">
+      <path d="M 44.359766 91.44 
+L 390.319766 91.44 
+" clip-path="url(#fpasses-pcc058e433f)" style="fill: none; stroke: #eeeeee; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="fpasses-line2d_22">
+      <g>
+       <use xlink:href="#fpasses-mc813492c5b" x="44.359766" y="91.44" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="fpasses-text_12">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #555555" x="37.359766" y="94.858945" transform="rotate(-0 37.359766 94.858945)">1.16</text>
+     </g>
+    </g>
+    <g id="fpasses-ytick_4">
+     <g id="fpasses-line2d_23">
+      <path d="M 44.359766 59.76 
+L 390.319766 59.76 
+" clip-path="url(#fpasses-pcc058e433f)" style="fill: none; stroke: #eeeeee; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="fpasses-line2d_24">
+      <g>
+       <use xlink:href="#fpasses-mc813492c5b" x="44.359766" y="59.76" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="fpasses-text_13">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #555555" x="37.359766" y="63.178945" transform="rotate(-0 37.359766 63.178945)">1.18</text>
+     </g>
+    </g>
+    <g id="fpasses-ytick_5">
+     <g id="fpasses-line2d_25">
+      <path d="M 44.359766 28.08 
+L 390.319766 28.08 
+" clip-path="url(#fpasses-pcc058e433f)" style="fill: none; stroke: #eeeeee; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="fpasses-line2d_26">
+      <g>
+       <use xlink:href="#fpasses-mc813492c5b" x="44.359766" y="28.08" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="fpasses-text_14">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #555555" x="37.359766" y="31.498945" transform="rotate(-0 37.359766 31.498945)">1.20</text>
+     </g>
+    </g>
+    <g id="fpasses-text_15">
+     <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #333333" x="11.158594" y="87.48" transform="rotate(-90 11.158594 87.48)">test loss</text>
+    </g>
+   </g>
+   <g id="fpasses-line2d_27">
+    <path d="M 44.359766 113.616 
+L 390.319766 113.616 
+" clip-path="url(#fpasses-pcc058e433f)" style="fill: none; stroke-dasharray: 3.7,1.6; stroke-dashoffset: 0; stroke: #9a9a9a"/>
+   </g>
+   <g id="fpasses-line2d_28">
+    <path d="M 60.08522 54.6912 
+L 105.01509 148.1472 
+L 149.94496 139.752 
+L 194.874831 133.7328 
+L 239.804701 128.1888 
+L 284.734571 125.1792 
+L 329.664441 123.2784 
+L 374.594311 122.0112 
+" clip-path="url(#fpasses-pcc058e433f)" style="fill: none; stroke: #d9822b; stroke-width: 1.6; stroke-linecap: square"/>
+    <defs>
+     <path id="fpasses-mf51ca2ebb4" d="M 0 1.6 
+C 0.424325 1.6 0.831328 1.431414 1.131371 1.131371 
+C 1.431414 0.831328 1.6 0.424325 1.6 0 
+C 1.6 -0.424325 1.431414 -0.831328 1.131371 -1.131371 
+C 0.831328 -1.431414 0.424325 -1.6 0 -1.6 
+C -0.424325 -1.6 -0.831328 -1.431414 -1.131371 -1.131371 
+C -1.431414 -0.831328 -1.6 -0.424325 -1.6 0 
+C -1.6 0.424325 -1.431414 0.831328 -1.131371 1.131371 
+C -0.831328 1.431414 -0.424325 1.6 0 1.6 
+z
+" style="stroke: #d9822b"/>
+    </defs>
+    <g clip-path="url(#fpasses-pcc058e433f)">
+     <use xlink:href="#fpasses-mf51ca2ebb4" x="60.08522" y="54.6912" style="fill: #d9822b; stroke: #d9822b"/>
+     <use xlink:href="#fpasses-mf51ca2ebb4" x="105.01509" y="148.1472" style="fill: #d9822b; stroke: #d9822b"/>
+     <use xlink:href="#fpasses-mf51ca2ebb4" x="149.94496" y="139.752" style="fill: #d9822b; stroke: #d9822b"/>
+     <use xlink:href="#fpasses-mf51ca2ebb4" x="194.874831" y="133.7328" style="fill: #d9822b; stroke: #d9822b"/>
+     <use xlink:href="#fpasses-mf51ca2ebb4" x="239.804701" y="128.1888" style="fill: #d9822b; stroke: #d9822b"/>
+     <use xlink:href="#fpasses-mf51ca2ebb4" x="284.734571" y="125.1792" style="fill: #d9822b; stroke: #d9822b"/>
+     <use xlink:href="#fpasses-mf51ca2ebb4" x="329.664441" y="123.2784" style="fill: #d9822b; stroke: #d9822b"/>
+     <use xlink:href="#fpasses-mf51ca2ebb4" x="374.594311" y="122.0112" style="fill: #d9822b; stroke: #d9822b"/>
+    </g>
+   </g>
+   <g id="fpasses-line2d_29">
+    <path d="M 105.01509 148.1472 
+" clip-path="url(#fpasses-pcc058e433f)" style="fill: none; stroke: #1f77b4; stroke-width: 1.5; stroke-linecap: square"/>
+    <defs>
+     <path id="fpasses-m75b098fdc3" d="M 0 3.75 
+C 0.994512 3.75 1.948425 3.354876 2.65165 2.65165 
+C 3.354876 1.948425 3.75 0.994512 3.75 0 
+C 3.75 -0.994512 3.354876 -1.948425 2.65165 -2.65165 
+C 1.948425 -3.354876 0.994512 -3.75 0 -3.75 
+C -0.994512 -3.75 -1.948425 -3.354876 -2.65165 -2.65165 
+C -3.354876 -1.948425 -3.75 -0.994512 -3.75 0 
+C -3.75 0.994512 -3.354876 1.948425 -2.65165 2.65165 
+C -1.948425 3.354876 -0.994512 3.75 0 3.75 
+z
+" style="stroke: #d9822b; stroke-width: 2"/>
+    </defs>
+    <g clip-path="url(#fpasses-pcc058e433f)">
+     <use xlink:href="#fpasses-m75b098fdc3" x="105.01509" y="148.1472" style="fill: #ffffff; stroke: #d9822b; stroke-width: 2"/>
+    </g>
+   </g>
+   <g id="fpasses-line2d_30">
+    <path d="M 60.08522 35.6832 
+L 105.01509 111.8736 
+L 149.94496 158.2848 
+L 194.874831 139.9104 
+L 239.804701 150.6816 
+L 284.734571 138.96 
+L 329.664441 144.8208 
+L 374.594311 137.6928 
+" clip-path="url(#fpasses-pcc058e433f)" style="fill: none; stroke: #2f63ae; stroke-width: 1.6; stroke-linecap: square"/>
+    <defs>
+     <path id="fpasses-m30f8381db3" d="M 0 1.6 
+C 0.424325 1.6 0.831328 1.431414 1.131371 1.131371 
+C 1.431414 0.831328 1.6 0.424325 1.6 0 
+C 1.6 -0.424325 1.431414 -0.831328 1.131371 -1.131371 
+C 0.831328 -1.431414 0.424325 -1.6 0 -1.6 
+C -0.424325 -1.6 -0.831328 -1.431414 -1.131371 -1.131371 
+C -1.431414 -0.831328 -1.6 -0.424325 -1.6 0 
+C -1.6 0.424325 -1.431414 0.831328 -1.131371 1.131371 
+C -0.831328 1.431414 -0.424325 1.6 0 1.6 
+z
+" style="stroke: #2f63ae"/>
+    </defs>
+    <g clip-path="url(#fpasses-pcc058e433f)">
+     <use xlink:href="#fpasses-m30f8381db3" x="60.08522" y="35.6832" style="fill: #2f63ae; stroke: #2f63ae"/>
+     <use xlink:href="#fpasses-m30f8381db3" x="105.01509" y="111.8736" style="fill: #2f63ae; stroke: #2f63ae"/>
+     <use xlink:href="#fpasses-m30f8381db3" x="149.94496" y="158.2848" style="fill: #2f63ae; stroke: #2f63ae"/>
+     <use xlink:href="#fpasses-m30f8381db3" x="194.874831" y="139.9104" style="fill: #2f63ae; stroke: #2f63ae"/>
+     <use xlink:href="#fpasses-m30f8381db3" x="239.804701" y="150.6816" style="fill: #2f63ae; stroke: #2f63ae"/>
+     <use xlink:href="#fpasses-m30f8381db3" x="284.734571" y="138.96" style="fill: #2f63ae; stroke: #2f63ae"/>
+     <use xlink:href="#fpasses-m30f8381db3" x="329.664441" y="144.8208" style="fill: #2f63ae; stroke: #2f63ae"/>
+     <use xlink:href="#fpasses-m30f8381db3" x="374.594311" y="137.6928" style="fill: #2f63ae; stroke: #2f63ae"/>
+    </g>
+   </g>
+   <g id="fpasses-line2d_31">
+    <path d="M 149.94496 158.2848 
+" clip-path="url(#fpasses-pcc058e433f)" style="fill: none; stroke: #ff7f0e; stroke-width: 1.5; stroke-linecap: square"/>
+    <defs>
+     <path id="fpasses-mac1646412b" d="M 0 3.75 
+C 0.994512 3.75 1.948425 3.354876 2.65165 2.65165 
+C 3.354876 1.948425 3.75 0.994512 3.75 0 
+C 3.75 -0.994512 3.354876 -1.948425 2.65165 -2.65165 
+C 1.948425 -3.354876 0.994512 -3.75 0 -3.75 
+C -0.994512 -3.75 -1.948425 -3.354876 -2.65165 -2.65165 
+C -3.354876 -1.948425 -3.75 -0.994512 -3.75 0 
+C -3.75 0.994512 -3.354876 1.948425 -2.65165 2.65165 
+C -1.948425 3.354876 -0.994512 3.75 0 3.75 
+z
+" style="stroke: #2f63ae; stroke-width: 2"/>
+    </defs>
+    <g clip-path="url(#fpasses-pcc058e433f)">
+     <use xlink:href="#fpasses-mac1646412b" x="149.94496" y="158.2848" style="fill: #ffffff; stroke: #2f63ae; stroke-width: 2"/>
+    </g>
+   </g>
+   <g id="fpasses-line2d_32">
+    <path d="M 60.08522 23.9616 
+L 105.01509 106.8048 
+L 149.94496 120.1104 
+L 194.874831 155.592 
+L 239.804701 137.5344 
+L 284.734571 129.1392 
+L 329.664441 152.424 
+L 374.594311 137.6928 
+" clip-path="url(#fpasses-pcc058e433f)" style="fill: none; stroke: #3c8d5a; stroke-width: 1.6; stroke-linecap: square"/>
+    <defs>
+     <path id="fpasses-m9af6e03402" d="M 0 1.6 
+C 0.424325 1.6 0.831328 1.431414 1.131371 1.131371 
+C 1.431414 0.831328 1.6 0.424325 1.6 0 
+C 1.6 -0.424325 1.431414 -0.831328 1.131371 -1.131371 
+C 0.831328 -1.431414 0.424325 -1.6 0 -1.6 
+C -0.424325 -1.6 -0.831328 -1.431414 -1.131371 -1.131371 
+C -1.431414 -0.831328 -1.6 -0.424325 -1.6 0 
+C -1.6 0.424325 -1.431414 0.831328 -1.131371 1.131371 
+C -0.831328 1.431414 -0.424325 1.6 0 1.6 
+z
+" style="stroke: #3c8d5a"/>
+    </defs>
+    <g clip-path="url(#fpasses-pcc058e433f)">
+     <use xlink:href="#fpasses-m9af6e03402" x="60.08522" y="23.9616" style="fill: #3c8d5a; stroke: #3c8d5a"/>
+     <use xlink:href="#fpasses-m9af6e03402" x="105.01509" y="106.8048" style="fill: #3c8d5a; stroke: #3c8d5a"/>
+     <use xlink:href="#fpasses-m9af6e03402" x="149.94496" y="120.1104" style="fill: #3c8d5a; stroke: #3c8d5a"/>
+     <use xlink:href="#fpasses-m9af6e03402" x="194.874831" y="155.592" style="fill: #3c8d5a; stroke: #3c8d5a"/>
+     <use xlink:href="#fpasses-m9af6e03402" x="239.804701" y="137.5344" style="fill: #3c8d5a; stroke: #3c8d5a"/>
+     <use xlink:href="#fpasses-m9af6e03402" x="284.734571" y="129.1392" style="fill: #3c8d5a; stroke: #3c8d5a"/>
+     <use xlink:href="#fpasses-m9af6e03402" x="329.664441" y="152.424" style="fill: #3c8d5a; stroke: #3c8d5a"/>
+     <use xlink:href="#fpasses-m9af6e03402" x="374.594311" y="137.6928" style="fill: #3c8d5a; stroke: #3c8d5a"/>
+    </g>
+   </g>
+   <g id="fpasses-line2d_33">
+    <path d="M 194.874831 155.592 
+" clip-path="url(#fpasses-pcc058e433f)" style="fill: none; stroke: #2ca02c; stroke-width: 1.5; stroke-linecap: square"/>
+    <defs>
+     <path id="fpasses-mb2aaea94bf" d="M 0 3.75 
+C 0.994512 3.75 1.948425 3.354876 2.65165 2.65165 
+C 3.354876 1.948425 3.75 0.994512 3.75 0 
+C 3.75 -0.994512 3.354876 -1.948425 2.65165 -2.65165 
+C 1.948425 -3.354876 0.994512 -3.75 0 -3.75 
+C -0.994512 -3.75 -1.948425 -3.354876 -2.65165 -2.65165 
+C -3.354876 -1.948425 -3.75 -0.994512 -3.75 0 
+C -3.75 0.994512 -3.354876 1.948425 -2.65165 2.65165 
+C -1.948425 3.354876 -0.994512 3.75 0 3.75 
+z
+" style="stroke: #3c8d5a; stroke-width: 2"/>
+    </defs>
+    <g clip-path="url(#fpasses-pcc058e433f)">
+     <use xlink:href="#fpasses-mb2aaea94bf" x="194.874831" y="155.592" style="fill: #ffffff; stroke: #3c8d5a; stroke-width: 2"/>
+    </g>
+   </g>
+   <g id="fpasses-line2d_34">
+    <path d="M 60.08522 10.9728 
+L 105.01509 105.3792 
+L 149.94496 120.5856 
+L 194.874831 122.328 
+L 239.804701 150.9984 
+L 284.734571 136.4256 
+L 329.664441 122.9616 
+L 374.594311 143.5536 
+" clip-path="url(#fpasses-pcc058e433f)" style="fill: none; stroke: #8e5ba8; stroke-width: 1.6; stroke-linecap: square"/>
+    <defs>
+     <path id="fpasses-mdf3f33ad12" d="M 0 1.6 
+C 0.424325 1.6 0.831328 1.431414 1.131371 1.131371 
+C 1.431414 0.831328 1.6 0.424325 1.6 0 
+C 1.6 -0.424325 1.431414 -0.831328 1.131371 -1.131371 
+C 0.831328 -1.431414 0.424325 -1.6 0 -1.6 
+C -0.424325 -1.6 -0.831328 -1.431414 -1.131371 -1.131371 
+C -1.431414 -0.831328 -1.6 -0.424325 -1.6 0 
+C -1.6 0.424325 -1.431414 0.831328 -1.131371 1.131371 
+C -0.831328 1.431414 -0.424325 1.6 0 1.6 
+z
+" style="stroke: #8e5ba8"/>
+    </defs>
+    <g clip-path="url(#fpasses-pcc058e433f)">
+     <use xlink:href="#fpasses-mdf3f33ad12" x="60.08522" y="10.9728" style="fill: #8e5ba8; stroke: #8e5ba8"/>
+     <use xlink:href="#fpasses-mdf3f33ad12" x="105.01509" y="105.3792" style="fill: #8e5ba8; stroke: #8e5ba8"/>
+     <use xlink:href="#fpasses-mdf3f33ad12" x="149.94496" y="120.5856" style="fill: #8e5ba8; stroke: #8e5ba8"/>
+     <use xlink:href="#fpasses-mdf3f33ad12" x="194.874831" y="122.328" style="fill: #8e5ba8; stroke: #8e5ba8"/>
+     <use xlink:href="#fpasses-mdf3f33ad12" x="239.804701" y="150.9984" style="fill: #8e5ba8; stroke: #8e5ba8"/>
+     <use xlink:href="#fpasses-mdf3f33ad12" x="284.734571" y="136.4256" style="fill: #8e5ba8; stroke: #8e5ba8"/>
+     <use xlink:href="#fpasses-mdf3f33ad12" x="329.664441" y="122.9616" style="fill: #8e5ba8; stroke: #8e5ba8"/>
+     <use xlink:href="#fpasses-mdf3f33ad12" x="374.594311" y="143.5536" style="fill: #8e5ba8; stroke: #8e5ba8"/>
+    </g>
+   </g>
+   <g id="fpasses-line2d_35">
+    <path d="M 239.804701 150.9984 
+" clip-path="url(#fpasses-pcc058e433f)" style="fill: none; stroke: #d62728; stroke-width: 1.5; stroke-linecap: square"/>
+    <defs>
+     <path id="fpasses-ma6fce0c007" d="M 0 3.75 
+C 0.994512 3.75 1.948425 3.354876 2.65165 2.65165 
+C 3.354876 1.948425 3.75 0.994512 3.75 0 
+C 3.75 -0.994512 3.354876 -1.948425 2.65165 -2.65165 
+C 1.948425 -3.354876 0.994512 -3.75 0 -3.75 
+C -0.994512 -3.75 -1.948425 -3.354876 -2.65165 -2.65165 
+C -3.354876 -1.948425 -3.75 -0.994512 -3.75 0 
+C -3.75 0.994512 -3.354876 1.948425 -2.65165 2.65165 
+C -1.948425 3.354876 -0.994512 3.75 0 3.75 
+z
+" style="stroke: #8e5ba8; stroke-width: 2"/>
+    </defs>
+    <g clip-path="url(#fpasses-pcc058e433f)">
+     <use xlink:href="#fpasses-ma6fce0c007" x="239.804701" y="150.9984" style="fill: #ffffff; stroke: #8e5ba8; stroke-width: 2"/>
+    </g>
+   </g>
+   <g id="fpasses-patch_3">
+    <path d="M 44.359766 170.64 
+L 44.359766 4.32 
+" style="fill: none; stroke: #888888; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="fpasses-patch_4">
+    <path d="M 44.359766 170.64 
+L 390.319766 170.64 
+" style="fill: none; stroke: #888888; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="fpasses-text_16">
+    <text style="font-size: 8.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #9a9a9a" x="62.331714" y="109.198008" transform="rotate(-0 62.331714 109.198008)">no loop</text>
+   </g>
+   <g id="fpasses-legend_1">
+    <g id="fpasses-line2d_36">
+     <path d="M 150.887266 14.79875 
+L 158.887266 14.79875 
+L 166.887266 14.79875 
+" style="fill: none; stroke: #d9822b; stroke-width: 1.6; stroke-linecap: square"/>
+     <g>
+      <use xlink:href="#fpasses-mf51ca2ebb4" x="158.887266" y="14.79875" style="fill: #d9822b; stroke: #d9822b"/>
+     </g>
+    </g>
+    <g id="fpasses-text_17">
+     <text style="font-size: 8px; font-family: 'DejaVu Sans'; text-anchor: start" x="173.287266" y="17.59875" transform="rotate(-0 173.287266 17.59875)">trained with 2 passes</text>
+    </g>
+    <g id="fpasses-line2d_37">
+     <path d="M 150.887266 26.799375 
+L 158.887266 26.799375 
+L 166.887266 26.799375 
+" style="fill: none; stroke: #2f63ae; stroke-width: 1.6; stroke-linecap: square"/>
+     <g>
+      <use xlink:href="#fpasses-m30f8381db3" x="158.887266" y="26.799375" style="fill: #2f63ae; stroke: #2f63ae"/>
+     </g>
+    </g>
+    <g id="fpasses-text_18">
+     <text style="font-size: 8px; font-family: 'DejaVu Sans'; text-anchor: start" x="173.287266" y="29.599375" transform="rotate(-0 173.287266 29.599375)">trained with 3 passes</text>
+    </g>
+    <g id="fpasses-line2d_38">
+     <path d="M 275.003516 14.79875 
+L 283.003516 14.79875 
+L 291.003516 14.79875 
+" style="fill: none; stroke: #3c8d5a; stroke-width: 1.6; stroke-linecap: square"/>
+     <g>
+      <use xlink:href="#fpasses-m9af6e03402" x="283.003516" y="14.79875" style="fill: #3c8d5a; stroke: #3c8d5a"/>
+     </g>
+    </g>
+    <g id="fpasses-text_19">
+     <text style="font-size: 8px; font-family: 'DejaVu Sans'; text-anchor: start" x="297.403516" y="17.59875" transform="rotate(-0 297.403516 17.59875)">trained with 4 passes</text>
+    </g>
+    <g id="fpasses-line2d_39">
+     <path d="M 275.003516 26.799375 
+L 283.003516 26.799375 
+L 291.003516 26.799375 
+" style="fill: none; stroke: #8e5ba8; stroke-width: 1.6; stroke-linecap: square"/>
+     <g>
+      <use xlink:href="#fpasses-mdf3f33ad12" x="283.003516" y="26.799375" style="fill: #8e5ba8; stroke: #8e5ba8"/>
+     </g>
+    </g>
+    <g id="fpasses-text_20">
+     <text style="font-size: 8px; font-family: 'DejaVu Sans'; text-anchor: start" x="297.403516" y="29.599375" transform="rotate(-0 297.403516 29.599375)">trained with 5 passes</text>
+    </g>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="fpasses-pcc058e433f">
+   <rect x="44.359766" y="4.32" width="345.96" height="166.32"/>
+  </clipPath>
+ </defs>
+</svg>
+
+      <figcaption>Each model trained with a fixed number of passes (open circle), evaluated at 1&ndash;8 passes.</figcaption>
+    </figure>
+
+    <div class="table-wrap"><table>
+      <tr><th>passes during training</th><th class="num">1 (plain)</th><th class="num">2</th><th class="num">3</th><th class="num">4</th><th class="num">5</th></tr>
+      <tr><td>test loss at that depth</td><td class="num">1.1460</td><td class="num">1.1242</td><td class="num">1.1178 &middot; 1.1176 &middot; 1.1183</td><td class="num">1.1195 &middot; 1.1180</td><td class="num">1.1224</td></tr>
+      <tr><td>layer applications per token</td><td class="num">28</td><td class="num">40</td><td class="num">52</td><td class="num">64</td><td class="num">76</td></tr>
+    </table></div>
+    <p class="tabnote">Values separated by dots are independent runs (repeat with the same seed, or a different seed).</p>
+
+    <p>Every model is best at exactly the depth it was trained with, and gets worse in both directions. Past that depth the pattern depends on $K$: with $K=2$ the loss rises steadily, with $K=3$ it zigzags every other pass, and with $K=4$ and $5$ it zigzags roughly every third pass.</p>
+
+    <p>Three and four passes are tied within seed noise. Five is worse than three on the same recipe; it may need more tokens or a different LR, and we did not tune for it.</p>
+
+    <h2 id="random">Random depth</h2>
+
+    <figure>
+      <svg id="fsample" role="img" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 394.639766 196.291648" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-11-17T01:17:17.081955</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.11.1, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="fsample-figure_1">
+  <g id="fsample-patch_1">
+   <path d="M 0 196.291648 
+L 394.639766 196.291648 
+L 394.639766 0 
+L 0 0 
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="fsample-axes_1">
+   <g id="fsample-patch_2">
+    <path d="M 44.359766 162.970945 
+L 390.319766 162.970945 
+L 390.319766 7.738945 
+L 44.359766 7.738945 
+z
+" style="fill: #ffffff"/>
+   </g>
+   <g id="fsample-line2d_1">
+    <path d="M 149.94496 162.970945 
+L 149.94496 7.738945 
+" clip-path="url(#fsample-pdfb29fb408)" style="fill: none; stroke: #cccccc; stroke-linecap: square"/>
+   </g>
+   <g id="fsample-matplotlib.axis_1">
+    <g id="fsample-xtick_1">
+     <g id="fsample-line2d_2">
+      <path d="M 60.08522 162.970945 
+L 60.08522 7.738945 
+" clip-path="url(#fsample-pdfb29fb408)" style="fill: none; stroke: #eeeeee; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="fsample-line2d_3">
+      <defs>
+       <path id="fsample-madeb82dc53" d="M 0 0 
+L 0 3.5 
+" style="stroke: #555555; stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#fsample-madeb82dc53" x="60.08522" y="162.970945" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="fsample-text_1">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #555555" x="60.08522" y="176.808836" transform="rotate(-0 60.08522 176.808836)">1</text>
+     </g>
+    </g>
+    <g id="fsample-xtick_2">
+     <g id="fsample-line2d_4">
+      <path d="M 105.01509 162.970945 
+L 105.01509 7.738945 
+" clip-path="url(#fsample-pdfb29fb408)" style="fill: none; stroke: #eeeeee; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="fsample-line2d_5">
+      <g>
+       <use xlink:href="#fsample-madeb82dc53" x="105.01509" y="162.970945" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="fsample-text_2">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #555555" x="105.01509" y="176.808836" transform="rotate(-0 105.01509 176.808836)">2</text>
+     </g>
+    </g>
+    <g id="fsample-xtick_3">
+     <g id="fsample-line2d_6">
+      <path d="M 149.94496 162.970945 
+L 149.94496 7.738945 
+" clip-path="url(#fsample-pdfb29fb408)" style="fill: none; stroke: #eeeeee; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="fsample-line2d_7">
+      <g>
+       <use xlink:href="#fsample-madeb82dc53" x="149.94496" y="162.970945" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="fsample-text_3">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #555555" x="149.94496" y="176.808836" transform="rotate(-0 149.94496 176.808836)">3</text>
+     </g>
+    </g>
+    <g id="fsample-xtick_4">
+     <g id="fsample-line2d_8">
+      <path d="M 194.874831 162.970945 
+L 194.874831 7.738945 
+" clip-path="url(#fsample-pdfb29fb408)" style="fill: none; stroke: #eeeeee; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="fsample-line2d_9">
+      <g>
+       <use xlink:href="#fsample-madeb82dc53" x="194.874831" y="162.970945" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="fsample-text_4">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #555555" x="194.874831" y="176.808836" transform="rotate(-0 194.874831 176.808836)">4</text>
+     </g>
+    </g>
+    <g id="fsample-xtick_5">
+     <g id="fsample-line2d_10">
+      <path d="M 239.804701 162.970945 
+L 239.804701 7.738945 
+" clip-path="url(#fsample-pdfb29fb408)" style="fill: none; stroke: #eeeeee; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="fsample-line2d_11">
+      <g>
+       <use xlink:href="#fsample-madeb82dc53" x="239.804701" y="162.970945" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="fsample-text_5">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #555555" x="239.804701" y="176.808836" transform="rotate(-0 239.804701 176.808836)">5</text>
+     </g>
+    </g>
+    <g id="fsample-xtick_6">
+     <g id="fsample-line2d_12">
+      <path d="M 284.734571 162.970945 
+L 284.734571 7.738945 
+" clip-path="url(#fsample-pdfb29fb408)" style="fill: none; stroke: #eeeeee; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="fsample-line2d_13">
+      <g>
+       <use xlink:href="#fsample-madeb82dc53" x="284.734571" y="162.970945" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="fsample-text_6">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #555555" x="284.734571" y="176.808836" transform="rotate(-0 284.734571 176.808836)">6</text>
+     </g>
+    </g>
+    <g id="fsample-xtick_7">
+     <g id="fsample-line2d_14">
+      <path d="M 329.664441 162.970945 
+L 329.664441 7.738945 
+" clip-path="url(#fsample-pdfb29fb408)" style="fill: none; stroke: #eeeeee; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="fsample-line2d_15">
+      <g>
+       <use xlink:href="#fsample-madeb82dc53" x="329.664441" y="162.970945" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="fsample-text_7">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #555555" x="329.664441" y="176.808836" transform="rotate(-0 329.664441 176.808836)">7</text>
+     </g>
+    </g>
+    <g id="fsample-xtick_8">
+     <g id="fsample-line2d_16">
+      <path d="M 374.594311 162.970945 
+L 374.594311 7.738945 
+" clip-path="url(#fsample-pdfb29fb408)" style="fill: none; stroke: #eeeeee; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="fsample-line2d_17">
+      <g>
+       <use xlink:href="#fsample-madeb82dc53" x="374.594311" y="162.970945" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="fsample-text_8">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #555555" x="374.594311" y="176.808836" transform="rotate(-0 374.594311 176.808836)">8</text>
+     </g>
+    </g>
+    <g id="fsample-text_9">
+     <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #333333" x="217.339766" y="189.809539" transform="rotate(-0 217.339766 189.809539)">passes at test time</text>
+    </g>
+   </g>
+   <g id="fsample-matplotlib.axis_2">
+    <g id="fsample-ytick_1">
+     <g id="fsample-line2d_18">
+      <path d="M 44.359766 145.722945 
+L 390.319766 145.722945 
+" clip-path="url(#fsample-pdfb29fb408)" style="fill: none; stroke: #eeeeee; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="fsample-line2d_19">
+      <defs>
+       <path id="fsample-m4bba835f13" d="M 0 0 
+L -3.5 0 
+" style="stroke: #555555; stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#fsample-m4bba835f13" x="44.359766" y="145.722945" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="fsample-text_10">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #555555" x="37.359766" y="149.141891" transform="rotate(-0 37.359766 149.141891)">1.12</text>
+     </g>
+    </g>
+    <g id="fsample-ytick_2">
+     <g id="fsample-line2d_20">
+      <path d="M 44.359766 111.226945 
+L 390.319766 111.226945 
+" clip-path="url(#fsample-pdfb29fb408)" style="fill: none; stroke: #eeeeee; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="fsample-line2d_21">
+      <g>
+       <use xlink:href="#fsample-m4bba835f13" x="44.359766" y="111.226945" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="fsample-text_11">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #555555" x="37.359766" y="114.645891" transform="rotate(-0 37.359766 114.645891)">1.14</text>
+     </g>
+    </g>
+    <g id="fsample-ytick_3">
+     <g id="fsample-line2d_22">
+      <path d="M 44.359766 76.730945 
+L 390.319766 76.730945 
+" clip-path="url(#fsample-pdfb29fb408)" style="fill: none; stroke: #eeeeee; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="fsample-line2d_23">
+      <g>
+       <use xlink:href="#fsample-m4bba835f13" x="44.359766" y="76.730945" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="fsample-text_12">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #555555" x="37.359766" y="80.149891" transform="rotate(-0 37.359766 80.149891)">1.16</text>
+     </g>
+    </g>
+    <g id="fsample-ytick_4">
+     <g id="fsample-line2d_24">
+      <path d="M 44.359766 42.234945 
+L 390.319766 42.234945 
+" clip-path="url(#fsample-pdfb29fb408)" style="fill: none; stroke: #eeeeee; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="fsample-line2d_25">
+      <g>
+       <use xlink:href="#fsample-m4bba835f13" x="44.359766" y="42.234945" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="fsample-text_13">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #555555" x="37.359766" y="45.653891" transform="rotate(-0 37.359766 45.653891)">1.18</text>
+     </g>
+    </g>
+    <g id="fsample-ytick_5">
+     <g id="fsample-line2d_26">
+      <path d="M 44.359766 7.738945 
+L 390.319766 7.738945 
+" clip-path="url(#fsample-pdfb29fb408)" style="fill: none; stroke: #eeeeee; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="fsample-line2d_27">
+      <g>
+       <use xlink:href="#fsample-m4bba835f13" x="44.359766" y="7.738945" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="fsample-text_14">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #555555" x="37.359766" y="11.157891" transform="rotate(-0 37.359766 11.157891)">1.20</text>
+     </g>
+    </g>
+    <g id="fsample-text_15">
+     <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #333333" x="11.158594" y="85.354945" transform="rotate(-90 11.158594 85.354945)">test loss</text>
+    </g>
+   </g>
+   <g id="fsample-line2d_28">
+    <path d="M 60.08522 16.017985 
+L 105.01509 98.980865 
+L 149.94496 149.517505 
+L 194.874831 129.509825 
+L 239.804701 141.238465 
+L 284.734571 128.474945 
+L 329.664441 134.856705 
+L 374.594311 127.095105 
+" clip-path="url(#fsample-pdfb29fb408)" style="fill: none; stroke: #2f63ae; stroke-width: 1.6; stroke-linecap: square"/>
+    <defs>
+     <path id="fsample-m37068c5002" d="M 0 1.6 
+C 0.424325 1.6 0.831328 1.431414 1.131371 1.131371 
+C 1.431414 0.831328 1.6 0.424325 1.6 0 
+C 1.6 -0.424325 1.431414 -0.831328 1.131371 -1.131371 
+C 0.831328 -1.431414 0.424325 -1.6 0 -1.6 
+C -0.424325 -1.6 -0.831328 -1.431414 -1.131371 -1.131371 
+C -1.431414 -0.831328 -1.6 -0.424325 -1.6 0 
+C -1.6 0.424325 -1.431414 0.831328 -1.131371 1.131371 
+C -0.831328 1.431414 -0.424325 1.6 0 1.6 
+z
+" style="stroke: #2f63ae"/>
+    </defs>
+    <g clip-path="url(#fsample-pdfb29fb408)">
+     <use xlink:href="#fsample-m37068c5002" x="60.08522" y="16.017985" style="fill: #2f63ae; stroke: #2f63ae"/>
+     <use xlink:href="#fsample-m37068c5002" x="105.01509" y="98.980865" style="fill: #2f63ae; stroke: #2f63ae"/>
+     <use xlink:href="#fsample-m37068c5002" x="149.94496" y="149.517505" style="fill: #2f63ae; stroke: #2f63ae"/>
+     <use xlink:href="#fsample-m37068c5002" x="194.874831" y="129.509825" style="fill: #2f63ae; stroke: #2f63ae"/>
+     <use xlink:href="#fsample-m37068c5002" x="239.804701" y="141.238465" style="fill: #2f63ae; stroke: #2f63ae"/>
+     <use xlink:href="#fsample-m37068c5002" x="284.734571" y="128.474945" style="fill: #2f63ae; stroke: #2f63ae"/>
+     <use xlink:href="#fsample-m37068c5002" x="329.664441" y="134.856705" style="fill: #2f63ae; stroke: #2f63ae"/>
+     <use xlink:href="#fsample-m37068c5002" x="374.594311" y="127.095105" style="fill: #2f63ae; stroke: #2f63ae"/>
+    </g>
+   </g>
+   <g id="fsample-line2d_29">
+    <path d="M 60.08522 25.676865 
+L 105.01509 124.335425 
+L 149.94496 141.755905 
+L 194.874831 142.100865 
+L 239.804701 140.548545 
+L 284.734571 139.341185 
+L 329.664441 138.478785 
+L 374.594311 137.961345 
+" clip-path="url(#fsample-pdfb29fb408)" style="fill: none; stroke: #3c8d5a; stroke-width: 1.6; stroke-linecap: square"/>
+    <defs>
+     <path id="fsample-m54c98762d1" d="M 0 1.6 
+C 0.424325 1.6 0.831328 1.431414 1.131371 1.131371 
+C 1.431414 0.831328 1.6 0.424325 1.6 0 
+C 1.6 -0.424325 1.431414 -0.831328 1.131371 -1.131371 
+C 0.831328 -1.431414 0.424325 -1.6 0 -1.6 
+C -0.424325 -1.6 -0.831328 -1.431414 -1.131371 -1.131371 
+C -1.431414 -0.831328 -1.6 -0.424325 -1.6 0 
+C -1.6 0.424325 -1.431414 0.831328 -1.131371 1.131371 
+C -0.831328 1.431414 -0.424325 1.6 0 1.6 
+z
+" style="stroke: #3c8d5a"/>
+    </defs>
+    <g clip-path="url(#fsample-pdfb29fb408)">
+     <use xlink:href="#fsample-m54c98762d1" x="60.08522" y="25.676865" style="fill: #3c8d5a; stroke: #3c8d5a"/>
+     <use xlink:href="#fsample-m54c98762d1" x="105.01509" y="124.335425" style="fill: #3c8d5a; stroke: #3c8d5a"/>
+     <use xlink:href="#fsample-m54c98762d1" x="149.94496" y="141.755905" style="fill: #3c8d5a; stroke: #3c8d5a"/>
+     <use xlink:href="#fsample-m54c98762d1" x="194.874831" y="142.100865" style="fill: #3c8d5a; stroke: #3c8d5a"/>
+     <use xlink:href="#fsample-m54c98762d1" x="239.804701" y="140.548545" style="fill: #3c8d5a; stroke: #3c8d5a"/>
+     <use xlink:href="#fsample-m54c98762d1" x="284.734571" y="139.341185" style="fill: #3c8d5a; stroke: #3c8d5a"/>
+     <use xlink:href="#fsample-m54c98762d1" x="329.664441" y="138.478785" style="fill: #3c8d5a; stroke: #3c8d5a"/>
+     <use xlink:href="#fsample-m54c98762d1" x="374.594311" y="137.961345" style="fill: #3c8d5a; stroke: #3c8d5a"/>
+    </g>
+   </g>
+   <g id="fsample-line2d_30">
+    <path d="M 60.08522 28.609025 
+L 105.01509 124.852865 
+L 149.94496 138.651265 
+L 194.874831 139.513665 
+L 239.804701 138.823745 
+L 284.734571 137.961345 
+L 329.664441 137.443905 
+L 374.594311 137.098945 
+" clip-path="url(#fsample-pdfb29fb408)" style="fill: none; stroke: #d9822b; stroke-width: 1.6; stroke-linecap: square"/>
+    <defs>
+     <path id="fsample-me5b3aae5e8" d="M 0 1.6 
+C 0.424325 1.6 0.831328 1.431414 1.131371 1.131371 
+C 1.431414 0.831328 1.6 0.424325 1.6 0 
+C 1.6 -0.424325 1.431414 -0.831328 1.131371 -1.131371 
+C 0.831328 -1.431414 0.424325 -1.6 0 -1.6 
+C -0.424325 -1.6 -0.831328 -1.431414 -1.131371 -1.131371 
+C -1.431414 -0.831328 -1.6 -0.424325 -1.6 0 
+C -1.6 0.424325 -1.431414 0.831328 -1.131371 1.131371 
+C -0.831328 1.431414 -0.424325 1.6 0 1.6 
+z
+" style="stroke: #d9822b"/>
+    </defs>
+    <g clip-path="url(#fsample-pdfb29fb408)">
+     <use xlink:href="#fsample-me5b3aae5e8" x="60.08522" y="28.609025" style="fill: #d9822b; stroke: #d9822b"/>
+     <use xlink:href="#fsample-me5b3aae5e8" x="105.01509" y="124.852865" style="fill: #d9822b; stroke: #d9822b"/>
+     <use xlink:href="#fsample-me5b3aae5e8" x="149.94496" y="138.651265" style="fill: #d9822b; stroke: #d9822b"/>
+     <use xlink:href="#fsample-me5b3aae5e8" x="194.874831" y="139.513665" style="fill: #d9822b; stroke: #d9822b"/>
+     <use xlink:href="#fsample-me5b3aae5e8" x="239.804701" y="138.823745" style="fill: #d9822b; stroke: #d9822b"/>
+     <use xlink:href="#fsample-me5b3aae5e8" x="284.734571" y="137.961345" style="fill: #d9822b; stroke: #d9822b"/>
+     <use xlink:href="#fsample-me5b3aae5e8" x="329.664441" y="137.443905" style="fill: #d9822b; stroke: #d9822b"/>
+     <use xlink:href="#fsample-me5b3aae5e8" x="374.594311" y="137.098945" style="fill: #d9822b; stroke: #d9822b"/>
+    </g>
+   </g>
+   <g id="fsample-line2d_31">
+    <path d="M 60.08522 22.227265 
+L 105.01509 118.126145 
+L 149.94496 133.476865 
+L 194.874831 135.546625 
+L 239.804701 135.374145 
+L 284.734571 135.029185 
+L 329.664441 134.684225 
+L 374.594311 134.511745 
+" clip-path="url(#fsample-pdfb29fb408)" style="fill: none; stroke: #8e5ba8; stroke-width: 1.6; stroke-linecap: square"/>
+    <defs>
+     <path id="fsample-m1ee22d81b3" d="M 0 1.6 
+C 0.424325 1.6 0.831328 1.431414 1.131371 1.131371 
+C 1.431414 0.831328 1.6 0.424325 1.6 0 
+C 1.6 -0.424325 1.431414 -0.831328 1.131371 -1.131371 
+C 0.831328 -1.431414 0.424325 -1.6 0 -1.6 
+C -0.424325 -1.6 -0.831328 -1.431414 -1.131371 -1.131371 
+C -1.431414 -0.831328 -1.6 -0.424325 -1.6 0 
+C -1.6 0.424325 -1.431414 0.831328 -1.131371 1.131371 
+C -0.831328 1.431414 -0.424325 1.6 0 1.6 
+z
+" style="stroke: #8e5ba8"/>
+    </defs>
+    <g clip-path="url(#fsample-pdfb29fb408)">
+     <use xlink:href="#fsample-m1ee22d81b3" x="60.08522" y="22.227265" style="fill: #8e5ba8; stroke: #8e5ba8"/>
+     <use xlink:href="#fsample-m1ee22d81b3" x="105.01509" y="118.126145" style="fill: #8e5ba8; stroke: #8e5ba8"/>
+     <use xlink:href="#fsample-m1ee22d81b3" x="149.94496" y="133.476865" style="fill: #8e5ba8; stroke: #8e5ba8"/>
+     <use xlink:href="#fsample-m1ee22d81b3" x="194.874831" y="135.546625" style="fill: #8e5ba8; stroke: #8e5ba8"/>
+     <use xlink:href="#fsample-m1ee22d81b3" x="239.804701" y="135.374145" style="fill: #8e5ba8; stroke: #8e5ba8"/>
+     <use xlink:href="#fsample-m1ee22d81b3" x="284.734571" y="135.029185" style="fill: #8e5ba8; stroke: #8e5ba8"/>
+     <use xlink:href="#fsample-m1ee22d81b3" x="329.664441" y="134.684225" style="fill: #8e5ba8; stroke: #8e5ba8"/>
+     <use xlink:href="#fsample-m1ee22d81b3" x="374.594311" y="134.511745" style="fill: #8e5ba8; stroke: #8e5ba8"/>
+    </g>
+   </g>
+   <g id="fsample-patch_3">
+    <path d="M 44.359766 162.970945 
+L 44.359766 7.738945 
+" style="fill: none; stroke: #888888; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="fsample-patch_4">
+    <path d="M 44.359766 162.970945 
+L 390.319766 162.970945 
+" style="fill: none; stroke: #888888; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="fsample-legend_1">
+    <g id="fsample-text_16">
+     <text style="font-size: 8px; font-family: 'DejaVu Sans'; text-anchor: start" x="274.001016" y="21.017695" transform="rotate(-0 274.001016 21.017695)">passes during training</text>
+    </g>
+    <g id="fsample-line2d_32">
+     <path d="M 254.173516 30.21832 
+L 262.173516 30.21832 
+L 270.173516 30.21832 
+" style="fill: none; stroke: #2f63ae; stroke-width: 1.6; stroke-linecap: square"/>
+     <g>
+      <use xlink:href="#fsample-m37068c5002" x="262.173516" y="30.21832" style="fill: #2f63ae; stroke: #2f63ae"/>
+     </g>
+    </g>
+    <g id="fsample-text_17">
+     <text style="font-size: 8px; font-family: 'DejaVu Sans'; text-anchor: start" x="276.573516" y="33.01832" transform="rotate(-0 276.573516 33.01832)">fixed 3</text>
+    </g>
+    <g id="fsample-line2d_33">
+     <path d="M 254.173516 42.218945 
+L 262.173516 42.218945 
+L 270.173516 42.218945 
+" style="fill: none; stroke: #3c8d5a; stroke-width: 1.6; stroke-linecap: square"/>
+     <g>
+      <use xlink:href="#fsample-m54c98762d1" x="262.173516" y="42.218945" style="fill: #3c8d5a; stroke: #3c8d5a"/>
+     </g>
+    </g>
+    <g id="fsample-text_18">
+     <text style="font-size: 8px; font-family: 'DejaVu Sans'; text-anchor: start" x="276.573516" y="45.018945" transform="rotate(-0 276.573516 45.018945)">random 2/3/4 (20/60/20%)</text>
+    </g>
+    <g id="fsample-line2d_34">
+     <path d="M 254.173516 54.21957 
+L 262.173516 54.21957 
+L 270.173516 54.21957 
+" style="fill: none; stroke: #d9822b; stroke-width: 1.6; stroke-linecap: square"/>
+     <g>
+      <use xlink:href="#fsample-me5b3aae5e8" x="262.173516" y="54.21957" style="fill: #d9822b; stroke: #d9822b"/>
+     </g>
+    </g>
+    <g id="fsample-text_19">
+     <text style="font-size: 8px; font-family: 'DejaVu Sans'; text-anchor: start" x="276.573516" y="57.01957" transform="rotate(-0 276.573516 57.01957)">random 2/3/4 (uniform)</text>
+    </g>
+    <g id="fsample-line2d_35">
+     <path d="M 254.173516 66.220195 
+L 262.173516 66.220195 
+L 270.173516 66.220195 
+" style="fill: none; stroke: #8e5ba8; stroke-width: 1.6; stroke-linecap: square"/>
+     <g>
+      <use xlink:href="#fsample-m1ee22d81b3" x="262.173516" y="66.220195" style="fill: #8e5ba8; stroke: #8e5ba8"/>
+     </g>
+    </g>
+    <g id="fsample-text_20">
+     <text style="font-size: 8px; font-family: 'DejaVu Sans'; text-anchor: start" x="276.573516" y="69.020195" transform="rotate(-0 276.573516 69.020195)">random 2-5 (uniform)</text>
+    </g>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="fsample-pdfb29fb408">
+   <rect x="44.359766" y="7.738945" width="345.96" height="155.232"/>
+  </clipPath>
+ </defs>
+</svg>
+
+      <figcaption>Training with a random number of passes each step (2, 3 or 4) versus always 3. All models are anchored with IS.</figcaption>
+    </figure>
+
+    <p>Here each training step draws its depth at random. The draw is the same on every GPU and is seeded by the step number, so a resumed run replays it exactly. IS then applies to whichever depth was drawn.</p>
+
+    <div class="table-wrap"><table>
+      <tr><th>passes during training</th><th class="num">1 pass</th><th class="num">3 passes</th><th class="num">range over 3&ndash;8</th></tr>
+      <tr><td>always 3</td><td class="num">1.195</td><td class="num best">1.1178</td><td class="num">1.1178&ndash;1.1308</td></tr>
+      <tr><td>2 / 3 / 4, equally likely</td><td class="num">1.188</td><td class="num">1.1241</td><td class="num">1.1236&ndash;1.1250</td></tr>
+      <tr><td>2 / 3 / 4, equally likely, no IS</td><td class="num">1.249</td><td class="num">1.1253</td><td class="num">1.1251&ndash;1.1279</td></tr>
+      <tr><td>2 / 3 / 4 at 20 / 60 / 20%</td><td class="num">1.190</td><td class="num">1.1223</td><td class="num">1.1221&ndash;1.1245</td></tr>
+      <tr><td>always 3 for 80% of training, then 2 / 3 / 4</td><td class="num">1.194</td><td class="num">1.1221</td><td class="num">1.1221&ndash;1.1253</td></tr>
+      <tr><td>always 3 for 90% of training, then 2 / 3 / 4</td><td class="num">1.196</td><td class="num">1.1224</td><td class="num">1.1224&ndash;1.1259</td></tr>
+      <tr><td>2 / 3 / 4 / 5, equally likely</td><td class="num">1.192</td><td class="num">1.1271</td><td class="num">1.1259&ndash;1.1271</td></tr>
+      <tr><td>chained, 2 / 3 / 4, equally likely</td><td class="num">1.196</td><td class="num">1.1275</td><td class="num">1.1275&ndash;1.1352</td></tr>
+    </table></div>
+
+    <p>With random depth, the loss stays flat from three to eight passes. The cost is 0.004&ndash;0.006 at three passes:</p>
+    <ul>
+      <li><strong>Weighting the draw toward 3</strong> roughly halves that cost.</li>
+      <li><strong>Switching late</strong>, for the last 20% of training only, gives the same result as sampling from the start, so flexibility can be added at the end.</li>
+      <li><strong>A wider range (up to 5)</strong> is worse everywhere.</li>
+      <li><strong>The chained form still drifts</strong>, even with random depth.</li>
+      <li><strong>IS matters less here</strong> at three passes (0.001), but one pass still needs it.</li>
+    </ul>
+
+    <h2 id="vectors">Depth recurrent vectors</h2>
+
+    <p>Call $v = \theta_\text{loop} - \theta_\text{base}$ the <strong>depth recurrent vector</strong> of a run. If looping lived in a direction of weight space, we could move it around: add it to another model, scale it, or average it. We wrote a small tool to do arithmetic on checkpoints and scored every result on the same test set.</p>
+
+    <p>A few sizes for scale, all relative to $\lVert\theta_\text{base}\rVert$:</p>
+    <ul>
+      <li>$\lVert v\rVert$ is 23%, about the same as for the plain run (22.6%).</li>
+      <li>A looped run and its exact repeat end 15.5% apart.</li>
+      <li>The looped and plain runs end 17.5% apart.</li>
+    </ul>
+
+    <h3>Averaging is free</h3>
+    <div class="table-wrap"><table>
+      <tr><th>model</th><th class="num">test loss</th><th class="num">with EMA</th></tr>
+      <tr><td>3 passes, run 1 / run 2 (same seed) / run 3 (other seed)</td><td class="num">1.1178 / 1.1176 / 1.1183</td><td class="num">1.1144 / 1.1142 / 1.1149</td></tr>
+      <tr><td>&frac14;, &frac12;, &frac34; of the way from run 1 to run 2</td><td class="num">1.1163, 1.1166, 1.1163</td><td class="num dim">&ndash;</td></tr>
+      <tr><td>run 1 and run 3, 50/50</td><td class="num">1.1140</td><td class="num dim">&ndash;</td></tr>
+      <tr><td>average of all three</td><td class="num">1.1139</td><td class="num best">1.1125</td></tr>
+      <tr><td>4 passes, two seeds &rarr; average (scored at 4 passes)</td><td class="num">1.1195, 1.1180 &rarr; 1.1147</td><td class="num">1.1161, 1.1146 &rarr; 1.1133</td></tr>
+      <tr><td>3-pass and 4-pass models, 50/50 (scored at 3 passes)</td><td class="num">1.1204</td><td class="num">1.1176</td></tr>
+    </table></div>
+    <p class="tabnote">EMA is a running average of the weights during training (power EMA, $\gamma = 36.7$), which mostly covers the last few percent of steps.</p>
+
+    <p>The loss never rises anywhere on the line between two runs. They sit in one basin, and the 15.5% distance between them is drift along flat directions. Averaging gains about as much as EMA, and the two only partly stack. Averaging a 3-pass model with a 4-pass model cancels their zigzags: the loss is 1.120&ndash;1.128 all the way out to eight passes.</p>
+
+    <h3>But the loop does not come apart</h3>
+    <div class="table-wrap"><table>
+      <tr><th>model</th><th class="num">test loss, 3 passes</th></tr>
+      <tr><td>base model (one pass)</td><td class="num">1.5515</td></tr>
+      <tr><td>base + (looped &minus; plain)</td><td class="num">9.54</td></tr>
+      <tr><td>base + (looped &minus; plain), block layers and gate only</td><td class="num">1.84</td></tr>
+      <tr><td>plain + the looped model&rsquo;s gate</td><td class="num">1.208 <span class="dim">(1.146 at one pass)</span></td></tr>
+      <tr><td>plain + &frac12;(looped &minus; plain)</td><td class="num">1.1384 <span class="dim">(flat to 8 passes)</span></td></tr>
+      <tr><td>plain + 1.5(looped &minus; plain)</td><td class="num">1.290</td></tr>
+      <tr><td>plain + (run 1 &minus; run 2)</td><td class="num">1.389</td></tr>
+      <tr><td>base + (run 1 &minus; run 2)</td><td class="num">5.51</td></tr>
+    </table></div>
+    <p class="tabnote">&ldquo;Plain&rdquo; is the run without looping; &ldquo;looped&rdquo; is 3-pass run 1; runs 1 and 2 are the same 3-pass setup with the same seed.</p>
+
+    <p>The difference between the looped and plain runs is not &ldquo;the ability to loop&rdquo;: adding it to the base model breaks the model. The gate on its own does nothing either. The ability to loop lives in the block&rsquo;s weights, trained together with everything else.</p>
+
+    <p>The last two rows show why this kind of transfer fails in general. Run 1 &minus; run 2 is harmless inside the looped basin, where moving between them is flat. Added to another model, the same vector costs 0.24 nats or destroys the model outright. A weight difference is only safe near where it was made.</p>
+
+    <p>This matters for transfer to post-trained models. Adding $v$ to a post-trained model computes $\theta_\text{loop} + (\theta_\text{post} - \theta_\text{base})$, and whether that works depends on how far post-training moved the weights. We don&rsquo;t know yet; that is what the checkpoints are for.</p>
+
+    <h2 id="checkpoints">Checkpoints</h2>
+
+    <p>All 17 models are in the <a href="https://huggingface.co/collections/CharlesDDDD/depth-recurrent-vector-6afb5dd4d36338a8677f35fa">Depth Recurrent Vector collection</a>. The <code>main</code> branch of each repo holds the final weights. Where listed, the <code>ema</code> branch holds the EMA weights. Losses are at each model&rsquo;s default depth.</p>
+
+    <div class="table-wrap"><table>
+      <tr><th>model</th><th>what it is</th><th class="num">main</th><th class="num">ema</th></tr>
+      <tr class="band"><td colspan="4">reference</td></tr>
+      <tr><td><a href="https://huggingface.co/CharlesDDDD/DRV-Qwen3-1.7B-midtrain-noloop">midtrain-noloop</a></td><td>Same data and recipe, no loop. The control.</td><td class="num">1.1460</td><td class="num">1.1426</td></tr>
+      <tr class="band"><td colspan="4">fixed depth</td></tr>
+      <tr><td><a href="https://huggingface.co/CharlesDDDD/DRV-Qwen3-1.7B-loop3-avg3">loop3-avg3</a></td><td><strong>Recommended.</strong> 3 passes; average of the three runs below.</td><td class="num">1.1139</td><td class="num best">1.1125</td></tr>
+      <tr><td><a href="https://huggingface.co/CharlesDDDD/DRV-Qwen3-1.7B-loop3-run1">loop3-run1</a></td><td>3 passes.</td><td class="num">1.1178</td><td class="num">1.1144</td></tr>
+      <tr><td><a href="https://huggingface.co/CharlesDDDD/DRV-Qwen3-1.7B-loop3-run2">loop3-run2</a></td><td>Exact repeat of run 1 (same seed).</td><td class="num">1.1176</td><td class="num">1.1142</td></tr>
+      <tr><td><a href="https://huggingface.co/CharlesDDDD/DRV-Qwen3-1.7B-loop3-run3">loop3-run3</a></td><td>Run 1 with another seed.</td><td class="num">1.1183</td><td class="num">1.1149</td></tr>
+      <tr><td><a href="https://huggingface.co/CharlesDDDD/DRV-Qwen3-1.7B-loop2">loop2</a></td><td>2 passes.</td><td class="num">1.1242</td><td class="num">1.1208</td></tr>
+      <tr><td><a href="https://huggingface.co/CharlesDDDD/DRV-Qwen3-1.7B-loop4-run1">loop4-run1</a></td><td>4 passes.</td><td class="num">1.1195</td><td class="num">1.1161</td></tr>
+      <tr><td><a href="https://huggingface.co/CharlesDDDD/DRV-Qwen3-1.7B-loop4-run2">loop4-run2</a></td><td>4 passes, another seed.</td><td class="num">1.1180</td><td class="num">1.1146</td></tr>
+      <tr><td><a href="https://huggingface.co/CharlesDDDD/DRV-Qwen3-1.7B-loop4-avg2">loop4-avg2</a></td><td>Average of the two 4-pass runs.</td><td class="num">1.1147</td><td class="num">1.1133</td></tr>
+      <tr><td><a href="https://huggingface.co/CharlesDDDD/DRV-Qwen3-1.7B-loop5">loop5</a></td><td>5 passes.</td><td class="num">1.1224</td><td class="num">1.1190</td></tr>
+      <tr class="band"><td colspan="4">choose the depth at test time</td></tr>
+      <tr><td><a href="https://huggingface.co/CharlesDDDD/DRV-Qwen3-1.7B-loop-random234">loop-random234</a></td><td>Trained with 2 / 3 / 4 passes at 20 / 60 / 20%.</td><td class="num">1.1223</td><td class="num">1.1191</td></tr>
+      <tr><td><a href="https://huggingface.co/CharlesDDDD/DRV-Qwen3-1.7B-loop-random234-uniform">loop-random234-uniform</a></td><td>Trained with 2 / 3 / 4 passes, equally likely.</td><td class="num">1.1241</td><td class="num">1.1206</td></tr>
+      <tr><td><a href="https://huggingface.co/CharlesDDDD/DRV-Qwen3-1.7B-loop3-then-random">loop3-then-random</a></td><td>3 passes for 80% of training, then random 2 / 3 / 4.</td><td class="num">1.1221</td><td class="num">1.1189</td></tr>
+      <tr><td><a href="https://huggingface.co/CharlesDDDD/DRV-Qwen3-1.7B-loop3-loop4-avg">loop3-loop4-avg</a></td><td>Average of a 3-pass and a 4-pass model; no zigzag.</td><td class="num">1.1204</td><td class="num">1.1176</td></tr>
+      <tr class="band"><td colspan="4">ablations</td></tr>
+      <tr><td><a href="https://huggingface.co/CharlesDDDD/DRV-Qwen3-1.7B-ablation-loop3-final-loss-only">ablation-loop3-final-loss-only</a></td><td>Anchored, no IS.</td><td class="num">1.1176</td><td class="num dim">&ndash;</td></tr>
+      <tr><td><a href="https://huggingface.co/CharlesDDDD/DRV-Qwen3-1.7B-ablation-loop3-chained">ablation-loop3-chained</a></td><td>Chained, with IS.</td><td class="num">1.1236</td><td class="num dim">&ndash;</td></tr>
+      <tr><td><a href="https://huggingface.co/CharlesDDDD/DRV-Qwen3-1.7B-ablation-loop3-chained-final-loss-only">ablation-loop3-chained-final-loss-only</a></td><td>Chained, no IS.</td><td class="num">1.1198</td><td class="num dim">&ndash;</td></tr>
+    </table></div>
+
+<pre><code>from transformers import AutoModelForCausalLM, AutoTokenizer
+
+name = "CharlesDDDD/DRV-Qwen3-1.7B-loop3-avg3"
+tok = AutoTokenizer.from_pretrained(name)
+model = AutoModelForCausalLM.from_pretrained(
+    name, revision="ema", dtype="bfloat16", trust_remote_code=True).cuda()
+ids = tok("The capital of France is", return_tensors="pt").input_ids.cuda()
+model.generate(ids, max_new_tokens=20)               # trained depth
+model.generate(ids, max_new_tokens=20, num_loops=6)  # any other depth</code></pre>
+
+    <p>Each pass keeps its own KV cache, so at three passes the cache is about 1.9&times; that of a plain Qwen3-1.7B. On our test text, the Hugging Face port matches our Megatron training code to within a few thousandths of a nat at every depth. vLLM does not support the architecture yet.</p>
+
+    <h2 id="missing">What&rsquo;s missing</h2>
+    <ul>
+      <li><strong>A compute-matched control:</strong> the plain model trained 1.84&times; as long. Until then, &ldquo;looping helps&rdquo; means per parameter and per token, not per unit of compute.</li>
+      <li><strong>Downstream tasks.</strong> Everything here is next-token loss.</li>
+      <li><strong>Breadth.</strong> One model size, one data mix, and one learning rate, tuned for the plain model.</li>
+      <li><strong>Transfer.</strong> Adding the vectors to a post-trained model has not been tested yet.</li>
+    </ul>
+
+  </div>
+</div>
+
+<footer><div class="container"><a href="../index.html">&larr; Back to Home</a></div></footer>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    renderMathInElement(document.body, {
+      delimiters: [{left: "$$", right: "$$", display: true}, {left: "$", right: "$", display: false}],
+      throwOnError: false
+    });
+  });
+</script>
+</body>
+</html>
